@@ -12,7 +12,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TYPE user_role AS ENUM ('brand', 'creator');
 CREATE TYPE campaign_status AS ENUM ('draft', 'open', 'in_progress', 'completed', 'cancelled');
-CREATE TYPE application_status AS ENUM ('pending', 'accepted', 'rejected', 'withdrawn');
+CREATE TYPE application_status AS ENUM ('pending', 'accepted', 'rejected', 'withdrawn', 'completed');
 CREATE TYPE deliverable_status AS ENUM ('pending', 'review', 'revision_requested', 'approved', 'rejected');
 CREATE TYPE rights_usage_type AS ENUM ('organic', 'paid_3m', 'paid_6m', 'paid_12m', 'perpetual');
 CREATE TYPE video_format AS ENUM ('9_16', '16_9', '1_1', '4_5');
@@ -191,12 +191,17 @@ CREATE POLICY "Brands can delete draft campaigns"
   ON campaigns FOR DELETE
   USING (auth.uid() = brand_id AND status = 'draft');
 
--- Creators can view open campaigns
-CREATE POLICY "Creators can view open campaigns"
+-- Creators can view open campaigns AND campaigns they applied to
+CREATE POLICY "Creators can view available campaigns"
   ON campaigns FOR SELECT
   USING (
-    status = 'open' AND 
-    EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'creator')
+    (status = 'open' AND EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'creator'))
+    OR
+    EXISTS (
+      SELECT 1 FROM applications
+      WHERE applications.campaign_id = campaigns.id
+      AND applications.creator_id = auth.uid()
+    )
   );
 
 -- ================================================

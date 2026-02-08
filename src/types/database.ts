@@ -5,11 +5,22 @@
 
 export type UserRole = 'brand' | 'creator'
 export type CampaignStatus = 'draft' | 'open' | 'in_progress' | 'completed' | 'cancelled'
-export type ApplicationStatus = 'pending' | 'accepted' | 'rejected' | 'withdrawn'
+export type ApplicationStatus = 'pending' | 'accepted' | 'rejected' | 'withdrawn' | 'completed'
 export type DeliverableStatus = 'pending' | 'review' | 'revision_requested' | 'approved' | 'rejected'
 export type RightsUsageType = 'organic' | 'paid_3m' | 'paid_6m' | 'paid_12m' | 'perpetual'
 export type VideoFormat = '9_16' | '16_9' | '1_1' | '4_5'
 export type ScriptType = 'testimonial' | 'unboxing' | 'asmr' | 'tutorial' | 'lifestyle' | 'review'
+export type NotificationType =
+    | 'new_application'
+    | 'message_received'
+    | 'deliverable_submitted'
+    | 'application_accepted'
+    | 'application_rejected'
+    | 'deliverable_approved'
+    | 'deliverable_revision'
+    | 'deliverable_rejected'
+
+export type ContractStatus = 'pending_creator' | 'active' | 'cancelled'
 
 export interface User {
     id: string
@@ -71,8 +82,6 @@ export interface Campaign {
     updated_at: string
 }
 
-export type ContractStatus = 'pending_creator' | 'active' | 'cancelled'
-
 export interface Application {
     id: string
     campaign_id: string
@@ -113,6 +122,41 @@ export interface Message {
     content: string
     is_read: boolean
     created_at: string
+}
+
+export interface Notification {
+    id: string
+    user_id: string
+    type: NotificationType
+    title: string
+    message: string | null
+    reference_id: string | null
+    reference_type: string | null
+    is_read: boolean
+    created_at: string
+}
+
+export interface Conversation {
+    id: string
+    campaign_id: string
+    creator_id: string
+    brand_id: string
+    last_message_at: string | null
+    created_at: string
+}
+
+export interface NotificationPreferences {
+    id: string
+    user_id: string
+    email_new_application: boolean
+    email_message_received: boolean
+    email_deliverable: boolean
+    email_application_status: boolean
+    push_new_mission: boolean
+    push_messages: boolean
+    push_payments: boolean
+    created_at: string
+    updated_at: string
 }
 
 // ================================================
@@ -157,6 +201,21 @@ export interface Database {
                 Insert: Omit<Message, 'id' | 'created_at' | 'is_read'>
                 Update: Partial<Pick<Message, 'is_read'>>
             }
+            notifications: {
+                Row: Notification
+                Insert: Omit<Notification, 'id' | 'created_at' | 'is_read'>
+                Update: Partial<Pick<Notification, 'is_read'>>
+            }
+            conversations: {
+                Row: Conversation
+                Insert: Omit<Conversation, 'id' | 'created_at'>
+                Update: Partial<Pick<Conversation, 'last_message_at'>>
+            }
+            notification_preferences: {
+                Row: NotificationPreferences
+                Insert: Omit<NotificationPreferences, 'id' | 'created_at' | 'updated_at'>
+                Update: Partial<Omit<NotificationPreferences, 'id' | 'user_id' | 'created_at'>>
+            }
         }
         Enums: {
             user_role: UserRole
@@ -166,6 +225,8 @@ export interface Database {
             rights_usage_type: RightsUsageType
             video_format: VideoFormat
             script_type: ScriptType
+            notification_type: NotificationType
+            contract_status: ContractStatus
         }
     }
 }

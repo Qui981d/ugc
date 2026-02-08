@@ -31,23 +31,24 @@ export async function applyToCampaign(
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { application: null, error: 'Not authenticated' }
 
-    // Get campaign info for brand_id and title
-    const { data: campaign } = await supabase
-        .from('campaigns')
-        .select('brand_id, title')
-        .eq('id', campaignId)
-        .single()
+    // Input validation
+    if (data.pitch_message && data.pitch_message.length > 2000) {
+        return { application: null, error: 'Le message de candidature est trop long (max 2000 caractères)' }
+    }
+    if (data.proposed_rate_chf !== undefined && (data.proposed_rate_chf < 0 || data.proposed_rate_chf > 1000000)) {
+        return { application: null, error: 'Le tarif proposé est invalide' }
+    }
 
+    // Get campaign info and creator name in parallel
+    const [campaignResult, creatorResult] = await Promise.all([
+        supabase.from('campaigns').select('brand_id, title').eq('id', campaignId).single(),
+        supabase.from('users').select('full_name').eq('id', user.id).single(),
+    ])
+
+    const campaign = campaignResult.data as { brand_id: string; title: string } | null
     if (!campaign) return { application: null, error: 'Campaign not found' }
 
-    // Get creator name for notification
-    const { data: creatorData } = await supabase
-        .from('users')
-        .select('full_name')
-        .eq('id', user.id)
-        .single()
-
-    const creatorName = (creatorData as any)?.full_name || 'Un créateur'
+    const creatorName = (creatorResult.data as { full_name: string } | null)?.full_name || 'Un créateur'
 
     const { data: application, error } = await (supabase
         .from('applications') as ReturnType<typeof supabase.from>)
@@ -67,28 +68,36 @@ export async function applyToCampaign(
         return { application: null, error: error.message }
     }
 
-    // Create conversation automatically
-    await (supabase
+    // Create conversation automatically (log errors instead of swallowing)
+    const { error: convError } = await (supabase
         .from('conversations') as ReturnType<typeof supabase.from>)
         .insert({
             campaign_id: campaignId,
             creator_id: user.id,
-            brand_id: (campaign as any).brand_id,
+            brand_id: campaign.brand_id,
         })
         .select()
         .single()
 
-    // Create notification for the brand
-    await (supabase
+    if (convError && convError.code !== '23505') {
+        console.error('[Applications] Error creating conversation:', convError)
+    }
+
+    // Create notification for the brand (log errors instead of swallowing)
+    const { error: notifError } = await (supabase
         .from('notifications') as ReturnType<typeof supabase.from>)
         .insert({
-            user_id: (campaign as any).brand_id,
+            user_id: campaign.brand_id,
             type: 'new_application',
             title: 'Nouvelle candidature',
-            message: `${creatorName} a postulé à "${(campaign as any).title}"`,
+            message: `${creatorName} a postulé à "${campaign.title}"`,
             reference_id: campaignId,
             reference_type: 'campaign',
         })
+
+    if (notifError) {
+        console.error('[Applications] Error creating notification:', notifError)
+    }
 
     return { application: application as Application }
 }
@@ -101,8 +110,6 @@ export async function getCampaignApplications(
     status?: ApplicationStatus
 ): Promise<ApplicationWithCreator[]> {
     const supabase = createClient()
-
-    console.log('[Applications] Fetching applications for campaign:', campaignId)
 
     const query = supabase
         .from('applications')
@@ -120,10 +127,8 @@ export async function getCampaignApplications(
         ? await query.eq('status', status)
         : await query
 
-    console.log('[Applications] Query result:', { data, error, count: data?.length })
-
     if (error || !data) {
-        console.error('[Applications] Error fetching applications:', error)
+        if (error) console.error('[Applications] Error fetching applications:', error)
         return []
     }
 

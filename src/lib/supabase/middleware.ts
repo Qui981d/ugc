@@ -49,9 +49,6 @@ export async function updateSession(request: NextRequest) {
 
     const user = session?.user ?? null
 
-    // Check for demo mode in session (set by DataModeContext)
-    const isDemoMode = request.cookies.get('ugc-demo-mode')?.value
-
     // Define public routes that don't require authentication
     const publicRoutes = [
         '/',
@@ -61,6 +58,7 @@ export async function updateSession(request: NextRequest) {
         '/marketplace',
         '/creators',
         '/campaigns',
+        '/aide',
     ]
 
     const isPublicRoute = publicRoutes.some(route =>
@@ -70,15 +68,8 @@ export async function updateSession(request: NextRequest) {
         request.nextUrl.pathname.startsWith('/campaigns/')
     )
 
-    // Allow access if:
-    // 1. It's a public route
-    // 2. User is authenticated
-    // 3. User is in demo mode (accessing /brand or /creator dashboards)
-    const isDashboardRoute = request.nextUrl.pathname.startsWith('/brand') ||
-        request.nextUrl.pathname.startsWith('/creator')
-
-    if (!user && !isPublicRoute && !isDemoMode) {
-        // No user, not public route, not demo mode - redirect to login
+    if (!user && !isPublicRoute) {
+        // No user and not a public route - redirect to login
         const url = request.nextUrl.clone()
         url.pathname = '/login'
         return NextResponse.redirect(url)

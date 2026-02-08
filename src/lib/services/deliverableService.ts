@@ -205,11 +205,15 @@ export async function updateDeliverableStatus(
 
         if (deliv) {
             // 1. Mark application as completed
-            await (supabase as any)
+            const { error: appError } = await (supabase as any)
                 .from('applications')
                 .update({ status: 'completed' })
                 .eq('campaign_id', deliv.campaign_id)
                 .eq('creator_id', deliv.creator_id)
+
+            if (appError) {
+                console.error('[Deliverables] Error marking application as completed:', appError)
+            }
 
             // 2. Check if ALL accepted applications for this campaign are now completed
             const { data: pendingApps } = await (supabase as any)
@@ -220,10 +224,14 @@ export async function updateDeliverableStatus(
 
             // If no more pending accepted applications, mark campaign as completed
             if (!pendingApps || pendingApps.length === 0) {
-                await (supabase as any)
+                const { error: campError } = await (supabase as any)
                     .from('campaigns')
                     .update({ status: 'completed' })
                     .eq('id', deliv.campaign_id)
+
+                if (campError) {
+                    console.error('[Deliverables] Error marking campaign as completed:', campError)
+                }
             }
         }
     }

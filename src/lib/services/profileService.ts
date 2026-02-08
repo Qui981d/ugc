@@ -42,7 +42,6 @@ async function getCurrentUserInternal(): Promise<FullProfile | null> {
     const supabase = createClient()
 
     try {
-        console.log('[Profile] Getting auth user...')
         const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
 
         if (authError) {
@@ -51,14 +50,10 @@ async function getCurrentUserInternal(): Promise<FullProfile | null> {
         }
 
         if (!authUser) {
-            console.log('[Profile] No auth user found')
             return null
         }
 
-        console.log('[Profile] Auth user found:', authUser.id)
-
         // Fetch user data AND both profile types in parallel for speed
-        console.log('[Profile] Fetching user and profiles in parallel...')
         const [userResult, brandResult, creatorResult] = await Promise.all([
             supabase.from('users').select('*').eq('id', authUser.id).single(),
             supabase.from('profiles_brand').select('*').eq('user_id', authUser.id).single(),
@@ -71,16 +66,13 @@ async function getCurrentUserInternal(): Promise<FullProfile | null> {
         }
 
         const user = (userResult as any).data as unknown as User
-        console.log('[Profile] User data found:', user.email, user.role)
 
         // Return the appropriate profile based on role
         if (user.role === 'brand') {
             const brandProfile = (brandResult as any).data as unknown as ProfileBrand | null
-            console.log('[Profile] Brand profile:', brandProfile ? 'found' : 'not found')
             return { user, brandProfile: brandProfile || undefined }
         } else {
             const creatorProfile = (creatorResult as any).data as unknown as ProfileCreator | null
-            console.log('[Profile] Creator profile:', creatorProfile ? 'found' : 'not found')
             return { user, creatorProfile: creatorProfile || undefined }
         }
     } catch (err) {
