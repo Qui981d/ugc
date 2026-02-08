@@ -224,7 +224,7 @@ export function Navbar() {
                             )}
                         </div>
                     ) : (
-                        <div className="flex items-center gap-2">
+                        <div className="hidden md:flex items-center gap-2">
                             <Link
                                 href="/login"
                                 className="px-4 py-2 text-sm text-white/70 hover:text-white transition-colors"
