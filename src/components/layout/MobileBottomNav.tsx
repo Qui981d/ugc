@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -52,6 +52,7 @@ export function MobileBottomNav() {
     const pathname = usePathname()
     const { user } = useAuth()
     const [moreOpen, setMoreOpen] = useState(false)
+    const [mounted, setMounted] = useState(false)
 
     let unreadCounts = { total: 0, messages: 0, applications: 0, deliverables: 0 }
     try {
@@ -61,8 +62,12 @@ export function MobileBottomNav() {
         // Not in notification context
     }
 
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+
     const role = user?.role
-    if (!role) return null
+    if (!mounted || !role) return null
 
     const isBrand = role === 'brand'
 

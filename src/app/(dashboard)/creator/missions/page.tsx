@@ -17,7 +17,8 @@ import {
     Loader2,
     RotateCcw,
     XCircle,
-    FileVideo
+    FileVideo,
+    FileText
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -25,6 +26,8 @@ import { useRouter } from 'next/navigation'
 import { formatCHF } from "@/lib/validations/swiss"
 import { useAuth } from "@/contexts/AuthContext"
 import { createClient } from "@/lib/supabase/client"
+import { getContractText, signContractAsCreator } from '@/lib/services/contractService'
+import ContractViewer from '@/components/contracts/ContractViewer'
 import MissionDetailModal from '@/components/missions/MissionDetailModal'
 
 // Type pour les missions (applications acceptées + deliverable status)
@@ -43,6 +46,9 @@ interface Mission {
     }
     status: string
     created_at: string
+    // Contract info
+    contract_status: string | null
+    contract_url: string | null
     // Deliverable info
     deliverable_status: 'none' | 'review' | 'revision_requested' | 'approved' | 'rejected'
     deliverable_revision_notes: string | null
@@ -82,6 +88,12 @@ export default function CreatorMissionsPage() {
     const [selectedMission, setSelectedMission] = useState<Mission | null>(null)
     const router = useRouter()
 
+    // Contract viewer state
+    const [viewerOpen, setViewerOpen] = useState(false)
+    const [viewerMission, setViewerMission] = useState<Mission | null>(null)
+    const [viewerText, setViewerText] = useState<string | null>(null)
+    const [signLoading, setSignLoading] = useState(false)
+
     useEffect(() => { setMounted(true) }, [])
 
     const userId = user?.id
@@ -96,7 +108,7 @@ export default function CreatorMissionsPage() {
             // Fetch accepted applications
             const { data: acceptedData, error: acceptedError } = await (supabase as any)
                 .from('applications')
-                .select('id, status, created_at, campaign_id')
+                .select('id, status, created_at, campaign_id, contract_status, contract_url')
                 .eq('creator_id', userId!)
                 .eq('status', 'accepted')
                 .order('created_at', { ascending: false })
@@ -104,7 +116,7 @@ export default function CreatorMissionsPage() {
             // Also try to fetch completed applications (may fail if enum value doesn't exist yet)
             const { data: completedData } = await (supabase as any)
                 .from('applications')
-                .select('id, status, created_at, campaign_id')
+                .select('id, status, created_at, campaign_id, contract_status, contract_url')
                 .eq('creator_id', userId!)
                 .eq('status', 'completed')
                 .order('created_at', { ascending: false })
@@ -164,6 +176,8 @@ export default function CreatorMissionsPage() {
                     },
                     status: app.status,
                     created_at: app.created_at,
+                    contract_status: app.contract_status || null,
+                    contract_url: app.contract_url || null,
                     deliverable_status: latestDeliverable?.status || 'none',
                     deliverable_revision_notes: latestDeliverable?.revision_notes || null,
                 })
@@ -175,6 +189,44 @@ export default function CreatorMissionsPage() {
 
         fetchMissions()
     }, [userId])
+
+    // Contract viewing
+    const handleViewContract = async (mission: Mission) => {
+        setViewerMission(mission)
+        setViewerText(null)
+        setViewerOpen(true)
+        const text = await getContractText(mission.id)
+        setViewerText(text)
+    }
+
+    // Creator signs contract
+    const handleSignContract = async () => {
+        if (!viewerMission) return
+        setSignLoading(true)
+
+        let clientIp = 'unknown'
+        try {
+            const res = await fetch('https://api.ipify.org?format=json')
+            const data = await res.json()
+            clientIp = data.ip
+        } catch { /* fallback */ }
+
+        const result = await signContractAsCreator(viewerMission.id, clientIp)
+        if (result.success) {
+            setMissions(prev =>
+                prev.map(m =>
+                    m.id === viewerMission.id
+                        ? { ...m, contract_status: 'active' }
+                        : m
+                )
+            )
+            setViewerOpen(false)
+            setViewerMission(null)
+        } else {
+            alert('Erreur: ' + result.error)
+        }
+        setSignLoading(false)
+    }
 
     const tabs = [
         { id: 'active', label: 'En cours', count: missions.filter(m => m.status === 'accepted').length },
@@ -452,6 +504,21 @@ export default function CreatorMissionsPage() {
                                                         )}
                                                     </Button>
                                                 )}
+                                                {/* Contract button */}
+                                                {mission.contract_status && (
+                                                    <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        className={mission.contract_status === 'pending_creator'
+                                                            ? 'bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
+                                                            : 'text-accent hover:text-accent hover:bg-accent/10'
+                                                        }
+                                                        onClick={() => handleViewContract(mission)}
+                                                    >
+                                                        <FileText className="w-4 h-4 mr-1" />
+                                                        {mission.contract_status === 'pending_creator' ? 'Signer le contrat' : 'Contrat'}
+                                                    </Button>
+                                                )}
                                                 {mission.status === 'completed' && (
                                                     <Button
                                                         size="sm"
@@ -491,6 +558,24 @@ export default function CreatorMissionsPage() {
                 applicationStatus={selectedMission?.status || 'pending'}
                 userRole="creator"
             />
+
+            {/* Contract Viewer — creator signing */}
+            {viewerMission && (
+                <ContractViewer
+                    isOpen={viewerOpen}
+                    onClose={() => {
+                        setViewerOpen(false)
+                        setViewerMission(null)
+                        setViewerText(null)
+                    }}
+                    contractText={viewerText}
+                    contractStatus={viewerMission.contract_status as any}
+                    contractUrl={viewerMission.contract_url}
+                    mode="creator"
+                    onSign={handleSignContract}
+                    isSignLoading={signLoading}
+                />
+            )}
         </div>
     )
 }

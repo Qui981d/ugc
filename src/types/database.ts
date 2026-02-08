@@ -30,6 +30,7 @@ export interface ProfileBrand {
     industry: string | null
     description: string | null
     logo_url: string | null
+    address: string | null
     created_at: string
     updated_at: string
 }
@@ -46,6 +47,7 @@ export interface ProfileCreator {
     rating_count: number
     hourly_rate_chf: number | null
     is_available: boolean
+    address: string | null
     created_at: string
     updated_at: string
 }
@@ -69,6 +71,8 @@ export interface Campaign {
     updated_at: string
 }
 
+export type ContractStatus = 'pending_creator' | 'active' | 'cancelled'
+
 export interface Application {
     id: string
     campaign_id: string
@@ -76,6 +80,13 @@ export interface Application {
     pitch_message: string | null
     proposed_rate_chf: number | null
     status: ApplicationStatus
+    contract_status: ContractStatus | null
+    contract_url: string | null
+    contract_generated_at: string | null
+    brand_signed_at: string | null
+    creator_signed_at: string | null
+    brand_sign_ip: string | null
+    creator_sign_ip: string | null
     created_at: string
     updated_at: string
 }
