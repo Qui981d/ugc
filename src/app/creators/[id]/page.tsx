@@ -168,11 +168,11 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
     }
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background overflow-x-hidden">
             <Navbar />
 
             {/* Back Button */}
-            <div className="pt-24 px-6">
+            <div className="pt-24 px-4 md:px-6">
                 <div className="max-w-6xl mx-auto">
                     <button
                         onClick={() => window.history.back()}
@@ -185,7 +185,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
             </div>
 
             {/* Profile Header */}
-            <section className="py-12 px-6">
+            <section className="py-8 md:py-12 px-4 md:px-6">
                 <div className="max-w-6xl mx-auto">
                     <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
                         {/* Profile Image */}
@@ -225,7 +225,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                                 <CheckCircle2 className="w-6 h-6 text-accent" />
                             </div>
 
-                            <div className="flex items-center gap-4 text-white/60 mb-4">
+                            <div className="flex flex-wrap items-center gap-3 md:gap-4 text-sm md:text-base text-white/60 mb-4">
                                 <span className="flex items-center gap-1">
                                     <MapPin className="w-4 h-4" />
                                     {creator.location}
@@ -265,7 +265,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                             </div>
 
                             {/* Action Buttons */}
-                            <div className="flex gap-4">
+                            <div className="flex flex-wrap gap-3 md:gap-4">
                                 <Button
                                     className="btn-primary flex-1 lg:flex-none"
                                     onClick={handleContactClick}
@@ -294,7 +294,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
             </section>
 
             {/* Portfolio Section */}
-            <section className="py-12 px-6 border-t border-white/5">
+            <section className="py-8 md:py-12 px-4 md:px-6 border-t border-white/5">
                 <div className="max-w-6xl mx-auto">
                     <h2 className="text-2xl font-bold text-white mb-8">Portfolio</h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -330,7 +330,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
             </section>
 
             {/* Reviews Section */}
-            <section className="py-12 px-6 border-t border-white/5">
+            <section className="py-8 md:py-12 px-4 md:px-6 border-t border-white/5">
                 <div className="max-w-6xl mx-auto">
                     <h2 className="text-2xl font-bold text-white mb-8">
                         Avis clients ({creator.reviewCount})

@@ -157,37 +157,37 @@ export default function BrandCampaignsPage() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-5"
+                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-3 md:p-5"
                 >
                     <p className="text-sm text-white/50 mb-1">Total campagnes</p>
-                    <p className="text-3xl font-bold text-white">{campaigns.length}</p>
+                    <p className="text-2xl md:text-3xl font-bold text-white">{campaigns.length}</p>
                 </motion.div>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.05 }}
-                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-5"
+                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-3 md:p-5"
                 >
                     <p className="text-sm text-white/50 mb-1">Actives</p>
-                    <p className="text-3xl font-bold text-emerald-400">{campaigns.filter(c => c.status === 'open').length}</p>
+                    <p className="text-2xl md:text-3xl font-bold text-emerald-400">{campaigns.filter(c => c.status === 'open').length}</p>
                 </motion.div>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-5"
+                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-3 md:p-5"
                 >
                     <p className="text-sm text-white/50 mb-1">Terminées</p>
-                    <p className="text-3xl font-bold text-white">{campaigns.filter(c => c.status === 'completed').length}</p>
+                    <p className="text-2xl md:text-3xl font-bold text-white">{campaigns.filter(c => c.status === 'completed').length}</p>
                 </motion.div>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.15 }}
-                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-5"
+                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-3 md:p-5"
                 >
                     <p className="text-sm text-white/50 mb-1">Budget total</p>
-                    <p className="text-3xl font-bold text-white">{formatCHF(totalBudget)}</p>
+                    <p className="text-2xl md:text-3xl font-bold text-white">{formatCHF(totalBudget)}</p>
                 </motion.div>
             </div>
 
@@ -244,7 +244,7 @@ export default function BrandCampaignsPage() {
                                     transition={{ delay: index * 0.05 }}
                                     className="group"
                                 >
-                                    <div className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] hover:border-white/25 rounded-2xl p-6 transition-all duration-300">
+                                    <div className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] hover:border-white/25 rounded-2xl p-4 md:p-6 transition-all duration-300">
                                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-3 mb-2">
@@ -281,7 +281,7 @@ export default function BrandCampaignsPage() {
                                                 <span className="text-xl font-bold text-white">
                                                     {formatCHF(campaign.budget_chf)}
                                                 </span>
-                                                <div className="flex gap-2">
+                                                <div className="flex flex-wrap gap-2">
                                                     {/* Livrables button — shows if any accepted creators exist */}
                                                     {campaignApps[campaign.id]?.length > 0 && (
                                                         <Button

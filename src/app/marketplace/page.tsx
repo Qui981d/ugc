@@ -331,13 +331,13 @@ function MarketplaceContent() {
             </section>
 
             {/* Main Tabs */}
-            <section className="px-6 pb-8">
+            <section className="px-4 md:px-6 pb-8">
                 <div className="max-w-6xl mx-auto">
                     <div className="flex justify-center">
                         <div className="inline-flex p-1 bg-white/5 rounded-full border border-white/10">
                             <button
                                 onClick={() => setActiveTab('creators')}
-                                className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 ${activeTab === 'creators'
+                                className={`flex items-center gap-2 px-4 md:px-6 py-3 rounded-full font-medium transition-all duration-300 ${activeTab === 'creators'
                                     ? 'bg-accent text-white shadow-lg shadow-accent/25'
                                     : 'text-white/60 hover:text-white'
                                     }`}
@@ -350,7 +350,7 @@ function MarketplaceContent() {
                             </button>
                             <button
                                 onClick={() => setActiveTab('campaigns')}
-                                className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 ${activeTab === 'campaigns'
+                                className={`flex items-center gap-2 px-4 md:px-6 py-3 rounded-full font-medium transition-all duration-300 ${activeTab === 'campaigns'
                                     ? 'bg-accent text-white shadow-lg shadow-accent/25'
                                     : 'text-white/60 hover:text-white'
                                     }`}
