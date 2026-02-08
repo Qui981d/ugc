@@ -117,7 +117,7 @@ export default function CreatorDashboardPage() {
                         Voici un aperçu de votre activité
                     </p>
                 </div>
-                <Link href="/creator/marketplace">
+                <Link href="/marketplace">
                     <Button className="btn-primary w-full sm:w-auto">
                         <Search className="h-4 w-4 mr-2" />
                         Explorer les campagnes
@@ -174,7 +174,7 @@ export default function CreatorDashboardPage() {
                                 <Clock className="w-12 h-12 mx-auto mb-4 opacity-50" />
                                 <p>Aucune mission pour le moment</p>
                                 <p className="text-sm mt-2">Explorez les campagnes disponibles</p>
-                                <Link href="/creator/marketplace">
+                                <Link href="/marketplace">
                                     <Button className="btn-primary mt-4">
                                         <Search className="w-4 h-4 mr-2" />
                                         Explorer
@@ -235,7 +235,7 @@ export default function CreatorDashboardPage() {
                             </CardContent>
                         </Card>
                     </Link>
-                    <Link href="/creator/marketplace">
+                    <Link href="/marketplace">
                         <Card className="bg-white/[0.08] border-white/[0.10] backdrop-blur-xl hover:bg-white/[0.12] transition-colors cursor-pointer group">
                             <CardContent className="pt-6 flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">

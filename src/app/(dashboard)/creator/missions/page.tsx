@@ -212,7 +212,7 @@ export default function CreatorMissionsPage() {
                     <h1 className="text-2xl md:text-3xl font-bold text-white">Mes Missions</h1>
                     <p className="text-white/60 mt-1">Gérez vos collaborations en cours</p>
                 </div>
-                <Link href="/creator/marketplace">
+                <Link href="/marketplace">
                     <Button className="btn-primary w-full sm:w-auto">
                         <Briefcase className="h-4 w-4 mr-2" />
                         Trouver des missions
@@ -297,7 +297,7 @@ export default function CreatorMissionsPage() {
                             <Briefcase className="w-12 h-12 mx-auto mb-4 opacity-50" />
                             <p>{activeTab === 'active' ? 'Aucune mission en cours' : 'Aucune mission terminée'}</p>
                             {activeTab === 'active' && (
-                                <Link href="/creator/marketplace">
+                                <Link href="/marketplace">
                                     <Button className="btn-primary mt-4">
                                         Explorer les campagnes
                                     </Button>

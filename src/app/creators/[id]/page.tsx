@@ -1,6 +1,7 @@
 'use client'
 
 import { use, useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -11,6 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { AuthGateModal } from '@/components/auth/AuthGateModal'
 import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase/client'
+import { startConversation } from '@/lib/services/messageService'
 import {
     Star,
     MapPin,
@@ -74,11 +76,12 @@ const DEFAULT_CREATOR: CreatorData = {
 export default function CreatorProfilePage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params)
     const pathname = usePathname()
+    const router = useRouter()
     const [creator, setCreator] = useState<CreatorData | null>(null)
     const [isLoading, setIsLoading] = useState(true)
-    const [showContactModal, setShowContactModal] = useState(false)
     const [showAuthGate, setShowAuthGate] = useState(false)
     const [isSaved, setIsSaved] = useState(false)
+    const [isContacting, setIsContacting] = useState(false)
     const { isAuthenticated } = useAuth()
 
     // Fetch real creator data
@@ -125,7 +128,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                 specialties: (creatorProfile as any)?.specialties || [],
                 imageUrl: (userData as any).avatar_url || DEFAULT_CREATOR.imageUrl,
                 responseTime: '24 heures',
-                bio: (creatorProfile as any)?.bio || 'Créateur de contenu UGC passionné.',
+                bio: (creatorProfile as any)?.bio || '',
                 languages: (creatorProfile as any)?.languages || ['Français'],
                 completedMissions: missionsCount || 0,
                 memberSince: new Date((userData as any).created_at).toLocaleDateString('fr-CH', { month: 'long', year: 'numeric' }),
@@ -151,11 +154,24 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
         loadCreator()
     }, [id])
 
-    const handleContactClick = () => {
-        if (isAuthenticated) {
-            setShowContactModal(true)
-        } else {
+    const handleContactClick = async () => {
+        if (!isAuthenticated) {
             setShowAuthGate(true)
+            return
+        }
+        setIsContacting(true)
+        try {
+            const result = await startConversation(id)
+            if (result.campaignId) {
+                router.push(`/creator/messages?campaign=${result.campaignId}`)
+            } else {
+                // No existing campaign link, redirect to messages page
+                router.push('/creator/messages')
+            }
+        } catch {
+            router.push('/creator/messages')
+        } finally {
+            setIsContacting(false)
         }
     }
 
@@ -250,9 +266,11 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                             </div>
 
                             {/* Bio */}
-                            <p className="text-white/70 mb-6 leading-relaxed">
-                                {creator.bio}
-                            </p>
+                            {creator.bio && (
+                                <p className="text-white/70 mb-6 leading-relaxed">
+                                    {creator.bio}
+                                </p>
+                            )}
 
                             {/* Quick Stats */}
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -269,9 +287,10 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                                 <Button
                                     className="btn-primary flex-1 lg:flex-none"
                                     onClick={handleContactClick}
+                                    disabled={isContacting}
                                 >
                                     <MessageCircle className="w-4 h-4 mr-2" />
-                                    Contacter
+                                    {isContacting ? 'Redirection...' : 'Contacter'}
                                 </Button>
                                 <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
                                     <Instagram className="w-4 h-4 mr-2" />
@@ -368,74 +387,6 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                     </div>
                 </div>
             </section>
-
-            {/* Contact Modal */}
-            {showContactModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="bg-[#1A1A1A] border border-white/10 rounded-2xl p-6 w-full max-w-lg"
-                    >
-                        <h3 className="text-xl font-bold text-white mb-2">
-                            Contacter {creator.name}
-                        </h3>
-                        <p className="text-white/60 text-sm mb-6">
-                            Décrivez votre projet et vos attentes. {creator.name} vous répondra dans les {creator.responseTime}.
-                        </p>
-
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm text-white/80 mb-2">Sujet</label>
-                                <input
-                                    type="text"
-                                    placeholder="Ex: Collaboration pour campagne beauté"
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-accent/50"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm text-white/80 mb-2">Message</label>
-                                <textarea
-                                    rows={4}
-                                    placeholder="Décrivez votre projet, le type de contenu souhaité, le budget estimé..."
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-accent/50 resize-none"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm text-white/80 mb-2">Budget estimé (CHF)</label>
-                                <input
-                                    type="text"
-                                    placeholder="Ex: 500 - 1'000"
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-accent/50"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex gap-3 mt-6">
-                            <Button
-                                variant="outline"
-                                className="flex-1 border-white/20 text-white hover:bg-white/10"
-                                onClick={() => setShowContactModal(false)}
-                            >
-                                Annuler
-                            </Button>
-                            <Button
-                                className="flex-1 btn-primary"
-                                onClick={() => {
-                                    setShowContactModal(false)
-                                    // Would send message in real implementation
-                                }}
-                            >
-                                Envoyer
-                            </Button>
-                        </div>
-
-                        <p className="text-xs text-white/40 text-center mt-4">
-                            Mode démo - les messages ne sont pas réellement envoyés
-                        </p>
-                    </motion.div>
-                </div>
-            )}
 
             {/* Sticky CTA (mobile) */}
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-xl border-t border-white/5 lg:hidden">
