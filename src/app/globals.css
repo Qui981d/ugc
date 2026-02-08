@@ -1,26 +1,408 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
+
+/* ================================================
+   UGC SUISSE - Premium Dark Theme
+   Cinematic & Swiss Design System
+   ================================================ */
 
 @theme inline {
+  /* Core Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  /* Typography - Using system fonts, will load Satoshi via Google Fonts */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Sidebar */
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+
+  /* Charts */
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+
+  /* UI */
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* Brand Accent - Coral/Salmon */
+  --color-brand: #FF6B6B;
+  --color-brand-hover: #FF5252;
+
+  /* Border Radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ================================================
+   Dark Mode (Default) - Cinematic Premium
+   ================================================ */
+:root {
+  --radius: 0.75rem;
+
+  /* Backgrounds */
+  --background: #0A0A0A;
+  --background-elevated: #141414;
+  --background-subtle: #1A1A1A;
+
+  /* Foreground */
+  --foreground: #FAFAFA;
+  --foreground-muted: #A1A1A1;
+
+  /* Cards */
+  --card: #141414;
+  --card-foreground: #FAFAFA;
+
+  /* Popovers */
+  --popover: #1A1A1A;
+  --popover-foreground: #FAFAFA;
+
+  /* Primary - White on dark */
+  --primary: #FAFAFA;
+  --primary-foreground: #0A0A0A;
+
+  /* Secondary */
+  --secondary: #262626;
+  --secondary-foreground: #FAFAFA;
+
+  /* Muted */
+  --muted: #262626;
+  --muted-foreground: #737373;
+
+  /* Accent - Coral */
+  --accent: #FF6B6B;
+  --accent-foreground: #FFFFFF;
+
+  /* Destructive */
+  --destructive: #EF4444;
+
+  /* Borders */
+  --border: #262626;
+  --input: #262626;
+  --ring: #FF6B6B;
+
+  /* Charts */
+  --chart-1: #FF6B6B;
+  --chart-2: #4ECDC4;
+  --chart-3: #45B7D1;
+  --chart-4: #96CEB4;
+  --chart-5: #FFEAA7;
+
+  /* Sidebar */
+  --sidebar: #0A0A0A;
+  --sidebar-foreground: #FAFAFA;
+  --sidebar-primary: #FAFAFA;
+  --sidebar-primary-foreground: #0A0A0A;
+  --sidebar-accent: #1A1A1A;
+  --sidebar-accent-foreground: #FAFAFA;
+  --sidebar-border: #262626;
+  --sidebar-ring: #FF6B6B;
+}
+
+/* Light mode override if needed */
+.light {
+  --background: #FAFAFA;
+  --foreground: #0A0A0A;
+  --card: #FFFFFF;
+  --card-foreground: #0A0A0A;
+}
+
+/* ================================================
+   Base Styles
+   ================================================ */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Premium Typography Scale */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  h1 {
+    @apply text-5xl md:text-6xl lg:text-7xl leading-[1.1];
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl;
+  }
+
+  /* Selection color */
+  ::selection {
+    @apply bg-accent/30 text-foreground;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ================================================
+   Premium Components
+   ================================================ */
+@layer components {
+
+  /* Primary CTA Button - Premium Gradient with Glow */
+  .btn-primary {
+    @apply relative font-semibold px-6 py-3 rounded-full;
+    @apply transition-all duration-300 ease-out;
+    @apply focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-background;
+    @apply active:scale-[0.97];
+    background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%) !important;
+    box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+    color: #1a1a1a !important;
+  }
+
+  .btn-primary:hover,
+  .btn-primary:focus,
+  .btn-primary:active {
+    background: linear-gradient(135deg, #FF8E53 0%, #FF6B6B 100%) !important;
+    box-shadow: 0 6px 30px rgba(255, 107, 107, 0.6);
+    transform: translateY(-2px);
+    color: #1a1a1a !important;
+  }
+
+  .btn-primary span,
+  .btn-primary svg,
+  .btn-primary:hover span,
+  .btn-primary:hover svg {
+    color: #1a1a1a !important;
+  }
+
+  /* Secondary Button - Elegant Border with Subtle Fill */
+  .btn-secondary {
+    @apply relative text-white font-semibold px-6 py-3 rounded-full overflow-hidden;
+    @apply transition-all duration-300 ease-out;
+    @apply border border-white/20;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+  }
+
+  /* Glass Card */
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl;
+  }
+
+  /* Floating Navigation */
+  .nav-floating {
+    @apply fixed top-4 left-1/2 -translate-x-1/2 z-50;
+    @apply bg-black/60 backdrop-blur-xl border border-white/10 rounded-full;
+    @apply px-6 py-3;
+  }
+
+  /* Creator Card */
+  .creator-card {
+    @apply relative overflow-hidden rounded-2xl bg-[#141414];
+    @apply transition-all duration-500 ease-out;
+    @apply hover:scale-[1.02];
+  }
+
+  .creator-card::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent;
+    @apply z-10 pointer-events-none opacity-0;
+    @apply transition-opacity duration-300;
+  }
+
+  .creator-card:hover::before {
+    @apply opacity-100;
+  }
+
+  /* Tag/Badge */
+  .tag {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+    @apply bg-white/10 text-white/80;
+  }
+
+  .tag-accent {
+    @apply bg-accent/20 text-accent;
+  }
+
+  /* Gradient Text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-white via-white/90 to-white/70 bg-clip-text text-transparent;
+  }
+}
+
+/* ================================================
+   Animations
+   ================================================ */
+@layer utilities {
+
+  /* Fade in up animation */
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Stagger children */
+  .stagger-children>* {
+    animation: fadeInUp 0.5s ease-out forwards;
+    opacity: 0;
+  }
+
+  .stagger-children>*:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+
+  .stagger-children>*:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .stagger-children>*:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+
+  .stagger-children>*:nth-child(4) {
+    animation-delay: 0.4s;
+  }
+
+  .stagger-children>*:nth-child(5) {
+    animation-delay: 0.5s;
+  }
+
+  .stagger-children>*:nth-child(6) {
+    animation-delay: 0.6s;
+  }
+
+  /* Shimmer effect for loading */
+  .shimmer {
+    @apply relative overflow-hidden;
+  }
+
+  .shimmer::after {
+    content: '';
+    @apply absolute inset-0;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.08) 50%,
+        transparent 100%);
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Glow effect */
+  .glow {
+    box-shadow: 0 0 40px rgba(255, 107, 107, 0.3);
+  }
+
+  /* Video overlay gradient */
+  .video-overlay {
+    @apply absolute inset-0;
+    background: linear-gradient(to bottom,
+        transparent 0%,
+        transparent 40%,
+        rgba(0, 0, 0, 0.8) 100%);
+  }
+}
+
+/* ================================================
+   Masonry Grid
+   ================================================ */
+.masonry-grid {
+  column-count: 2;
+  column-gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .masonry-grid {
+    column-count: 3;
+    column-gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .masonry-grid {
+    column-count: 4;
+    column-gap: 1.5rem;
+  }
+}
+
+.masonry-grid>* {
+  break-inside: avoid;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .masonry-grid>* {
+    margin-bottom: 1.5rem;
+  }
 }

@@ -1,0 +1,465 @@
+// Demo data for showcasing the platform
+// Used when user accesses demo mode from login page
+
+import type { User, Campaign, Application, Message, ProfileBrand, ProfileCreator, ScriptType } from '@/types/database'
+
+// ============ DEMO USERS ============
+
+export const DEMO_BRAND_USER: User = {
+    id: 'demo-brand-001',
+    email: 'demo@marque.ch',
+    full_name: 'Swiss Beauty SA',
+    role: 'brand',
+    avatar_url: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=200&h=200&fit=crop',
+    created_at: '2024-01-15T10:00:00Z',
+    updated_at: '2024-02-01T14:30:00Z',
+}
+
+export const DEMO_BRAND_PROFILE: ProfileBrand = {
+    id: 'demo-brand-profile-001',
+    user_id: 'demo-brand-001',
+    company_name: 'Swiss Beauty SA',
+    uid_number: 'CHE-123.456.789',
+    website: 'https://swissbeauty.ch',
+    industry: 'Cosmétiques',
+    description: 'Marque suisse de cosmétiques naturels, fondée à Genève.',
+    logo_url: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=200&h=200&fit=crop',
+    created_at: '2024-01-15T10:00:00Z',
+    updated_at: '2024-02-01T14:30:00Z',
+}
+
+export const DEMO_CREATOR_USER: User = {
+    id: 'demo-creator-001',
+    email: 'demo@createur.ch',
+    full_name: 'Marie Dubois',
+    role: 'creator',
+    avatar_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop',
+    created_at: '2024-02-01T09:00:00Z',
+    updated_at: '2024-02-05T16:45:00Z',
+}
+
+export const DEMO_CREATOR_PROFILE: ProfileCreator = {
+    id: 'demo-creator-profile-001',
+    user_id: 'demo-creator-001',
+    bio: 'Créatrice UGC passionnée par la beauté et le lifestyle. 5 ans d\'expérience en création de contenu authentique.',
+    location_canton: 'GE',
+    languages: ['fr', 'en', 'de'],
+    specialties: ['testimonial', 'lifestyle', 'review'] as ScriptType[],
+    portfolio_video_urls: ['https://tiktok.com/@mariedubois', 'https://instagram.com/mariedubois'],
+    hourly_rate_chf: 350,
+    rating_avg: 4.9,
+    rating_count: 42,
+    is_available: true,
+    created_at: '2024-02-01T09:00:00Z',
+    updated_at: '2024-02-05T16:45:00Z',
+}
+
+// ============ DEMO CAMPAIGNS (for Brand) ============
+
+export const DEMO_BRAND_CAMPAIGNS: Campaign[] = [
+    {
+        id: 'demo-campaign-001',
+        brand_id: 'demo-brand-001',
+        title: 'Lancement Sérum Vitamine C',
+        description: 'Nous recherchons des créateurs pour présenter notre nouveau sérum à la vitamine C. Contenu authentique et naturel.',
+        product_name: 'Sérum Vitamine C Radiance',
+        product_description: 'Sérum concentré à 15% de vitamine C pure, formule suisse.',
+        product_requires_shipping: true,
+        format: '9_16',
+        script_type: 'testimonial',
+        script_notes: 'Montrer l\'application du produit, parler des résultats après 2 semaines.',
+        rights_usage: 'paid_3m',
+        budget_chf: 450,
+        deadline: '2024-03-15',
+        status: 'open',
+        created_at: '2024-02-01T10:00:00Z',
+        updated_at: '2024-02-01T10:00:00Z',
+    },
+    {
+        id: 'demo-campaign-002',
+        brand_id: 'demo-brand-001',
+        title: 'Crème Hydratante Alpine',
+        description: 'Vidéo ASMR pour notre crème hydratante aux extraits alpins.',
+        product_name: 'Crème Alpine Hydra+',
+        product_description: 'Crème riche aux edelweiss et eau de source alpine.',
+        product_requires_shipping: true,
+        format: '9_16',
+        script_type: 'asmr',
+        script_notes: null,
+        rights_usage: 'organic',
+        budget_chf: 280,
+        deadline: '2024-03-20',
+        status: 'in_progress',
+        created_at: '2024-01-20T14:00:00Z',
+        updated_at: '2024-02-03T09:00:00Z',
+    },
+    {
+        id: 'demo-campaign-003',
+        brand_id: 'demo-brand-001',
+        title: 'Routine Soin Complet',
+        description: 'Tutoriel montrant notre routine de soin en 3 étapes.',
+        product_name: 'Kit Routine Éclat',
+        product_description: 'Nettoyant + Tonique + Sérum',
+        product_requires_shipping: true,
+        format: '16_9',
+        script_type: 'tutorial',
+        script_notes: null,
+        rights_usage: 'paid_6m',
+        budget_chf: 600,
+        deadline: null,
+        status: 'completed',
+        created_at: '2024-01-05T11:00:00Z',
+        updated_at: '2024-02-10T15:00:00Z',
+    },
+    {
+        id: 'demo-campaign-004',
+        brand_id: 'demo-brand-001',
+        title: 'Unboxing Collection Printemps',
+        description: 'Unboxing de notre nouvelle collection printemps-été.',
+        product_name: 'Coffret Printemps 2024',
+        product_description: '5 produits emblématiques dans un coffret collector.',
+        product_requires_shipping: true,
+        format: '9_16',
+        script_type: 'unboxing',
+        script_notes: null,
+        rights_usage: 'organic',
+        budget_chf: 320,
+        deadline: null,
+        status: 'draft',
+        created_at: '2024-02-08T16:00:00Z',
+        updated_at: '2024-02-08T16:00:00Z',
+    },
+]
+
+// ============ DEMO APPLICATIONS (for Brand view) ============
+
+export const DEMO_APPLICATIONS_FOR_BRAND: (Application & {
+    creator: User & { profiles_creator: ProfileCreator }
+})[] = [
+        {
+            id: 'demo-app-001',
+            campaign_id: 'demo-campaign-001',
+            creator_id: 'demo-creator-001',
+            status: 'pending',
+            pitch_message: 'Bonjour ! Je suis spécialisée dans le contenu beauté et j\'adorerais collaborer sur cette campagne. Mon style naturel correspond parfaitement à votre image de marque.',
+            proposed_rate_chf: 400,
+            created_at: '2024-02-02T14:30:00Z',
+            updated_at: '2024-02-02T14:30:00Z',
+            creator: {
+                ...DEMO_CREATOR_USER,
+                profiles_creator: DEMO_CREATOR_PROFILE,
+            },
+        },
+        {
+            id: 'demo-app-002',
+            campaign_id: 'demo-campaign-001',
+            creator_id: 'demo-creator-002',
+            status: 'pending',
+            pitch_message: 'Hello ! 4 ans d\'expérience en UGC beauté. Je peux livrer sous 5 jours.',
+            proposed_rate_chf: 450,
+            created_at: '2024-02-03T09:15:00Z',
+            updated_at: '2024-02-03T09:15:00Z',
+            creator: {
+                id: 'demo-creator-002',
+                email: 'lucas@createur.ch',
+                full_name: 'Lucas Martin',
+                role: 'creator',
+                avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop',
+                created_at: '2024-01-10T08:00:00Z',
+                updated_at: '2024-02-03T09:15:00Z',
+                profiles_creator: {
+                    id: 'demo-creator-profile-002',
+                    user_id: 'demo-creator-002',
+                    bio: 'Créateur lifestyle et tech. Contenu dynamique et engageant.',
+                    location_canton: 'VD',
+                    languages: ['fr', 'en'],
+                    specialties: ['unboxing', 'lifestyle'] as ScriptType[],
+                    portfolio_video_urls: [],
+                    hourly_rate_chf: 400,
+                    rating_avg: 5.0,
+                    rating_count: 28,
+                    is_available: true,
+                    created_at: '2024-01-10T08:00:00Z',
+                    updated_at: '2024-02-03T09:15:00Z',
+                },
+            },
+        },
+        {
+            id: 'demo-app-003',
+            campaign_id: 'demo-campaign-001',
+            creator_id: 'demo-creator-003',
+            status: 'pending',
+            pitch_message: 'Ma communauté adore les produits suisses ! Je serais ravie de faire partie de ce projet.',
+            proposed_rate_chf: 380,
+            created_at: '2024-02-04T11:00:00Z',
+            updated_at: '2024-02-04T11:00:00Z',
+            creator: {
+                id: 'demo-creator-003',
+                email: 'anna@createur.ch',
+                full_name: 'Anna Schmidt',
+                role: 'creator',
+                avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop',
+                created_at: '2024-01-05T12:00:00Z',
+                updated_at: '2024-02-04T11:00:00Z',
+                profiles_creator: {
+                    id: 'demo-creator-profile-003',
+                    user_id: 'demo-creator-003',
+                    bio: 'Zurichoise passionnée par la beauté clean et le lifestyle minimaliste.',
+                    location_canton: 'ZH',
+                    languages: ['de', 'fr', 'en'],
+                    specialties: ['testimonial', 'asmr'] as ScriptType[],
+                    portfolio_video_urls: [],
+                    hourly_rate_chf: 380,
+                    rating_avg: 4.8,
+                    rating_count: 35,
+                    is_available: true,
+                    created_at: '2024-01-05T12:00:00Z',
+                    updated_at: '2024-02-04T11:00:00Z',
+                },
+            },
+        },
+    ]
+
+// ============ DEMO CAMPAIGNS (for Creator marketplace) ============
+
+export const DEMO_CREATOR_AVAILABLE_CAMPAIGNS: (Campaign & {
+    brand: User & { profiles_brand: ProfileBrand }
+})[] = [
+        {
+            ...DEMO_BRAND_CAMPAIGNS[0],
+            brand: {
+                ...DEMO_BRAND_USER,
+                profiles_brand: DEMO_BRAND_PROFILE,
+            },
+        },
+        {
+            id: 'demo-campaign-ext-001',
+            brand_id: 'demo-brand-002',
+            title: 'Montre Connectée Swiss Made',
+            description: 'Présentation lifestyle de notre nouvelle montre connectée.',
+            product_name: 'Alpine Watch Pro',
+            product_description: 'Montre connectée design suisse avec 14 jours d\'autonomie.',
+            product_requires_shipping: true,
+            format: '9_16',
+            script_type: 'lifestyle',
+            script_notes: null,
+            rights_usage: 'paid_3m',
+            budget_chf: 550,
+            deadline: '2024-03-25',
+            status: 'open',
+            created_at: '2024-02-05T10:00:00Z',
+            updated_at: '2024-02-05T10:00:00Z',
+            brand: {
+                id: 'demo-brand-002',
+                email: 'contact@alpinetech.ch',
+                full_name: 'Alpine Tech',
+                role: 'brand',
+                avatar_url: 'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&h=200&fit=crop',
+                created_at: '2024-01-01T09:00:00Z',
+                updated_at: '2024-02-05T10:00:00Z',
+                profiles_brand: {
+                    id: 'demo-brand-profile-002',
+                    user_id: 'demo-brand-002',
+                    company_name: 'Alpine Tech SA',
+                    uid_number: null,
+                    website: 'https://alpinetech.ch',
+                    industry: 'Tech / Horlogerie',
+                    description: 'Startup suisse spécialisée dans les wearables.',
+                    logo_url: null,
+                    created_at: '2024-01-01T09:00:00Z',
+                    updated_at: '2024-02-05T10:00:00Z',
+                },
+            },
+        },
+        {
+            id: 'demo-campaign-ext-002',
+            brand_id: 'demo-brand-003',
+            title: 'Chocolat Artisanal Review',
+            description: 'Dégustation et avis sur notre gamme de chocolats.',
+            product_name: 'Collection Grand Cru',
+            product_description: '6 tablettes single origin.',
+            product_requires_shipping: true,
+            format: '9_16',
+            script_type: 'review',
+            script_notes: null,
+            rights_usage: 'organic',
+            budget_chf: 220,
+            deadline: '2024-03-10',
+            status: 'open',
+            created_at: '2024-02-06T08:00:00Z',
+            updated_at: '2024-02-06T08:00:00Z',
+            brand: {
+                id: 'demo-brand-003',
+                email: 'hello@chocovalais.ch',
+                full_name: 'Choco Valais',
+                role: 'brand',
+                avatar_url: 'https://images.unsplash.com/photo-1481391319762-47dff72954d9?w=200&h=200&fit=crop',
+                created_at: '2023-06-01T10:00:00Z',
+                updated_at: '2024-02-06T08:00:00Z',
+                profiles_brand: {
+                    id: 'demo-brand-profile-003',
+                    user_id: 'demo-brand-003',
+                    company_name: 'Chocolaterie du Valais',
+                    uid_number: null,
+                    website: 'https://chocovalais.ch',
+                    industry: 'Alimentation',
+                    description: 'Chocolatier artisanal depuis 1952.',
+                    logo_url: null,
+                    created_at: '2023-06-01T10:00:00Z',
+                    updated_at: '2024-02-06T08:00:00Z',
+                },
+            },
+        },
+    ]
+
+// ============ DEMO MISSIONS (Creator's active work) ============
+
+export const DEMO_CREATOR_MISSIONS: (Application & {
+    campaign: Campaign & { brand: User & { profiles_brand: ProfileBrand } }
+})[] = [
+        {
+            id: 'demo-mission-001',
+            campaign_id: 'demo-campaign-002',
+            creator_id: 'demo-creator-001',
+            status: 'accepted',
+            pitch_message: 'J\'adore le concept ASMR pour les soins !',
+            proposed_rate_chf: 280,
+            created_at: '2024-01-22T10:00:00Z',
+            updated_at: '2024-01-25T14:00:00Z',
+            campaign: {
+                ...DEMO_BRAND_CAMPAIGNS[1],
+                brand: {
+                    ...DEMO_BRAND_USER,
+                    profiles_brand: DEMO_BRAND_PROFILE,
+                },
+            },
+        },
+    ]
+
+// ============ DEMO MESSAGES ============
+
+export const DEMO_MESSAGES: (Message & { sender: User })[] = [
+    {
+        id: 'demo-msg-001',
+        campaign_id: 'demo-campaign-002',
+        sender_id: 'demo-brand-001',
+        content: 'Bonjour Marie ! Ravi de collaborer avec vous. Le produit sera envoyé demain.',
+        is_read: true,
+        created_at: '2024-01-26T09:00:00Z',
+        sender: DEMO_BRAND_USER,
+    },
+    {
+        id: 'demo-msg-002',
+        campaign_id: 'demo-campaign-002',
+        sender_id: 'demo-creator-001',
+        content: 'Merci beaucoup ! J\'ai hâte de le recevoir. Je commence le tournage dès réception.',
+        is_read: true,
+        created_at: '2024-01-26T09:30:00Z',
+        sender: DEMO_CREATOR_USER,
+    },
+    {
+        id: 'demo-msg-003',
+        campaign_id: 'demo-campaign-002',
+        sender_id: 'demo-brand-001',
+        content: 'Parfait ! N\'hésitez pas si vous avez des questions sur le produit.',
+        is_read: false,
+        created_at: '2024-01-26T10:15:00Z',
+        sender: DEMO_BRAND_USER,
+    },
+]
+
+// ============ DEMO STATS ============
+
+export const DEMO_BRAND_STATS = {
+    activeCampaigns: 2,
+    pendingApplications: 3,
+    completedCampaigns: 5,
+    totalSpent: 2450,
+    averageRating: 4.8,
+}
+
+export const DEMO_CREATOR_STATS = {
+    activeMissions: 1,
+    completedMissions: 12,
+    totalEarnings: 4850,
+    averageRating: 4.9,
+    responseRate: 98,
+    profileViews: 156,
+}
+
+export const DEMO_CREATOR_EARNINGS = {
+    thisMonth: 850,
+    lastMonth: 1200,
+    pending: 280,
+    history: [
+        { month: 'Jan', amount: 1200 },
+        { month: 'Fév', amount: 850 },
+        { month: 'Mar', amount: 0 },
+    ],
+}
+
+// ============ DEMO MISSIONS (simple format for missions page) ============
+
+export const DEMO_MISSIONS = [
+    {
+        id: "1",
+        title: "Témoignage Montre de Luxe Suisse",
+        brand: { name: "Horlogerie Genevoise", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=100&h=100&fit=crop" },
+        status: "in_progress",
+        deadline: "20 Fév 2024",
+        budget: 650,
+        category: "Témoignage",
+        deliverables: 2,
+        delivered: 1,
+        description: "Création d'un témoignage authentique sur notre nouvelle collection de montres."
+    },
+    {
+        id: "2",
+        title: "Review Application Fitness",
+        brand: { name: "SwissMove", logo: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=100&h=100&fit=crop" },
+        status: "review",
+        deadline: "25 Fév 2024",
+        budget: 380,
+        category: "Review",
+        deliverables: 1,
+        delivered: 1,
+        description: "Test et review de notre application mobile de fitness."
+    },
+    {
+        id: "3",
+        title: "Unboxing Cosmétiques Bio",
+        brand: { name: "NaturaBio", logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop" },
+        status: "pending",
+        deadline: "28 Fév 2024",
+        budget: 420,
+        category: "Unboxing",
+        deliverables: 3,
+        delivered: 0,
+        description: "Unboxing créatif de notre nouvelle gamme de cosmétiques naturels."
+    },
+    {
+        id: "4",
+        title: "Lifestyle Voyage en Suisse",
+        brand: { name: "Swiss Tourism", logo: "https://images.unsplash.com/photo-1569974507005-6dc61f97fb5c?w=100&h=100&fit=crop" },
+        status: "completed",
+        deadline: "10 Fév 2024",
+        budget: 850,
+        category: "Lifestyle",
+        deliverables: 4,
+        delivered: 4,
+        description: "Contenu lifestyle mettant en valeur les paysages suisses."
+    },
+    {
+        id: "5",
+        title: "Tutoriel Produit Tech",
+        brand: { name: "TechSwiss", logo: "https://images.unsplash.com/photo-1496200186974-4293800e2c20?w=100&h=100&fit=crop" },
+        status: "completed",
+        deadline: "5 Fév 2024",
+        budget: 520,
+        category: "Tutoriel",
+        deliverables: 2,
+        delivered: 2,
+        description: "Tutoriel d'utilisation de notre nouveau gadget connecté."
+    },
+]
+
