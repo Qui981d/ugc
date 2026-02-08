@@ -100,10 +100,10 @@ export function Navbar() {
                             </Link>
                         )}
                         <Link
-                            href="/pricing"
+                            href="/aide"
                             className="px-4 py-2 text-sm text-white/70 hover:text-white transition-colors"
                         >
-                            Tarifs
+                            Aide
                         </Link>
                         {isAuth && (
                             <Link
@@ -276,11 +276,11 @@ export function Navbar() {
                                 </Link>
                             )}
                             <Link
-                                href="/pricing"
+                                href="/aide"
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="w-full text-center px-6 py-4 text-lg text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
                             >
-                                Tarifs
+                                Aide
                             </Link>
                             {isAuth && (
                                 <Link
