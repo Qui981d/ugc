@@ -32,6 +32,9 @@ export default function CreatorDashboardPage() {
     const { user, isLoading } = useAuth()
     const [missions, setMissions] = useState<MissionDisplay[]>([])
     const [isDataLoading, setIsDataLoading] = useState(false)
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => { setMounted(true) }, [])
 
     const userId = user?.id
 
@@ -90,7 +93,7 @@ export default function CreatorDashboardPage() {
         { label: "Note moyenne", value: "5.0", icon: Star, change: "Nouveau profil" },
     ]
 
-    if (!user && isLoading) {
+    if (!mounted || (!user && isLoading)) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
                 <Loader2 className="w-8 h-8 animate-spin text-white/50" />
@@ -104,10 +107,10 @@ export default function CreatorDashboardPage() {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-center justify-between"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
                 <div>
-                    <h1 className="text-3xl font-bold text-white">
+                    <h1 className="text-2xl md:text-3xl font-bold text-white">
                         Bienvenue, {user?.full_name?.split(' ')[0] || 'Créateur'} 👋
                     </h1>
                     <p className="text-white/60 mt-1">
@@ -115,7 +118,7 @@ export default function CreatorDashboardPage() {
                     </p>
                 </div>
                 <Link href="/creator/marketplace">
-                    <Button className="btn-primary">
+                    <Button className="btn-primary w-full sm:w-auto">
                         <Search className="h-4 w-4 mr-2" />
                         Explorer les campagnes
                     </Button>
@@ -123,7 +126,7 @@ export default function CreatorDashboardPage() {
             </motion.div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                 {stats.map((stat, index) => (
                     <motion.div
                         key={stat.label}
@@ -133,14 +136,14 @@ export default function CreatorDashboardPage() {
                     >
                         <Card className="bg-white/[0.08] border-white/[0.10] backdrop-blur-xl">
                             <CardContent className="pt-6">
-                                <div className="flex items-center justify-between">
-                                    <div>
+                                <div className="flex items-center justify-between gap-2">
+                                    <div className="min-w-0">
                                         <p className="text-sm text-white/50">{stat.label}</p>
-                                        <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
+                                        <p className="text-lg md:text-2xl font-bold text-white mt-1 truncate">{stat.value}</p>
                                         <p className="text-xs text-white/40 mt-1">{stat.change}</p>
                                     </div>
-                                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">
-                                        <stat.icon className="h-6 w-6 text-white/40" />
+                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0">
+                                        <stat.icon className="h-5 w-5 md:h-6 md:w-6 text-white/40" />
                                     </div>
                                 </div>
                             </CardContent>
@@ -186,7 +189,7 @@ export default function CreatorDashboardPage() {
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.3 + index * 0.05 }}
-                                        className="flex items-center justify-between p-4 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.06] transition-colors"
+                                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.06] transition-colors"
                                     >
                                         <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center text-accent font-bold">
@@ -218,7 +221,7 @@ export default function CreatorDashboardPage() {
                 transition={{ delay: 0.3 }}
             >
                 <h2 className="text-lg font-semibold text-white mb-4">Actions rapides</h2>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Link href="/creator/portfolio">
                         <Card className="bg-white/[0.08] border-white/[0.10] backdrop-blur-xl hover:bg-white/[0.12] transition-colors cursor-pointer group">
                             <CardContent className="pt-6 flex items-center gap-4">

@@ -43,6 +43,9 @@ export default function CampaignApplicantsPage() {
     const [activeTab, setActiveTab] = useState('all')
     const [searchQuery, setSearchQuery] = useState('')
     const [updatingId, setUpdatingId] = useState<string | null>(null)
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => { setMounted(true) }, [])
 
     useEffect(() => {
         // Don't do anything while auth is loading
@@ -105,7 +108,7 @@ export default function CampaignApplicantsPage() {
         return matchesTab && matchesSearch
     })
 
-    if (!user && isLoading) {
+    if (!mounted || (!user && isLoading)) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
                 <Loader2 className="w-8 h-8 animate-spin text-white/50" />

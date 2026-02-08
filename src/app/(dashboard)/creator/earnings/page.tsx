@@ -43,6 +43,9 @@ export default function CreatorEarningsPage() {
     const userId = user?.id
     const [transactions, setTransactions] = useState<Transaction[]>([])
     const [isDataLoading, setIsDataLoading] = useState(false)
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => { setMounted(true) }, [])
 
     useEffect(() => {
         // Don't do anything while auth is loading
@@ -103,7 +106,7 @@ export default function CreatorEarningsPage() {
         .filter(t => t.status === 'pending')
         .reduce((acc, t) => acc + t.amount, 0)
 
-    if (!user && isLoading) {
+    if (!mounted || (!user && isLoading)) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
                 <Loader2 className="w-8 h-8 animate-spin text-white/50" />

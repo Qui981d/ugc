@@ -25,6 +25,9 @@ export default function BrandDashboardPage() {
     const userId = user?.id
     const [campaigns, setCampaigns] = useState<Campaign[]>([])
     const [isDataLoading, setIsDataLoading] = useState(false)
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => { setMounted(true) }, [])
 
     useEffect(() => {
         // Don't do anything while auth is loading
@@ -50,7 +53,7 @@ export default function BrandDashboardPage() {
         { label: "Budget total", value: formatCHF(campaigns.reduce((sum, c) => sum + c.budget_chf, 0)), change: "Toutes campagnes" },
     ]
 
-    if (!user && isLoading) {
+    if (!mounted || (!user && isLoading)) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
                 <Loader2 className="w-8 h-8 animate-spin text-white/50" />
@@ -64,10 +67,10 @@ export default function BrandDashboardPage() {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-center justify-between"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
                 <div>
-                    <h1 className="text-3xl font-bold text-white">
+                    <h1 className="text-2xl md:text-3xl font-bold text-white">
                         Bienvenue, {user?.full_name?.split(' ')[0] || 'Marque'} 👋
                     </h1>
                     <p className="text-white/60 mt-1">
@@ -75,7 +78,7 @@ export default function BrandDashboardPage() {
                     </p>
                 </div>
                 <Link href="/brand/campaigns/new">
-                    <Button className="btn-primary">
+                    <Button className="btn-primary w-full sm:w-auto">
                         <Plus className="h-4 w-4 mr-2" />
                         Nouvelle campagne
                     </Button>
@@ -83,7 +86,7 @@ export default function BrandDashboardPage() {
             </motion.div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                 {stats.map((stat, index) => (
                     <motion.div
                         key={stat.label}
@@ -143,7 +146,7 @@ export default function BrandDashboardPage() {
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: 0.3 + index * 0.05 }}
-                                            className="flex items-center justify-between p-4 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.06] transition-colors"
+                                            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.06] transition-colors"
                                         >
                                             <div className="flex items-center gap-4">
                                                 <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center">
@@ -176,7 +179,7 @@ export default function BrandDashboardPage() {
                 transition={{ delay: 0.3 }}
             >
                 <h2 className="text-lg font-semibold text-white mb-4">Actions rapides</h2>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Link href="/brand/campaigns/new">
                         <Card className="bg-white/[0.08] border-white/[0.10] backdrop-blur-xl hover:bg-white/[0.12] transition-colors cursor-pointer group">
                             <CardContent className="pt-6 flex items-center gap-4">

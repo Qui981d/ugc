@@ -364,9 +364,9 @@ export default function SharedMissionPage() {
             </Link>
 
             {/* Header */}
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                 <div>
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex flex-wrap items-center gap-3 mb-2">
                         <Badge className={`${statusInfo.color} border`}>
                             {statusInfo.label}
                         </Badge>
@@ -377,7 +377,7 @@ export default function SharedMissionPage() {
                             </span>
                         )}
                     </div>
-                    <h1 className="text-2xl font-bold text-white">{mission.campaign_title}</h1>
+                    <h1 className="text-xl md:text-2xl font-bold text-white">{mission.campaign_title}</h1>
                     <p className="text-white/50 mt-1">
                         {userRole === 'brand'
                             ? `Créateur: ${mission.creator_name}`
@@ -385,7 +385,7 @@ export default function SharedMissionPage() {
                         }
                     </p>
                 </div>
-                <div className="text-right">
+                <div className="sm:text-right">
                     <p className="text-2xl font-bold text-white">{formatCHF(mission.budget_chf)}</p>
                     <p className="text-sm text-white/40">
                         {deliverableStatus === 'approved' ? 'Payé ✓' : 'En séquestre'}

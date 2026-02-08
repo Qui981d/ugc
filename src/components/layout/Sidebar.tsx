@@ -75,7 +75,7 @@ export function Sidebar({ role }: SidebarProps) {
     }
 
     return (
-        <aside className="fixed left-0 top-0 h-screen w-64 bg-[#0A0A0A] border-r border-white/5 flex flex-col z-40">
+        <aside className="fixed left-0 top-0 h-screen w-64 bg-[#0A0A0A] border-r border-white/5 hidden md:flex flex-col z-40">
             {/* Logo */}
             <div className="h-16 flex items-center justify-between px-6 border-b border-white/5">
                 <Link href="/" className="flex items-center gap-1 font-bold text-lg">

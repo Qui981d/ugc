@@ -207,13 +207,13 @@ export default function CreatorMissionsPage() {
     return (
         <div className="space-y-8">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white">Mes Missions</h1>
+                    <h1 className="text-2xl md:text-3xl font-bold text-white">Mes Missions</h1>
                     <p className="text-white/60 mt-1">Gérez vos collaborations en cours</p>
                 </div>
                 <Link href="/creator/marketplace">
-                    <Button className="btn-primary">
+                    <Button className="btn-primary w-full sm:w-auto">
                         <Briefcase className="h-4 w-4 mr-2" />
                         Trouver des missions
                     </Button>
@@ -221,14 +221,14 @@ export default function CreatorMissionsPage() {
             </div>
 
             {/* Stats Row */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-5"
                 >
                     <p className="text-sm text-white/50 mb-1">Total missions</p>
-                    <p className="text-3xl font-bold text-white">{stats.total}</p>
+                    <p className="text-xl md:text-3xl font-bold text-white">{stats.total}</p>
                 </motion.div>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -237,7 +237,7 @@ export default function CreatorMissionsPage() {
                     className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-5"
                 >
                     <p className="text-sm text-white/50 mb-1">En cours</p>
-                    <p className="text-3xl font-bold text-blue-400">{stats.active}</p>
+                    <p className="text-xl md:text-3xl font-bold text-blue-400">{stats.active}</p>
                 </motion.div>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -246,7 +246,7 @@ export default function CreatorMissionsPage() {
                     className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-5"
                 >
                     <p className="text-sm text-white/50 mb-1">Terminées</p>
-                    <p className="text-3xl font-bold text-emerald-400">{stats.completed}</p>
+                    <p className="text-xl md:text-3xl font-bold text-emerald-400">{stats.completed}</p>
                 </motion.div>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -255,7 +255,7 @@ export default function CreatorMissionsPage() {
                     className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-5"
                 >
                     <p className="text-sm text-white/50 mb-1">Revenus en attente</p>
-                    <p className="text-3xl font-bold text-white">{formatCHF(stats.pendingRevenue)}</p>
+                    <p className="text-xl md:text-3xl font-bold text-white truncate">{formatCHF(stats.pendingRevenue)}</p>
                 </motion.div>
             </div>
 
@@ -327,7 +327,7 @@ export default function CreatorMissionsPage() {
                                             ? 'border-emerald-500/30 hover:border-emerald-500/50'
                                             : 'border-white/[0.15] hover:border-white/25'
                                         }`}>
-                                        <div className="flex items-start gap-5">
+                                        <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-5">
                                             {/* Brand Logo */}
                                             <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-white/5 border border-white/10 flex-shrink-0">
                                                 {mission.campaign?.brand?.avatar_url ? (
@@ -404,7 +404,7 @@ export default function CreatorMissionsPage() {
                                                 )}
 
                                                 {/* Meta Row */}
-                                                <div className="flex items-center gap-6 mt-3 text-sm">
+                                                <div className="flex flex-wrap items-center gap-3 md:gap-6 mt-3 text-sm">
                                                     {mission.campaign?.deadline && (
                                                         <span className="text-white/50 flex items-center gap-1.5">
                                                             <Calendar className="w-4 h-4" />
@@ -421,7 +421,7 @@ export default function CreatorMissionsPage() {
                                             </div>
 
                                             {/* Actions */}
-                                            <div className="flex flex-col gap-2 flex-shrink-0">
+                                            <div className="flex flex-row sm:flex-col gap-2 flex-shrink-0 w-full sm:w-auto">
                                                 {mission.status === 'accepted' && (
                                                     <Button
                                                         size="sm"

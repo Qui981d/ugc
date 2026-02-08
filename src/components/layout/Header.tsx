@@ -63,7 +63,11 @@ export function Header() {
             case 'message_received':
                 return `${basePath}/messages`
             case 'deliverable_submitted':
-                return notif.reference_id ? `/brand/campaigns/${notif.reference_id}` : '/brand/campaigns'
+                return notif.reference_id ? `/brand/campaigns/${notif.reference_id}/applicants` : '/brand/campaigns'
+            case 'deliverable_approved':
+            case 'deliverable_revision':
+            case 'deliverable_rejected':
+                return '/creator/missions'
             case 'application_accepted':
             case 'application_rejected':
                 return '/creator/missions'
@@ -79,7 +83,7 @@ export function Header() {
         <header className="sticky top-0 z-30 h-16 bg-background/80 backdrop-blur-xl border-b border-white/5">
             <div className="h-full flex items-center justify-between px-6">
                 {/* Search */}
-                <div className="flex-1 max-w-md">
+                <div className="flex-1 max-w-md hidden md:block">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
                         <input

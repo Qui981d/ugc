@@ -53,6 +53,9 @@ export default function CreatorSettingsPage() {
     const userId = user?.id
     const [isSaving, setIsSaving] = useState(false)
     const [activeTab, setActiveTab] = useState('profile')
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => { setMounted(true) }, [])
     const [showPassword, setShowPassword] = useState(false)
     const [isDataLoading, setIsDataLoading] = useState(false)
 
@@ -156,7 +159,7 @@ export default function CreatorSettingsPage() {
         setIsSaving(false)
     }
 
-    if (!user && isLoading) {
+    if (!mounted || (!user && isLoading)) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
                 <Loader2 className="w-8 h-8 animate-spin text-white/50" />
@@ -199,7 +202,7 @@ export default function CreatorSettingsPage() {
                         </div>
 
                         {/* Form Fields */}
-                        <div className="grid grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="block text-sm text-white/60 mb-2">Nom complet</label>
                                 <input
@@ -509,28 +512,28 @@ export default function CreatorSettingsPage() {
         <div className="space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-3xl font-bold text-white">Paramètres</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-white">Paramètres</h1>
                 <p className="text-white/60 mt-1">Gérez votre profil et préférences</p>
             </div>
 
-            <div className="flex gap-8">
-                {/* Sidebar Tabs */}
-                <div className="w-60 flex-shrink-0 space-y-1">
+            <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+                {/* Sidebar Tabs — horizontal scroll on mobile, vertical on desktop */}
+                <div className="flex md:flex-col md:w-60 md:flex-shrink-0 gap-1 overflow-x-auto pb-2 md:pb-0 md:space-y-1">
                     {tabs.map(tab => {
                         const Icon = tab.icon
                         return (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${activeTab === tab.id
+                                className={`flex items-center gap-2 md:gap-3 px-4 py-2.5 md:py-3 rounded-xl text-left transition-all whitespace-nowrap flex-shrink-0 md:w-full ${activeTab === tab.id
                                     ? 'bg-white/10 text-white'
                                     : 'text-white/50 hover:text-white hover:bg-white/5'
                                     }`}
                             >
-                                <Icon className="w-5 h-5" />
-                                <span className="font-medium">{tab.label}</span>
+                                <Icon className="w-4 h-4 md:w-5 md:h-5" />
+                                <span className="font-medium text-sm md:text-base">{tab.label}</span>
                                 {activeTab === tab.id && (
-                                    <ChevronRight className="w-4 h-4 ml-auto" />
+                                    <ChevronRight className="w-4 h-4 ml-auto hidden md:block" />
                                 )}
                             </button>
                         )
@@ -542,7 +545,7 @@ export default function CreatorSettingsPage() {
                     key={activeTab}
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="flex-1 bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-8"
+                    className="flex-1 bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-4 md:p-8"
                 >
                     {renderTabContent()}
                 </motion.div>

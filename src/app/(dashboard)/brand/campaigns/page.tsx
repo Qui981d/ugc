@@ -52,6 +52,9 @@ export default function BrandCampaignsPage() {
     const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null)
     const [isDataLoading, setIsDataLoading] = useState(false)
     const [activeTab, setActiveTab] = useState('active')
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => { setMounted(true) }, [])
 
     useEffect(() => {
         if (!userId) return
@@ -125,7 +128,7 @@ export default function BrandCampaignsPage() {
 
     const totalBudget = campaigns.reduce((sum, c) => sum + c.budget_chf, 0)
 
-    if (!user && isLoading) {
+    if (!mounted || (!user && isLoading)) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
                 <Loader2 className="w-8 h-8 animate-spin text-white/50" />
@@ -136,13 +139,13 @@ export default function BrandCampaignsPage() {
     return (
         <div className="space-y-8">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white">Mes Campagnes</h1>
+                    <h1 className="text-2xl md:text-3xl font-bold text-white">Mes Campagnes</h1>
                     <p className="text-white/60 mt-1">Gérez vos campagnes UGC</p>
                 </div>
                 <Link href="/brand/campaigns/new">
-                    <Button className="btn-primary">
+                    <Button className="btn-primary w-full sm:w-auto">
                         <Plus className="h-4 w-4 mr-2" />
                         Nouvelle campagne
                     </Button>
@@ -150,7 +153,7 @@ export default function BrandCampaignsPage() {
             </div>
 
             {/* Stats Row */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -242,7 +245,7 @@ export default function BrandCampaignsPage() {
                                     className="group"
                                 >
                                     <div className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] hover:border-white/25 rounded-2xl p-6 transition-all duration-300">
-                                        <div className="flex items-start justify-between">
+                                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-3 mb-2">
                                                     <h3 className="text-lg font-semibold text-white">{campaign.title}</h3>
@@ -256,7 +259,7 @@ export default function BrandCampaignsPage() {
                                                     {campaign.description || 'Aucune description'}
                                                 </p>
 
-                                                <div className="flex items-center gap-6 text-sm text-white/50">
+                                                <div className="flex flex-wrap items-center gap-3 md:gap-6 text-sm text-white/50">
                                                     <span className="flex items-center gap-1">
                                                         <Target className="w-4 h-4" />
                                                         {campaign.script_type}

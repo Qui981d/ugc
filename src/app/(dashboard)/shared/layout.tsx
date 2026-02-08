@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components/layout/Sidebar"
 import { Header } from "@/components/layout/Header"
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav"
 
 export default function SharedDashboardLayout({
     children,
@@ -12,12 +13,13 @@ export default function SharedDashboardLayout({
     return (
         <div className="min-h-screen bg-background">
             <Sidebar role={userRole} />
-            <div className="ml-64">
+            <div className="md:ml-64">
                 <Header />
-                <main className="p-6">
+                <main className="p-4 md:p-6 pb-24 md:pb-6">
                     {children}
                 </main>
             </div>
+            <MobileBottomNav />
         </div>
     )
 }

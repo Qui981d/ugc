@@ -72,7 +72,7 @@ export default function HomePage() {
               </div>
 
               {/* Social Proof */}
-              <div className="flex items-center gap-6 mt-12 pt-12 border-t border-white/10">
+              <div className="flex flex-wrap items-center gap-6 mt-12 pt-12 border-t border-white/10">
                 <div className="flex -space-x-3">
                   {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="w-10 h-10 rounded-full border-2 border-background bg-white/10 overflow-hidden">
@@ -102,7 +102,7 @@ export default function HomePage() {
               initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="hidden lg:block"
+              className="hidden md:block"
             >
               <div className="relative">
                 {/* Floating Cards */}
