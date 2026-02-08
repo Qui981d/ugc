@@ -32,7 +32,7 @@ const brandItems: NavItem[] = [
     { icon: Megaphone, label: "Campagnes", href: "/brand/campaigns", notifKey: 'applications' },
     { icon: Search, label: "Créateurs", href: "/marketplace?tab=creators" },
     { icon: MessageSquare, label: "Messages", href: "/brand/messages", notifKey: 'messages' },
-    { icon: User, label: "Profil", href: "/brand/settings" },
+    { icon: Settings, label: "Paramètres", href: "/brand/settings" },
 ]
 
 const creatorMainItems: NavItem[] = [
