@@ -5,18 +5,17 @@ import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Search, Star, Clock, CheckCircle2, Upload, ArrowUpRight, Wallet, Loader2 } from "lucide-react"
+import { Star, Clock, CheckCircle2, Upload, ArrowUpRight, Wallet, Loader2, Briefcase } from "lucide-react"
 import Link from "next/link"
 import { formatCHF } from "@/lib/validations/swiss"
 import { useAuth } from "@/contexts/AuthContext"
-import { createClient } from "@/lib/supabase/client"
+import { getAssignedCampaigns } from "@/lib/services/campaignService"
 
 const statusConfig: Record<string, { label: string; class: string }> = {
-    accepted: { label: "En cours", class: "bg-blue-500/20 text-blue-400" },
-    pending: { label: "En attente", class: "bg-yellow-500/20 text-yellow-400" },
+    draft: { label: "Brief reçu", class: "bg-yellow-500/20 text-yellow-400" },
+    open: { label: "En recherche", class: "bg-blue-500/20 text-blue-400" },
+    in_progress: { label: "En cours", class: "bg-purple-500/20 text-purple-400" },
     completed: { label: "Terminée", class: "bg-green-500/20 text-green-400" },
-    rejected: { label: "Refusée", class: "bg-red-500/20 text-red-400" },
-    delivered: { label: "Livré", class: "bg-amber-500/20 text-amber-400" },
 }
 
 interface MissionDisplay {
@@ -39,47 +38,20 @@ export default function CreatorDashboardPage() {
     const userId = user?.id
 
     useEffect(() => {
-        // No user = nothing to load
         if (!userId) return
 
         async function loadData() {
             setIsDataLoading(true)
-
-            const supabase = createClient()
-
-            const { data, error } = await supabase
-                .from('applications')
-                .select(`
-                    id,
-                    status,
-                    proposed_rate_chf,
-                    campaign:campaigns (
-                        title,
-                        budget_chf,
-                        deadline,
-                        brand:users!campaigns_brand_id_fkey (
-                            full_name
-                        )
-                    )
-                `)
-                .eq('creator_id', userId!)
-                .eq('status', 'accepted')
-                .order('created_at', { ascending: false })
-                .limit(5)
-
-            if (error && error.message) {
-                console.error('Error fetching missions:', error.message)
-            } else {
-                const displayMissions: MissionDisplay[] = (data || []).map((app: any) => ({
-                    id: app.id,
-                    title: app.campaign?.title || 'Sans titre',
-                    brand: app.campaign?.brand?.full_name || 'Marque',
-                    status: app.status,
-                    deadline: app.campaign?.deadline,
-                    budget: app.proposed_rate_chf || app.campaign?.budget_chf || 0,
-                }))
-                setMissions(displayMissions)
-            }
+            const campaigns = await getAssignedCampaigns()
+            const displayMissions: MissionDisplay[] = campaigns.map((c: any) => ({
+                id: c.id,
+                title: c.title || 'Sans titre',
+                brand: c.brand?.full_name || c.brand?.profiles_brand?.company_name || 'Marque',
+                status: c.status,
+                deadline: c.deadline,
+                budget: c.budget_chf || 0,
+            }))
+            setMissions(displayMissions)
             setIsDataLoading(false)
         }
 
@@ -87,9 +59,9 @@ export default function CreatorDashboardPage() {
     }, [userId])
 
     const stats = [
-        { label: "Missions actives", value: String(missions.filter(m => m.status === 'accepted').length), icon: Clock, change: "En cours" },
+        { label: "Missions actives", value: String(missions.filter(m => m.status === 'in_progress').length), icon: Clock, change: "En cours" },
         { label: "Missions terminées", value: String(missions.filter(m => m.status === 'completed').length), icon: CheckCircle2, change: "Total" },
-        { label: "Revenus en attente", value: formatCHF(missions.filter(m => m.status !== 'completed').reduce((sum, m) => sum + m.budget, 0)), icon: Wallet, change: "À recevoir" },
+        { label: "Revenus estimés", value: formatCHF(missions.filter(m => m.status !== 'completed').reduce((sum, m) => sum + m.budget, 0)), icon: Wallet, change: "À venir" },
         { label: "Note moyenne", value: "5.0", icon: Star, change: "Nouveau profil" },
     ]
 
@@ -117,12 +89,6 @@ export default function CreatorDashboardPage() {
                         Voici un aperçu de votre activité
                     </p>
                 </div>
-                <Link href="/marketplace">
-                    <Button className="btn-primary w-full sm:w-auto">
-                        <Search className="h-4 w-4 mr-2" />
-                        Explorer les campagnes
-                    </Button>
-                </Link>
             </motion.div>
 
             {/* Stats Grid */}
@@ -173,13 +139,7 @@ export default function CreatorDashboardPage() {
                             <div className="text-center py-12 text-white/40">
                                 <Clock className="w-12 h-12 mx-auto mb-4 opacity-50" />
                                 <p>Aucune mission pour le moment</p>
-                                <p className="text-sm mt-2">Explorez les campagnes disponibles</p>
-                                <Link href="/marketplace">
-                                    <Button className="btn-primary mt-4">
-                                        <Search className="w-4 h-4 mr-2" />
-                                        Explorer
-                                    </Button>
-                                </Link>
+                                <p className="text-sm mt-2">MOSH vous contactera dès qu&apos;une mission correspond à votre profil</p>
                             </div>
                         ) : (
                             <div className="space-y-3">
@@ -235,15 +195,15 @@ export default function CreatorDashboardPage() {
                             </CardContent>
                         </Card>
                     </Link>
-                    <Link href="/marketplace">
+                    <Link href="/creator/missions">
                         <Card className="bg-white/[0.08] border-white/[0.10] backdrop-blur-xl hover:bg-white/[0.12] transition-colors cursor-pointer group">
                             <CardContent className="pt-6 flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <Search className="h-6 w-6 text-blue-400" />
+                                    <Briefcase className="h-6 w-6 text-blue-400" />
                                 </div>
                                 <div>
-                                    <p className="font-medium text-white">Explorer les campagnes</p>
-                                    <p className="text-sm text-white/50">Trouvez de nouvelles missions</p>
+                                    <p className="font-medium text-white">Mes missions</p>
+                                    <p className="text-sm text-white/50">Suivre vos missions en cours</p>
                                 </div>
                             </CardContent>
                         </Card>

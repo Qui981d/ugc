@@ -16,6 +16,7 @@ function LoginForm() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const { signIn, user, isLoading: authLoading } = useAuth()
+    const [mounted, setMounted] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [email, setEmail] = useState('')
@@ -23,13 +24,16 @@ function LoginForm() {
 
     const redirectTo = searchParams.get('redirect')
 
+    // Prevent hydration mismatch: auth state differs between server and client
+    useEffect(() => { setMounted(true) }, [])
+
     // Redirect if already logged in
     useEffect(() => {
-        if (!authLoading && user) {
+        if (mounted && !authLoading && user) {
             const destination = user.role === 'brand' ? '/brand' : '/creator'
             router.push(redirectTo || destination)
         }
-    }, [user, authLoading, router, redirectTo])
+    }, [user, authLoading, router, redirectTo, mounted])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -47,8 +51,8 @@ function LoginForm() {
         // Otherwise, AuthContext.signIn handles redirect based on role
     }
 
-    // Show loading while checking auth
-    if (authLoading) {
+    // Show loading while checking auth (only after mount to avoid hydration mismatch)
+    if (!mounted || authLoading) {
         return (
             <Card className="bg-white/5 border-white/10 shadow-2xl">
                 <CardContent className="py-12 flex items-center justify-center">

@@ -55,7 +55,6 @@ export async function updateSession(request: NextRequest) {
         '/login',
         '/signup',
         '/auth/callback',
-        '/marketplace',
         '/creators',
         '/campaigns',
         '/aide',

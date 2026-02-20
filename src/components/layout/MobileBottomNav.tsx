@@ -30,7 +30,6 @@ interface NavItem {
 const brandItems: NavItem[] = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/brand" },
     { icon: Megaphone, label: "Campagnes", href: "/brand/campaigns", notifKey: 'applications' },
-    { icon: Search, label: "Créateurs", href: "/marketplace?tab=creators" },
     { icon: MessageSquare, label: "Messages", href: "/brand/messages", notifKey: 'messages' },
     { icon: Settings, label: "Paramètres", href: "/brand/settings" },
 ]
@@ -42,7 +41,7 @@ const creatorMainItems: NavItem[] = [
 ]
 
 const creatorMoreItems: NavItem[] = [
-    { icon: Search, label: "Marketplace", href: "/marketplace?tab=campaigns" },
+    { icon: User, label: "Profil", href: "/creator/profile" },
     { icon: Upload, label: "Portfolio", href: "/creator/portfolio" },
     { icon: Wallet, label: "Revenus", href: "/creator/earnings" },
     { icon: Settings, label: "Paramètres", href: "/creator/settings" },

@@ -31,31 +31,31 @@ const faqStructuredData = {
             "name": "Qu'est-ce que le contenu UGC ?",
             "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Le User Generated Content (UGC) est du contenu créé par des utilisateurs réels pour promouvoir une marque. Contrairement au marketing traditionnel, le UGC offre une authenticité qui génère jusqu'à 9.8x plus d'engagement que le contenu de marque classique."
+                "text": "Le User Generated Content (UGC) est du contenu authentique créé par de vrais utilisateurs pour promouvoir une marque. Contrairement au marketing traditionnel, le UGC génère jusqu'à 9.8x plus d'engagement car il est perçu comme plus crédible."
             }
         },
         {
             "@type": "Question",
-            "name": "Comment fonctionne UGC Suisse ?",
+            "name": "Comment fonctionne MOSH ?",
             "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "UGC Suisse connecte les marques suisses avec des créateurs de contenu locaux. Les marques publient des campagnes, les créateurs postulent, et une fois acceptés, ils produisent du contenu authentique. Tout est géré via notre plateforme sécurisée."
+                "text": "MOSH est une agence UGC suisse. Vous nous transmettez votre brief, nous sélectionnons le créateur idéal dans notre réseau, nous gérons la production, les contrats et la livraison. Vous recevez vos vidéos prêtes à l'emploi."
             }
         },
         {
             "@type": "Question",
-            "name": "Combien coûte UGC Suisse ?",
+            "name": "Combien coûte une vidéo UGC avec MOSH ?",
             "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "L'inscription sur UGC Suisse est 100% gratuite pour les créateurs et les marques. Les marques définissent leur propre budget pour chaque campagne. Il n'y a aucun frais caché ni commission sur les paiements."
+                "text": "Le tarif dépend du type de contenu, de la complexité et du nombre de vidéos. Nous établissons un devis personnalisé pour chaque mission. Contactez-nous pour recevoir une offre adaptée à votre projet."
             }
         },
         {
             "@type": "Question",
-            "name": "Comment devenir créateur UGC en Suisse ?",
+            "name": "Qui sont vos créateurs ?",
             "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Inscrivez-vous gratuitement, complétez votre profil avec vos spécialités et exemples de contenu, puis parcourez les campagnes disponibles et postulez. Aucune expérience préalable n'est requise."
+                "text": "Notre réseau regroupe des créateurs UGC professionnels basés en Suisse romande. Chaque créateur est vérifié et sélectionné par notre équipe pour garantir un niveau de qualité premium."
             }
         },
         {
@@ -63,7 +63,7 @@ const faqStructuredData = {
             "name": "Comment les paiements sont-ils gérés ?",
             "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Les budgets sont définis en CHF par les marques pour chaque campagne. Le paiement est convenu entre la marque et le créateur. UGC Suisse ne prélève aucune commission sur les transactions."
+                "text": "MOSH gère l'intégralité des transactions. Vous payez MOSH directement en CHF, et nous rémunérons les créateurs. Contrats, factures et TVA suisse (8.1%) sont gérés automatiquement."
             }
         }
     ]
@@ -79,32 +79,32 @@ interface FAQItem {
 const FAQ_ITEMS: FAQItem[] = [
     {
         question: "Qu'est-ce que le contenu UGC ?",
-        answer: "Le User Generated Content (UGC) est du contenu authentique créé par de vrais utilisateurs pour promouvoir une marque ou un produit. Contrairement aux publicités traditionnelles, le UGC génère jusqu'à 9.8x plus d'engagement car il est perçu comme plus authentique et digne de confiance par les consommateurs. En Suisse, le marché du UGC est en pleine expansion avec une demande croissante pour du contenu en français, allemand et italien.",
+        answer: "Le User Generated Content (UGC) est du contenu authentique créé par de vrais utilisateurs pour promouvoir une marque ou un produit. Contrairement aux publicités traditionnelles en studio, le UGC génère jusqu'à 9.8x plus d'engagement car il est perçu comme plus crédible et naturel par les consommateurs. C'est le format publicitaire le plus performant en 2026.",
         category: 'general'
     },
     {
-        question: "Comment fonctionne UGC Suisse ?",
-        answer: "UGC Suisse est une plateforme qui connecte les marques suisses avec des créateurs de contenu locaux. Le processus est simple : les marques publient des campagnes avec leurs besoins et leur budget, les créateurs parcourent les opportunités et postulent à celles qui les intéressent, une fois accepté, le créateur produit le contenu demandé. Tout est géré via notre plateforme sécurisée, de la candidature à la livraison du contenu.",
+        question: "Comment fonctionne MOSH ?",
+        answer: "MOSH est une agence UGC basée en Suisse. Contrairement aux plateformes marketplace, nous gérons tout pour vous : vous nous envoyez votre brief, notre équipe sélectionne le créateur idéal dans notre réseau, nous gérons la production, les contrats juridiques (conformes au CO suisse), les révisions et la livraison. Vous recevez vos vidéos prêtes à être diffusées.",
         category: 'general'
     },
     {
-        question: "Quelle est la différence entre UGC et le marketing d'influence ?",
-        answer: "Le marketing d'influence repose sur la portée personnelle d'un influenceur (nombre d'abonnés, visibilité). Le UGC, en revanche, se concentre sur la création de contenu authentique que la marque peut utiliser sur ses propres canaux (site web, publicités, réseaux sociaux). Un créateur UGC n'a pas besoin d'avoir des milliers d'abonnés — c'est la qualité et l'authenticité du contenu qui comptent.",
+        question: "Quelle est la différence entre MOSH et une plateforme marketplace ?",
+        answer: "Sur une marketplace, vous devez chercher, négocier et gérer les créateurs vous-même. Chez MOSH, notre équipe s'occupe de tout : sélection du créateur, rédaction du contrat, suivi de la production, contrôle qualité et livraison. Vous gagnez du temps et bénéficiez de notre expertise pour garantir un résultat professionnel.",
         category: 'general'
     },
     {
-        question: "UGC Suisse est-il disponible dans toute la Suisse ?",
-        answer: "Oui ! UGC Suisse est disponible dans toute la Suisse romande et nous nous étendons progressivement à la Suisse alémanique et au Tessin. Nos créateurs sont basés à Genève, Lausanne, Fribourg, Neuchâtel, Sion, et dans tout le reste de la Suisse.",
+        question: "MOSH est-il disponible dans toute la Suisse ?",
+        answer: "Oui ! Notre réseau de créateurs couvre toute la Suisse romande — Genève, Lausanne, Fribourg, Neuchâtel, Sion et bien d'autres villes. Nous nous étendons progressivement à la Suisse alémanique et au Tessin.",
         category: 'general'
     },
     {
-        question: "Comment devenir créateur UGC en Suisse ?",
-        answer: "C'est simple et gratuit ! Inscrivez-vous sur UGC Suisse, complétez votre profil avec vos spécialités (témoignage, unboxing, review, etc.), ajoutez des exemples de votre travail, puis parcourez les campagnes disponibles et postulez. Aucune expérience préalable n'est requise — si vous savez créer du contenu engageant avec votre smartphone, vous pouvez devenir créateur UGC.",
+        question: "Comment rejoindre le réseau de créateurs MOSH ?",
+        answer: "Inscrivez-vous sur notre plateforme et complétez votre profil avec vos spécialités (témoignage, unboxing, review, etc.) et exemples de contenu. Notre équipe évalue chaque candidature pour maintenir un niveau de qualité premium. Si votre profil correspond à nos standards, vous serez intégré à notre réseau et recevrez des missions.",
         category: 'creators'
     },
     {
-        question: "Combien peut gagner un créateur UGC ?",
-        answer: "Les revenus varient selon le type de contenu et la complexité de la campagne. En Suisse, les budgets par vidéo UGC vont généralement de CHF 200 à CHF 1'500+. Les créateurs expérimentés avec un portfolio solide peuvent obtenir des missions récurrentes et augmenter progressivement leurs tarifs.",
+        question: "Combien peut gagner un créateur avec MOSH ?",
+        answer: "Les rémunérations varient selon le type de contenu et la complexité de la mission. En Suisse, les budgets par vidéo UGC vont généralement de CHF 200 à CHF 1'500+. MOSH gère les contrats et les paiements de manière transparente — vous recevez votre rémunération en CHF après validation de la livraison.",
         category: 'creators'
     },
     {
@@ -113,43 +113,43 @@ const FAQ_ITEMS: FAQItem[] = [
         category: 'creators'
     },
     {
-        question: "Puis-je postuler à plusieurs campagnes en même temps ?",
-        answer: "Absolument ! Vous pouvez postuler à autant de campagnes que vous le souhaitez. Nous vous recommandons de ne postuler qu'aux campagnes qui correspondent vraiment à votre profil et vos compétences pour maximiser vos chances d'être sélectionné.",
+        question: "Comment se passe une mission avec MOSH ?",
+        answer: "MOSH vous contacte avec un brief détaillé. Vous recevez un contrat de mandat (conforme au CO suisse, art. 394 ss) à signer électroniquement. Vous produisez le contenu selon les spécifications, le soumettez pour validation via la plateforme, et recevez votre paiement après approbation. Des révisions sont incluses dans chaque mission.",
         category: 'creators'
     },
     {
-        question: "Comment publier une campagne UGC ?",
-        answer: "Créez votre compte marque gratuitement, puis cliquez sur 'Nouvelle campagne' depuis votre dashboard. Décrivez vos besoins (type de contenu, brief créatif, délai), définissez votre budget en CHF, et publiez. Les créateurs qualifiés postuleront à votre campagne et vous pourrez sélectionner ceux qui correspondent le mieux à votre vision.",
+        question: "Comment lancer ma première campagne UGC ?",
+        answer: "Contactez-nous avec votre brief : décrivez votre marque, le type de contenu souhaité, votre budget et vos délais. Notre équipe vous accompagne pour affiner le brief, sélectionner le créateur idéal et lancer la production. Vous n'avez rien d'autre à gérer.",
         category: 'brands'
     },
     {
-        question: "Comment choisir le bon créateur ?",
-        answer: "Chaque créateur dispose d'un profil détaillé avec son portfolio, ses spécialités, ses évaluations et ses statistiques. Nous vous recommandons de regarder attentivement les exemples de travail précédents, de vérifier les avis d'autres marques, et de contacter directement les créateurs via notre messagerie intégrée.",
+        question: "Comment MOSH choisit-il le bon créateur pour ma marque ?",
+        answer: "Notre équipe analyse votre brief, votre univers de marque et votre audience cible pour sélectionner le profil le plus adapté dans notre réseau vérifié. Nous vous proposons un ou plusieurs créateurs avec leur portfolio. Vous validez notre recommandation avant le lancement de la production.",
         category: 'brands'
     },
     {
         question: "Quels types de contenu puis-je commander ?",
-        answer: "UGC Suisse couvre tous les formats populaires : témoignages vidéo, unboxings, reviews produits, tutoriels, contenu lifestyle, ASMR, et bien plus. Vous pouvez spécifier le format (vertical 9:16 pour TikTok/Reels/Shorts, horizontal 16:9 pour YouTube, carré 1:1 pour Instagram), la durée, et fournir un brief détaillé.",
+        answer: "MOSH couvre tous les formats populaires : témoignages vidéo, unboxings, reviews produits, tutoriels, contenu lifestyle, ASMR, et bien plus. Nous gérons tous les formats (vertical 9:16 pour TikTok/Reels/Shorts, horizontal 16:9 pour YouTube, carré 1:1 pour Instagram). Vous recevez les fichiers source prêts à être publiés.",
         category: 'brands'
     },
     {
-        question: "Combien coûte UGC Suisse ?",
-        answer: "L'inscription et l'utilisation de la plateforme sont 100% gratuites, tant pour les créateurs que pour les marques. Les marques définissent librement leur budget pour chaque campagne. Il n'y a aucun frais caché, aucun abonnement, et aucune commission sur les paiements.",
+        question: "Combien coûte une campagne avec MOSH ?",
+        answer: "Le tarif dépend du nombre de vidéos, du type de contenu et de la complexité du brief. Nous établissons un devis personnalisé et transparent pour chaque projet, avec le détail des coûts (HT, TVA 8.1%, TTC). Contactez-nous pour recevoir une offre adaptée à votre budget.",
         category: 'payments'
     },
     {
         question: "Comment les paiements sont-ils gérés ?",
-        answer: "Les budgets sont définis en CHF par les marques pour chaque campagne. Le paiement est convenu directement entre la marque et le créateur lors de la validation de la collaboration. UGC Suisse facilite la mise en relation et la gestion de projet, mais ne gère pas les transactions financières directement.",
+        answer: "MOSH gère l'intégralité de la facturation. Vous payez MOSH en CHF sur facture, et nous rémunérons les créateurs directement. Les contrats de mandat, les factures avec TVA suisse (8.1%) et les cessions de droits sont générés automatiquement par notre plateforme. Tout est conforme au droit suisse.",
         category: 'payments'
     },
     {
         question: "Comment mes données sont-elles protégées ?",
-        answer: "UGC Suisse prend la protection des données très au sérieux. Nous sommes conformes à la Loi fédérale suisse sur la protection des données (LPD) et au RGPD européen. Vos données personnelles sont stockées sur des serveurs sécurisés, les communications sont chiffrées, et nous ne partageons jamais vos informations avec des tiers.",
+        answer: "MOSH prend la protection des données très au sérieux. Nous sommes conformes à la Loi fédérale suisse sur la protection des données (LPD) et au RGPD européen. Vos données et celles de vos briefs sont stockées sur des serveurs sécurisés en Suisse. Les communications sont chiffrées et nous ne partageons jamais vos informations avec des tiers.",
         category: 'security'
     },
     {
-        question: "Que faire en cas de litige ?",
-        answer: "En cas de désaccord, nous vous encourageons d'abord à utiliser notre messagerie intégrée pour résoudre le problème directement. Si le conflit persiste, vous pouvez contacter notre équipe support qui servira de médiateur. Nous examinons chaque cas individuellement et cherchons une résolution équitable.",
+        question: "Que se passe-t-il si le contenu ne me convient pas ?",
+        answer: "Chaque mission inclut un nombre défini de révisions (précisé dans le contrat). Si le contenu ne correspond pas au brief après les révisions incluses, notre équipe intervient pour trouver une solution. MOSH agit comme médiateur et garant de la qualité pour chaque livraison.",
         category: 'security'
     },
 ]
@@ -292,9 +292,9 @@ export default function AidePage() {
 
                                 <div className="space-y-12">
                                     {[
-                                        { num: '01', title: 'Publiez', desc: 'Décrivez votre besoin en contenu et fixez votre budget en CHF. Ça prend 5 minutes.' },
-                                        { num: '02', title: 'Sélectionnez', desc: 'Les créateurs postulent. Parcourez les portfolios, les notes, et choisissez le talent idéal.' },
-                                        { num: '03', title: 'Recevez', desc: 'Le créateur produit votre contenu. Validez, demandez des révisions si besoin, et utilisez-le partout.' },
+                                        { num: '01', title: 'Briefez-nous', desc: 'Décrivez votre besoin en contenu, votre marque et vos objectifs. Notre équipe vous rappelle sous 24h.' },
+                                        { num: '02', title: 'On s\'occupe de tout', desc: 'MOSH sélectionne le créateur idéal, rédige le contrat et lance la production. Vous n\'avez rien à gérer.' },
+                                        { num: '03', title: 'Recevez vos vidéos', desc: 'Validez le contenu, demandez des révisions si nécessaire, et recevez vos fichiers prêts à diffuser.' },
                                     ].map((step, i) => (
                                         <motion.div
                                             key={step.num}
@@ -337,9 +337,9 @@ export default function AidePage() {
 
                                 <div className="space-y-12">
                                     {[
-                                        { num: '01', title: 'Inscrivez-vous', desc: "Créez votre profil gratuit, ajoutez vos spécialités et montrez votre meilleur contenu." },
-                                        { num: '02', title: 'Postulez', desc: 'Parcourez le marketplace, trouvez des campagnes qui vous inspirent, et postulez en un clic.' },
-                                        { num: '03', title: 'Créez & gagnez', desc: 'Produisez du contenu authentique, livrez à temps, et recevez votre rémunération en CHF.' },
+                                        { num: '01', title: 'Inscrivez-vous', desc: "Créez votre profil, ajoutez vos spécialités et montrez votre meilleur contenu pour rejoindre le réseau MOSH." },
+                                        { num: '02', title: 'Recevez des missions', desc: 'MOSH vous contacte avec des briefs adaptés à votre profil. Vous signez un contrat clair et commencez à créer.' },
+                                        { num: '03', title: 'Créez & gagnez', desc: 'Produisez du contenu authentique, livrez via la plateforme, et recevez votre rémunération en CHF.' },
                                     ].map((step, i) => (
                                         <motion.div
                                             key={step.num}
@@ -388,16 +388,16 @@ export default function AidePage() {
                         <div className="grid md:grid-cols-3 gap-12 md:gap-16">
                             {[
                                 {
-                                    headline: '0 CHF',
-                                    text: <>L&apos;inscription est <span className="text-white">100% gratuite</span> pour les créateurs et les marques. Pas d&apos;abonnement, pas de commission.</>
+                                    headline: 'Clé en main',
+                                    text: <>MOSH gère <span className="text-white">tout de A à Z</span> : sélection du créateur, contrats, production, révisions et livraison. Zéro charge pour vous.</>
                                 },
                                 {
                                     headline: '100% suisse',
-                                    text: <>Conçue pour le marché suisse, avec des <span className="text-white">créateurs locaux</span> et des paiements en francs suisses.</>
+                                    text: <>Agence basée en Suisse, créateurs locaux, contrats conformes au <span className="text-white">Code des Obligations</span> et paiements en CHF.</>
                                 },
                                 {
                                     headline: 'LPD & RGPD',
-                                    text: <>Vos données sont <span className="text-white">protégées et chiffrées</span>. Conforme à la loi suisse et aux normes européennes.</>
+                                    text: <>Vos données et briefs sont <span className="text-white">protégés et chiffrés</span>. Conforme à la loi suisse et aux normes européennes.</>
                                 },
                             ].map((item, i) => (
                                 <motion.div
@@ -417,16 +417,16 @@ export default function AidePage() {
                         <div className="grid md:grid-cols-3 gap-12 md:gap-16 mt-16 pt-16 border-t border-white/[0.04]">
                             {[
                                 {
-                                    headline: 'Messagerie',
-                                    text: <>Communiquez <span className="text-white">en temps réel</span> avec vos collaborateurs, directement dans la plateforme.</>
+                                    headline: 'Contrats auto',
+                                    text: <>Contrats de mandat et factures <span className="text-white">générés automatiquement</span> avec TVA suisse (8.1%) et cession de droits.</>
                                 },
                                 {
-                                    headline: 'Transparence',
-                                    text: <>Les budgets sont <span className="text-white">visibles et publics</span>. Chaque créateur a un profil détaillé avec portfolio et évaluations.</>
+                                    headline: 'Qualité garantie',
+                                    text: <>Chaque créateur est <span className="text-white">vérifié par notre équipe</span>. Révisions incluses dans chaque mission pour un résultat parfait.</>
                                 },
                                 {
                                     headline: '< 24h',
-                                    text: <>Notre équipe <span className="text-white">répond sous 24 heures</span> à toutes vos questions et demandes de support.</>
+                                    text: <>Notre équipe <span className="text-white">répond sous 24 heures</span> et vous accompagne à chaque étape de votre projet.</>
                                 },
                             ].map((item, i) => (
                                 <motion.div
@@ -590,12 +590,11 @@ export default function AidePage() {
                                 {/* Quick links */}
                                 <div className="mt-12 pt-8 border-t border-white/[0.06] space-y-3">
                                     {[
-                                        { label: 'Explorer le marketplace', href: '/marketplace' },
-                                        { label: "S'inscrire comme créateur", href: '/signup?role=creator' },
-                                        { label: "S'inscrire comme marque", href: '/signup?role=brand' },
+                                        { label: 'Demander un devis', href: '/signup?role=brand' },
+                                        { label: 'Rejoindre le réseau créateurs', href: '/signup?role=creator' },
                                     ].map((link) => (
                                         <Link key={link.href} href={link.href} className="flex items-center gap-3 text-white/40 hover:text-white transition-colors group text-sm">
-                                            <ArrowRight className="w-3. h-3.5 group-hover:translate-x-1 transition-transform" />
+                                            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                                             {link.label}
                                         </Link>
                                     ))}
@@ -711,7 +710,7 @@ export default function AidePage() {
                                 Prêt à commencer ?
                             </h2>
                             <p className="text-white/40 text-lg mb-10 max-w-lg mx-auto">
-                                Rejoignez la première plateforme UGC 100% suisse. Inscription gratuite.
+                                Confiez votre contenu UGC à l&apos;agence de référence en Suisse romande.
                             </p>
 
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">

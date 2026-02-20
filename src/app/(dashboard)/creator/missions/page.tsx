@@ -26,7 +26,8 @@ import { useRouter } from 'next/navigation'
 import { formatCHF } from "@/lib/validations/swiss"
 import { useAuth } from "@/contexts/AuthContext"
 import { createClient } from "@/lib/supabase/client"
-import { getContractText, signContractAsCreator } from '@/lib/services/contractService'
+import { getMoshContractText, signMoshContract } from '@/lib/services/contractService'
+import { getInvoiceText } from '@/lib/services/invoiceService'
 import ContractViewer from '@/components/contracts/ContractViewer'
 import MissionDetailModal from '@/components/missions/MissionDetailModal'
 
@@ -46,9 +47,13 @@ interface Mission {
     }
     status: string
     created_at: string
-    // Contract info
-    contract_status: string | null
+    // Contract info (MOSH model)
+    contract_status: 'pending_creator' | 'active' | null
     contract_url: string | null
+    creator_amount_chf: number | null
+    // Invoice info
+    invoice_url: string | null
+    invoice_number: string | null
     // Deliverable info
     deliverable_status: 'none' | 'review' | 'revision_requested' | 'approved' | 'rejected'
     deliverable_revision_notes: string | null
@@ -137,7 +142,7 @@ export default function CreatorMissionsPage() {
                 // Fetch campaign + brand
                 const { data: campaignData } = await (supabase as any)
                     .from('campaigns')
-                    .select('id, title, budget_chf, deadline, script_type, brand_id')
+                    .select('id, title, budget_chf, deadline, script_type, brand_id, contract_mosh_status, contract_mosh_url, creator_amount_chf, invoice_url, invoice_number')
                     .eq('id', app.campaign_id)
                     .single()
 
@@ -176,8 +181,11 @@ export default function CreatorMissionsPage() {
                     },
                     status: app.status,
                     created_at: app.created_at,
-                    contract_status: app.contract_status || null,
-                    contract_url: app.contract_url || null,
+                    contract_status: campaignData.contract_mosh_status || null,
+                    contract_url: campaignData.contract_mosh_url || null,
+                    creator_amount_chf: campaignData.creator_amount_chf || null,
+                    invoice_url: campaignData.invoice_url || null,
+                    invoice_number: campaignData.invoice_number || null,
                     deliverable_status: latestDeliverable?.status || 'none',
                     deliverable_revision_notes: latestDeliverable?.revision_notes || null,
                 })
@@ -195,7 +203,7 @@ export default function CreatorMissionsPage() {
         setViewerMission(mission)
         setViewerText(null)
         setViewerOpen(true)
-        const text = await getContractText(mission.id)
+        const text = await getMoshContractText(mission.campaign.id)
         setViewerText(text)
     }
 
@@ -211,7 +219,7 @@ export default function CreatorMissionsPage() {
             clientIp = data.ip
         } catch { /* fallback */ }
 
-        const result = await signContractAsCreator(viewerMission.id, clientIp)
+        const result = await signMoshContract(viewerMission.campaign.id, clientIp)
         if (result.success) {
             setMissions(prev =>
                 prev.map(m =>
@@ -264,12 +272,6 @@ export default function CreatorMissionsPage() {
                     <h1 className="text-2xl md:text-3xl font-bold text-white">Mes Missions</h1>
                     <p className="text-white/60 mt-1">Gérez vos collaborations en cours</p>
                 </div>
-                <Link href="/marketplace">
-                    <Button className="btn-primary w-full sm:w-auto">
-                        <Briefcase className="h-4 w-4 mr-2" />
-                        Trouver des missions
-                    </Button>
-                </Link>
             </div>
 
             {/* Stats Row */}
@@ -349,11 +351,7 @@ export default function CreatorMissionsPage() {
                             <Briefcase className="w-12 h-12 mx-auto mb-4 opacity-50" />
                             <p>{activeTab === 'active' ? 'Aucune mission en cours' : 'Aucune mission terminée'}</p>
                             {activeTab === 'active' && (
-                                <Link href="/marketplace">
-                                    <Button className="btn-primary mt-4">
-                                        Explorer les campagnes
-                                    </Button>
-                                </Link>
+                                <p className="text-sm mt-2">MOSH vous contactera dès qu&apos;une mission correspond à votre profil</p>
                             )}
                         </div>
                     ) : (

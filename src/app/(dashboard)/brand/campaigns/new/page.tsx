@@ -47,10 +47,8 @@ export default function NewCampaignPage() {
         description: '',
         category: '',
         contentType: '',
-        budgetMin: '',
-        budgetMax: '',
+        pricingPack: '' as '' | '1_video' | '3_videos' | 'custom',
         deadline: '',
-        creatorsNeeded: '1',
         requirements: '',
         dos: [''],
         donts: [''],
@@ -122,12 +120,15 @@ export default function NewCampaignPage() {
             const campaignPayload = {
                 title: formData.title,
                 description: formData.description || undefined,
-                product_name: formData.title, // Using title as product name for now
+                product_name: formData.title,
                 script_type: (selectedSpecialties[0] || 'testimonial') as any,
-                budget_chf: Number(formData.budgetMax) || Number(formData.budgetMin) || 0,
+                budget_chf: formData.pricingPack === '1_video' ? 490
+                    : formData.pricingPack === '3_videos' ? 1290
+                        : 0,
                 deadline: formData.deadline ? formData.deadline : undefined,
-                status: 'open' as const,
+                status: 'draft' as const,
                 script_notes: formData.requirements || undefined,
+                pricing_pack: (formData.pricingPack || undefined) as any,
             }
 
             console.log('Campaign payload:', campaignPayload)
@@ -166,8 +167,8 @@ export default function NewCampaignPage() {
                 </Link>
                 <div className="h-6 w-px bg-white/20" />
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Nouvelle campagne</h1>
-                    <p className="text-white/60 text-sm">Créez une nouvelle campagne UGC</p>
+                    <h1 className="text-2xl font-bold text-white">Nouveau brief UGC</h1>
+                    <p className="text-white/60 text-sm">Décrivez votre besoin, MOSH s&apos;occupe du reste</p>
                 </div>
             </div>
 
@@ -395,44 +396,44 @@ export default function NewCampaignPage() {
                     </div>
                 )}
 
+
                 {step === 3 && (
                     <div className="space-y-6">
-                        <h2 className="text-xl font-semibold text-white mb-6">Budget & Délais</h2>
+                        <h2 className="text-xl font-semibold text-white mb-6">Tarif & Délai</h2>
 
-                        {/* Budget Range */}
+                        {/* Pricing Packs */}
                         <div>
-                            <label className="block text-sm text-white/60 mb-2">Fourchette de budget (CHF) *</label>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="relative">
-                                    <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                                    <input
-                                        type="number"
-                                        value={campaign.budgetMin}
-                                        onChange={(e) => setCampaign({ ...campaign, budgetMin: e.target.value })}
-                                        placeholder="Min"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25"
-                                    />
-                                </div>
-                                <div className="relative">
-                                    <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                                    <input
-                                        type="number"
-                                        value={campaign.budgetMax}
-                                        onChange={(e) => setCampaign({ ...campaign, budgetMax: e.target.value })}
-                                        placeholder="Max"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25"
-                                    />
-                                </div>
+                            <label className="block text-sm text-white/60 mb-3">Choisissez votre pack *</label>
+                            <div className="space-y-3">
+                                {[
+                                    { id: '1_video' as const, label: '1 vidéo UGC', price: 'CHF 490', desc: 'Idéal pour un premier test' },
+                                    { id: '3_videos' as const, label: 'Pack 3 vidéos', price: 'CHF 1\'290', desc: 'Le plus populaire — créez du contenu varié' },
+                                    { id: 'custom' as const, label: 'Sur mesure', price: 'Sur devis', desc: 'Pour les campagnes complexes ou à fort volume' },
+                                ].map(pack => (
+                                    <button
+                                        key={pack.id}
+                                        onClick={() => setCampaign({ ...campaign, pricingPack: pack.id })}
+                                        className={`w-full p-4 rounded-xl text-left transition-all flex items-center justify-between ${campaign.pricingPack === pack.id
+                                            ? 'bg-accent/20 border-accent/50 border-2'
+                                            : 'bg-white/5 border border-white/10 hover:border-white/20'
+                                            }`}
+                                    >
+                                        <div>
+                                            <p className={`font-medium ${campaign.pricingPack === pack.id ? 'text-white' : 'text-white/80'}`}>
+                                                {pack.label}
+                                            </p>
+                                            <p className="text-xs text-white/40 mt-0.5">{pack.desc}</p>
+                                        </div>
+                                        <span className={`text-lg font-bold ${campaign.pricingPack === pack.id ? 'text-accent' : 'text-white/60'}`}>
+                                            {pack.price}
+                                        </span>
+                                    </button>
+                                ))}
                             </div>
-                            <p className="text-xs text-white/40 mt-2 flex items-center gap-1">
-                                <HelpCircle className="w-3 h-3" />
-                                Budget par créateur, hors frais de plateforme
-                            </p>
                         </div>
-
                         {/* Deadline */}
-                        <div>
-                            <label className="block text-sm text-white/60 mb-2">Date limite de candidature *</label>
+                        <div className="mt-6">
+                            <label className="block text-sm text-white/60 mb-2">Date souhaitée de livraison</label>
                             <div className="relative">
                                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                                 <input
@@ -441,24 +442,6 @@ export default function NewCampaignPage() {
                                     onChange={(e) => setCampaign({ ...campaign, deadline: e.target.value })}
                                     className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white focus:outline-none focus:border-white/25 [color-scheme:dark]"
                                 />
-                            </div>
-                        </div>
-
-                        {/* Creators Needed */}
-                        <div>
-                            <label className="block text-sm text-white/60 mb-2">Nombre de créateurs souhaités</label>
-                            <div className="relative">
-                                <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                                <select
-                                    value={campaign.creatorsNeeded}
-                                    onChange={(e) => setCampaign({ ...campaign, creatorsNeeded: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white focus:outline-none focus:border-white/25 appearance-none"
-                                >
-                                    <option value="1">1 créateur</option>
-                                    <option value="2-3">2-3 créateurs</option>
-                                    <option value="4-5">4-5 créateurs</option>
-                                    <option value="5+">5+ créateurs</option>
-                                </select>
                             </div>
                         </div>
 
@@ -478,16 +461,17 @@ export default function NewCampaignPage() {
                                     <span className="text-white">{selectedSpecialties.map(id => SPECIALTIES.find(s => s.id === id)?.label || id).join(', ') || '—'}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-white/50">Budget</span>
+                                    <span className="text-white/50">Pack</span>
                                     <span className="text-white">
-                                        {campaign.budgetMin && campaign.budgetMax
-                                            ? `CHF ${campaign.budgetMin} – ${campaign.budgetMax}`
-                                            : '—'
+                                        {campaign.pricingPack === '1_video' ? '1 vidéo — CHF 490'
+                                            : campaign.pricingPack === '3_videos' ? 'Pack 3 vidéos — CHF 1\'290'
+                                                : campaign.pricingPack === 'custom' ? 'Sur mesure'
+                                                    : '—'
                                         }
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-white/50">Date limite</span>
+                                    <span className="text-white/50">Date souhaitée</span>
                                     <span className="text-white">{campaign.deadline || '—'}</span>
                                 </div>
                             </div>
@@ -525,12 +509,12 @@ export default function NewCampaignPage() {
                             {isSubmitting ? (
                                 <>
                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Publication...
+                                    Envoi en cours...
                                 </>
                             ) : (
                                 <>
                                     <CheckCircle2 className="w-4 h-4 mr-2" />
-                                    Publier la campagne
+                                    Envoyer le brief
                                 </>
                             )}
                         </Button>

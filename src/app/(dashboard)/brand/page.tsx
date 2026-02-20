@@ -193,15 +193,15 @@ export default function BrandDashboardPage() {
                             </CardContent>
                         </Card>
                     </Link>
-                    <Link href="/marketplace">
+                    <Link href="/brand/campaigns">
                         <Card className="bg-white/[0.08] border-white/[0.10] backdrop-blur-xl hover:bg-white/[0.12] transition-colors cursor-pointer group">
                             <CardContent className="pt-6 flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                                     <Eye className="h-6 w-6 text-blue-400" />
                                 </div>
                                 <div>
-                                    <p className="font-medium text-white">Explorer les créateurs</p>
-                                    <p className="text-sm text-white/50">Trouvez les meilleurs talents</p>
+                                    <p className="font-medium text-white">Suivre mes campagnes</p>
+                                    <p className="text-sm text-white/50">Voyez l&apos;avancement de vos briefs</p>
                                 </div>
                             </CardContent>
                         </Card>

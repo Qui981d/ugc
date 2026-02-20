@@ -18,7 +18,7 @@ import {
     Shield,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { generateContractText } from '@/lib/contracts/contractTemplate'
+import { generateMoshContractText, MOSH_COMPANY_INFO } from '@/lib/contracts/contractTemplate'
 
 interface ContractModalProps {
     isOpen: boolean
@@ -72,27 +72,32 @@ export default function ContractModal({
     // Generate preview text from template using data already available
     const previewText = useMemo(() => {
         if (contractText) return contractText
-        return generateContractText({
+        return generateMoshContractText({
             CONTRACT_ID: '(sera généré à la signature)',
             CONTRACT_DATE: new Date().toLocaleDateString('fr-CH'),
-            BRAND_COMPANY_NAME: data.brandName,
-            BRAND_CONTACT_NAME: data.brandContact,
-            BRAND_ADDRESS: '(adresse du profil)',
-            BRAND_EMAIL: '(email du compte)',
+            MOSH_COMPANY_NAME: MOSH_COMPANY_INFO.name,
+            MOSH_ADDRESS: MOSH_COMPANY_INFO.address,
+            MOSH_UID: MOSH_COMPANY_INFO.uid,
+            MOSH_EMAIL: MOSH_COMPANY_INFO.email,
             CREATOR_FULL_NAME: data.creatorName,
             CREATOR_ADDRESS: '(adresse du profil)',
             CREATOR_EMAIL: '(email du compte)',
-            CAMPAIGN_TITLE: data.campaignTitle,
-            CAMPAIGN_DESCRIPTION: data.campaignDescription || 'Selon le brief créatif',
+            MISSION_TITLE: data.campaignTitle,
+            MISSION_DESCRIPTION: data.campaignDescription || 'Selon le brief créatif',
+            BRAND_NAME: data.brandName,
             DELIVERABLES: `1 vidéo ${typeMap[data.scriptType] || data.scriptType} au format ${formatMap[data.format] || data.format}`,
+            FORMAT: formatMap[data.format] || data.format,
+            SCRIPT_TYPE: typeMap[data.scriptType] || data.scriptType,
             DEADLINE: data.deadline
                 ? new Date(data.deadline).toLocaleDateString('fr-CH')
                 : 'À convenir entre les parties',
             REVISION_COUNT: '2',
             AMOUNT_CHF: data.amount.toLocaleString('fr-CH'),
-            PAYMENT_TERMS: 'Paiement intégral via la plateforme UGC Suisse après validation des livrables.',
-            BRAND_ACCEPTANCE_TIMESTAMP: '(en attente de signature)',
-            BRAND_IP_ADDRESS: '(en attente)',
+            AMOUNT_HT: (data.amount / 1.081).toFixed(2),
+            TVA_AMOUNT: (data.amount - data.amount / 1.081).toFixed(2),
+            TVA_RATE: '8.1',
+            PAYMENT_TERMS: 'Paiement à 30 jours après validation des livrables.',
+            MOSH_ACCEPTANCE_TIMESTAMP: '(en attente de signature)',
             CREATOR_ACCEPTANCE_TIMESTAMP: '(en attente de signature)',
             CREATOR_IP_ADDRESS: '(en attente)',
         })

@@ -1,66 +1,66 @@
 import { createClient } from '@/lib/supabase/client'
-import { generateContractText, type ContractVariables } from '@/lib/contracts/contractTemplate'
-import type { Application, Campaign, ProfileBrand, ProfileCreator, User } from '@/types/database'
+import { generateMoshContractText, MOSH_COMPANY_INFO, type ContractVariables } from '@/lib/contracts/contractTemplate'
+import type { Campaign, ProfileCreator, ProfileBrand, User } from '@/types/database'
 
 // ============================================================
-// Contract Service — Orchestrates generation, storage, signing
+// Contract Service — MOSH ↔ Creator contract lifecycle
 // ============================================================
 
-export interface ContractData {
-    application: Application
+export interface MoshContractData {
     campaign: Campaign
     brand: User & { profile: ProfileBrand }
     creator: User & { profile: ProfileCreator }
 }
 
 /**
- * Fetch all data needed to generate a contract
+ * Fetch all data needed to generate a MOSH contract from a campaign
  */
-export async function getContractData(applicationId: string): Promise<ContractData | null> {
+export async function getContractData(campaignId: string): Promise<MoshContractData | null> {
     const supabase = createClient()
 
-    // Get application with campaign
-    const { data: appData, error: appError } = await supabase
-        .from('applications')
-        .select(`
-            *,
-            campaign:campaigns(*)
-        `)
-        .eq('id', applicationId)
+    // Get campaign
+    const { data: campaign, error: campError } = await supabase
+        .from('campaigns')
+        .select('*')
+        .eq('id', campaignId)
         .single()
 
-    if (appError || !appData) {
-        console.error('[Contract] Failed to fetch application:', appError)
+    if (campError || !campaign) {
+        console.error('[Contract] Failed to fetch campaign:', campError)
         return null
     }
 
-    const application = appData as unknown as Application & { campaign: Campaign }
-    const campaign = application.campaign
+    const typedCampaign = campaign as unknown as Campaign
+
+    if (!typedCampaign.selected_creator_id) {
+        console.error('[Contract] No creator assigned to campaign')
+        return null
+    }
 
     // Get brand user + profile
     const { data: brandUser } = await supabase
         .from('users')
         .select('*')
-        .eq('id', campaign.brand_id)
+        .eq('id', typedCampaign.brand_id)
         .single()
 
     const { data: brandProfile } = await supabase
         .from('profiles_brand')
         .select('*')
-        .eq('user_id', campaign.brand_id)
+        .eq('user_id', typedCampaign.brand_id)
         .single()
 
     // Get creator user + profile
     const { data: creatorUser } = await supabase
         .from('users')
         .select('*')
-        .eq('id', application.creator_id)
+        .eq('id', typedCampaign.selected_creator_id)
         .single()
 
     const { data: creatorProfile } = await supabase
         .from('profiles_creator')
         .select('*')
-        .eq('user_id', application.creator_id)
+        .eq('user_id', typedCampaign.selected_creator_id)
         .single()
 
     if (!brandUser || !brandProfile || !creatorUser || !creatorProfile) {
@@ -69,8 +69,7 @@ export async function getContractData(applicationId: string): Promise<ContractDa
     }
 
     return {
-        application,
-        campaign,
+        campaign: typedCampaign,
         brand: {
             ...(brandUser as unknown as User),
             profile: brandProfile as unknown as ProfileBrand,
@@ -82,33 +81,35 @@ export async function getContractData(applicationId: string): Promise<ContractDa
     }
 }
 
-/**
- * Build deliverables description from campaign data
- */
-function buildDeliverablesText(campaign: Campaign): string {
-    const formatMap: Record<string, string> = {
-        '9_16': 'Vertical 9:16 (TikTok/Reels/Shorts)',
-        '16_9': 'Horizontal 16:9 (YouTube)',
-        '1_1': 'Carré 1:1 (Instagram)',
-        '4_5': 'Portrait 4:5 (Instagram/Facebook)',
-    }
-    const typeMap: Record<string, string> = {
-        testimonial: 'Témoignage',
-        unboxing: 'Unboxing',
-        asmr: 'ASMR',
-        tutorial: 'Tutoriel',
-        lifestyle: 'Lifestyle',
-        review: 'Review produit',
-    }
+// ── Helpers ──────────────────────────────────────────────────
 
-    return `• Type de contenu : ${typeMap[campaign.script_type] || campaign.script_type}
-• Format : ${formatMap[campaign.format] || campaign.format}
+const FORMAT_MAP: Record<string, string> = {
+    '9_16': 'Vertical 9:16 (TikTok/Reels/Shorts)',
+    '16_9': 'Horizontal 16:9 (YouTube)',
+    '1_1': 'Carré 1:1 (Instagram)',
+    '4_5': 'Portrait 4:5 (Instagram/Facebook)',
+}
+
+const TYPE_MAP: Record<string, string> = {
+    testimonial: 'Témoignage',
+    unboxing: 'Unboxing',
+    asmr: 'ASMR',
+    tutorial: 'Tutoriel',
+    lifestyle: 'Lifestyle',
+    review: 'Review produit',
+}
+
+function buildDeliverablesText(campaign: Campaign): string {
+    const pricingPack = campaign.pricing_pack
+    let videoCount = '1'
+    if (pricingPack === '3_videos') videoCount = '3'
+    if (pricingPack === 'custom') videoCount = 'À définir selon le brief'
+
+    return `• ${videoCount} vidéo(s) ${TYPE_MAP[campaign.script_type] || campaign.script_type}
+• Format : ${FORMAT_MAP[campaign.format] || campaign.format}
 • Produit : ${campaign.product_name}${campaign.script_notes ? `\n• Notes créatives : ${campaign.script_notes}` : ''}`
 }
 
-/**
- * Format date in Swiss format DD.MM.YYYY
- */
 function formatDateCH(date: Date | string): string {
     const d = typeof date === 'string' ? new Date(date) : date
     return d.toLocaleDateString('fr-CH', {
@@ -118,9 +119,6 @@ function formatDateCH(date: Date | string): string {
     })
 }
 
-/**
- * Format timestamp for contract signature
- */
 function formatTimestamp(date: Date): string {
     return date.toLocaleString('fr-CH', {
         day: '2-digit',
@@ -133,57 +131,78 @@ function formatTimestamp(date: Date): string {
 }
 
 /**
- * Generate contract and save to Supabase Storage
- * Called when a brand accepts an application
+ * Compute TVA breakdown from a TTC amount
  */
-export async function createContract(
-    applicationId: string,
-    brandIp: string
+function computeTva(amountTtc: number, tvaRate: number = MOSH_COMPANY_INFO.tvaRate) {
+    const amountHt = amountTtc / (1 + tvaRate / 100)
+    const tvaAmount = amountTtc - amountHt
+    return {
+        amountHt: Math.round(amountHt * 100) / 100,
+        tvaAmount: Math.round(tvaAmount * 100) / 100,
+        tvaRate,
+    }
+}
+
+// ── Contract Generation ─────────────────────────────────────
+
+/**
+ * Generate a MOSH ↔ Creator contract for a campaign.
+ * Called by admin when assigning a creator.
+ */
+export async function createMoshContract(
+    campaignId: string,
+    creatorAmountChf: number
 ): Promise<{ success: boolean; contractUrl?: string; error?: string }> {
     const supabase = createClient()
 
-    // 1. Fetch all needed data
-    const data = await getContractData(applicationId)
+    const data = await getContractData(campaignId)
     if (!data) return { success: false, error: 'Données du contrat introuvables' }
 
-    const { application, campaign, brand, creator } = data
-    const contractId = `UGC-${Date.now()}-${applicationId.slice(0, 8).toUpperCase()}`
+    const { campaign, brand, creator } = data
+    const contractId = `MOSH-${new Date().getFullYear()}-${Date.now().toString(36).toUpperCase()}`
     const now = new Date()
 
-    // 2. Build contract variables
+    // TVA calculation
+    const { amountHt, tvaAmount, tvaRate } = computeTva(creatorAmountChf)
+
     const vars: ContractVariables = {
         CONTRACT_ID: contractId,
         CONTRACT_DATE: formatDateCH(now),
 
-        BRAND_COMPANY_NAME: brand.profile.company_name,
-        BRAND_CONTACT_NAME: brand.full_name,
-        BRAND_ADDRESS: brand.profile.address || 'Non renseignée',
-        BRAND_EMAIL: brand.email,
+        MOSH_COMPANY_NAME: MOSH_COMPANY_INFO.name,
+        MOSH_ADDRESS: MOSH_COMPANY_INFO.address,
+        MOSH_UID: MOSH_COMPANY_INFO.uid,
+        MOSH_EMAIL: MOSH_COMPANY_INFO.email,
 
         CREATOR_FULL_NAME: creator.full_name,
         CREATOR_ADDRESS: creator.profile.address || 'Non renseignée',
         CREATOR_EMAIL: creator.email,
 
-        CAMPAIGN_TITLE: campaign.title,
-        CAMPAIGN_DESCRIPTION: campaign.description || 'Voir le brief sur la plateforme UGC Suisse.',
+        MISSION_TITLE: campaign.title,
+        MISSION_DESCRIPTION: campaign.description || 'Selon le brief transmis via la plateforme MOSH.',
+        BRAND_NAME: brand.profile.company_name || brand.full_name,
         DELIVERABLES: buildDeliverablesText(campaign),
+        FORMAT: FORMAT_MAP[campaign.format] || campaign.format,
+        SCRIPT_TYPE: TYPE_MAP[campaign.script_type] || campaign.script_type,
         DEADLINE: campaign.deadline ? formatDateCH(campaign.deadline) : 'À convenir entre les parties',
         REVISION_COUNT: '2',
 
-        AMOUNT_CHF: campaign.budget_chf.toLocaleString('fr-CH'),
-        PAYMENT_TERMS: 'Paiement dû dans les 30 jours suivant la validation définitive des livrables.',
+        AMOUNT_CHF: creatorAmountChf.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
+        AMOUNT_HT: amountHt.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
+        TVA_AMOUNT: tvaAmount.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
+        TVA_RATE: tvaRate.toString(),
+        PAYMENT_TERMS: 'Paiement à 30 jours après validation définitive des livrables par MOSH.',
 
-        BRAND_ACCEPTANCE_TIMESTAMP: formatTimestamp(now),
-        BRAND_IP_ADDRESS: brandIp,
+        MOSH_ACCEPTANCE_TIMESTAMP: formatTimestamp(now),
         CREATOR_ACCEPTANCE_TIMESTAMP: 'En attente de signature',
         CREATOR_IP_ADDRESS: 'En attente de signature',
     }
 
-    // 3. Generate contract text
-    const contractText = generateContractText(vars)
+    // Generate contract text
+    const contractText = generateMoshContractText(vars)
 
-    // 4. Upload as text file to Supabase Storage
-    const fileName = `contracts/${contractId}.txt`
+    // Upload to Supabase Storage
+    const fileName = `mosh/${contractId}.txt`
     const blob = new Blob([contractText], { type: 'text/plain;charset=utf-8' })
 
     const { error: uploadError } = await supabase.storage
@@ -195,55 +214,40 @@ export async function createContract(
 
     if (uploadError) {
         console.error('[Contract] Upload error:', uploadError)
-        // If the bucket doesn't exist yet, still save in DB without URL
-        // The contract text can be regenerated
     }
 
-    // Get public URL
     const { data: urlData } = supabase.storage
         .from('contracts')
         .getPublicUrl(fileName)
 
     const contractUrl = urlData?.publicUrl || null
 
-    // 5. Update application with contract data
+    // Update campaign with contract data
     const { error: updateError } = await (supabase
-        .from('applications') as ReturnType<typeof supabase.from>)
+        .from('campaigns') as ReturnType<typeof supabase.from>)
         .update({
-            status: 'accepted',
-            contract_status: 'pending_creator',
-            contract_url: contractUrl,
-            contract_generated_at: now.toISOString(),
-            brand_signed_at: now.toISOString(),
-            brand_sign_ip: brandIp,
+            contract_mosh_url: contractUrl,
+            contract_mosh_status: 'pending_creator',
+            contract_mosh_generated_at: now.toISOString(),
+            creator_amount_chf: creatorAmountChf,
         })
-        .eq('id', applicationId)
+        .eq('id', campaignId)
 
     if (updateError) {
         console.error('[Contract] Update error:', updateError)
         return { success: false, error: updateError.message }
     }
 
-    // 6. Send notification to creator
-    await (supabase
-        .from('notifications') as ReturnType<typeof supabase.from>)
-        .insert({
-            user_id: creator.id,
-            type: 'application_accepted',
-            title: 'Candidature acceptée — Contrat à signer',
-            message: `Votre candidature pour "${campaign.title}" a été acceptée ! Consultez et signez le contrat pour commencer.`,
-            reference_id: campaign.id,
-            reference_type: 'campaign',
-        })
-
     return { success: true, contractUrl: contractUrl || undefined }
 }
 
+// ── Creator Signing ─────────────────────────────────────────
+
 /**
- * Creator signs the contract (counter-signature)
+ * Creator signs the MOSH contract (counter-signature)
  */
-export async function signContractAsCreator(
-    applicationId: string,
+export async function signMoshContract(
+    campaignId: string,
     creatorIp: string
 ): Promise<{ success: boolean; error?: string }> {
     const supabase = createClient()
@@ -252,126 +256,143 @@ export async function signContractAsCreator(
 
     const now = new Date()
 
-    // Verify this application belongs to the creator and is pending their signature
-    const { data: app } = await supabase
-        .from('applications')
+    // Verify campaign exists and is pending creator signature
+    const { data: campaignRaw } = await supabase
+        .from('campaigns')
         .select('*')
-        .eq('id', applicationId)
-        .eq('creator_id', user.id)
+        .eq('id', campaignId)
+        .eq('selected_creator_id', user.id)
         .single()
 
-    if (!app) return { success: false, error: 'Candidature introuvable' }
+    if (!campaignRaw) return { success: false, error: 'Mission introuvable' }
 
-    const application = app as unknown as Application
-    if (application.contract_status !== 'pending_creator') {
+    const campaign = campaignRaw as unknown as Campaign
+    if (campaign.contract_mosh_status !== 'pending_creator') {
         return { success: false, error: 'Ce contrat n\'est pas en attente de votre signature' }
     }
 
-    // Update contract with creator signature  
+    // Update contract status
     const { error } = await (supabase
-        .from('applications') as ReturnType<typeof supabase.from>)
+        .from('campaigns') as ReturnType<typeof supabase.from>)
         .update({
-            contract_status: 'active',
-            creator_signed_at: now.toISOString(),
-            creator_sign_ip: creatorIp,
+            contract_mosh_status: 'active',
+            contract_mosh_signed_at: now.toISOString(),
+            status: 'in_progress',
         })
-        .eq('id', applicationId)
+        .eq('id', campaignId)
 
     if (error) return { success: false, error: error.message }
 
-    // Re-generate the contract text with creator signature info
-    // and update the file in storage
-    const data = await getContractData(applicationId)
+    // Re-generate contract with signature info
+    const data = await getContractData(campaignId)
     if (data) {
-        const { campaign, brand, creator: creatorData } = data
-        const contractId = `UGC-${application.contract_generated_at ? new Date(application.contract_generated_at).getTime() : Date.now()}-${applicationId.slice(0, 8).toUpperCase()}`
+        const { campaign: camp, brand, creator } = data
+        const { amountHt, tvaAmount, tvaRate } = computeTva(camp.creator_amount_chf || camp.budget_chf)
+
+        const contractId = `MOSH-${new Date(camp.contract_mosh_generated_at || now).getFullYear()}-${new Date(camp.contract_mosh_generated_at || now).getTime().toString(36).toUpperCase()}`
 
         const vars: ContractVariables = {
             CONTRACT_ID: contractId,
-            CONTRACT_DATE: application.contract_generated_at ? formatDateCH(application.contract_generated_at) : formatDateCH(now),
+            CONTRACT_DATE: camp.contract_mosh_generated_at ? formatDateCH(camp.contract_mosh_generated_at) : formatDateCH(now),
 
-            BRAND_COMPANY_NAME: brand.profile.company_name,
-            BRAND_CONTACT_NAME: brand.full_name,
-            BRAND_ADDRESS: brand.profile.address || 'Non renseignée',
-            BRAND_EMAIL: brand.email,
+            MOSH_COMPANY_NAME: MOSH_COMPANY_INFO.name,
+            MOSH_ADDRESS: MOSH_COMPANY_INFO.address,
+            MOSH_UID: MOSH_COMPANY_INFO.uid,
+            MOSH_EMAIL: MOSH_COMPANY_INFO.email,
 
-            CREATOR_FULL_NAME: creatorData.full_name,
-            CREATOR_ADDRESS: creatorData.profile.address || 'Non renseignée',
-            CREATOR_EMAIL: creatorData.email,
+            CREATOR_FULL_NAME: creator.full_name,
+            CREATOR_ADDRESS: creator.profile.address || 'Non renseignée',
+            CREATOR_EMAIL: creator.email,
 
-            CAMPAIGN_TITLE: campaign.title,
-            CAMPAIGN_DESCRIPTION: campaign.description || 'Voir le brief sur la plateforme UGC Suisse.',
-            DELIVERABLES: buildDeliverablesText(campaign),
-            DEADLINE: campaign.deadline ? formatDateCH(campaign.deadline) : 'À convenir entre les parties',
+            MISSION_TITLE: camp.title,
+            MISSION_DESCRIPTION: camp.description || 'Selon le brief transmis via la plateforme MOSH.',
+            BRAND_NAME: brand.profile.company_name || brand.full_name,
+            DELIVERABLES: buildDeliverablesText(camp),
+            FORMAT: FORMAT_MAP[camp.format] || camp.format,
+            SCRIPT_TYPE: TYPE_MAP[camp.script_type] || camp.script_type,
+            DEADLINE: camp.deadline ? formatDateCH(camp.deadline) : 'À convenir entre les parties',
             REVISION_COUNT: '2',
 
-            AMOUNT_CHF: campaign.budget_chf.toLocaleString('fr-CH'),
-            PAYMENT_TERMS: 'Paiement dû dans les 30 jours suivant la validation définitive des livrables.',
+            AMOUNT_CHF: (camp.creator_amount_chf || camp.budget_chf).toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
+            AMOUNT_HT: amountHt.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
+            TVA_AMOUNT: tvaAmount.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
+            TVA_RATE: tvaRate.toString(),
+            PAYMENT_TERMS: 'Paiement à 30 jours après validation définitive des livrables par MOSH.',
 
-            BRAND_ACCEPTANCE_TIMESTAMP: application.brand_signed_at
-                ? formatTimestamp(new Date(application.brand_signed_at))
+            MOSH_ACCEPTANCE_TIMESTAMP: camp.contract_mosh_generated_at
+                ? formatTimestamp(new Date(camp.contract_mosh_generated_at))
                 : 'N/A',
-            BRAND_IP_ADDRESS: application.brand_sign_ip || 'N/A',
             CREATOR_ACCEPTANCE_TIMESTAMP: formatTimestamp(now),
             CREATOR_IP_ADDRESS: creatorIp,
         }
 
-        const contractText = generateContractText(vars)
-        const fileName = `contracts/${contractId}.txt`
+        const contractText = generateMoshContractText(vars)
+        const fileName = `mosh/${contractId}.txt`
         const blob = new Blob([contractText], { type: 'text/plain;charset=utf-8' })
 
         await supabase.storage
             .from('contracts')
-            .upload(fileName, blob, {
-                contentType: 'text/plain',
-                upsert: true,
-            })
+            .upload(fileName, blob, { contentType: 'text/plain', upsert: true })
     }
 
     return { success: true }
 }
 
+// ── Contract Text (for viewing) ─────────────────────────────
+
 /**
  * Get contract text for viewing (re-generates from current data)
  */
-export async function getContractText(applicationId: string): Promise<string | null> {
-    const data = await getContractData(applicationId)
+export async function getMoshContractText(campaignId: string): Promise<string | null> {
+    const data = await getContractData(campaignId)
     if (!data) return null
 
-    const { application, campaign, brand, creator } = data
-    const contractId = `UGC-${application.contract_generated_at ? new Date(application.contract_generated_at).getTime() : Date.now()}-${applicationId.slice(0, 8).toUpperCase()}`
+    const { campaign, brand, creator } = data
+    const { amountHt, tvaAmount, tvaRate } = computeTva(campaign.creator_amount_chf || campaign.budget_chf)
+
+    const now = new Date()
+    const contractId = campaign.contract_mosh_generated_at
+        ? `MOSH-${new Date(campaign.contract_mosh_generated_at).getFullYear()}-${new Date(campaign.contract_mosh_generated_at).getTime().toString(36).toUpperCase()}`
+        : `MOSH-PREVIEW`
 
     const vars: ContractVariables = {
         CONTRACT_ID: contractId,
-        CONTRACT_DATE: application.contract_generated_at ? formatDateCH(application.contract_generated_at) : formatDateCH(new Date()),
+        CONTRACT_DATE: campaign.contract_mosh_generated_at
+            ? formatDateCH(campaign.contract_mosh_generated_at)
+            : formatDateCH(now),
 
-        BRAND_COMPANY_NAME: brand.profile.company_name,
-        BRAND_CONTACT_NAME: brand.full_name,
-        BRAND_ADDRESS: brand.profile.address || 'Non renseignée',
-        BRAND_EMAIL: brand.email,
+        MOSH_COMPANY_NAME: MOSH_COMPANY_INFO.name,
+        MOSH_ADDRESS: MOSH_COMPANY_INFO.address,
+        MOSH_UID: MOSH_COMPANY_INFO.uid,
+        MOSH_EMAIL: MOSH_COMPANY_INFO.email,
 
         CREATOR_FULL_NAME: creator.full_name,
         CREATOR_ADDRESS: creator.profile.address || 'Non renseignée',
         CREATOR_EMAIL: creator.email,
 
-        CAMPAIGN_TITLE: campaign.title,
-        CAMPAIGN_DESCRIPTION: campaign.description || 'Voir le brief sur la plateforme UGC Suisse.',
+        MISSION_TITLE: campaign.title,
+        MISSION_DESCRIPTION: campaign.description || 'Selon le brief transmis via la plateforme MOSH.',
+        BRAND_NAME: brand.profile.company_name || brand.full_name,
         DELIVERABLES: buildDeliverablesText(campaign),
+        FORMAT: FORMAT_MAP[campaign.format] || campaign.format,
+        SCRIPT_TYPE: TYPE_MAP[campaign.script_type] || campaign.script_type,
         DEADLINE: campaign.deadline ? formatDateCH(campaign.deadline) : 'À convenir entre les parties',
         REVISION_COUNT: '2',
 
-        AMOUNT_CHF: campaign.budget_chf.toLocaleString('fr-CH'),
-        PAYMENT_TERMS: 'Paiement dû dans les 30 jours suivant la validation définitive des livrables.',
+        AMOUNT_CHF: (campaign.creator_amount_chf || campaign.budget_chf).toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
+        AMOUNT_HT: amountHt.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
+        TVA_AMOUNT: tvaAmount.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
+        TVA_RATE: tvaRate.toString(),
+        PAYMENT_TERMS: 'Paiement à 30 jours après validation définitive des livrables par MOSH.',
 
-        BRAND_ACCEPTANCE_TIMESTAMP: application.brand_signed_at
-            ? formatTimestamp(new Date(application.brand_signed_at))
+        MOSH_ACCEPTANCE_TIMESTAMP: campaign.contract_mosh_generated_at
+            ? formatTimestamp(new Date(campaign.contract_mosh_generated_at))
             : 'En attente',
-        BRAND_IP_ADDRESS: application.brand_sign_ip || 'En attente',
-        CREATOR_ACCEPTANCE_TIMESTAMP: application.creator_signed_at
-            ? formatTimestamp(new Date(application.creator_signed_at))
+        CREATOR_ACCEPTANCE_TIMESTAMP: campaign.contract_mosh_signed_at
+            ? formatTimestamp(new Date(campaign.contract_mosh_signed_at))
             : 'En attente de signature',
-        CREATOR_IP_ADDRESS: application.creator_sign_ip || 'En attente de signature',
+        CREATOR_IP_ADDRESS: campaign.contract_mosh_signed_at ? '(enregistrée)' : 'En attente de signature',
     }
 
-    return generateContractText(vars)
+    return generateMoshContractText(vars)
 }

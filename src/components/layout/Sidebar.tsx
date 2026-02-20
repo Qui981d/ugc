@@ -8,16 +8,17 @@ import {
     Users,
     MessageSquare,
     Settings,
-    Search,
     Briefcase,
     Upload,
     Wallet,
-    ChevronLeft
+    ChevronLeft,
+    Building2,
+    ClipboardList
 } from "lucide-react"
 import { useNotifications } from "@/contexts/NotificationContext"
 
 interface SidebarProps {
-    role: 'brand' | 'creator'
+    role: 'brand' | 'creator' | 'admin'
 }
 
 // Badge component for notification indicators
@@ -41,24 +42,30 @@ function NotificationDot() {
 const brandMenuItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/brand", notifKey: null },
     { icon: Megaphone, label: "Campagnes", href: "/brand/campaigns", notifKey: 'applications' as const },
-    { icon: Users, label: "Créateurs", href: "/marketplace?tab=creators", notifKey: null },
     { icon: MessageSquare, label: "Messages", href: "/brand/messages", notifKey: 'messages' as const },
     { icon: Settings, label: "Paramètres", href: "/brand/settings", notifKey: null },
 ]
 
 const creatorMenuItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/creator", notifKey: null },
-    { icon: Search, label: "Marketplace", href: "/marketplace?tab=campaigns", notifKey: null },
     { icon: Briefcase, label: "Missions", href: "/creator/missions", notifKey: 'applications' as const },
     { icon: Upload, label: "Portfolio", href: "/creator/portfolio", notifKey: null },
-    { icon: Wallet, label: "Revenus", href: "/creator/earnings", notifKey: null },
+    { icon: Wallet, label: "Historique", href: "/creator/earnings", notifKey: null },
     { icon: MessageSquare, label: "Messages", href: "/creator/messages", notifKey: 'messages' as const },
     { icon: Settings, label: "Paramètres", href: "/creator/settings", notifKey: null },
 ]
 
+const adminMenuItems = [
+    { icon: LayoutDashboard, label: "Dashboard", href: "/admin", notifKey: null },
+    { icon: ClipboardList, label: "Missions", href: "/admin/missions", notifKey: 'applications' as const },
+    { icon: Users, label: "Créateurs", href: "/admin/creators", notifKey: null },
+    { icon: Building2, label: "Marques", href: "/admin/brands", notifKey: null },
+    { icon: Settings, label: "Paramètres", href: "/admin/settings", notifKey: null },
+]
+
 export function Sidebar({ role }: SidebarProps) {
     const pathname = usePathname()
-    const menuItems = role === 'brand' ? brandMenuItems : creatorMenuItems
+    const menuItems = role === 'brand' ? brandMenuItems : role === 'admin' ? adminMenuItems : creatorMenuItems
 
     // Try to use notifications, but handle server-side gracefully
     let unreadCounts = { total: 0, messages: 0, applications: 0, deliverables: 0 }
@@ -93,7 +100,7 @@ export function Sidebar({ role }: SidebarProps) {
             {/* Role Badge */}
             <div className="px-4 py-4">
                 <div className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/60 inline-block">
-                    {role === 'brand' ? '🏢 Espace Marque' : '🎬 Espace Créateur'}
+                    {role === 'brand' ? '🏢 Espace Marque' : role === 'admin' ? '🔧 Espace MOSH' : '🎬 Espace Créateur'}
                 </div>
             </div>
 

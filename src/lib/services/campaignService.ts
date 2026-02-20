@@ -6,7 +6,8 @@ import type {
     ProfileBrand,
     ScriptType,
     VideoFormat,
-    RightsUsageType
+    RightsUsageType,
+    PricingPack
 } from '@/types/database'
 
 export type CampaignWithBrand = Campaign & {
@@ -134,6 +135,7 @@ export async function createCampaign(campaignData: {
     budget_chf: number
     deadline?: string
     status?: CampaignStatus
+    pricing_pack?: PricingPack
 }): Promise<{ campaign: Campaign | null; error?: string }> {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -188,17 +190,14 @@ export async function deleteCampaign(id: string): Promise<{ success: boolean; er
 }
 
 /**
- * Get open campaigns for creators (marketplace)
+ * Get campaigns assigned to the current creator
  */
-export async function getOpenCampaigns(options?: {
-    scriptType?: ScriptType
-    minBudget?: number
-    maxBudget?: number
-    limit?: number
-    offset?: number
-}): Promise<CampaignWithBrand[]> {
+export async function getAssignedCampaigns(): Promise<CampaignWithBrand[]> {
     const supabase = createClient()
-    let query = supabase
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return []
+
+    const { data, error } = await supabase
         .from('campaigns')
         .select(`
             *,
@@ -207,30 +206,8 @@ export async function getOpenCampaigns(options?: {
                 profiles_brand(*)
             )
         `)
-        .eq('status', 'open')
+        .eq('selected_creator_id', user.id)
         .order('created_at', { ascending: false })
-
-    if (options?.scriptType) {
-        query = query.eq('script_type', options.scriptType)
-    }
-
-    if (options?.minBudget) {
-        query = query.gte('budget_chf', options.minBudget)
-    }
-
-    if (options?.maxBudget) {
-        query = query.lte('budget_chf', options.maxBudget)
-    }
-
-    if (options?.limit) {
-        query = query.limit(options.limit)
-    }
-
-    if (options?.offset) {
-        query = query.range(options.offset, options.offset + (options.limit || 10) - 1)
-    }
-
-    const { data, error } = await query
 
     if (error || !data) return []
 

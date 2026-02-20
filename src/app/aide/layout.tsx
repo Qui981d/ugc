@@ -1,28 +1,29 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-    title: "Centre d'aide | UGC Suisse - FAQ, Guide & Support",
-    description: "Trouvez des réponses à toutes vos questions sur UGC Suisse. Guide complet pour créateurs UGC et marques suisses : inscription, campagnes, paiements en CHF, et plus.",
+    title: "Centre d'aide | MOSH - Agence UGC Suisse",
+    description: "FAQ et guide complet sur MOSH, l'agence UGC de référence en Suisse. Briefs, production, contrats, paiements en CHF — on répond à toutes vos questions.",
     keywords: [
+        "MOSH agence UGC",
         "UGC Suisse aide",
         "créateur UGC Suisse",
-        "contenu UGC Suisse romande",
+        "agence contenu UGC Suisse romande",
         "FAQ UGC",
         "comment devenir créateur UGC",
-        "plateforme UGC Suisse",
+        "agence UGC Suisse",
         "marketing UGC Suisse",
         "User Generated Content Suisse",
         "créateur contenu Suisse",
-        "marque UGC Suisse",
+        "MOSH marque UGC",
         "contenu authentique Suisse",
         "UGC Genève",
         "UGC Lausanne",
-        "campagne UGC prix",
-        "UGC freelance Suisse"
+        "devis UGC Suisse",
+        "agence vidéo UGC"
     ],
     openGraph: {
-        title: "Centre d'aide | UGC Suisse",
-        description: "Guide complet et FAQ pour créateurs UGC et marques en Suisse. Tout savoir sur la plateforme UGC Suisse.",
+        title: "Centre d'aide | MOSH - Agence UGC Suisse",
+        description: "Guide complet et FAQ sur MOSH, l'agence UGC en Suisse. Briefs, production, contrats et paiements — tout ce que vous devez savoir.",
         type: "website",
         locale: "fr_CH",
     },

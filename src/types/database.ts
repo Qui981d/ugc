@@ -3,13 +3,23 @@
 // Generated from Supabase Schema
 // ================================================
 
-export type UserRole = 'brand' | 'creator'
+export type UserRole = 'brand' | 'creator' | 'admin'
 export type CampaignStatus = 'draft' | 'open' | 'in_progress' | 'completed' | 'cancelled'
 export type ApplicationStatus = 'pending' | 'accepted' | 'rejected' | 'withdrawn' | 'completed'
 export type DeliverableStatus = 'pending' | 'review' | 'revision_requested' | 'approved' | 'rejected'
 export type RightsUsageType = 'organic' | 'paid_3m' | 'paid_6m' | 'paid_12m' | 'perpetual'
 export type VideoFormat = '9_16' | '16_9' | '1_1' | '4_5'
 export type ScriptType = 'testimonial' | 'unboxing' | 'asmr' | 'tutorial' | 'lifestyle' | 'review'
+export type ScriptStatus = 'draft' | 'pending_validation' | 'validated'
+export type MissionStepType =
+    | 'brief_received'
+    | 'creators_proposed'
+    | 'creator_validated'
+    | 'script_sent'
+    | 'video_delivered'
+    | 'video_validated'
+    | 'video_sent_to_brand'
+export type PricingPack = '1_video' | '3_videos' | 'custom'
 export type NotificationType =
     | 'new_application'
     | 'message_received'
@@ -78,6 +88,22 @@ export interface Campaign {
     budget_chf: number
     status: CampaignStatus
     deadline: string | null
+    // Agency model fields
+    assigned_admin_id: string | null
+    selected_creator_id: string | null
+    script_content: string | null
+    script_status: ScriptStatus | null
+    pricing_pack: PricingPack | null
+    // Contract fields (MOSH ↔ Creator)
+    contract_mosh_url: string | null
+    contract_mosh_status: 'pending_creator' | 'active' | null
+    contract_mosh_generated_at: string | null
+    contract_mosh_signed_at: string | null
+    // Invoice fields
+    invoice_url: string | null
+    invoice_number: string | null
+    invoice_generated_at: string | null
+    creator_amount_chf: number | null
     created_at: string
     updated_at: string
 }
@@ -133,6 +159,17 @@ export interface Notification {
     reference_id: string | null
     reference_type: string | null
     is_read: boolean
+    created_at: string
+}
+
+export interface MissionStep {
+    id: string
+    campaign_id: string
+    step_type: MissionStepType
+    completed_by: string | null
+    completed_at: string | null
+    notes: string | null
+    metadata: Record<string, unknown>
     created_at: string
 }
 
@@ -216,6 +253,11 @@ export interface Database {
                 Insert: Omit<NotificationPreferences, 'id' | 'created_at' | 'updated_at'>
                 Update: Partial<Omit<NotificationPreferences, 'id' | 'user_id' | 'created_at'>>
             }
+            mission_steps: {
+                Row: MissionStep
+                Insert: Omit<MissionStep, 'id' | 'created_at'>
+                Update: Partial<Omit<MissionStep, 'id' | 'campaign_id' | 'created_at'>>
+            }
         }
         Enums: {
             user_role: UserRole
@@ -225,6 +267,8 @@ export interface Database {
             rights_usage_type: RightsUsageType
             video_format: VideoFormat
             script_type: ScriptType
+            script_status: ScriptStatus
+            mission_step_type: MissionStepType
             notification_type: NotificationType
             contract_status: ContractStatus
         }

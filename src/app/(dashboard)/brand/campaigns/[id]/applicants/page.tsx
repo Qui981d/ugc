@@ -23,7 +23,8 @@ import { useParams } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { getCampaignApplications, updateApplicationStatus, type ApplicationWithCreator } from "@/lib/services/applicationService"
 import { getCampaignById } from "@/lib/services/campaignService"
-import { createContract, getContractText } from "@/lib/services/contractService"
+// Note: In the agency model, contracts are managed via admin dashboard (MOSH ↔ Creator).
+// This page only handles basic accept/reject of applications.
 import ContractModal from "@/components/contracts/ContractModal"
 import ContractViewer from "@/components/contracts/ContractViewer"
 import type { Campaign } from "@/types/database"
@@ -86,30 +87,19 @@ export default function CampaignApplicantsPage() {
         setContractModalOpen(true)
     }
 
-    // Brand signs the contract
+    // Brand accepts application (in agency model, contract is handled by MOSH admin)
     const handleContractAccept = async () => {
         if (!selectedApplication) return
         setContractLoading(true)
 
         try {
-            // Get client IP (via API)
-            let clientIp = 'unknown'
-            try {
-                const res = await fetch('https://api.ipify.org?format=json')
-                const data = await res.json()
-                clientIp = data.ip
-            } catch {
-                // fallback
-            }
-
-            const result = await createContract(selectedApplication.id, clientIp)
+            const result = await updateApplicationStatus(selectedApplication.id, 'accepted')
 
             if (result.success) {
-                // Update local state
                 setApplications(prev =>
                     prev.map(app =>
                         app.id === selectedApplication.id
-                            ? { ...app, status: 'accepted' as const, contract_status: 'pending_creator' as const }
+                            ? { ...app, status: 'accepted' as const }
                             : app
                     )
                 )
@@ -119,8 +109,8 @@ export default function CampaignApplicantsPage() {
                 alert('Erreur: ' + result.error)
             }
         } catch (err) {
-            console.error('Contract error:', err)
-            alert('Erreur lors de la génération du contrat')
+            console.error('Accept error:', err)
+            alert('Erreur lors de l\'acceptation')
         }
 
         setContractLoading(false)
@@ -142,14 +132,9 @@ export default function CampaignApplicantsPage() {
         setUpdatingId(null)
     }
 
-    // View existing contract
-    const handleViewContract = async (application: ApplicationWithCreator) => {
-        setViewerApp(application)
-        setViewerText(null)
-        setViewerOpen(true)
-
-        const text = await getContractText(application.id)
-        setViewerText(text)
+    // View existing contract (disabled in agency model — contracts managed by admin)
+    const handleViewContract = async (_application: ApplicationWithCreator) => {
+        // No-op in agency model
     }
 
     // Calculate counts for tabs

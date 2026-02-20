@@ -86,10 +86,10 @@ export function Navbar() {
                     {/* Nav Items */}
                     <div className="hidden md:flex items-center">
                         <Link
-                            href="/marketplace"
+                            href="/aide"
                             className="px-4 py-2 text-sm text-white/70 hover:text-white transition-colors"
                         >
-                            Marketplace
+                            Nos services
                         </Link>
                         {mounted && !isAuth && (
                             <Link
@@ -260,11 +260,11 @@ export function Navbar() {
                             className="flex flex-col items-center gap-2 p-6"
                         >
                             <Link
-                                href="/marketplace"
+                                href="/aide"
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="w-full text-center px-6 py-4 text-lg text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
                             >
-                                Marketplace
+                                Nos services
                             </Link>
                             {mounted && !isAuth && (
                                 <Link
