@@ -7,11 +7,8 @@ import {
     LayoutDashboard,
     Megaphone,
     MessageSquare,
-    Search,
     Briefcase,
-    User,
     Upload,
-    Wallet,
     Settings,
     MoreHorizontal,
     X,
@@ -29,7 +26,7 @@ interface NavItem {
 
 const brandItems: NavItem[] = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/brand" },
-    { icon: Megaphone, label: "Campagnes", href: "/brand/campaigns", notifKey: 'applications' },
+    { icon: Megaphone, label: "Mes briefs", href: "/brand/campaigns", notifKey: 'applications' },
     { icon: MessageSquare, label: "Messages", href: "/brand/messages", notifKey: 'messages' },
     { icon: Settings, label: "Paramètres", href: "/brand/settings" },
 ]
@@ -41,9 +38,7 @@ const creatorMainItems: NavItem[] = [
 ]
 
 const creatorMoreItems: NavItem[] = [
-    { icon: User, label: "Profil", href: "/creator/profile" },
     { icon: Upload, label: "Portfolio", href: "/creator/portfolio" },
-    { icon: Wallet, label: "Revenus", href: "/creator/earnings" },
     { icon: Settings, label: "Paramètres", href: "/creator/settings" },
 ]
 
@@ -85,8 +80,8 @@ export function MobileBottomNav() {
                 href={item.href}
                 onClick={() => setMoreOpen(false)}
                 className={`relative flex flex-col items-center justify-center gap-1 px-3 py-2 min-w-[64px] transition-colors ${isActive
-                    ? 'text-accent'
-                    : 'text-white/50 active:text-white/80'
+                    ? 'text-[#6C3FA0]'
+                    : 'text-gray-400 active:text-gray-600'
                     }`}
             >
                 <div className="relative">
@@ -111,7 +106,7 @@ export function MobileBottomNav() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[45] bg-black/60 md:hidden"
+                        className="fixed inset-0 z-[45] bg-black/30 md:hidden"
                         onClick={() => setMoreOpen(false)}
                     />
                 )}
@@ -123,13 +118,13 @@ export function MobileBottomNav() {
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                        className="fixed bottom-16 left-0 right-0 z-[46] md:hidden bg-[#1A1A1A] border-t border-white/10 rounded-t-2xl"
+                        className="fixed bottom-16 left-0 right-0 z-[46] md:hidden bg-white border-t border-gray-200 rounded-t-2xl shadow-xl"
                         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
                     >
                         <div className="p-4 space-y-1">
                             <div className="flex items-center justify-between mb-2">
-                                <p className="text-sm font-medium text-white/60">Plus</p>
-                                <button onClick={() => setMoreOpen(false)} className="p-1 text-white/40 hover:text-white">
+                                <p className="text-sm font-medium text-gray-500">Plus</p>
+                                <button onClick={() => setMoreOpen(false)} className="p-1 text-gray-400 hover:text-gray-700">
                                     <X className="w-4 h-4" />
                                 </button>
                             </div>
@@ -141,8 +136,8 @@ export function MobileBottomNav() {
                                         href={item.href}
                                         onClick={() => setMoreOpen(false)}
                                         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive
-                                            ? 'bg-white/10 text-white'
-                                            : 'text-white/60 hover:text-white hover:bg-white/5'
+                                            ? 'bg-gray-100 text-gray-900'
+                                            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                                             }`}
                                     >
                                         <item.icon className="w-5 h-5" />
@@ -156,7 +151,7 @@ export function MobileBottomNav() {
             </AnimatePresence>
 
             {/* Bottom Navigation Bar */}
-            <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[#0A0A0A]/95 backdrop-blur-xl border-t border-white/10"
+            <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white/95 backdrop-blur-xl border-t border-gray-200"
                 style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
             >
                 <div className="flex items-center justify-around h-16">
@@ -170,8 +165,8 @@ export function MobileBottomNav() {
                             <button
                                 onClick={() => setMoreOpen(!moreOpen)}
                                 className={`relative flex flex-col items-center justify-center gap-1 px-3 py-2 min-w-[64px] transition-colors ${moreOpen || isMoreItemActive
-                                    ? 'text-accent'
-                                    : 'text-white/50 active:text-white/80'
+                                    ? 'text-[#6C3FA0]'
+                                    : 'text-gray-400 active:text-gray-600'
                                     }`}
                             >
                                 <MoreHorizontal className="h-5 w-5" />

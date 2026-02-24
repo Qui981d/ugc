@@ -61,18 +61,18 @@ interface Mission {
 
 // Application status config
 const statusConfig: Record<string, { label: string; class: string; icon: typeof Clock }> = {
-    accepted: { label: "En cours", class: "bg-blue-500/20 text-blue-400 border-blue-500/30", icon: Clock },
-    delivered: { label: "Livré", class: "bg-amber-500/20 text-amber-400 border-amber-500/30", icon: Eye },
-    completed: { label: "Terminée", class: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30", icon: CheckCircle2 },
-    pending: { label: "En attente", class: "bg-purple-500/20 text-purple-400 border-purple-500/30", icon: AlertCircle },
+    accepted: { label: "En cours", class: "bg-blue-500/20 text-blue-700 border-blue-500/30", icon: Clock },
+    delivered: { label: "Livré", class: "bg-amber-500/20 text-amber-700 border-amber-500/30", icon: Eye },
+    completed: { label: "Terminée", class: "bg-emerald-500/20 text-emerald-700 border-emerald-500/30", icon: CheckCircle2 },
+    pending: { label: "En attente", class: "bg-purple-500/20 text-purple-700 border-purple-500/30", icon: AlertCircle },
 }
 
 // Deliverable status config
 const deliverableStatusConfig: Record<string, { label: string; class: string; icon: typeof Clock }> = {
-    review: { label: 'En validation', class: 'bg-blue-500/20 text-blue-400 border-blue-500/30', icon: Clock },
+    review: { label: 'En validation', class: 'bg-blue-500/20 text-blue-700 border-blue-500/30', icon: Clock },
     revision_requested: { label: 'Révision demandée', class: 'bg-orange-500/20 text-orange-400 border-orange-500/30', icon: RotateCcw },
-    approved: { label: 'Approuvé', class: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', icon: CheckCircle2 },
-    rejected: { label: 'Rejeté', class: 'bg-red-500/20 text-red-400 border-red-500/30', icon: XCircle },
+    approved: { label: 'Approuvé', class: 'bg-emerald-500/20 text-emerald-700 border-emerald-500/30', icon: CheckCircle2 },
+    rejected: { label: 'Rejeté', class: 'bg-red-500/20 text-red-700 border-red-500/30', icon: XCircle },
 }
 
 // Progress step calculation
@@ -259,7 +259,7 @@ export default function CreatorMissionsPage() {
     if (!mounted || isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-white/50" />
+                <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
             </div>
         )
     }
@@ -269,8 +269,8 @@ export default function CreatorMissionsPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl md:text-3xl font-bold text-white">Mes Missions</h1>
-                    <p className="text-white/60 mt-1">Gérez vos collaborations en cours</p>
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Mes Missions</h1>
+                    <p className="text-gray-500 mt-1">Gérez vos collaborations en cours</p>
                 </div>
             </div>
 
@@ -279,53 +279,53 @@ export default function CreatorMissionsPage() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-5"
+                    className="bg-white border border-white/[0.15] rounded-2xl p-5"
                 >
-                    <p className="text-sm text-white/50 mb-1">Total missions</p>
-                    <p className="text-xl md:text-3xl font-bold text-white">{stats.total}</p>
+                    <p className="text-sm text-gray-500 mb-1">Total missions</p>
+                    <p className="text-xl md:text-3xl font-bold text-gray-900">{stats.total}</p>
                 </motion.div>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.05 }}
-                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-5"
+                    className="bg-white border border-white/[0.15] rounded-2xl p-5"
                 >
-                    <p className="text-sm text-white/50 mb-1">En cours</p>
-                    <p className="text-xl md:text-3xl font-bold text-blue-400">{stats.active}</p>
+                    <p className="text-sm text-gray-500 mb-1">En cours</p>
+                    <p className="text-xl md:text-3xl font-bold text-blue-700">{stats.active}</p>
                 </motion.div>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-5"
+                    className="bg-white border border-white/[0.15] rounded-2xl p-5"
                 >
-                    <p className="text-sm text-white/50 mb-1">Terminées</p>
-                    <p className="text-xl md:text-3xl font-bold text-emerald-400">{stats.completed}</p>
+                    <p className="text-sm text-gray-500 mb-1">Terminées</p>
+                    <p className="text-xl md:text-3xl font-bold text-emerald-700">{stats.completed}</p>
                 </motion.div>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.15 }}
-                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-5"
+                    className="bg-white border border-white/[0.15] rounded-2xl p-5"
                 >
-                    <p className="text-sm text-white/50 mb-1">Revenus en attente</p>
-                    <p className="text-xl md:text-3xl font-bold text-white truncate">{formatCHF(stats.pendingRevenue)}</p>
+                    <p className="text-sm text-gray-500 mb-1">Revenus en attente</p>
+                    <p className="text-xl md:text-3xl font-bold text-gray-900 truncate">{formatCHF(stats.pendingRevenue)}</p>
                 </motion.div>
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-2 border-b border-white/10 pb-4">
+            <div className="flex gap-2 border-b border-gray-200 pb-4">
                 {tabs.map(tab => (
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id
-                            ? 'bg-white/10 text-white'
-                            : 'text-white/50 hover:text-white hover:bg-white/5'
+                            ? 'bg-gray-100 text-gray-900'
+                            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                             }`}
                     >
                         {tab.label}
-                        <span className={`ml-2 px-1.5 py-0.5 rounded text-xs ${activeTab === tab.id ? 'bg-white/20' : 'bg-white/10'
+                        <span className={`ml-2 px-1.5 py-0.5 rounded text-xs ${activeTab === tab.id ? 'bg-gray-100' : 'bg-gray-100'
                             }`}>
                             {tab.count}
                         </span>
@@ -344,10 +344,10 @@ export default function CreatorMissionsPage() {
                 >
                     {isDataLoading ? (
                         <div className="flex items-center justify-center py-16">
-                            <Loader2 className="w-8 h-8 animate-spin text-white/30" />
+                            <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
                         </div>
                     ) : filteredMissions.length === 0 ? (
-                        <div className="text-center py-16 text-white/40">
+                        <div className="text-center py-16 text-gray-400">
                             <Briefcase className="w-12 h-12 mx-auto mb-4 opacity-50" />
                             <p>{activeTab === 'active' ? 'Aucune mission en cours' : 'Aucune mission terminée'}</p>
                             {activeTab === 'active' && (
@@ -371,7 +371,7 @@ export default function CreatorMissionsPage() {
                                     transition={{ delay: index * 0.05 }}
                                     className="group"
                                 >
-                                    <div className={`bg-white/[0.08] backdrop-blur-xl border rounded-2xl p-6 transition-all duration-300 hover:bg-white/[0.10] ${mission.deliverable_status === 'revision_requested'
+                                    <div className={`bg-white border rounded-2xl p-6 transition-all duration-300 hover:bg-white/[0.10] ${mission.deliverable_status === 'revision_requested'
                                         ? 'border-orange-500/30 hover:border-orange-500/50'
                                         : mission.deliverable_status === 'approved'
                                             ? 'border-emerald-500/30 hover:border-emerald-500/50'
@@ -379,7 +379,7 @@ export default function CreatorMissionsPage() {
                                         }`}>
                                         <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-5">
                                             {/* Brand Logo */}
-                                            <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-white/5 border border-white/10 flex-shrink-0">
+                                            <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-gray-50 border border-gray-200 flex-shrink-0">
                                                 {mission.campaign?.brand?.avatar_url ? (
                                                     <Image
                                                         src={mission.campaign.brand.avatar_url}
@@ -388,7 +388,7 @@ export default function CreatorMissionsPage() {
                                                         className="object-cover"
                                                     />
                                                 ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-white/30 text-lg font-bold">
+                                                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-lg font-bold">
                                                         {mission.campaign?.brand?.full_name?.charAt(0) || '?'}
                                                     </div>
                                                 )}
@@ -398,10 +398,10 @@ export default function CreatorMissionsPage() {
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-start justify-between gap-4">
                                                     <div>
-                                                        <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-white/90">
+                                                        <h3 className="text-lg font-semibold text-gray-900 mb-1 group-hover:text-gray-800">
                                                             {mission.campaign?.title || 'Mission sans nom'}
                                                         </h3>
-                                                        <p className="text-sm text-white/50">{mission.campaign?.brand?.full_name}</p>
+                                                        <p className="text-sm text-gray-500">{mission.campaign?.brand?.full_name}</p>
                                                     </div>
                                                     <div className="flex flex-col items-end gap-1.5">
                                                         {/* Deliverable status badge — primary */}
@@ -422,7 +422,7 @@ export default function CreatorMissionsPage() {
                                                 {mission.deliverable_status === 'revision_requested' && mission.deliverable_revision_notes && (
                                                     <div className="mt-3 p-3 bg-orange-500/10 border border-orange-500/20 rounded-xl">
                                                         <p className="text-xs text-orange-400 font-medium mb-1">📝 Notes de révision</p>
-                                                        <p className="text-sm text-white/70 line-clamp-2">{mission.deliverable_revision_notes}</p>
+                                                        <p className="text-sm text-gray-600 line-clamp-2">{mission.deliverable_revision_notes}</p>
                                                     </div>
                                                 )}
 
@@ -434,8 +434,8 @@ export default function CreatorMissionsPage() {
                                                                 <div className={`h-1.5 flex-1 rounded-full transition-colors ${i < progressStep
                                                                     ? mission.deliverable_status === 'revision_requested' && i >= 1
                                                                         ? 'bg-orange-500/60'
-                                                                        : 'bg-accent/60'
-                                                                    : 'bg-white/10'
+                                                                        : 'bg-[#6C3FA0]/60'
+                                                                    : 'bg-gray-100'
                                                                     }`} />
                                                             </div>
                                                         ))}
@@ -445,7 +445,7 @@ export default function CreatorMissionsPage() {
                                                 {mission.status !== 'completed' && (
                                                     <div className="flex justify-between mt-1">
                                                         {['Accepté', 'Livré', 'Validé', 'Terminé'].map((step, i) => (
-                                                            <span key={step} className={`text-[10px] ${i < progressStep ? 'text-white/50' : 'text-white/20'
+                                                            <span key={step} className={`text-[10px] ${i < progressStep ? 'text-gray-500' : 'text-gray-300'
                                                                 }`}>
                                                                 {step}
                                                             </span>
@@ -456,15 +456,15 @@ export default function CreatorMissionsPage() {
                                                 {/* Meta Row */}
                                                 <div className="flex flex-wrap items-center gap-3 md:gap-6 mt-3 text-sm">
                                                     {mission.campaign?.deadline && (
-                                                        <span className="text-white/50 flex items-center gap-1.5">
+                                                        <span className="text-gray-500 flex items-center gap-1.5">
                                                             <Calendar className="w-4 h-4" />
                                                             {new Date(mission.campaign.deadline).toLocaleDateString('fr-CH')}
                                                         </span>
                                                     )}
-                                                    <span className="text-white/50">
+                                                    <span className="text-gray-500">
                                                         {mission.campaign?.script_type}
                                                     </span>
-                                                    <span className="text-white font-semibold">
+                                                    <span className="text-gray-900 font-semibold">
                                                         {formatCHF(mission.campaign?.budget_chf || 0)}
                                                     </span>
                                                 </div>
@@ -477,10 +477,10 @@ export default function CreatorMissionsPage() {
                                                         size="sm"
                                                         className={
                                                             mission.deliverable_status === 'revision_requested'
-                                                                ? 'bg-orange-500 hover:bg-orange-600 text-white'
+                                                                ? 'bg-orange-500 hover:bg-orange-600 text-gray-900'
                                                                 : mission.deliverable_status === 'none'
                                                                     ? 'btn-primary'
-                                                                    : 'bg-white/10 hover:bg-white/15 text-white'
+                                                                    : 'bg-gray-100 hover:bg-white/15 text-gray-900'
                                                         }
                                                         onClick={() => router.push(`/shared/mission/${mission.id}`)}
                                                     >
@@ -508,8 +508,8 @@ export default function CreatorMissionsPage() {
                                                         size="sm"
                                                         variant="ghost"
                                                         className={mission.contract_status === 'pending_creator'
-                                                            ? 'bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
-                                                            : 'text-accent hover:text-accent hover:bg-accent/10'
+                                                            ? 'bg-amber-500/10 text-amber-700 hover:bg-amber-500/20'
+                                                            : 'text-[#6C3FA0] hover:text-[#6C3FA0] hover:bg-[#6C3FA0]/10'
                                                         }
                                                         onClick={() => handleViewContract(mission)}
                                                     >
@@ -521,7 +521,7 @@ export default function CreatorMissionsPage() {
                                                     <Button
                                                         size="sm"
                                                         variant="ghost"
-                                                        className="bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
+                                                        className="bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20"
                                                         onClick={() => router.push(`/shared/mission/${mission.id}`)}
                                                     >
                                                         <CheckCircle2 className="w-4 h-4 mr-1" />
@@ -531,7 +531,7 @@ export default function CreatorMissionsPage() {
                                                 <Button
                                                     size="sm"
                                                     variant="ghost"
-                                                    className="text-white/60 hover:text-white hover:bg-white/10"
+                                                    className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
                                                     onClick={() => router.push(`/creator/messages?campaign=${mission.campaign?.id}`)}
                                                 >
                                                     <MessageSquare className="w-4 h-4 mr-1" />

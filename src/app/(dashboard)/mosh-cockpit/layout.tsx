@@ -8,11 +8,11 @@ import { NotificationProvider } from '@/contexts/NotificationContext'
 export default function AdminDashboardLayout({ children }: { children: ReactNode }) {
     return (
         <NotificationProvider>
-            <div className="min-h-screen bg-[#050505]">
+            <div className="min-h-screen bg-[#E8E6DF]">
                 <Sidebar role="admin" />
-                <div className="md:ml-64">
+                <div className="md:ml-[82px]">
                     <Header />
-                    <main className="p-6 pt-20">
+                    <main className="p-8 pt-20">
                         {children}
                     </main>
                 </div>

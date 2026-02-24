@@ -3,12 +3,11 @@
 import { useState, Suspense, useEffect } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Navbar } from "@/components/layout/Navbar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Loader2, AlertCircle } from "lucide-react"
+import { Loader2, AlertCircle, ArrowLeft } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 
 
@@ -24,13 +23,13 @@ function LoginForm() {
 
     const redirectTo = searchParams.get('redirect')
 
-    // Prevent hydration mismatch: auth state differs between server and client
+    // Prevent hydration mismatch
     useEffect(() => { setMounted(true) }, [])
 
     // Redirect if already logged in
     useEffect(() => {
         if (mounted && !authLoading && user) {
-            const destination = user.role === 'brand' ? '/brand' : '/creator'
+            const destination = user.role === 'brand' ? '/brand' : user.role === 'admin' ? '/mosh-cockpit' : '/creator'
             router.push(redirectTo || destination)
         }
     }, [user, authLoading, router, redirectTo, mounted])
@@ -48,15 +47,14 @@ function LoginForm() {
         } else if (redirectTo) {
             router.push(redirectTo)
         }
-        // Otherwise, AuthContext.signIn handles redirect based on role
     }
 
-    // Show loading while checking auth (only after mount to avoid hydration mismatch)
+    // Show loading while checking auth
     if (!mounted || authLoading) {
         return (
-            <Card className="bg-white/5 border-white/10 shadow-2xl">
+            <Card className="bg-white border-gray-200 shadow-xl">
                 <CardContent className="py-12 flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-white/50" />
+                    <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
                 </CardContent>
             </Card>
         )
@@ -65,37 +63,37 @@ function LoginForm() {
     // If user is logged in, show loading while redirecting
     if (user) {
         return (
-            <Card className="bg-white/5 border-white/10 shadow-2xl">
+            <Card className="bg-white border-gray-200 shadow-xl">
                 <CardContent className="py-12 flex flex-col items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-white/50 mb-4" />
-                    <p className="text-white/60">Redirection en cours...</p>
+                    <Loader2 className="w-8 h-8 animate-spin text-gray-400 mb-4" />
+                    <p className="text-gray-500">Redirection en cours...</p>
                 </CardContent>
             </Card>
         )
     }
 
     return (
-        <Card className="bg-white/5 border-white/10 shadow-2xl">
+        <Card className="bg-white border-gray-200 shadow-xl">
             <CardHeader className="text-center">
-                <div className="text-2xl font-bold text-white mb-2">
-                    UGC<span className="text-accent">Suisse</span>
+                <div className="text-2xl font-bold text-gray-900 mb-2">
+                    MOSH
                 </div>
-                <CardTitle className="text-xl text-white">Connexion</CardTitle>
-                <CardDescription className="text-white/60">
+                <CardTitle className="text-xl text-gray-900">Connexion</CardTitle>
+                <CardDescription className="text-gray-500">
                     Accédez à votre espace personnel
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <form className="space-y-4" onSubmit={handleSubmit}>
                     {error && (
-                        <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                        <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm">
                             <AlertCircle className="w-4 h-4 shrink-0" />
                             <span>{error}</span>
                         </div>
                     )}
 
                     <div className="space-y-2">
-                        <Label htmlFor="email" className="text-white/80">Email</Label>
+                        <Label htmlFor="email" className="text-gray-700">Email</Label>
                         <Input
                             id="email"
                             type="email"
@@ -103,16 +101,16 @@ function LoginForm() {
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="vous@exemple.ch"
                             required
-                            className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                            className="bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:ring-red-200 focus:border-red-300"
                         />
                     </div>
 
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                            <Label htmlFor="password" className="text-white/80">Mot de passe</Label>
+                            <Label htmlFor="password" className="text-gray-700">Mot de passe</Label>
                             <Link
                                 href="/forgot-password"
-                                className="text-xs text-white/50 hover:text-white"
+                                className="text-xs text-gray-400 hover:text-gray-600"
                             >
                                 Mot de passe oublié?
                             </Link>
@@ -124,7 +122,7 @@ function LoginForm() {
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="••••••••"
                             required
-                            className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                            className="bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:ring-red-200 focus:border-red-300"
                         />
                     </div>
 
@@ -144,10 +142,10 @@ function LoginForm() {
                     </Button>
                 </form>
 
-                <div className="mt-6 text-center text-sm text-white/50">
+                <div className="mt-6 text-center text-sm text-gray-400">
                     Pas encore de compte?{" "}
-                    <Link href="/signup" className="text-white font-medium hover:underline">
-                        Créer un compte
+                    <Link href="/" className="text-red-500 font-medium hover:text-red-600">
+                        S&apos;inscrire
                     </Link>
                 </div>
             </CardContent>
@@ -157,12 +155,18 @@ function LoginForm() {
 
 export default function LoginPage() {
     return (
-        <div className="min-h-screen bg-background">
-            <Navbar />
+        <div className="min-h-screen bg-gray-50">
+            {/* Simple back link */}
+            <div className="fixed top-6 left-6 z-50">
+                <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
+                    <ArrowLeft className="w-4 h-4" />
+                    Retour
+                </Link>
+            </div>
 
-            <div className="flex items-center justify-center min-h-screen px-6 pt-20">
+            <div className="flex items-center justify-center min-h-screen px-6">
                 <div className="w-full max-w-md">
-                    <Suspense fallback={<div className="text-white text-center">Chargement...</div>}>
+                    <Suspense fallback={<div className="text-gray-500 text-center">Chargement...</div>}>
                         <LoginForm />
                     </Suspense>
                 </div>

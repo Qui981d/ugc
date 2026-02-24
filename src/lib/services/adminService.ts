@@ -57,35 +57,42 @@ export async function getAllCampaigns(options?: {
     limit?: number
 }): Promise<CampaignWithDetails[]> {
     const supabase = createClient()
-    let query = supabase
-        .from('campaigns')
-        .select(`
-            *,
-            brand:users!brand_id(
-                *,
-                profiles_brand(*)
-            ),
-            selected_creator:users!selected_creator_id(
-                *,
-                profiles_creator(*)
-            )
-        `)
-        .order('created_at', { ascending: false })
 
-    if (options?.status) {
-        if (Array.isArray(options.status)) {
-            query = query.in('status', options.status)
-        } else {
-            query = query.eq('status', options.status)
+    function applyFilters(q: any) {
+        if (options?.status) {
+            q = Array.isArray(options.status) ? q.in('status', options.status) : q.eq('status', options.status)
         }
+        if (options?.limit) q = q.limit(options.limit)
+        return q
     }
 
-    if (options?.limit) {
-        query = query.limit(options.limit)
+    // Try full query with selected_creator join
+    let { data, error } = await applyFilters(
+        supabase.from('campaigns').select(`
+            *,
+            brand:users!brand_id(*, profiles_brand(*)),
+            selected_creator:users!selected_creator_id(*, profiles_creator(*))
+        `).order('created_at', { ascending: false })
+    )
+
+    // Fallback: if FK relationship fails, query without selected_creator
+    if (error) {
+        console.warn('[Admin] Full query failed, retrying without creator join:', error.message)
+        const fallback = await applyFilters(
+            supabase.from('campaigns').select(`
+                *,
+                brand:users!brand_id(*, profiles_brand(*))
+            `).order('created_at', { ascending: false })
+        )
+        data = fallback.data
+        error = fallback.error
     }
 
-    const { data, error } = await query
-    if (error || !data) return []
+    if (error) {
+        console.error('[Admin] getAllCampaigns error:', error.message, error.details)
+        return []
+    }
+    if (!data) return []
     return data as unknown as CampaignWithDetails[]
 }
 
@@ -105,6 +112,38 @@ export async function getAllCreators(): Promise<CreatorWithProfile[]> {
 
     if (error || !data) return []
     return data as unknown as CreatorWithProfile[]
+}
+
+/**
+ * Get a single creator by ID with profile + mission history
+ */
+export async function getCreatorById(userId: string): Promise<{
+    creator: CreatorWithProfile | null
+    missions: CampaignWithDetails[]
+}> {
+    const supabase = createClient()
+
+    // Fetch the creator
+    const { data: creatorData } = await supabase
+        .from('users')
+        .select(`*, profiles_creator(*)`)
+        .eq('id', userId)
+        .eq('role', 'creator')
+        .single()
+
+    if (!creatorData) return { creator: null, missions: [] }
+
+    // Fetch campaigns where this creator was assigned
+    const { data: campaignData } = await supabase
+        .from('campaigns')
+        .select(`*, brand:users!brand_id(*, profiles_brand(*))`)
+        .eq('selected_creator_id', userId)
+        .order('created_at', { ascending: false })
+
+    return {
+        creator: creatorData as unknown as CreatorWithProfile,
+        missions: (campaignData || []) as unknown as CampaignWithDetails[],
+    }
 }
 
 /**

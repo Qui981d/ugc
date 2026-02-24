@@ -33,9 +33,9 @@ interface Transaction {
 }
 
 const statusConfig: Record<string, { label: string; class: string }> = {
-    completed: { label: "Payé", class: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
-    pending: { label: "En attente", class: "bg-amber-500/20 text-amber-400 border-amber-500/30" },
-    failed: { label: "Échoué", class: "bg-red-500/20 text-red-400 border-red-500/30" },
+    completed: { label: "Payé", class: "bg-emerald-500/20 text-emerald-700 border-emerald-500/30" },
+    pending: { label: "En attente", class: "bg-amber-500/20 text-amber-700 border-amber-500/30" },
+    failed: { label: "Échoué", class: "bg-red-500/20 text-red-700 border-red-500/30" },
 }
 
 export default function CreatorEarningsPage() {
@@ -109,7 +109,7 @@ export default function CreatorEarningsPage() {
     if (!mounted || (!user && isLoading)) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-white/50" />
+                <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
             </div>
         )
     }
@@ -119,10 +119,10 @@ export default function CreatorEarningsPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-white">Revenus</h1>
-                    <p className="text-white/60 mt-1">Suivez vos gains et paiements</p>
+                    <h1 className="text-3xl font-bold text-gray-900">Revenus</h1>
+                    <p className="text-gray-500 mt-1">Suivez vos gains et paiements</p>
                 </div>
-                <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                <Button variant="outline" className="border-gray-200 text-gray-900 hover:bg-gray-100">
                     <Download className="h-4 w-4 mr-2" />
                     Exporter
                 </Button>
@@ -133,49 +133,49 @@ export default function CreatorEarningsPage() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-5"
+                    className="bg-white border border-white/[0.15] rounded-2xl p-5"
                 >
                     <div className="flex items-center justify-between mb-3">
                         <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                            <Wallet className="w-5 h-5 text-emerald-400" />
+                            <Wallet className="w-5 h-5 text-emerald-700" />
                         </div>
-                        <span className="text-emerald-400 text-xs font-medium flex items-center gap-1">
+                        <span className="text-emerald-700 text-xs font-medium flex items-center gap-1">
                             <TrendingUp className="w-3 h-3" />
                             Total
                         </span>
                     </div>
-                    <p className="text-2xl font-bold text-white">{formatCHF(totalEarned)}</p>
-                    <p className="text-xs text-white/40 mt-1">Revenus totaux</p>
+                    <p className="text-2xl font-bold text-gray-900">{formatCHF(totalEarned)}</p>
+                    <p className="text-xs text-gray-400 mt-1">Revenus totaux</p>
                 </motion.div>
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.05 }}
-                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-5"
+                    className="bg-white border border-white/[0.15] rounded-2xl p-5"
                 >
                     <div className="flex items-center justify-between mb-3">
                         <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
-                            <Clock className="w-5 h-5 text-amber-400" />
+                            <Clock className="w-5 h-5 text-amber-700" />
                         </div>
                     </div>
-                    <p className="text-2xl font-bold text-white">{formatCHF(pendingAmount)}</p>
-                    <p className="text-xs text-white/40 mt-1">En attente</p>
+                    <p className="text-2xl font-bold text-gray-900">{formatCHF(pendingAmount)}</p>
+                    <p className="text-xs text-gray-400 mt-1">En attente</p>
                 </motion.div>
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-5"
+                    className="bg-white border border-white/[0.15] rounded-2xl p-5"
                 >
                     <div className="flex items-center justify-between mb-3">
                         <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                            <Calendar className="w-5 h-5 text-purple-400" />
+                            <Calendar className="w-5 h-5 text-purple-700" />
                         </div>
                     </div>
-                    <p className="text-2xl font-bold text-white">{transactions.length}</p>
-                    <p className="text-xs text-white/40 mt-1">Transactions</p>
+                    <p className="text-2xl font-bold text-gray-900">{transactions.length}</p>
+                    <p className="text-xs text-gray-400 mt-1">Transactions</p>
                 </motion.div>
             </div>
 
@@ -184,24 +184,24 @@ export default function CreatorEarningsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
-                className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-6"
+                className="bg-white border border-white/[0.15] rounded-2xl p-6"
             >
-                <h2 className="text-lg font-semibold text-white mb-4">Méthode de paiement</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Méthode de paiement</h2>
 
                 <div className="space-y-4">
-                    <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                         <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-                                <Building2 className="w-5 h-5 text-white/70" />
+                            <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                                <Building2 className="w-5 h-5 text-gray-600" />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-white">Virement bancaire</p>
-                                <p className="text-xs text-white/40">Non configuré</p>
+                                <p className="text-sm font-medium text-gray-900">Virement bancaire</p>
+                                <p className="text-xs text-gray-400">Non configuré</p>
                             </div>
                         </div>
                     </div>
 
-                    <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10">
+                    <Button variant="outline" className="w-full border-gray-200 text-gray-900 hover:bg-gray-100">
                         <CreditCard className="w-4 h-4 mr-2" />
                         Configurer IBAN
                     </Button>
@@ -213,14 +213,14 @@ export default function CreatorEarningsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl overflow-hidden"
+                className="bg-white border border-white/[0.15] rounded-2xl overflow-hidden"
             >
-                <div className="p-6 border-b border-white/10">
-                    <h2 className="text-lg font-semibold text-white">Historique des transactions</h2>
+                <div className="p-6 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-gray-900">Historique des transactions</h2>
                 </div>
 
                 {transactions.length === 0 ? (
-                    <div className="p-12 text-center text-white/40">
+                    <div className="p-12 text-center text-gray-400">
                         <Wallet className="w-12 h-12 mx-auto mb-4 opacity-50" />
                         <p>Aucune transaction pour le moment</p>
                         <p className="text-sm mt-2">Complétez des missions pour gagner de l'argent</p>
@@ -239,23 +239,23 @@ export default function CreatorEarningsPage() {
                                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${tx.type === 'payment' ? 'bg-emerald-500/20' : 'bg-blue-500/20'
                                         }`}>
                                         {tx.type === 'payment' ? (
-                                            <ArrowDownRight className="w-5 h-5 text-emerald-400" />
+                                            <ArrowDownRight className="w-5 h-5 text-emerald-700" />
                                         ) : (
-                                            <ArrowUpRight className="w-5 h-5 text-blue-400" />
+                                            <ArrowUpRight className="w-5 h-5 text-blue-700" />
                                         )}
                                     </div>
                                     <div>
-                                        <p className="text-sm font-medium text-white">{tx.description}</p>
-                                        <p className="text-xs text-white/40">{tx.brand}</p>
+                                        <p className="text-sm font-medium text-gray-900">{tx.description}</p>
+                                        <p className="text-xs text-gray-400">{tx.brand}</p>
                                     </div>
                                 </div>
 
                                 <div className="flex items-center gap-6">
-                                    <span className="text-xs text-white/40">{tx.date}</span>
+                                    <span className="text-xs text-gray-400">{tx.date}</span>
                                     <Badge className={`${statusConfig[tx.status].class} border`}>
                                         {statusConfig[tx.status].label}
                                     </Badge>
-                                    <span className={`text-lg font-semibold ${tx.amount >= 0 ? 'text-emerald-400' : 'text-white'
+                                    <span className={`text-lg font-semibold ${tx.amount >= 0 ? 'text-emerald-700' : 'text-gray-900'
                                         }`}>
                                         {tx.amount >= 0 ? '+' : ''}{formatCHF(tx.amount)}
                                     </span>

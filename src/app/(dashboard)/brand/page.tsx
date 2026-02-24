@@ -13,11 +13,11 @@ import { getMyCampaigns } from "@/lib/services/campaignService"
 import type { Campaign } from "@/types/database"
 
 const statusConfig: Record<string, { label: string; icon: typeof Clock; class: string }> = {
-    draft: { label: "Brouillon", icon: Clock, class: "bg-white/10 text-white/60" },
-    open: { label: "Ouverte", icon: Eye, class: "bg-green-500/20 text-green-400" },
-    in_progress: { label: "En cours", icon: Clock, class: "bg-yellow-500/20 text-yellow-400" },
-    completed: { label: "Terminée", icon: CheckCircle2, class: "bg-white/10 text-white/60" },
-    cancelled: { label: "Annulée", icon: XCircle, class: "bg-red-500/20 text-red-400" },
+    draft: { label: "Brief envoyé", icon: Clock, class: "bg-amber-100 text-amber-700" },
+    open: { label: "Créateur en sélection", icon: Eye, class: "bg-blue-100 text-blue-700" },
+    in_progress: { label: "En production", icon: Clock, class: "bg-purple-100 text-purple-700" },
+    completed: { label: "Vidéo livrée", icon: CheckCircle2, class: "bg-emerald-100 text-emerald-700" },
+    cancelled: { label: "Annulé", icon: XCircle, class: "bg-red-100 text-red-700" },
 }
 
 export default function BrandDashboardPage() {
@@ -47,16 +47,16 @@ export default function BrandDashboardPage() {
     }, [userId])
 
     const stats = [
-        { label: "Campagnes actives", value: String(campaigns.filter(c => c.status === 'open' || c.status === 'in_progress').length), change: "En cours" },
-        { label: "Candidatures", value: "0", change: "À traiter" },
-        { label: "Campagnes terminées", value: String(campaigns.filter(c => c.status === 'completed').length), change: "Total" },
-        { label: "Budget total", value: formatCHF(campaigns.reduce((sum, c) => sum + c.budget_chf, 0)), change: "Toutes campagnes" },
+        { label: "Briefs actifs", value: String(campaigns.filter(c => c.status === 'open' || c.status === 'in_progress' || c.status === 'draft').length), change: "En cours de traitement" },
+        { label: "En production", value: String(campaigns.filter(c => c.status === 'in_progress').length), change: "Vidéos en cours" },
+        { label: "Vidéos livrées", value: String(campaigns.filter(c => c.status === 'completed').length), change: "Terminées" },
+        { label: "Budget total", value: formatCHF(campaigns.reduce((sum, c) => sum + c.budget_chf, 0)), change: "Tous briefs" },
     ]
 
     if (!mounted || (!user && isLoading)) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-white/50" />
+                <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
             </div>
         )
     }
@@ -70,17 +70,17 @@ export default function BrandDashboardPage() {
                 className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
                 <div>
-                    <h1 className="text-2xl md:text-3xl font-bold text-white">
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
                         Bienvenue, {user?.full_name?.split(' ')[0] || 'Marque'} 👋
                     </h1>
-                    <p className="text-white/60 mt-1">
+                    <p className="text-gray-500 mt-1">
                         Voici un aperçu de votre activité
                     </p>
                 </div>
                 <Link href="/brand/campaigns/new">
                     <Button className="btn-primary w-full sm:w-auto">
                         <Plus className="h-4 w-4 mr-2" />
-                        Nouvelle campagne
+                        Nouveau brief
                     </Button>
                 </Link>
             </motion.div>
@@ -94,11 +94,11 @@ export default function BrandDashboardPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
                     >
-                        <Card className="bg-white/[0.08] border-white/[0.10] backdrop-blur-xl">
+                        <Card className="bg-white border-white/[0.10] backdrop-blur-xl">
                             <CardContent className="pt-6">
-                                <p className="text-sm text-white/50">{stat.label}</p>
-                                <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
-                                <p className="text-xs text-white/40 mt-1">{stat.change}</p>
+                                <p className="text-sm text-gray-500">{stat.label}</p>
+                                <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+                                <p className="text-xs text-gray-400 mt-1">{stat.change}</p>
                             </CardContent>
                         </Card>
                     </motion.div>
@@ -111,11 +111,11 @@ export default function BrandDashboardPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
             >
-                <Card className="bg-white/[0.08] border-white/[0.10] backdrop-blur-xl">
+                <Card className="bg-white border-white/[0.10] backdrop-blur-xl">
                     <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle className="text-white">Campagnes récentes</CardTitle>
+                        <CardTitle className="text-gray-900">Mes briefs récents</CardTitle>
                         <Link href="/brand/campaigns">
-                            <Button variant="ghost" className="text-white/60 hover:text-white">
+                            <Button variant="ghost" className="text-gray-500 hover:text-gray-900">
                                 Voir tout
                                 <ArrowUpRight className="h-4 w-4 ml-1" />
                             </Button>
@@ -123,14 +123,14 @@ export default function BrandDashboardPage() {
                     </CardHeader>
                     <CardContent>
                         {campaigns.length === 0 ? (
-                            <div className="text-center py-12 text-white/40">
+                            <div className="text-center py-12 text-gray-400">
                                 <Plus className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                                <p>Aucune campagne pour le moment</p>
-                                <p className="text-sm mt-2">Créez votre première campagne</p>
+                                <p>Aucun brief pour le moment</p>
+                                <p className="text-sm mt-2">Envoyez votre premier brief</p>
                                 <Link href="/brand/campaigns/new">
                                     <Button className="btn-primary mt-4">
                                         <Plus className="w-4 h-4 mr-2" />
-                                        Créer une campagne
+                                        Envoyer un brief
                                     </Button>
                                 </Link>
                             </div>
@@ -146,23 +146,27 @@ export default function BrandDashboardPage() {
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: 0.3 + index * 0.05 }}
-                                            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.06] transition-colors"
                                         >
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center">
-                                                    <StatusIcon className="h-5 w-5 text-accent" />
+                                            <Link
+                                                href={`/brand/campaigns/${campaign.id}`}
+                                                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-gray-50 border border-gray-100 hover:bg-white hover:shadow-sm transition-all cursor-pointer"
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 rounded-lg bg-[#6C3FA0]/20 flex items-center justify-center">
+                                                        <StatusIcon className="h-5 w-5 text-[#6C3FA0]" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-medium text-gray-900">{campaign.title}</p>
+                                                        <p className="text-sm text-gray-500">{campaign.script_type}</p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <p className="font-medium text-white">{campaign.title}</p>
-                                                    <p className="text-sm text-white/50">{campaign.script_type}</p>
+                                                <div className="flex items-center gap-4">
+                                                    <Badge className={status.class}>
+                                                        {status.label}
+                                                    </Badge>
+                                                    <span className="text-gray-900 font-semibold">{formatCHF(campaign.budget_chf)}</span>
                                                 </div>
-                                            </div>
-                                            <div className="flex items-center gap-4">
-                                                <Badge className={status.class}>
-                                                    {status.label}
-                                                </Badge>
-                                                <span className="text-white font-semibold">{formatCHF(campaign.budget_chf)}</span>
-                                            </div>
+                                            </Link>
                                         </motion.div>
                                     )
                                 })}
@@ -178,43 +182,43 @@ export default function BrandDashboardPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
             >
-                <h2 className="text-lg font-semibold text-white mb-4">Actions rapides</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions rapides</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Link href="/brand/campaigns/new">
-                        <Card className="bg-white/[0.08] border-white/[0.10] backdrop-blur-xl hover:bg-white/[0.12] transition-colors cursor-pointer group">
+                        <Card className="bg-white border-white/[0.10] hover:bg-white/[0.12] transition-colors cursor-pointer group">
                             <CardContent className="pt-6 flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <Plus className="h-6 w-6 text-accent" />
+                                <div className="w-12 h-12 rounded-xl bg-[#6C3FA0]/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <Plus className="h-6 w-6 text-[#6C3FA0]" />
                                 </div>
                                 <div>
-                                    <p className="font-medium text-white">Créer une campagne</p>
-                                    <p className="text-sm text-white/50">Lancez une nouvelle campagne UGC</p>
+                                    <p className="font-medium text-gray-900">Envoyer un brief</p>
+                                    <p className="text-sm text-gray-500">Décrivez votre besoin en vidéo UGC</p>
                                 </div>
                             </CardContent>
                         </Card>
                     </Link>
                     <Link href="/brand/campaigns">
-                        <Card className="bg-white/[0.08] border-white/[0.10] backdrop-blur-xl hover:bg-white/[0.12] transition-colors cursor-pointer group">
+                        <Card className="bg-white border-white/[0.10] hover:bg-white/[0.12] transition-colors cursor-pointer group">
                             <CardContent className="pt-6 flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <Eye className="h-6 w-6 text-blue-400" />
+                                    <Eye className="h-6 w-6 text-blue-700" />
                                 </div>
                                 <div>
-                                    <p className="font-medium text-white">Suivre mes campagnes</p>
-                                    <p className="text-sm text-white/50">Voyez l&apos;avancement de vos briefs</p>
+                                    <p className="font-medium text-gray-900">Suivre mes briefs</p>
+                                    <p className="text-sm text-gray-500">Voyez l&apos;avancement de vos projets</p>
                                 </div>
                             </CardContent>
                         </Card>
                     </Link>
                     <Link href="/brand/settings">
-                        <Card className="bg-white/[0.08] border-white/[0.10] backdrop-blur-xl hover:bg-white/[0.12] transition-colors cursor-pointer group">
+                        <Card className="bg-white border-white/[0.10] hover:bg-white/[0.12] transition-colors cursor-pointer group">
                             <CardContent className="pt-6 flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <CheckCircle2 className="h-6 w-6 text-purple-400" />
+                                    <CheckCircle2 className="h-6 w-6 text-purple-700" />
                                 </div>
                                 <div>
-                                    <p className="font-medium text-white">Compléter le profil</p>
-                                    <p className="text-sm text-white/50">Finalisez votre profil marque</p>
+                                    <p className="font-medium text-gray-900">Compléter le profil</p>
+                                    <p className="text-sm text-gray-500">Finalisez votre profil marque</p>
                                 </div>
                             </CardContent>
                         </Card>

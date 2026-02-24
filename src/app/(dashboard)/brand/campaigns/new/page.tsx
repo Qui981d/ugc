@@ -160,15 +160,15 @@ export default function NewCampaignPage() {
             {/* Header */}
             <div className="flex items-center gap-4">
                 <Link href="/brand/campaigns">
-                    <Button variant="ghost" size="sm" className="text-white/60 hover:text-white hover:bg-white/10">
+                    <Button variant="ghost" size="sm" className="text-gray-500 hover:text-gray-900 hover:bg-gray-100">
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Retour
                     </Button>
                 </Link>
-                <div className="h-6 w-px bg-white/20" />
+                <div className="h-6 w-px bg-gray-100" />
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Nouveau brief UGC</h1>
-                    <p className="text-white/60 text-sm">Décrivez votre besoin, MOSH s&apos;occupe du reste</p>
+                    <h1 className="text-2xl font-bold text-gray-900">Nouveau brief UGC</h1>
+                    <p className="text-gray-500 text-sm">Décrivez votre besoin, MOSH s&apos;occupe du reste</p>
                 </div>
             </div>
 
@@ -177,15 +177,15 @@ export default function NewCampaignPage() {
                 {[1, 2, 3].map(s => (
                     <div key={s} className="flex items-center gap-3 flex-1">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${step >= s
-                            ? 'bg-accent text-white'
-                            : 'bg-white/10 text-white/40'
+                            ? 'bg-[#6C3FA0] text-gray-900'
+                            : 'bg-gray-100 text-gray-400'
                             }`}>
                             {step > s ? <CheckCircle2 className="w-4 h-4" /> : s}
                         </div>
-                        <span className={`text-sm ${step >= s ? 'text-white' : 'text-white/40'}`}>
+                        <span className={`text-sm ${step >= s ? 'text-gray-900' : 'text-gray-400'}`}>
                             {s === 1 ? 'Détails' : s === 2 ? 'Contenu' : 'Budget'}
                         </span>
-                        {s < 3 && <div className={`flex-1 h-px ${step > s ? 'bg-accent' : 'bg-white/10'}`} />}
+                        {s < 3 && <div className={`flex-1 h-px ${step > s ? 'bg-[#6C3FA0]' : 'bg-gray-100'}`} />}
                     </div>
                 ))}
             </div>
@@ -196,47 +196,47 @@ export default function NewCampaignPage() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-8"
+                className="bg-white border border-white/[0.15] rounded-2xl p-8"
             >
                 {step === 1 && (
                     <div className="space-y-6">
-                        <h2 className="text-xl font-semibold text-white mb-6">Informations de base</h2>
+                        <h2 className="text-xl font-semibold text-gray-900 mb-6">Informations de base</h2>
 
                         {/* Title */}
                         <div>
-                            <label className="block text-sm text-white/60 mb-2">Titre de la campagne *</label>
+                            <label className="block text-sm text-gray-500 mb-2">Titre de la campagne *</label>
                             <input
                                 type="text"
                                 value={campaign.title}
                                 onChange={(e) => setCampaign({ ...campaign, title: e.target.value })}
                                 placeholder="Ex: Témoignage pour notre nouvelle collection"
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-white/25"
                             />
                         </div>
 
                         {/* Description */}
                         <div>
-                            <label className="block text-sm text-white/60 mb-2">Description *</label>
+                            <label className="block text-sm text-gray-500 mb-2">Description *</label>
                             <textarea
                                 value={campaign.description}
                                 onChange={(e) => setCampaign({ ...campaign, description: e.target.value })}
                                 rows={4}
                                 placeholder="Décrivez votre campagne, le produit/service, et ce que vous attendez des créateurs..."
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 resize-none"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-white/25 resize-none"
                             />
                         </div>
 
                         {/* Category */}
                         <div>
-                            <label className="block text-sm text-white/60 mb-2">Catégorie de contenu *</label>
+                            <label className="block text-sm text-gray-500 mb-2">Catégorie de contenu *</label>
                             <div className="flex flex-wrap gap-2">
                                 {SPECIALTIES.map(specialty => (
                                     <button
                                         key={specialty.id}
                                         onClick={() => toggleSpecialty(specialty.id)}
                                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedSpecialties.includes(specialty.id)
-                                            ? 'bg-accent text-white'
-                                            : 'bg-white/5 text-white/60 hover:bg-white/10 border border-white/10'
+                                            ? 'bg-[#6C3FA0] text-gray-900'
+                                            : 'bg-gray-50 text-gray-500 hover:bg-gray-100 border border-gray-200'
                                             }`}
                                     >
                                         {specialty.label}
@@ -247,7 +247,7 @@ export default function NewCampaignPage() {
 
                         {/* Thumbnail */}
                         <div>
-                            <label className="block text-sm text-white/60 mb-2">Image de couverture</label>
+                            <label className="block text-sm text-gray-500 mb-2">Image de couverture</label>
                             <input
                                 type="file"
                                 id="thumbnail-upload"
@@ -262,7 +262,7 @@ export default function NewCampaignPage() {
                             />
                             <label
                                 htmlFor="thumbnail-upload"
-                                className="block border-2 border-dashed border-white/20 rounded-xl p-8 text-center hover:border-white/30 transition-colors cursor-pointer"
+                                className="block border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:border-white/30 transition-colors cursor-pointer"
                             >
                                 {campaign.thumbnail ? (
                                     <div className="flex flex-col items-center gap-3">
@@ -271,14 +271,14 @@ export default function NewCampaignPage() {
                                             alt="Preview"
                                             className="w-32 h-32 object-cover rounded-lg"
                                         />
-                                        <p className="text-sm text-white/60">{campaign.thumbnail.name}</p>
-                                        <p className="text-xs text-accent">Cliquez pour changer</p>
+                                        <p className="text-sm text-gray-500">{campaign.thumbnail.name}</p>
+                                        <p className="text-xs text-[#6C3FA0]">Cliquez pour changer</p>
                                     </div>
                                 ) : (
                                     <>
-                                        <Upload className="w-8 h-8 text-white/30 mx-auto mb-3" />
-                                        <p className="text-sm text-white/50">Glissez une image ou cliquez pour parcourir</p>
-                                        <p className="text-xs text-white/30 mt-1">JPG, PNG • Max 5MB</p>
+                                        <Upload className="w-8 h-8 text-gray-400 mx-auto mb-3" />
+                                        <p className="text-sm text-gray-500">Glissez une image ou cliquez pour parcourir</p>
+                                        <p className="text-xs text-gray-400 mt-1">JPG, PNG • Max 5MB</p>
                                     </>
                                 )}
                             </label>
@@ -288,25 +288,25 @@ export default function NewCampaignPage() {
 
                 {step === 2 && (
                     <div className="space-y-6">
-                        <h2 className="text-xl font-semibold text-white mb-6">Type de contenu & Brief</h2>
+                        <h2 className="text-xl font-semibold text-gray-900 mb-6">Type de contenu & Brief</h2>
 
                         {/* Content Type */}
                         <div>
-                            <label className="block text-sm text-white/60 mb-3">Format de contenu *</label>
+                            <label className="block text-sm text-gray-500 mb-3">Format de contenu *</label>
                             <div className="grid grid-cols-2 gap-3">
                                 {CONTENT_TYPES.map(type => (
                                     <button
                                         key={type.id}
                                         onClick={() => setCampaign({ ...campaign, contentType: type.id })}
                                         className={`p-4 rounded-xl text-left transition-all ${campaign.contentType === type.id
-                                            ? 'bg-accent/20 border-accent/50 border'
-                                            : 'bg-white/5 border border-white/10 hover:border-white/20'
+                                            ? 'bg-[#6C3FA0]/20 border-[#6C3FA0]/50 border'
+                                            : 'bg-gray-50 border border-gray-200 hover:border-gray-200'
                                             }`}
                                     >
-                                        <p className={`font-medium ${campaign.contentType === type.id ? 'text-white' : 'text-white/80'}`}>
+                                        <p className={`font-medium ${campaign.contentType === type.id ? 'text-gray-900' : 'text-gray-700'}`}>
                                             {type.label}
                                         </p>
-                                        <p className="text-xs text-white/40 mt-1">{type.desc}</p>
+                                        <p className="text-xs text-gray-400 mt-1">{type.desc}</p>
                                     </button>
                                 ))}
                             </div>
@@ -314,20 +314,20 @@ export default function NewCampaignPage() {
 
                         {/* Requirements */}
                         <div>
-                            <label className="block text-sm text-white/60 mb-2">Brief créatif</label>
+                            <label className="block text-sm text-gray-500 mb-2">Brief créatif</label>
                             <textarea
                                 value={campaign.requirements}
                                 onChange={(e) => setCampaign({ ...campaign, requirements: e.target.value })}
                                 rows={4}
                                 placeholder="Décrivez le ton souhaité, les éléments à inclure, le message clé..."
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 resize-none"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-white/25 resize-none"
                             />
                         </div>
 
                         {/* Do's */}
                         <div>
-                            <label className="block text-sm text-white/60 mb-2 flex items-center gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                            <label className="block text-sm text-gray-500 mb-2 flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-700" />
                                 À faire
                             </label>
                             <div className="space-y-2">
@@ -338,21 +338,21 @@ export default function NewCampaignPage() {
                                             value={d}
                                             onChange={(e) => updateDo(i, e.target.value)}
                                             placeholder="Ex: Montrer le produit en utilisation"
-                                            className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25"
+                                            className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-white/25"
                                         />
                                         {campaign.dos.length > 1 && (
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() => removeDo(i)}
-                                                className="text-white/40 hover:text-red-400"
+                                                className="text-gray-400 hover:text-red-700"
                                             >
                                                 <X className="w-4 h-4" />
                                             </Button>
                                         )}
                                     </div>
                                 ))}
-                                <Button variant="ghost" size="sm" onClick={addDo} className="text-white/50 hover:text-white">
+                                <Button variant="ghost" size="sm" onClick={addDo} className="text-gray-500 hover:text-gray-900">
                                     <Plus className="w-4 h-4 mr-1" />
                                     Ajouter
                                 </Button>
@@ -361,8 +361,8 @@ export default function NewCampaignPage() {
 
                         {/* Don'ts */}
                         <div>
-                            <label className="block text-sm text-white/60 mb-2 flex items-center gap-2">
-                                <X className="w-4 h-4 text-red-400" />
+                            <label className="block text-sm text-gray-500 mb-2 flex items-center gap-2">
+                                <X className="w-4 h-4 text-red-700" />
                                 À éviter
                             </label>
                             <div className="space-y-2">
@@ -373,21 +373,21 @@ export default function NewCampaignPage() {
                                             value={d}
                                             onChange={(e) => updateDont(i, e.target.value)}
                                             placeholder="Ex: Ne pas mentionner les concurrents"
-                                            className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25"
+                                            className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-white/25"
                                         />
                                         {campaign.donts.length > 1 && (
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() => removeDont(i)}
-                                                className="text-white/40 hover:text-red-400"
+                                                className="text-gray-400 hover:text-red-700"
                                             >
                                                 <X className="w-4 h-4" />
                                             </Button>
                                         )}
                                     </div>
                                 ))}
-                                <Button variant="ghost" size="sm" onClick={addDont} className="text-white/50 hover:text-white">
+                                <Button variant="ghost" size="sm" onClick={addDont} className="text-gray-500 hover:text-gray-900">
                                     <Plus className="w-4 h-4 mr-1" />
                                     Ajouter
                                 </Button>
@@ -399,11 +399,11 @@ export default function NewCampaignPage() {
 
                 {step === 3 && (
                     <div className="space-y-6">
-                        <h2 className="text-xl font-semibold text-white mb-6">Tarif & Délai</h2>
+                        <h2 className="text-xl font-semibold text-gray-900 mb-6">Tarif & Délai</h2>
 
                         {/* Pricing Packs */}
                         <div>
-                            <label className="block text-sm text-white/60 mb-3">Choisissez votre pack *</label>
+                            <label className="block text-sm text-gray-500 mb-3">Choisissez votre pack *</label>
                             <div className="space-y-3">
                                 {[
                                     { id: '1_video' as const, label: '1 vidéo UGC', price: 'CHF 490', desc: 'Idéal pour un premier test' },
@@ -414,17 +414,17 @@ export default function NewCampaignPage() {
                                         key={pack.id}
                                         onClick={() => setCampaign({ ...campaign, pricingPack: pack.id })}
                                         className={`w-full p-4 rounded-xl text-left transition-all flex items-center justify-between ${campaign.pricingPack === pack.id
-                                            ? 'bg-accent/20 border-accent/50 border-2'
-                                            : 'bg-white/5 border border-white/10 hover:border-white/20'
+                                            ? 'bg-[#6C3FA0]/20 border-[#6C3FA0]/50 border-2'
+                                            : 'bg-gray-50 border border-gray-200 hover:border-gray-200'
                                             }`}
                                     >
                                         <div>
-                                            <p className={`font-medium ${campaign.pricingPack === pack.id ? 'text-white' : 'text-white/80'}`}>
+                                            <p className={`font-medium ${campaign.pricingPack === pack.id ? 'text-gray-900' : 'text-gray-700'}`}>
                                                 {pack.label}
                                             </p>
-                                            <p className="text-xs text-white/40 mt-0.5">{pack.desc}</p>
+                                            <p className="text-xs text-gray-400 mt-0.5">{pack.desc}</p>
                                         </div>
-                                        <span className={`text-lg font-bold ${campaign.pricingPack === pack.id ? 'text-accent' : 'text-white/60'}`}>
+                                        <span className={`text-lg font-bold ${campaign.pricingPack === pack.id ? 'text-[#6C3FA0]' : 'text-gray-500'}`}>
                                             {pack.price}
                                         </span>
                                     </button>
@@ -433,36 +433,36 @@ export default function NewCampaignPage() {
                         </div>
                         {/* Deadline */}
                         <div className="mt-6">
-                            <label className="block text-sm text-white/60 mb-2">Date souhaitée de livraison</label>
+                            <label className="block text-sm text-gray-500 mb-2">Date souhaitée de livraison</label>
                             <div className="relative">
-                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                 <input
                                     type="date"
                                     value={campaign.deadline}
                                     onChange={(e) => setCampaign({ ...campaign, deadline: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white focus:outline-none focus:border-white/25 [color-scheme:dark]"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-gray-900 focus:outline-none focus:border-white/25 [color-scheme:dark]"
                                 />
                             </div>
                         </div>
 
                         {/* Summary Card */}
-                        <div className="bg-white/5 border border-white/10 rounded-xl p-5 mt-8">
+                        <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 mt-8">
                             <div className="flex items-center gap-2 mb-4">
-                                <Sparkles className="w-4 h-4 text-accent" />
-                                <span className="text-white font-medium">Résumé de la campagne</span>
+                                <Sparkles className="w-4 h-4 text-[#6C3FA0]" />
+                                <span className="text-gray-900 font-medium">Résumé de la campagne</span>
                             </div>
                             <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
-                                    <span className="text-white/50">Titre</span>
-                                    <span className="text-white">{campaign.title || '—'}</span>
+                                    <span className="text-gray-500">Titre</span>
+                                    <span className="text-gray-900">{campaign.title || '—'}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-white/50">Catégories</span>
-                                    <span className="text-white">{selectedSpecialties.map(id => SPECIALTIES.find(s => s.id === id)?.label || id).join(', ') || '—'}</span>
+                                    <span className="text-gray-500">Catégories</span>
+                                    <span className="text-gray-900">{selectedSpecialties.map(id => SPECIALTIES.find(s => s.id === id)?.label || id).join(', ') || '—'}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-white/50">Pack</span>
-                                    <span className="text-white">
+                                    <span className="text-gray-500">Pack</span>
+                                    <span className="text-gray-900">
                                         {campaign.pricingPack === '1_video' ? '1 vidéo — CHF 490'
                                             : campaign.pricingPack === '3_videos' ? 'Pack 3 vidéos — CHF 1\'290'
                                                 : campaign.pricingPack === 'custom' ? 'Sur mesure'
@@ -471,8 +471,8 @@ export default function NewCampaignPage() {
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-white/50">Date souhaitée</span>
-                                    <span className="text-white">{campaign.deadline || '—'}</span>
+                                    <span className="text-gray-500">Date souhaitée</span>
+                                    <span className="text-gray-900">{campaign.deadline || '—'}</span>
                                 </div>
                             </div>
                         </div>
@@ -480,12 +480,12 @@ export default function NewCampaignPage() {
                 )}
 
                 {/* Actions */}
-                <div className="flex justify-between mt-8 pt-6 border-t border-white/10">
+                <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
                     {step > 1 ? (
                         <Button
                             variant="ghost"
                             onClick={() => setStep(step - 1)}
-                            className="text-white/60 hover:text-white hover:bg-white/10"
+                            className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
                         >
                             Retour
                         </Button>

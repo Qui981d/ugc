@@ -8,7 +8,7 @@ export default function CreatorDashboardLayout({
     children: React.ReactNode
 }) {
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-gray-50">
             <Sidebar role="creator" />
             <div className="md:ml-64">
                 <Header />

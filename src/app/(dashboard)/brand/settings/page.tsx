@@ -66,7 +66,7 @@ export default function BrandSettingsPage() {
                         {/* Logo */}
                         <div className="flex items-center gap-6">
                             <div className="relative">
-                                <div className="w-24 h-24 rounded-2xl overflow-hidden bg-white/10 flex items-center justify-center">
+                                <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center">
                                     <Image
                                         src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&h=200&fit=crop"
                                         alt="Company Logo"
@@ -75,14 +75,14 @@ export default function BrandSettingsPage() {
                                         className="object-cover"
                                     />
                                 </div>
-                                <button className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-accent flex items-center justify-center">
-                                    <Camera className="w-4 h-4 text-white" />
+                                <button className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-[#6C3FA0] flex items-center justify-center">
+                                    <Camera className="w-4 h-4 text-gray-900" />
                                 </button>
                             </div>
                             <div>
-                                <h3 className="text-lg font-semibold text-white">{company.name}</h3>
-                                <p className="text-sm text-white/50">Compte vérifié</p>
-                                <Button variant="outline" size="sm" className="mt-2 border-white/20 text-white hover:bg-white/10">
+                                <h3 className="text-lg font-semibold text-gray-900">{company.name}</h3>
+                                <p className="text-sm text-gray-500">Compte vérifié</p>
+                                <Button variant="outline" size="sm" className="mt-2 border-gray-200 text-gray-900 hover:bg-gray-100">
                                     Changer le logo
                                 </Button>
                             </div>
@@ -91,64 +91,64 @@ export default function BrandSettingsPage() {
                         {/* Form Fields */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-sm text-white/60 mb-2">Nom de l'entreprise</label>
+                                <label className="block text-sm text-gray-500 mb-2">Nom de l'entreprise</label>
                                 <input
                                     type="text"
                                     value={company.name}
                                     onChange={(e) => setCompany({ ...company, name: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/25"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm text-white/60 mb-2">Site web</label>
+                                <label className="block text-sm text-gray-500 mb-2">Site web</label>
                                 <div className="relative">
-                                    <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                                    <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                     <input
                                         type="url"
                                         value={company.website}
                                         onChange={(e) => setCompany({ ...company, website: e.target.value })}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-white/25"
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
                                     />
                                 </div>
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-sm text-white/60 mb-2">Description</label>
+                            <label className="block text-sm text-gray-500 mb-2">Description</label>
                             <textarea
                                 value={company.description}
                                 onChange={(e) => setCompany({ ...company, description: e.target.value })}
                                 rows={4}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/25 resize-none"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25 resize-none"
                             />
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
-                                <label className="block text-sm text-white/60 mb-2">Secteur</label>
+                                <label className="block text-sm text-gray-500 mb-2">Secteur</label>
                                 <input
                                     type="text"
                                     value={company.industry}
                                     onChange={(e) => setCompany({ ...company, industry: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/25"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm text-white/60 mb-2">Taille</label>
+                                <label className="block text-sm text-gray-500 mb-2">Taille</label>
                                 <input
                                     type="text"
                                     value={company.size}
                                     onChange={(e) => setCompany({ ...company, size: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/25"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm text-white/60 mb-2">Localisation</label>
+                                <label className="block text-sm text-gray-500 mb-2">Localisation</label>
                                 <input
                                     type="text"
                                     value={company.location}
                                     onChange={(e) => setCompany({ ...company, location: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/25"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
                                 />
                             </div>
                         </div>
@@ -165,15 +165,15 @@ export default function BrandSettingsPage() {
                     <div className="space-y-8">
                         {/* Current Plan */}
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-4">Plan actuel</h3>
-                            <div className="p-6 bg-gradient-to-br from-accent/20 to-purple-500/10 border border-accent/30 rounded-xl">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Plan actuel</h3>
+                            <div className="p-6 bg-gradient-to-br from-accent/20 to-purple-500/10 border border-[#6C3FA0]/30 rounded-xl">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <Badge className="bg-accent text-white border-0 mb-2">Pro</Badge>
-                                        <p className="text-2xl font-bold text-white">CHF 199/mois</p>
-                                        <p className="text-sm text-white/60 mt-1">Renouvelé le 1 Mars 2024</p>
+                                        <Badge className="bg-[#6C3FA0] text-gray-900 border-0 mb-2">Pro</Badge>
+                                        <p className="text-2xl font-bold text-gray-900">CHF 199/mois</p>
+                                        <p className="text-sm text-gray-500 mt-1">Renouvelé le 1 Mars 2024</p>
                                     </div>
-                                    <Button variant="outline" className="border-white/30 text-white hover:bg-white/10">
+                                    <Button variant="outline" className="border-white/30 text-gray-900 hover:bg-gray-100">
                                         Changer de plan
                                     </Button>
                                 </div>
@@ -182,41 +182,41 @@ export default function BrandSettingsPage() {
 
                         {/* Billing Address */}
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-4">Adresse de facturation</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Adresse de facturation</h3>
                             <div className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm text-white/60 mb-2">Rue</label>
+                                        <label className="block text-sm text-gray-500 mb-2">Rue</label>
                                         <input
                                             type="text"
                                             defaultValue="Rue du Rhône 45"
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/25"
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm text-white/60 mb-2">NPA & Ville</label>
+                                        <label className="block text-sm text-gray-500 mb-2">NPA & Ville</label>
                                         <input
                                             type="text"
                                             defaultValue="1204 Genève"
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/25"
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
                                         />
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm text-white/60 mb-2">Pays</label>
+                                        <label className="block text-sm text-gray-500 mb-2">Pays</label>
                                         <input
                                             type="text"
                                             defaultValue="Suisse"
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/25"
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm text-white/60 mb-2">N° TVA (optionnel)</label>
+                                        <label className="block text-sm text-gray-500 mb-2">N° TVA (optionnel)</label>
                                         <input
                                             type="text"
                                             defaultValue="CHE-123.456.789"
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-mono focus:outline-none focus:border-white/25"
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 font-mono focus:outline-none focus:border-white/25"
                                         />
                                     </div>
                                 </div>
@@ -225,19 +225,19 @@ export default function BrandSettingsPage() {
 
                         {/* Payment Method */}
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-4">Méthode de paiement</h3>
-                            <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Méthode de paiement</h3>
+                            <div className="p-5 bg-gray-50 border border-gray-200 rounded-xl">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
-                                            <CreditCard className="w-6 h-6 text-white/70" />
+                                        <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
+                                            <CreditCard className="w-6 h-6 text-gray-600" />
                                         </div>
                                         <div>
-                                            <p className="font-medium text-white">Visa •••• 4242</p>
-                                            <p className="text-sm text-white/40">Expire 12/25</p>
+                                            <p className="font-medium text-gray-900">Visa •••• 4242</p>
+                                            <p className="text-sm text-gray-400">Expire 12/25</p>
                                         </div>
                                     </div>
-                                    <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">
+                                    <Button variant="outline" size="sm" className="border-gray-200 text-gray-900 hover:bg-gray-100">
                                         Modifier
                                     </Button>
                                 </div>
@@ -246,26 +246,26 @@ export default function BrandSettingsPage() {
 
                         {/* Invoices */}
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-4">Historique des factures</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Historique des factures</h3>
                             <div className="space-y-2">
                                 {[
                                     { date: '1 Fév 2024', amount: 199, status: 'Payée' },
                                     { date: '1 Jan 2024', amount: 199, status: 'Payée' },
                                     { date: '1 Déc 2023', amount: 199, status: 'Payée' },
                                 ].map((invoice, i) => (
-                                    <div key={i} className="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/[0.07] transition-colors">
+                                    <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-white/[0.07] transition-colors">
                                         <div className="flex items-center gap-4">
                                             <div>
-                                                <p className="text-white font-medium">{invoice.date}</p>
-                                                <p className="text-sm text-white/40">Plan Pro</p>
+                                                <p className="text-gray-900 font-medium">{invoice.date}</p>
+                                                <p className="text-sm text-gray-400">Plan Pro</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-4">
-                                            <Badge className="bg-emerald-500/20 text-emerald-400 border-0">
+                                            <Badge className="bg-emerald-500/20 text-emerald-700 border-0">
                                                 {invoice.status}
                                             </Badge>
-                                            <span className="text-white font-medium">CHF {invoice.amount}</span>
-                                            <Button size="sm" variant="ghost" className="text-white/50 hover:text-white">
+                                            <span className="text-gray-900 font-medium">CHF {invoice.amount}</span>
+                                            <Button size="sm" variant="ghost" className="text-gray-500 hover:text-gray-900">
                                                 Télécharger
                                             </Button>
                                         </div>
@@ -281,8 +281,8 @@ export default function BrandSettingsPage() {
                     <div className="space-y-8">
                         <div className="flex items-center justify-between">
                             <div>
-                                <h3 className="text-lg font-semibold text-white">Membres de l'équipe</h3>
-                                <p className="text-sm text-white/50">Gérez les accès à votre compte</p>
+                                <h3 className="text-lg font-semibold text-gray-900">Membres de l'équipe</h3>
+                                <p className="text-sm text-gray-500">Gérez les accès à votre compte</p>
                             </div>
                             <Button className="btn-primary">
                                 <Plus className="w-4 h-4 mr-2" />
@@ -292,9 +292,9 @@ export default function BrandSettingsPage() {
 
                         <div className="space-y-3">
                             {MOCK_TEAM.map(member => (
-                                <div key={member.id} className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl">
+                                <div key={member.id} className="flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-xl">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-full overflow-hidden bg-white/10">
+                                        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100">
                                             <Image
                                                 src={member.avatar}
                                                 alt={member.name}
@@ -304,18 +304,18 @@ export default function BrandSettingsPage() {
                                             />
                                         </div>
                                         <div>
-                                            <p className="text-white font-medium">{member.name}</p>
-                                            <p className="text-sm text-white/40">{member.email}</p>
+                                            <p className="text-gray-900 font-medium">{member.name}</p>
+                                            <p className="text-sm text-gray-400">{member.email}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-4">
                                         <Badge className={`border ${member.role === 'Admin'
-                                            ? 'bg-accent/20 text-accent border-accent/30'
-                                            : 'bg-white/10 text-white/60 border-white/20'
+                                            ? 'bg-[#6C3FA0]/20 text-[#6C3FA0] border-[#6C3FA0]/30'
+                                            : 'bg-gray-100 text-gray-500 border-gray-200'
                                             }`}>
                                             {member.role}
                                         </Badge>
-                                        <Button size="sm" variant="ghost" className="text-white/50 hover:text-red-400">
+                                        <Button size="sm" variant="ghost" className="text-gray-500 hover:text-red-700">
                                             <Trash2 className="w-4 h-4" />
                                         </Button>
                                     </div>
@@ -323,9 +323,9 @@ export default function BrandSettingsPage() {
                             ))}
                         </div>
 
-                        <div className="p-5 bg-white/5 border border-dashed border-white/20 rounded-xl text-center">
-                            <Mail className="w-8 h-8 text-white/30 mx-auto mb-2" />
-                            <p className="text-white/50 text-sm">Invitez des collègues par email</p>
+                        <div className="p-5 bg-gray-50 border border-dashed border-gray-200 rounded-xl text-center">
+                            <Mail className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                            <p className="text-gray-500 text-sm">Invitez des collègues par email</p>
                         </div>
                     </div>
                 )
@@ -333,7 +333,7 @@ export default function BrandSettingsPage() {
             case 'notifications':
                 return (
                     <div className="space-y-8">
-                        <h3 className="text-lg font-semibold text-white mb-4">Notifications par email</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Notifications par email</h3>
                         <div className="space-y-4">
                             {[
                                 { key: 'emailNewApplicant', label: 'Nouvelles candidatures', desc: 'Recevez un email quand un créateur postule à une campagne' },
@@ -342,10 +342,10 @@ export default function BrandSettingsPage() {
                                 { key: 'emailInvoice', label: 'Factures', desc: 'Notifications de facturation' },
                                 { key: 'emailMarketing', label: 'Actualités', desc: 'Nouveautés et conseils marketing' },
                             ].map(item => (
-                                <div key={item.key} className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                                <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                                     <div>
-                                        <p className="text-white font-medium">{item.label}</p>
-                                        <p className="text-sm text-white/40">{item.desc}</p>
+                                        <p className="text-gray-900 font-medium">{item.label}</p>
+                                        <p className="text-sm text-gray-400">{item.desc}</p>
                                     </div>
                                     <Switch
                                         checked={notifications[item.key as keyof typeof notifications]}
@@ -362,22 +362,22 @@ export default function BrandSettingsPage() {
                     <div className="space-y-8">
                         {/* Password */}
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-4">Mot de passe</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Mot de passe</h3>
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm text-white/60 mb-2">Mot de passe actuel</label>
+                                    <label className="block text-sm text-gray-500 mb-2">Mot de passe actuel</label>
                                     <input
                                         type="password"
                                         placeholder="••••••••"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/25"
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm text-white/60 mb-2">Nouveau mot de passe</label>
+                                    <label className="block text-sm text-gray-500 mb-2">Nouveau mot de passe</label>
                                     <input
                                         type="password"
                                         placeholder="••••••••"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/25"
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
                                     />
                                 </div>
                                 <Button className="btn-primary">
@@ -388,19 +388,19 @@ export default function BrandSettingsPage() {
 
                         {/* 2FA */}
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-4">Authentification à deux facteurs</h3>
-                            <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Authentification à deux facteurs</h3>
+                            <div className="p-5 bg-gray-50 border border-gray-200 rounded-xl">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                                            <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+                                            <CheckCircle2 className="w-6 h-6 text-emerald-700" />
                                         </div>
                                         <div>
-                                            <p className="font-medium text-white">2FA activée</p>
-                                            <p className="text-sm text-white/40">Via Google Authenticator</p>
+                                            <p className="font-medium text-gray-900">2FA activée</p>
+                                            <p className="text-sm text-gray-400">Via Google Authenticator</p>
                                         </div>
                                     </div>
-                                    <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                                    <Button variant="outline" className="border-gray-200 text-gray-900 hover:bg-gray-100">
                                         Désactiver
                                     </Button>
                                 </div>
@@ -418,8 +418,8 @@ export default function BrandSettingsPage() {
         <div className="space-y-8">
             {/* Header */}
             <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white">Paramètres</h1>
-                <p className="text-white/60 mt-1">Gérez votre entreprise et préférences</p>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Paramètres</h1>
+                <p className="text-gray-500 mt-1">Gérez votre entreprise et préférences</p>
             </div>
 
             <div className="flex flex-col md:flex-row gap-6 md:gap-8">
@@ -432,8 +432,8 @@ export default function BrandSettingsPage() {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-2 md:gap-3 px-4 py-2.5 md:py-3 rounded-xl text-left transition-all whitespace-nowrap flex-shrink-0 md:w-full ${activeTab === tab.id
-                                    ? 'bg-white/10 text-white'
-                                    : 'text-white/50 hover:text-white hover:bg-white/5'
+                                    ? 'bg-gray-100 text-gray-900'
+                                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                                     }`}
                             >
                                 <Icon className="w-4 h-4 md:w-5 md:h-5" />
@@ -451,7 +451,7 @@ export default function BrandSettingsPage() {
                     key={activeTab}
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="flex-1 bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-4 md:p-8"
+                    className="flex-1 bg-white border border-white/[0.15] rounded-2xl p-4 md:p-8"
                 >
                     {renderTabContent()}
                 </motion.div>

@@ -31,11 +31,11 @@ import { useParams } from "next/navigation"
 // ================================================
 
 const statusConfig: Record<string, { label: string; color: string; icon: typeof Clock }> = {
-    pending: { label: 'En attente', color: 'bg-amber-500/20 text-amber-400 border-amber-500/30', icon: Clock },
-    review: { label: 'En validation', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30', icon: Clock },
+    pending: { label: 'En attente', color: 'bg-amber-500/20 text-amber-700 border-amber-500/30', icon: Clock },
+    review: { label: 'En validation', color: 'bg-blue-500/20 text-blue-700 border-blue-500/30', icon: Clock },
     revision_requested: { label: 'Révision demandée', color: 'bg-orange-500/20 text-orange-400 border-orange-500/30', icon: RotateCcw },
-    approved: { label: 'Approuvé', color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', icon: CheckCircle2 },
-    rejected: { label: 'Rejeté', color: 'bg-red-500/20 text-red-400 border-red-500/30', icon: XCircle },
+    approved: { label: 'Approuvé', color: 'bg-emerald-500/20 text-emerald-700 border-emerald-500/30', icon: CheckCircle2 },
+    rejected: { label: 'Rejeté', color: 'bg-red-500/20 text-red-700 border-red-500/30', icon: XCircle },
 }
 
 // ================================================
@@ -326,7 +326,7 @@ export default function SharedMissionPage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-white/50" />
+                <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
             </div>
         )
     }
@@ -334,10 +334,10 @@ export default function SharedMissionPage() {
     if (!mission) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-                <AlertCircle className="w-12 h-12 text-white/30" />
-                <p className="text-white/50">Mission introuvable</p>
+                <AlertCircle className="w-12 h-12 text-gray-400" />
+                <p className="text-gray-500">Mission introuvable</p>
                 <Link href={userRole === 'brand' ? '/brand/campaigns' : '/creator/missions'}>
-                    <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                    <Button variant="outline" className="border-gray-200 text-gray-900 hover:bg-gray-100">
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Retour
                     </Button>
@@ -357,7 +357,7 @@ export default function SharedMissionPage() {
         <div className="max-w-6xl mx-auto space-y-6">
             {/* Back Button */}
             <Link href={userRole === 'brand' ? '/brand/campaigns' : '/creator/missions'}>
-                <Button variant="ghost" className="text-white/60 hover:text-white hover:bg-white/5 -ml-2">
+                <Button variant="ghost" className="text-gray-500 hover:text-gray-900 hover:bg-gray-50 -ml-2">
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Retour
                 </Button>
@@ -371,14 +371,14 @@ export default function SharedMissionPage() {
                             {statusInfo.label}
                         </Badge>
                         {mission.deadline && (
-                            <span className="text-sm text-white/40 flex items-center gap-1">
+                            <span className="text-sm text-gray-400 flex items-center gap-1">
                                 <Clock className="w-3.5 h-3.5" />
                                 Deadline: {new Date(mission.deadline).toLocaleDateString('fr-CH')}
                             </span>
                         )}
                     </div>
-                    <h1 className="text-xl md:text-2xl font-bold text-white">{mission.campaign_title}</h1>
-                    <p className="text-white/50 mt-1">
+                    <h1 className="text-xl md:text-2xl font-bold text-gray-900">{mission.campaign_title}</h1>
+                    <p className="text-gray-500 mt-1">
                         {userRole === 'brand'
                             ? `Créateur: ${mission.creator_name}`
                             : `Marque: ${mission.brand_name}`
@@ -386,8 +386,8 @@ export default function SharedMissionPage() {
                     </p>
                 </div>
                 <div className="sm:text-right">
-                    <p className="text-2xl font-bold text-white">{formatCHF(mission.budget_chf)}</p>
-                    <p className="text-sm text-white/40">
+                    <p className="text-2xl font-bold text-gray-900">{formatCHF(mission.budget_chf)}</p>
+                    <p className="text-sm text-gray-400">
                         {deliverableStatus === 'approved' ? 'Payé ✓' : 'En séquestre'}
                     </p>
                 </div>
@@ -395,11 +395,11 @@ export default function SharedMissionPage() {
 
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="bg-white/5 border border-white/10">
-                    <TabsTrigger value="details" className="data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60">
+                <TabsList className="bg-gray-50 border border-gray-200">
+                    <TabsTrigger value="details" className="data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 text-gray-500">
                         Détails du brief
                     </TabsTrigger>
-                    <TabsTrigger value="deliverable" className="data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 gap-2">
+                    <TabsTrigger value="deliverable" className="data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 text-gray-500 gap-2">
                         <FileVideo className="w-4 h-4" />
                         Livrable
                         {latestDeliverable && (
@@ -410,7 +410,7 @@ export default function SharedMissionPage() {
                                 }`} />
                         )}
                     </TabsTrigger>
-                    <TabsTrigger value="messages" className="data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 gap-2">
+                    <TabsTrigger value="messages" className="data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 text-gray-500 gap-2">
                         <MessageSquare className="w-4 h-4" />
                         Messages
                     </TabsTrigger>
@@ -420,32 +420,32 @@ export default function SharedMissionPage() {
                 {/* DETAILS TAB */}
                 {/* ============================================ */}
                 <TabsContent value="details" className="mt-6">
-                    <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 space-y-6">
+                    <div className="bg-white/[0.03] border border-gray-200 rounded-2xl p-6 space-y-6">
                         {/* Description */}
                         <div>
-                            <h4 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-3">Description</h4>
-                            <p className="text-white/70 leading-relaxed">
+                            <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Description</h4>
+                            <p className="text-gray-600 leading-relaxed">
                                 {mission.campaign_description || 'Aucune description fournie.'}
                             </p>
                         </div>
 
                         {/* Specs Grid */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div className="bg-white/5 rounded-xl p-4">
-                                <p className="text-xs text-white/40 mb-1">Budget</p>
-                                <p className="text-white font-semibold">{formatCHF(mission.budget_chf)}</p>
+                            <div className="bg-gray-50 rounded-xl p-4">
+                                <p className="text-xs text-gray-400 mb-1">Budget</p>
+                                <p className="text-gray-900 font-semibold">{formatCHF(mission.budget_chf)}</p>
                             </div>
-                            <div className="bg-white/5 rounded-xl p-4">
-                                <p className="text-xs text-white/40 mb-1">Format</p>
-                                <p className="text-white font-semibold">{mission.video_format || '—'}</p>
+                            <div className="bg-gray-50 rounded-xl p-4">
+                                <p className="text-xs text-gray-400 mb-1">Format</p>
+                                <p className="text-gray-900 font-semibold">{mission.video_format || '—'}</p>
                             </div>
-                            <div className="bg-white/5 rounded-xl p-4">
-                                <p className="text-xs text-white/40 mb-1">Type</p>
-                                <p className="text-white font-semibold">{mission.script_type || '—'}</p>
+                            <div className="bg-gray-50 rounded-xl p-4">
+                                <p className="text-xs text-gray-400 mb-1">Type</p>
+                                <p className="text-gray-900 font-semibold">{mission.script_type || '—'}</p>
                             </div>
-                            <div className="bg-white/5 rounded-xl p-4">
-                                <p className="text-xs text-white/40 mb-1">Deadline</p>
-                                <p className="text-white font-semibold">
+                            <div className="bg-gray-50 rounded-xl p-4">
+                                <p className="text-xs text-gray-400 mb-1">Deadline</p>
+                                <p className="text-gray-900 font-semibold">
                                     {mission.deadline
                                         ? new Date(mission.deadline).toLocaleDateString('fr-CH')
                                         : '—'
@@ -465,9 +465,9 @@ export default function SharedMissionPage() {
                         <div>
                             {latestDeliverable ? (
                                 /* Video Player */
-                                <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
+                                <div className="bg-white/[0.03] border border-gray-200 rounded-2xl p-6">
                                     <div className="flex items-center justify-between mb-4">
-                                        <h3 className="text-white font-semibold">Vidéo soumise</h3>
+                                        <h3 className="text-gray-900 font-semibold">Vidéo soumise</h3>
                                         <Badge className={`${statusInfo.color} border`}>
                                             {statusInfo.label}
                                         </Badge>
@@ -480,11 +480,11 @@ export default function SharedMissionPage() {
                                             />
                                         ) : (
                                             <div className="flex items-center justify-center min-h-[300px]">
-                                                <Loader2 className="w-8 h-8 animate-spin text-white/30" />
+                                                <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
                                             </div>
                                         )}
                                     </div>
-                                    <div className="mt-4 flex items-center justify-between text-sm text-white/40">
+                                    <div className="mt-4 flex items-center justify-between text-sm text-gray-400">
                                         <span>
                                             Soumis le {new Date(latestDeliverable.created_at).toLocaleDateString('fr-CH')}
                                         </span>
@@ -492,7 +492,7 @@ export default function SharedMissionPage() {
                                             <Button
                                                 size="sm"
                                                 onClick={handleDownload}
-                                                className="bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/30"
+                                                className="bg-emerald-500/20 text-emerald-700 hover:bg-emerald-500/30 border border-emerald-500/30"
                                             >
                                                 <Download className="w-4 h-4 mr-2" />
                                                 Télécharger HD
@@ -502,10 +502,10 @@ export default function SharedMissionPage() {
 
                                     {/* Creator: re-upload if revision requested */}
                                     {userRole === 'creator' && deliverableStatus === 'revision_requested' && (
-                                        <div className="mt-4 pt-4 border-t border-white/10">
+                                        <div className="mt-4 pt-4 border-t border-gray-200">
                                             <Button
                                                 onClick={() => fileInputRef.current?.click()}
-                                                className="w-full bg-accent hover:bg-accent/80"
+                                                className="w-full bg-[#6C3FA0] hover:bg-[#6C3FA0]/80"
                                             >
                                                 <Upload className="w-4 h-4 mr-2" />
                                                 Soumettre une nouvelle version
@@ -534,8 +534,8 @@ export default function SharedMissionPage() {
                                         flex flex-col items-center justify-center text-center
                                         min-h-[400px] transition-all duration-300 cursor-pointer
                                         ${dragActive
-                                            ? 'border-accent bg-accent/5 scale-[1.01]'
-                                            : 'border-white/20 hover:border-white/30 hover:bg-white/[0.05]'
+                                            ? 'border-[#6C3FA0] bg-[#6C3FA0]/5 scale-[1.01]'
+                                            : 'border-gray-200 hover:border-white/30 hover:bg-gray-50'
                                         }
                                         ${isUploading ? 'pointer-events-none' : ''}
                                     `}
@@ -544,35 +544,35 @@ export default function SharedMissionPage() {
                                     {isUploading ? (
                                         /* Upload Progress */
                                         <div className="w-full max-w-xs space-y-4">
-                                            <div className="w-16 h-16 mx-auto rounded-full bg-accent/20 flex items-center justify-center">
-                                                <Loader2 className="w-8 h-8 text-accent animate-spin" />
+                                            <div className="w-16 h-16 mx-auto rounded-full bg-[#6C3FA0]/20 flex items-center justify-center">
+                                                <Loader2 className="w-8 h-8 text-[#6C3FA0] animate-spin" />
                                             </div>
-                                            <p className="text-white font-medium">Upload en cours...</p>
-                                            <div className="w-full bg-white/10 rounded-full h-2">
+                                            <p className="text-gray-900 font-medium">Upload en cours...</p>
+                                            <div className="w-full bg-gray-100 rounded-full h-2">
                                                 <div
-                                                    className="bg-accent h-2 rounded-full transition-all duration-500"
+                                                    className="bg-[#6C3FA0] h-2 rounded-full transition-all duration-500"
                                                     style={{ width: `${uploadProgress}%` }}
                                                 />
                                             </div>
-                                            <p className="text-white/40 text-sm">{Math.round(uploadProgress)}%</p>
+                                            <p className="text-gray-400 text-sm">{Math.round(uploadProgress)}%</p>
                                         </div>
                                     ) : (
                                         /* Drop zone */
                                         <>
-                                            <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center mb-4">
-                                                <Upload className="w-10 h-10 text-white/30" />
+                                            <div className="w-20 h-20 rounded-2xl bg-gray-50 flex items-center justify-center mb-4">
+                                                <Upload className="w-10 h-10 text-gray-400" />
                                             </div>
-                                            <p className="text-white font-medium text-lg mb-1">
+                                            <p className="text-gray-900 font-medium text-lg mb-1">
                                                 Glissez votre vidéo ici
                                             </p>
-                                            <p className="text-white/40 text-sm mb-4">
+                                            <p className="text-gray-400 text-sm mb-4">
                                                 ou cliquez pour sélectionner
                                             </p>
                                             <div className="flex flex-wrap gap-2 justify-center">
-                                                <span className="px-3 py-1 bg-white/5 rounded-full text-xs text-white/40">MP4</span>
-                                                <span className="px-3 py-1 bg-white/5 rounded-full text-xs text-white/40">MOV</span>
-                                                <span className="px-3 py-1 bg-white/5 rounded-full text-xs text-white/40">WebM</span>
-                                                <span className="px-3 py-1 bg-white/5 rounded-full text-xs text-white/40">Max 500 MB</span>
+                                                <span className="px-3 py-1 bg-gray-50 rounded-full text-xs text-gray-400">MP4</span>
+                                                <span className="px-3 py-1 bg-gray-50 rounded-full text-xs text-gray-400">MOV</span>
+                                                <span className="px-3 py-1 bg-gray-50 rounded-full text-xs text-gray-400">WebM</span>
+                                                <span className="px-3 py-1 bg-gray-50 rounded-full text-xs text-gray-400">Max 500 MB</span>
                                             </div>
                                         </>
                                     )}
@@ -589,12 +589,12 @@ export default function SharedMissionPage() {
                                 </div>
                             ) : (
                                 /* Brand: no deliverable yet */
-                                <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center min-h-[400px]">
-                                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                                        <Clock className="w-8 h-8 text-white/20" />
+                                <div className="bg-white/[0.03] border border-gray-200 rounded-2xl p-8 flex flex-col items-center justify-center min-h-[400px]">
+                                    <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-4">
+                                        <Clock className="w-8 h-8 text-gray-300" />
                                     </div>
-                                    <p className="text-white/50 font-medium">En attente du livrable</p>
-                                    <p className="text-white/30 text-sm mt-1">Le créateur n'a pas encore soumis de vidéo</p>
+                                    <p className="text-gray-500 font-medium">En attente du livrable</p>
+                                    <p className="text-gray-400 text-sm mt-1">Le créateur n'a pas encore soumis de vidéo</p>
                                 </div>
                             )}
                         </div>
@@ -602,30 +602,30 @@ export default function SharedMissionPage() {
                         {/* Right: Actions & Status */}
                         <div className="space-y-4">
                             {/* Status Timeline */}
-                            <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
-                                <h3 className="text-white font-semibold mb-4">Historique</h3>
+                            <div className="bg-white/[0.03] border border-gray-200 rounded-2xl p-6">
+                                <h3 className="text-gray-900 font-semibold mb-4">Historique</h3>
                                 <div className="space-y-4">
                                     {deliverables.length === 0 ? (
-                                        <p className="text-white/30 text-sm">Aucun livrable soumis</p>
+                                        <p className="text-gray-400 text-sm">Aucun livrable soumis</p>
                                     ) : (
                                         deliverables.map((deliv, index) => {
                                             const info = statusConfig[deliv.status] || statusConfig.pending
                                             const StatusIcon = info.icon
                                             return (
                                                 <div key={deliv.id} className="flex items-start gap-3">
-                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${index === 0 ? 'bg-white/10' : 'bg-white/5'
+                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${index === 0 ? 'bg-gray-100' : 'bg-gray-50'
                                                         }`}>
-                                                        <StatusIcon className={`w-4 h-4 ${deliv.status === 'approved' ? 'text-emerald-400' :
-                                                            deliv.status === 'rejected' ? 'text-red-400' :
+                                                        <StatusIcon className={`w-4 h-4 ${deliv.status === 'approved' ? 'text-emerald-700' :
+                                                            deliv.status === 'rejected' ? 'text-red-700' :
                                                                 deliv.status === 'revision_requested' ? 'text-orange-400' :
-                                                                    'text-blue-400'
+                                                                    'text-blue-700'
                                                             }`} />
                                                     </div>
                                                     <div className="flex-1 min-w-0">
-                                                        <p className="text-sm text-white/70">
+                                                        <p className="text-sm text-gray-600">
                                                             {info.label}
                                                         </p>
-                                                        <p className="text-xs text-white/30">
+                                                        <p className="text-xs text-gray-400">
                                                             {new Date(deliv.updated_at).toLocaleDateString('fr-CH', {
                                                                 day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
                                                             })}
@@ -633,7 +633,7 @@ export default function SharedMissionPage() {
                                                         {deliv.revision_notes && (
                                                             <div className="mt-2 p-3 bg-orange-500/10 border border-orange-500/20 rounded-xl">
                                                                 <p className="text-xs text-orange-400 font-medium mb-1">Notes de révision :</p>
-                                                                <p className="text-sm text-white/60">{deliv.revision_notes}</p>
+                                                                <p className="text-sm text-gray-500">{deliv.revision_notes}</p>
                                                             </div>
                                                         )}
                                                     </div>
@@ -646,11 +646,11 @@ export default function SharedMissionPage() {
 
                             {/* Brand Review Actions */}
                             {userRole === 'brand' && latestDeliverable && deliverableStatus === 'review' && (
-                                <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 space-y-4">
-                                    <h3 className="text-white font-semibold">Actions</h3>
+                                <div className="bg-white/[0.03] border border-gray-200 rounded-2xl p-6 space-y-4">
+                                    <h3 className="text-gray-900 font-semibold">Actions</h3>
 
                                     <Button
-                                        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium"
+                                        className="w-full bg-emerald-500 hover:bg-emerald-600 text-gray-900 font-medium"
                                         onClick={handleApprove}
                                         disabled={isSubmitting}
                                     >
@@ -669,7 +669,7 @@ export default function SharedMissionPage() {
                                                 value={revisionNotes}
                                                 onChange={(e) => setRevisionNotes(e.target.value)}
                                                 rows={3}
-                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white/25 placeholder:text-white/30 resize-none"
+                                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm focus:outline-none focus:border-white/25 placeholder:text-gray-400 resize-none"
                                             />
                                             <div className="flex gap-2">
                                                 <Button
@@ -682,7 +682,7 @@ export default function SharedMissionPage() {
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
-                                                    className="text-white/40 hover:text-white hover:bg-white/5"
+                                                    className="text-gray-400 hover:text-gray-900 hover:bg-gray-50"
                                                     onClick={() => { setShowRevisionInput(false); setRevisionNotes('') }}
                                                 >
                                                     Annuler
@@ -692,7 +692,7 @@ export default function SharedMissionPage() {
                                     ) : (
                                         <Button
                                             variant="outline"
-                                            className="w-full border-white/20 text-white/70 hover:bg-white/5 hover:text-white"
+                                            className="w-full border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                                             onClick={() => setShowRevisionInput(true)}
                                         >
                                             <RefreshCw className="w-4 h-4 mr-2" />
@@ -702,7 +702,7 @@ export default function SharedMissionPage() {
 
                                     <Button
                                         variant="ghost"
-                                        className="w-full text-red-400/60 hover:text-red-400 hover:bg-red-500/10"
+                                        className="w-full text-red-700/60 hover:text-red-700 hover:bg-red-500/10"
                                         onClick={handleReject}
                                         disabled={isSubmitting}
                                     >
@@ -715,10 +715,10 @@ export default function SharedMissionPage() {
                             {/* Approved Download Card */}
                             {deliverableStatus === 'approved' && (
                                 <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-6 text-center space-y-3">
-                                    <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto" />
+                                    <CheckCircle2 className="w-10 h-10 text-emerald-700 mx-auto" />
                                     <div>
-                                        <p className="text-emerald-400 font-semibold">Livrable approuvé</p>
-                                        <p className="text-white/40 text-sm mt-1">
+                                        <p className="text-emerald-700 font-semibold">Livrable approuvé</p>
+                                        <p className="text-gray-400 text-sm mt-1">
                                             Les droits ont été transférés le{' '}
                                             {latestDeliverable?.rights_transferred_at
                                                 ? new Date(latestDeliverable.rights_transferred_at).toLocaleDateString('fr-CH')
@@ -728,7 +728,7 @@ export default function SharedMissionPage() {
                                     </div>
                                     {userRole === 'brand' && (
                                         <Button
-                                            className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                                            className="bg-emerald-500 hover:bg-emerald-600 text-gray-900"
                                             onClick={handleDownload}
                                         >
                                             <Download className="w-4 h-4 mr-2" />
@@ -745,7 +745,7 @@ export default function SharedMissionPage() {
                                         <AlertCircle className="w-5 h-5 text-orange-400" />
                                         <h3 className="text-orange-400 font-semibold">Révision demandée</h3>
                                     </div>
-                                    <p className="text-white/60 text-sm leading-relaxed">
+                                    <p className="text-gray-500 text-sm leading-relaxed">
                                         {latestDeliverable.revision_notes}
                                     </p>
                                 </div>
@@ -758,15 +758,15 @@ export default function SharedMissionPage() {
                 {/* MESSAGES TAB */}
                 {/* ============================================ */}
                 <TabsContent value="messages" className="mt-6">
-                    <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
+                    <div className="bg-white/[0.03] border border-gray-200 rounded-2xl p-6">
                         <div className="flex flex-col items-center justify-center min-h-[300px] text-center">
-                            <MessageSquare className="w-12 h-12 text-white/20 mb-4" />
-                            <p className="text-white/50 font-medium">Messagerie</p>
-                            <p className="text-white/30 text-sm mt-1">
+                            <MessageSquare className="w-12 h-12 text-gray-300 mb-4" />
+                            <p className="text-gray-500 font-medium">Messagerie</p>
+                            <p className="text-gray-400 text-sm mt-1">
                                 Utilisez la messagerie du dashboard pour communiquer
                             </p>
                             <Link href={userRole === 'brand' ? '/brand/messages' : '/creator/messages'}>
-                                <Button variant="outline" className="mt-4 border-white/20 text-white hover:bg-white/10">
+                                <Button variant="outline" className="mt-4 border-gray-200 text-gray-900 hover:bg-gray-100">
                                     <MessageSquare className="w-4 h-4 mr-2" />
                                     Ouvrir les messages
                                 </Button>

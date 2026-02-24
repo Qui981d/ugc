@@ -74,6 +74,25 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(url)
     }
 
+    // Admin route protection - verify user has admin role
+    if (request.nextUrl.pathname.startsWith('/mosh-cockpit')) {
+        if (!user) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/login'
+            return NextResponse.redirect(url)
+        }
+        const { data: userData } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+        if (userData?.role !== 'admin') {
+            const url = request.nextUrl.clone()
+            url.pathname = '/'
+            return NextResponse.redirect(url)
+        }
+    }
+
     // IMPORTANT: You *must* return the supabaseResponse object as it is.
     return supabaseResponse
 }

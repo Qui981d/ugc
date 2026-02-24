@@ -30,10 +30,10 @@ import ContractViewer from "@/components/contracts/ContractViewer"
 import type { Campaign } from "@/types/database"
 
 const statusConfig: Record<string, { label: string; class: string }> = {
-    pending: { label: "En attente", class: "bg-amber-500/20 text-amber-400 border-amber-500/30" },
-    accepted: { label: "Accepté", class: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
-    rejected: { label: "Refusé", class: "bg-red-500/20 text-red-400 border-red-500/30" },
-    withdrawn: { label: "Retiré", class: "bg-white/20 text-white/60 border-white/30" },
+    pending: { label: "En attente", class: "bg-amber-500/20 text-amber-700 border-amber-500/30" },
+    accepted: { label: "Accepté", class: "bg-emerald-500/20 text-emerald-700 border-emerald-500/30" },
+    rejected: { label: "Refusé", class: "bg-red-500/20 text-red-700 border-red-500/30" },
+    withdrawn: { label: "Retiré", class: "bg-gray-100 text-gray-500 border-white/30" },
 }
 
 export default function CampaignApplicantsPage() {
@@ -162,7 +162,7 @@ export default function CampaignApplicantsPage() {
     if (!mounted || (!user && isLoading)) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-white/50" />
+                <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
             </div>
         )
     }
@@ -172,15 +172,15 @@ export default function CampaignApplicantsPage() {
             {/* Header */}
             <div className="flex items-center gap-4">
                 <Link href="/brand/campaigns">
-                    <Button variant="ghost" size="sm" className="text-white/60 hover:text-white hover:bg-white/10">
+                    <Button variant="ghost" size="sm" className="text-gray-500 hover:text-gray-900 hover:bg-gray-100">
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Retour
                     </Button>
                 </Link>
-                <div className="h-6 w-px bg-white/20" />
+                <div className="h-6 w-px bg-gray-100" />
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Candidatures</h1>
-                    <p className="text-white/60 text-sm">{campaign?.title || 'Chargement...'}</p>
+                    <h1 className="text-2xl font-bold text-gray-900">Candidatures</h1>
+                    <p className="text-gray-500 text-sm">{campaign?.title || 'Chargement...'}</p>
                 </div>
             </div>
 
@@ -193,33 +193,33 @@ export default function CampaignApplicantsPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`bg-white/[0.08] backdrop-blur-xl border rounded-2xl p-4 sm:p-5 cursor-pointer transition-all ${activeTab === tab.id
-                            ? 'border-accent/50 bg-accent/10'
+                        className={`bg-white border rounded-2xl p-4 sm:p-5 cursor-pointer transition-all ${activeTab === tab.id
+                            ? 'border-[#6C3FA0]/50 bg-[#6C3FA0]/10'
                             : 'border-white/[0.15] hover:border-white/25'
                             }`}
                     >
-                        <p className="text-2xl font-bold text-white">{tab.count}</p>
-                        <p className="text-sm text-white/50">{tab.label}</p>
+                        <p className="text-2xl font-bold text-gray-900">{tab.count}</p>
+                        <p className="text-sm text-gray-500">{tab.label}</p>
                     </motion.div>
                 ))}
             </div>
 
             {/* Search */}
             <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                     type="text"
                     placeholder="Rechercher un créateur..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:border-white/25"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-white/25"
                 />
             </div>
 
             {/* Applicants List */}
             <div className="space-y-4">
                 {filteredApplications.length === 0 ? (
-                    <div className="text-center py-16 text-white/40">
+                    <div className="text-center py-16 text-gray-400">
                         <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
                         <p>{applications.length === 0 ? 'Aucune candidature pour le moment' : 'Aucun créateur dans cette catégorie'}</p>
                     </div>
@@ -236,12 +236,12 @@ export default function CampaignApplicantsPage() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.05 }}
-                                className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] hover:border-white/25 rounded-2xl p-4 sm:p-6 transition-all"
+                                className="bg-white border border-white/[0.15] hover:border-white/25 rounded-2xl p-4 sm:p-6 transition-all"
                             >
                                 <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-5">
                                     {/* Avatar */}
                                     <Link href={`/creators/${creator?.id}`}>
-                                        <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-white/10 flex-shrink-0 cursor-pointer hover:ring-2 ring-accent transition-all">
+                                        <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 cursor-pointer hover:ring-2 ring-[#6C3FA0] transition-all">
                                             {creator?.avatar_url ? (
                                                 <Image
                                                     src={creator.avatar_url}
@@ -250,7 +250,7 @@ export default function CampaignApplicantsPage() {
                                                     className="object-cover"
                                                 />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-white/40 text-xl font-bold">
+                                                <div className="w-full h-full flex items-center justify-center text-gray-400 text-xl font-bold">
                                                     {creator?.full_name?.charAt(0) || '?'}
                                                 </div>
                                             )}
@@ -263,7 +263,7 @@ export default function CampaignApplicantsPage() {
                                             <div>
                                                 <div className="flex items-center gap-3 flex-wrap">
                                                     <Link href={`/creators/${creator?.id}`}>
-                                                        <h3 className="text-lg font-semibold text-white hover:text-accent transition-colors cursor-pointer">
+                                                        <h3 className="text-lg font-semibold text-gray-900 hover:text-[#6C3FA0] transition-colors cursor-pointer">
                                                             {creator?.full_name || 'Créateur inconnu'}
                                                         </h3>
                                                     </Link>
@@ -271,7 +271,7 @@ export default function CampaignApplicantsPage() {
                                                         {status.label}
                                                     </Badge>
                                                 </div>
-                                                <div className="flex items-center gap-4 mt-1 text-sm text-white/50">
+                                                <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
                                                     {(profile as any)?.location_canton && (
                                                         <span className="flex items-center gap-1">
                                                             <MapPin className="w-3.5 h-3.5" />
@@ -280,20 +280,20 @@ export default function CampaignApplicantsPage() {
                                                     )}
                                                     {(profile as any)?.rating_avg > 0 && (
                                                         <span className="flex items-center gap-1">
-                                                            <Star className="w-3.5 h-3.5 text-amber-400" />
+                                                            <Star className="w-3.5 h-3.5 text-amber-700" />
                                                             {Number((profile as any).rating_avg).toFixed(1)}
                                                         </span>
                                                     )}
                                                 </div>
                                             </div>
-                                            <span className="text-xs text-white/40 hidden sm:block">
+                                            <span className="text-xs text-gray-400 hidden sm:block">
                                                 {new Date(application.created_at).toLocaleDateString('fr-CH')}
                                             </span>
                                         </div>
 
                                         {/* Message */}
                                         {application.pitch_message && (
-                                            <p className="text-sm text-white/60 mt-3 line-clamp-2">
+                                            <p className="text-sm text-gray-500 mt-3 line-clamp-2">
                                                 &ldquo;{application.pitch_message}&rdquo;
                                             </p>
                                         )}
@@ -304,7 +304,7 @@ export default function CampaignApplicantsPage() {
                                                 {profile.specialties.slice(0, 3).map(specialty => (
                                                     <span
                                                         key={specialty}
-                                                        className="text-xs text-white/50 bg-white/5 px-2.5 py-1 rounded-md"
+                                                        className="text-xs text-gray-500 bg-gray-50 px-2.5 py-1 rounded-md"
                                                     >
                                                         {specialty}
                                                     </span>
@@ -329,7 +329,7 @@ export default function CampaignApplicantsPage() {
                                                 <Button
                                                     size="sm"
                                                     variant="ghost"
-                                                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10 flex-1 sm:flex-none"
+                                                    className="text-red-700 hover:text-red-300 hover:bg-red-500/10 flex-1 sm:flex-none"
                                                     onClick={() => handleReject(application.id)}
                                                     disabled={updatingId === application.id}
                                                 >
@@ -346,7 +346,7 @@ export default function CampaignApplicantsPage() {
                                             <Button
                                                 size="sm"
                                                 variant="ghost"
-                                                className="text-accent hover:text-accent hover:bg-accent/10 w-full"
+                                                className="text-[#6C3FA0] hover:text-[#6C3FA0] hover:bg-[#6C3FA0]/10 w-full"
                                                 onClick={() => handleViewContract(application)}
                                             >
                                                 <FileText className="w-4 h-4 mr-1" />
@@ -354,13 +354,13 @@ export default function CampaignApplicantsPage() {
                                             </Button>
                                         )}
                                         <Link href={`/brand/messages?campaign=${params.id}&creator=${creator?.id}`}>
-                                            <Button size="sm" variant="ghost" className="w-full text-white/60 hover:text-white hover:bg-white/10">
+                                            <Button size="sm" variant="ghost" className="w-full text-gray-500 hover:text-gray-900 hover:bg-gray-100">
                                                 <MessageSquare className="w-4 h-4 mr-1" />
                                                 Message
                                             </Button>
                                         </Link>
                                         <Link href={`/creators/${creator?.id}`}>
-                                            <Button size="sm" variant="ghost" className="w-full text-white/60 hover:text-white hover:bg-white/10">
+                                            <Button size="sm" variant="ghost" className="w-full text-gray-500 hover:text-gray-900 hover:bg-gray-100">
                                                 <Eye className="w-4 h-4 mr-1" />
                                                 Profil
                                             </Button>

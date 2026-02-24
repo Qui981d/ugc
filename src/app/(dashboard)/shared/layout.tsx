@@ -11,7 +11,7 @@ export default function SharedDashboardLayout({
     const userRole = 'brand' as const
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-gray-50">
             <Sidebar role={userRole} />
             <div className="md:ml-64">
                 <Header />

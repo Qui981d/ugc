@@ -162,7 +162,7 @@ export default function CreatorSettingsPage() {
     if (!mounted || (!user && isLoading)) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-white/50" />
+                <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
             </div>
         )
     }
@@ -175,7 +175,7 @@ export default function CreatorSettingsPage() {
                         {/* Avatar */}
                         <div className="flex items-center gap-6">
                             <div className="relative">
-                                <div className="w-24 h-24 rounded-2xl overflow-hidden bg-white/10 flex items-center justify-center">
+                                <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center">
                                     {profileData.avatarUrl ? (
                                         <Image
                                             src={profileData.avatarUrl}
@@ -185,17 +185,17 @@ export default function CreatorSettingsPage() {
                                             className="object-cover"
                                         />
                                     ) : (
-                                        <span className="text-3xl text-white/50">{profileData.name.charAt(0) || '?'}</span>
+                                        <span className="text-3xl text-gray-500">{profileData.name.charAt(0) || '?'}</span>
                                     )}
                                 </div>
-                                <button className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-accent flex items-center justify-center">
-                                    <Camera className="w-4 h-4 text-white" />
+                                <button className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-[#6C3FA0] flex items-center justify-center">
+                                    <Camera className="w-4 h-4 text-gray-900" />
                                 </button>
                             </div>
                             <div>
-                                <h3 className="text-lg font-semibold text-white">{profileData.name || 'Nouveau créateur'}</h3>
-                                <p className="text-sm text-white/50">{profileData.email}</p>
-                                <Button variant="outline" size="sm" className="mt-2 border-white/20 text-white hover:bg-white/10">
+                                <h3 className="text-lg font-semibold text-gray-900">{profileData.name || 'Nouveau créateur'}</h3>
+                                <p className="text-sm text-gray-500">{profileData.email}</p>
+                                <Button variant="outline" size="sm" className="mt-2 border-gray-200 text-gray-900 hover:bg-gray-100">
                                     Changer la photo
                                 </Button>
                             </div>
@@ -204,50 +204,50 @@ export default function CreatorSettingsPage() {
                         {/* Form Fields */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-sm text-white/60 mb-2">Nom complet</label>
+                                <label className="block text-sm text-gray-500 mb-2">Nom complet</label>
                                 <input
                                     type="text"
                                     value={profileData.name}
                                     onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/25"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm text-white/60 mb-2">Email</label>
+                                <label className="block text-sm text-gray-500 mb-2">Email</label>
                                 <input
                                     type="email"
                                     value={profileData.email}
                                     disabled
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/50 cursor-not-allowed"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-500 cursor-not-allowed"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-sm text-white/60 mb-2">Bio</label>
+                            <label className="block text-sm text-gray-500 mb-2">Bio</label>
                             <textarea
                                 value={profileData.bio}
                                 onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
                                 rows={4}
                                 placeholder="Décrivez votre style et vos spécialités..."
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/25 resize-none placeholder:text-white/30"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25 resize-none placeholder:text-gray-400"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm text-white/60 mb-2">Localisation</label>
+                            <label className="block text-sm text-gray-500 mb-2">Localisation</label>
                             <input
                                 type="text"
                                 value={profileData.location}
                                 onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
                                 placeholder="Ex: Genève, Suisse"
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/25 placeholder:text-white/30"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25 placeholder:text-gray-400"
                             />
                         </div>
 
                         {/* Specialties */}
                         <div>
-                            <label className="block text-sm text-white/60 mb-3">Spécialités</label>
+                            <label className="block text-sm text-gray-500 mb-3">Spécialités</label>
                             <div className="flex flex-wrap gap-2">
                                 {specialties.map(specialty => (
                                     <button
@@ -262,8 +262,8 @@ export default function CreatorSettingsPage() {
                                             })
                                         }}
                                         className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${profileData.selectedSpecialties.includes(specialty)
-                                            ? 'bg-accent text-white'
-                                            : 'bg-white/5 text-white/60 hover:bg-white/10'
+                                            ? 'bg-[#6C3FA0] text-gray-900'
+                                            : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
                                             }`}
                                     >
                                         {specialty}
@@ -288,7 +288,7 @@ export default function CreatorSettingsPage() {
                     <div className="space-y-8">
                         {/* Email Notifications */}
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-4">Notifications par email</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Notifications par email</h3>
                             <div className="space-y-4">
                                 {[
                                     { key: 'emailNewMission', label: 'Nouvelles missions', desc: 'Recevez un email quand une nouvelle mission correspond à votre profil' },
@@ -296,10 +296,10 @@ export default function CreatorSettingsPage() {
                                     { key: 'emailPayments', label: 'Paiements', desc: 'Notifications de paiement et facturation' },
                                     { key: 'emailMarketing', label: 'Marketing', desc: 'Actualités et offres spéciales' },
                                 ].map(item => (
-                                    <div key={item.key} className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                                    <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                                         <div>
-                                            <p className="text-white font-medium">{item.label}</p>
-                                            <p className="text-sm text-white/40">{item.desc}</p>
+                                            <p className="text-gray-900 font-medium">{item.label}</p>
+                                            <p className="text-sm text-gray-400">{item.desc}</p>
                                         </div>
                                         <Switch
                                             checked={notifications[item.key as keyof typeof notifications]}
@@ -312,15 +312,15 @@ export default function CreatorSettingsPage() {
 
                         {/* Push Notifications */}
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-4">Notifications push</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Notifications push</h3>
                             <div className="space-y-4">
                                 {[
                                     { key: 'pushNewMission', label: 'Nouvelles missions' },
                                     { key: 'pushMessages', label: 'Messages' },
                                     { key: 'pushPayments', label: 'Paiements' },
                                 ].map(item => (
-                                    <div key={item.key} className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                                        <p className="text-white font-medium">{item.label}</p>
+                                    <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                                        <p className="text-gray-900 font-medium">{item.label}</p>
                                         <Switch
                                             checked={notifications[item.key as keyof typeof notifications]}
                                             onCheckedChange={(checked) => setNotifications({ ...notifications, [item.key]: checked })}
@@ -337,16 +337,16 @@ export default function CreatorSettingsPage() {
                     <div className="space-y-8">
                         {/* Current Payment Method */}
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-4">Méthode de paiement</h3>
-                            <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Méthode de paiement</h3>
+                            <div className="p-5 bg-gray-50 border border-gray-200 rounded-xl">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
-                                            <CreditCard className="w-6 h-6 text-white/70" />
+                                        <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
+                                            <CreditCard className="w-6 h-6 text-gray-600" />
                                         </div>
                                         <div>
-                                            <p className="font-medium text-white">Virement bancaire (IBAN)</p>
-                                            <p className="text-sm text-white/40">Non configuré</p>
+                                            <p className="font-medium text-gray-900">Virement bancaire (IBAN)</p>
+                                            <p className="text-sm text-gray-400">Non configuré</p>
                                         </div>
                                     </div>
                                 </div>
@@ -355,30 +355,30 @@ export default function CreatorSettingsPage() {
 
                         {/* Update IBAN */}
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-4">Configurer l'IBAN</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Configurer l'IBAN</h3>
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm text-white/60 mb-2">Titulaire du compte</label>
+                                    <label className="block text-sm text-gray-500 mb-2">Titulaire du compte</label>
                                     <input
                                         type="text"
                                         placeholder="Votre nom complet"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/25 placeholder:text-white/30"
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25 placeholder:text-gray-400"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm text-white/60 mb-2">IBAN</label>
+                                    <label className="block text-sm text-gray-500 mb-2">IBAN</label>
                                     <input
                                         type="text"
                                         placeholder="CH00 0000 0000 0000 0000 0"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-mono focus:outline-none focus:border-white/25 placeholder:text-white/30"
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 font-mono focus:outline-none focus:border-white/25 placeholder:text-gray-400"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm text-white/60 mb-2">BIC/SWIFT (optionnel)</label>
+                                    <label className="block text-sm text-gray-500 mb-2">BIC/SWIFT (optionnel)</label>
                                     <input
                                         type="text"
                                         placeholder="UBSWCHZH80A"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-mono focus:outline-none focus:border-white/25 placeholder:text-white/30"
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 font-mono focus:outline-none focus:border-white/25 placeholder:text-gray-400"
                                     />
                                 </div>
                                 <Button className="btn-primary">
@@ -395,38 +395,38 @@ export default function CreatorSettingsPage() {
                     <div className="space-y-8">
                         {/* Password */}
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-4">Mot de passe</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Mot de passe</h3>
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm text-white/60 mb-2">Mot de passe actuel</label>
+                                    <label className="block text-sm text-gray-500 mb-2">Mot de passe actuel</label>
                                     <div className="relative">
                                         <input
                                             type={showPassword ? 'text' : 'password'}
                                             placeholder="••••••••"
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/25"
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
                                         />
                                         <button
                                             onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-900"
                                         >
                                             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                         </button>
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-sm text-white/60 mb-2">Nouveau mot de passe</label>
+                                    <label className="block text-sm text-gray-500 mb-2">Nouveau mot de passe</label>
                                     <input
                                         type="password"
                                         placeholder="••••••••"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/25"
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm text-white/60 mb-2">Confirmer le mot de passe</label>
+                                    <label className="block text-sm text-gray-500 mb-2">Confirmer le mot de passe</label>
                                     <input
                                         type="password"
                                         placeholder="••••••••"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/25"
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
                                     />
                                 </div>
                                 <Button className="btn-primary">
@@ -437,16 +437,16 @@ export default function CreatorSettingsPage() {
 
                         {/* 2FA */}
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-4">Authentification à deux facteurs</h3>
-                            <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Authentification à deux facteurs</h3>
+                            <div className="p-5 bg-gray-50 border border-gray-200 rounded-xl">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
-                                            <Smartphone className="w-6 h-6 text-white/70" />
+                                        <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
+                                            <Smartphone className="w-6 h-6 text-gray-600" />
                                         </div>
                                         <div>
-                                            <p className="font-medium text-white">2FA par application</p>
-                                            <p className="text-sm text-white/40">Utilisez Google Authenticator ou similaire</p>
+                                            <p className="font-medium text-gray-900">2FA par application</p>
+                                            <p className="text-sm text-gray-400">Utilisez Google Authenticator ou similaire</p>
                                         </div>
                                     </div>
                                     <Switch
@@ -464,13 +464,13 @@ export default function CreatorSettingsPage() {
                     <div className="space-y-8">
                         {/* Export Data */}
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-4">Exporter vos données</h3>
-                            <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
-                                <p className="text-white/60 mb-4">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Exporter vos données</h3>
+                            <div className="p-5 bg-gray-50 border border-gray-200 rounded-xl">
+                                <p className="text-gray-500 mb-4">
                                     Téléchargez une copie de toutes vos données personnelles, incluant votre profil,
                                     vos missions et votre historique de paiements.
                                 </p>
-                                <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                                <Button variant="outline" className="border-gray-200 text-gray-900 hover:bg-gray-100">
                                     <Download className="w-4 h-4 mr-2" />
                                     Exporter mes données
                                 </Button>
@@ -479,20 +479,20 @@ export default function CreatorSettingsPage() {
 
                         {/* Delete Account */}
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-4">Supprimer le compte</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Supprimer le compte</h3>
                             <div className="p-5 bg-red-500/10 border border-red-500/20 rounded-xl">
                                 <div className="flex items-start gap-4">
                                     <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center flex-shrink-0">
-                                        <AlertTriangle className="w-5 h-5 text-red-400" />
+                                        <AlertTriangle className="w-5 h-5 text-red-700" />
                                     </div>
                                     <div>
-                                        <p className="text-white font-medium mb-1">Action irréversible</p>
-                                        <p className="text-white/60 text-sm mb-4">
+                                        <p className="text-gray-900 font-medium mb-1">Action irréversible</p>
+                                        <p className="text-gray-500 text-sm mb-4">
                                             La suppression de votre compte effacera définitivement toutes vos données,
                                             incluant votre profil, portfolio, et historique de missions.
                                             Cette action ne peut pas être annulée.
                                         </p>
-                                        <Button variant="outline" className="border-red-500/30 text-red-400 hover:bg-red-500/20">
+                                        <Button variant="outline" className="border-red-500/30 text-red-700 hover:bg-red-500/20">
                                             <Trash2 className="w-4 h-4 mr-2" />
                                             Supprimer mon compte
                                         </Button>
@@ -512,8 +512,8 @@ export default function CreatorSettingsPage() {
         <div className="space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white">Paramètres</h1>
-                <p className="text-white/60 mt-1">Gérez votre profil et préférences</p>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Paramètres</h1>
+                <p className="text-gray-500 mt-1">Gérez votre profil et préférences</p>
             </div>
 
             <div className="flex flex-col md:flex-row gap-6 md:gap-8">
@@ -526,8 +526,8 @@ export default function CreatorSettingsPage() {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-2 md:gap-3 px-4 py-2.5 md:py-3 rounded-xl text-left transition-all whitespace-nowrap flex-shrink-0 md:w-full ${activeTab === tab.id
-                                    ? 'bg-white/10 text-white'
-                                    : 'text-white/50 hover:text-white hover:bg-white/5'
+                                    ? 'bg-gray-100 text-gray-900'
+                                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                                     }`}
                             >
                                 <Icon className="w-4 h-4 md:w-5 md:h-5" />
@@ -545,7 +545,7 @@ export default function CreatorSettingsPage() {
                     key={activeTab}
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="flex-1 bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-4 md:p-8"
+                    className="flex-1 bg-white border border-white/[0.15] rounded-2xl p-4 md:p-8"
                 >
                     {renderTabContent()}
                 </motion.div>

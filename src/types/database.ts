@@ -31,6 +31,20 @@ export type NotificationType =
     | 'deliverable_rejected'
 
 export type ContractStatus = 'pending_creator' | 'active' | 'cancelled'
+export type BrandRequestStatus = 'new' | 'contacted' | 'meeting_scheduled' | 'closed'
+
+export interface BrandRequest {
+    id: string
+    company_name: string
+    contact_name: string
+    email: string
+    phone: string | null
+    message: string | null
+    status: BrandRequestStatus
+    admin_notes: string | null
+    created_at: string
+    updated_at: string
+}
 
 export interface User {
     id: string
@@ -257,6 +271,11 @@ export interface Database {
                 Row: MissionStep
                 Insert: Omit<MissionStep, 'id' | 'created_at'>
                 Update: Partial<Omit<MissionStep, 'id' | 'campaign_id' | 'created_at'>>
+            }
+            brand_requests: {
+                Row: BrandRequest
+                Insert: Omit<BrandRequest, 'id' | 'created_at' | 'updated_at' | 'status'> & { status?: BrandRequestStatus }
+                Update: Partial<Omit<BrandRequest, 'id' | 'created_at'>>
             }
         }
         Enums: {

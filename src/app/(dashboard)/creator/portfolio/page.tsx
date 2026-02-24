@@ -69,7 +69,7 @@ export default function CreatorPortfolioPage() {
     if (!mounted || (!user && isLoading)) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-white/50" />
+                <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
             </div>
         )
     }
@@ -79,8 +79,8 @@ export default function CreatorPortfolioPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-white">Portfolio</h1>
-                    <p className="text-white/60 mt-1">Vos créations et performances</p>
+                    <h1 className="text-3xl font-bold text-gray-900">Portfolio</h1>
+                    <p className="text-gray-500 mt-1">Vos créations et performances</p>
                 </div>
                 <Button className="btn-primary">
                     <Upload className="h-4 w-4 mr-2" />
@@ -93,19 +93,19 @@ export default function CreatorPortfolioPage() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-5"
+                    className="bg-white border border-white/[0.15] rounded-2xl p-5"
                 >
-                    <p className="text-sm text-white/50 mb-1">Vidéos</p>
-                    <p className="text-3xl font-bold text-white">{videos.length}</p>
+                    <p className="text-sm text-gray-500 mb-1">Vidéos</p>
+                    <p className="text-3xl font-bold text-gray-900">{videos.length}</p>
                 </motion.div>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.05 }}
-                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-5"
+                    className="bg-white border border-white/[0.15] rounded-2xl p-5"
                 >
-                    <p className="text-sm text-white/50 mb-1">Plateformes</p>
-                    <p className="text-3xl font-bold text-white">
+                    <p className="text-sm text-gray-500 mb-1">Plateformes</p>
+                    <p className="text-3xl font-bold text-gray-900">
                         {new Set(videos.map(v => {
                             if (v.includes('tiktok')) return 'TikTok'
                             if (v.includes('instagram')) return 'Instagram'
@@ -118,10 +118,10 @@ export default function CreatorPortfolioPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-5"
+                    className="bg-white border border-white/[0.15] rounded-2xl p-5"
                 >
-                    <p className="text-sm text-white/50 mb-1">Statut</p>
-                    <p className="text-xl font-bold text-white">
+                    <p className="text-sm text-gray-500 mb-1">Statut</p>
+                    <p className="text-xl font-bold text-gray-900">
                         {videos.length > 0 ? 'Actif' : 'À compléter'}
                     </p>
                 </motion.div>
@@ -132,12 +132,12 @@ export default function CreatorPortfolioPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
-                className="bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-6"
+                className="bg-white border border-white/[0.15] rounded-2xl p-6"
             >
-                <h2 className="text-lg font-semibold text-white mb-6">Mes liens portfolio</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-6">Mes liens portfolio</h2>
 
                 {videos.length === 0 ? (
-                    <div className="text-center py-12 text-white/40">
+                    <div className="text-center py-12 text-gray-400">
                         <Video className="w-12 h-12 mx-auto mb-4 opacity-50" />
                         <p>Aucune vidéo dans votre portfolio</p>
                         <p className="text-sm mt-2">Ajoutez des liens vers vos meilleures créations</p>
@@ -154,21 +154,21 @@ export default function CreatorPortfolioPage() {
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.2 + index * 0.05 }}
-                                className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:border-white/20 transition-colors"
+                                className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:border-gray-200 transition-colors"
                             >
-                                <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center">
-                                    <Play className="w-5 h-5 text-accent" />
+                                <div className="w-10 h-10 rounded-lg bg-[#6C3FA0]/20 flex items-center justify-center">
+                                    <Play className="w-5 h-5 text-[#6C3FA0]" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-white truncate">{url}</p>
-                                    <p className="text-xs text-white/40">
+                                    <p className="text-sm font-medium text-gray-900 truncate">{url}</p>
+                                    <p className="text-xs text-gray-400">
                                         {url.includes('tiktok') && 'TikTok'}
                                         {url.includes('instagram') && 'Instagram'}
                                         {url.includes('youtube') && 'YouTube'}
                                         {!url.includes('tiktok') && !url.includes('instagram') && !url.includes('youtube') && 'Lien'}
                                     </p>
                                 </div>
-                                <Button size="sm" variant="ghost" className="text-white/50 hover:text-white" asChild>
+                                <Button size="sm" variant="ghost" className="text-gray-500 hover:text-gray-900" asChild>
                                     <a href={url} target="_blank" rel="noopener noreferrer">
                                         <Eye className="w-4 h-4" />
                                     </a>
@@ -184,10 +184,10 @@ export default function CreatorPortfolioPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.25 }}
-                className="bg-accent/10 border border-accent/20 rounded-2xl p-6"
+                className="bg-[#6C3FA0]/10 border border-[#6C3FA0]/20 rounded-2xl p-6"
             >
-                <h3 className="font-semibold text-accent mb-2">💡 Conseil</h3>
-                <p className="text-white/70 text-sm">
+                <h3 className="font-semibold text-[#6C3FA0] mb-2">💡 Conseil</h3>
+                <p className="text-gray-600 text-sm">
                     Un portfolio riche augmente vos chances d'être sélectionné. Ajoutez vos meilleures créations
                     TikTok, Instagram Reels ou YouTube Shorts pour montrer votre style aux marques.
                 </p>
