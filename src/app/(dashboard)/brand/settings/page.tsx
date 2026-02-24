@@ -336,7 +336,7 @@ export default function BrandSettingsPage() {
                         <h3 className="text-lg font-semibold text-[#18181B] mb-4">Notifications par email</h3>
                         <div className="space-y-4">
                             {[
-                                { key: 'emailNewApplicant', label: 'Nouvelles candidatures', desc: 'Recevez un email quand un créateur postule à une campagne' },
+                                { key: 'emailNewApplicant', label: 'Propositions de créateurs', desc: 'Recevez un email quand un créateur est proposé pour une mission' },
                                 { key: 'emailMessages', label: 'Messages', desc: 'Recevez un email pour chaque nouveau message' },
                                 { key: 'emailCampaignEnd', label: 'Fin de campagne', desc: 'Rappel avant la fin d\'une campagne' },
                                 { key: 'emailInvoice', label: 'Factures', desc: 'Notifications de facturation' },

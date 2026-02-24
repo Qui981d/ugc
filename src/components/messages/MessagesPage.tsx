@@ -312,8 +312,8 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
                             <p>Aucune conversation</p>
                             <p className="text-sm mt-2">
                                 {userRole === 'creator'
-                                    ? 'Vos échanges avec les marques apparaîtront ici après acceptation de votre candidature'
-                                    : 'Acceptez des candidatures pour démarrer des conversations'
+                                    ? 'Vos échanges avec les marques apparaîtront ici dès qu\'une mission vous sera attribuée'
+                                    : 'Les conversations avec vos créateurs apparaîtront ici'
                                 }
                             </p>
                         </div>

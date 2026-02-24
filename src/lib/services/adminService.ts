@@ -292,12 +292,15 @@ export async function assignCreatorToCampaign(
 
     if (error) return { success: false, error: error.message }
 
-    // Update application status
+    // Upsert application — create if it doesn't exist (agency model: MOSH assigns directly)
     await (supabase
         .from('applications') as ReturnType<typeof supabase.from>)
-        .update({ status: 'accepted' })
-        .eq('campaign_id', campaignId)
-        .eq('creator_id', creatorId)
+        .upsert({
+            campaign_id: campaignId,
+            creator_id: creatorId,
+            status: 'accepted',
+            pitch_message: 'Assigné par MOSH',
+        }, { onConflict: 'campaign_id,creator_id' })
 
     // Reject other applications
     await (supabase

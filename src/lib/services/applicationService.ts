@@ -33,7 +33,7 @@ export async function applyToCampaign(
 
     // Input validation
     if (data.pitch_message && data.pitch_message.length > 2000) {
-        return { application: null, error: 'Le message de candidature est trop long (max 2000 caractères)' }
+        return { application: null, error: 'Le message est trop long (max 2000 caractères)' }
     }
     if (data.proposed_rate_chf !== undefined && (data.proposed_rate_chf < 0 || data.proposed_rate_chf > 1000000)) {
         return { application: null, error: 'Le tarif proposé est invalide' }
@@ -89,8 +89,8 @@ export async function applyToCampaign(
         .insert({
             user_id: campaign.brand_id,
             type: 'new_application',
-            title: 'Nouvelle candidature',
-            message: `${creatorName} a postulé à "${campaign.title}"`,
+            title: 'Nouveau créateur proposé',
+            message: `${creatorName} a été proposé pour "${campaign.title}"`,
             reference_id: campaignId,
             reference_type: 'campaign',
         })

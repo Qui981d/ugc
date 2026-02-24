@@ -59,11 +59,11 @@ export function Header() {
 
         switch (notif.type) {
             case 'new_application':
-                return notif.reference_id ? `/brand/campaigns/${notif.reference_id}/applicants` : '/brand/campaigns'
+                return notif.reference_id ? `/brand/campaigns/${notif.reference_id}` : '/brand/campaigns'
             case 'message_received':
                 return `${basePath}/messages`
             case 'deliverable_submitted':
-                return notif.reference_id ? `/brand/campaigns/${notif.reference_id}/applicants` : '/brand/campaigns'
+                return notif.reference_id ? `/brand/campaigns/${notif.reference_id}` : '/brand/campaigns'
             case 'deliverable_approved':
             case 'deliverable_revision':
             case 'deliverable_rejected':

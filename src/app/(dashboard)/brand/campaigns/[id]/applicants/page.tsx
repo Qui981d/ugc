@@ -179,7 +179,7 @@ export default function CampaignApplicantsPage() {
                 </Link>
                 <div className="h-6 w-px bg-gray-100" />
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Candidatures</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">Créateurs proposés</h1>
                     <p className="text-gray-500 text-sm">{campaign?.title || 'Chargement...'}</p>
                 </div>
             </div>
@@ -221,7 +221,7 @@ export default function CampaignApplicantsPage() {
                 {filteredApplications.length === 0 ? (
                     <div className="text-center py-16 text-gray-400">
                         <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                        <p>{applications.length === 0 ? 'Aucune candidature pour le moment' : 'Aucun créateur dans cette catégorie'}</p>
+                        <p>{applications.length === 0 ? 'Aucun créateur proposé pour le moment' : 'Aucun créateur dans cette catégorie'}</p>
                     </div>
                 ) : (
                     filteredApplications.map((application, index) => {
