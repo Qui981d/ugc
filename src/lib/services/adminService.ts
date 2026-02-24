@@ -9,6 +9,15 @@ import type {
     MissionStepType,
     ScriptStatus
 } from '@/types/database'
+import {
+    notifyCreatorProposed,
+    notifyCreatorAssigned,
+    notifyBrandCreatorAssigned,
+    notifyScriptValidated,
+    notifyVideoReady,
+    notifyBriefValidated,
+    notifyApplicationStatus,
+} from '@/lib/services/notificationService'
 
 // ================================================
 // ADMIN SERVICE
@@ -165,6 +174,47 @@ export async function getAllBrands(): Promise<BrandWithProfile[]> {
 }
 
 /**
+ * Validate a brief (draft → open) and mark brief_received step
+ */
+export async function validateBrief(
+    campaignId: string
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: 'Not authenticated' }
+
+    // Get campaign details for notification
+    const { data: campaignData } = await supabase
+        .from('campaigns')
+        .select('*, brand:users!brand_id(*)')
+        .eq('id', campaignId)
+        .single()
+
+    const campaign = campaignData as any
+    if (!campaign) return { success: false, error: 'Campaign not found' }
+
+    // Update status to open
+    const { error } = await (supabase
+        .from('campaigns') as ReturnType<typeof supabase.from>)
+        .update({ status: 'open', assigned_admin_id: user.id })
+        .eq('id', campaignId)
+
+    if (error) return { success: false, error: error.message }
+
+    // Record brief_received step
+    await completeMissionStep(campaignId, 'brief_received')
+
+    // Notify brand that brief was validated
+    await notifyBriefValidated(
+        campaign.brand_id,
+        campaignId,
+        campaign.title
+    )
+
+    return { success: true }
+}
+
+/**
  * Propose creators for a campaign (admin selects 2-3 creators)
  */
 export async function proposeCreatorsForCampaign(
@@ -174,6 +224,14 @@ export async function proposeCreatorsForCampaign(
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: 'Not authenticated' }
+
+    // Get campaign details for notification
+    const { data: campData } = await supabase
+        .from('campaigns')
+        .select('title')
+        .eq('id', campaignId)
+        .single()
+    const campInfo = campData as any
 
     // Create applications for each proposed creator
     const insertData = creatorIds.map(creatorId => ({
@@ -198,6 +256,12 @@ export async function proposeCreatorsForCampaign(
     // Record step
     await completeMissionStep(campaignId, 'creators_proposed')
 
+    // Notify each proposed creator
+    const campaignTitle = campInfo?.title || 'Nouvelle mission'
+    for (const creatorId of creatorIds) {
+        await notifyCreatorProposed(creatorId, campaignId, campaignTitle)
+    }
+
     return { success: true }
 }
 
@@ -209,6 +273,14 @@ export async function assignCreatorToCampaign(
     creatorId: string
 ): Promise<{ success: boolean; error?: string }> {
     const supabase = createClient()
+
+    // Get campaign + creator details for notifications
+    const [{ data: campData2 }, { data: creatorData }] = await Promise.all([
+        supabase.from('campaigns').select('title, brand_id').eq('id', campaignId).single(),
+        supabase.from('users').select('full_name').eq('id', creatorId).single(),
+    ])
+    const campaignInfo = campData2 as any
+    const creatorInfo = creatorData as any
 
     const { error } = await (supabase
         .from('campaigns') as ReturnType<typeof supabase.from>)
@@ -237,6 +309,37 @@ export async function assignCreatorToCampaign(
     // Record step
     await completeMissionStep(campaignId, 'creator_validated')
 
+    // Notify creator of assignment
+    const campaignTitle = campaignInfo?.title || 'Mission'
+    await notifyCreatorAssigned(creatorId, campaignId, campaignTitle)
+
+    // Notify brand that a creator was assigned
+    if (campaignInfo?.brand_id) {
+        await notifyBrandCreatorAssigned(
+            campaignInfo.brand_id,
+            campaignId,
+            creatorInfo?.full_name || 'Un créateur'
+        )
+    }
+
+    // Notify rejected creators
+    const { data: rejectedApps } = await supabase
+        .from('applications')
+        .select('creator_id')
+        .eq('campaign_id', campaignId)
+        .eq('status', 'rejected')
+
+    if (rejectedApps) {
+        for (const app of rejectedApps) {
+            await notifyApplicationStatus(
+                (app as any).creator_id,
+                campaignId,
+                'rejected',
+                campaignTitle
+            )
+        }
+    }
+
     return { success: true }
 }
 
@@ -262,6 +365,22 @@ export async function updateCampaignScript(
 
     if (scriptStatus === 'validated') {
         await completeMissionStep(campaignId, 'script_sent')
+
+        // Notify creator that script is validated
+        const { data: campDataScript } = await supabase
+            .from('campaigns')
+            .select('title, selected_creator_id')
+            .eq('id', campaignId)
+            .single()
+        const campScript = campDataScript as any
+
+        if (campScript?.selected_creator_id) {
+            await notifyScriptValidated(
+                campScript.selected_creator_id,
+                campaignId,
+                campScript.title || 'Mission'
+            )
+        }
     }
 
     return { success: true }
@@ -303,6 +422,34 @@ export async function completeMissionStep(
             notes: notes || null,
         }, { onConflict: 'campaign_id,step_type' })
 
-    if (error) return { success: false, error: error.message }
+    if (error) {
+        console.error(`Error completing step ${stepType}:`, error)
+        return { success: false, error: error.message }
+    }
+
+    // Send specific notifications based on step type
+    if (stepType === 'video_sent_to_brand') {
+        const { data: campDataStep } = await supabase
+            .from('campaigns')
+            .select('title, brand_id')
+            .eq('id', campaignId)
+            .single()
+        const campStep = campDataStep as any
+
+        if (campStep?.brand_id) {
+            await notifyVideoReady(
+                campStep.brand_id,
+                campaignId,
+                campStep.title || 'Votre campagne'
+            )
+        }
+
+        // Also mark campaign as completed
+        await (supabase
+            .from('campaigns') as ReturnType<typeof supabase.from>)
+            .update({ status: 'completed' })
+            .eq('id', campaignId)
+    }
+
     return { success: true }
 }

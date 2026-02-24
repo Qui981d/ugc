@@ -33,6 +33,7 @@ import {
     assignCreatorToCampaign,
     updateCampaignScript,
     completeMissionStep,
+    validateBrief,
     type CampaignWithDetails,
     type CreatorWithProfile,
 } from '@/lib/services/adminService'
@@ -61,6 +62,8 @@ export default function AdminMissionDetailPage() {
     const [scriptDraft, setScriptDraft] = useState('')
     const [showCreatorSelector, setShowCreatorSelector] = useState(false)
     const [actionLoading, setActionLoading] = useState(false)
+    const [actionError, setActionError] = useState<string | null>(null)
+    const [actionSuccess, setActionSuccess] = useState<string | null>(null)
     // Contract & Invoice
     const [creatorAmount, setCreatorAmount] = useState('')
     const [showContractForm, setShowContractForm] = useState(false)
@@ -98,10 +101,31 @@ export default function AdminMissionDetailPage() {
         return lastCompleted
     }
 
+    const handleValidateBrief = async () => {
+        setActionLoading(true)
+        setActionError(null)
+        const result = await validateBrief(campaignId)
+        if (!result.success) {
+            setActionError(result.error || 'Erreur lors de la validation du brief')
+        } else {
+            setActionSuccess('Brief validé avec succès !')
+            setTimeout(() => setActionSuccess(null), 3000)
+        }
+        await loadData()
+        setActionLoading(false)
+    }
+
     const handleProposeCreators = async () => {
         if (selectedCreators.length === 0) return
         setActionLoading(true)
-        await proposeCreatorsForCampaign(campaignId, selectedCreators)
+        setActionError(null)
+        const result = await proposeCreatorsForCampaign(campaignId, selectedCreators)
+        if (!result.success) {
+            setActionError(result.error || 'Erreur lors de la proposition des créateurs')
+        } else {
+            setActionSuccess('Créateurs proposés avec succès !')
+            setTimeout(() => setActionSuccess(null), 3000)
+        }
         setShowCreatorSelector(false)
         setSelectedCreators([])
         await loadData()
@@ -110,21 +134,42 @@ export default function AdminMissionDetailPage() {
 
     const handleAssignCreator = async (creatorId: string) => {
         setActionLoading(true)
-        await assignCreatorToCampaign(campaignId, creatorId)
+        setActionError(null)
+        const result = await assignCreatorToCampaign(campaignId, creatorId)
+        if (!result.success) {
+            setActionError(result.error || 'Erreur lors de l\'assignation du créateur')
+        } else {
+            setActionSuccess('Créateur assigné avec succès !')
+            setTimeout(() => setActionSuccess(null), 3000)
+        }
         await loadData()
         setActionLoading(false)
     }
 
     const handleSaveScript = async (status: 'draft' | 'validated') => {
         setActionLoading(true)
-        await updateCampaignScript(campaignId, scriptDraft, status)
+        setActionError(null)
+        const result = await updateCampaignScript(campaignId, scriptDraft, status)
+        if (!result.success) {
+            setActionError(result.error || 'Erreur lors de la mise à jour du script')
+        } else {
+            setActionSuccess(status === 'validated' ? 'Script validé !' : 'Brouillon sauvegardé')
+            setTimeout(() => setActionSuccess(null), 3000)
+        }
         await loadData()
         setActionLoading(false)
     }
 
     const handleCompleteStep = async (stepType: MissionStepType) => {
         setActionLoading(true)
-        await completeMissionStep(campaignId, stepType)
+        setActionError(null)
+        const result = await completeMissionStep(campaignId, stepType)
+        if (!result.success) {
+            setActionError(result.error || `Erreur lors de la complétion de l'étape`)
+        } else {
+            setActionSuccess('Étape complétée !')
+            setTimeout(() => setActionSuccess(null), 3000)
+        }
         if (stepType === 'video_sent_to_brand') {
             await generateInvoice(campaignId)
         }
@@ -188,6 +233,23 @@ export default function AdminMissionDetailPage() {
 
     return (
         <div className="max-w-5xl mx-auto space-y-6">
+            {/* Error/Success Toast */}
+            {actionError && (
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+                    className="fixed top-4 right-4 z-50 bg-red-500 text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 max-w-sm"
+                >
+                    <span className="text-sm font-medium">{actionError}</span>
+                    <button onClick={() => setActionError(null)} className="text-white/80 hover:text-white">✕</button>
+                </motion.div>
+            )}
+            {actionSuccess && (
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+                    className="fixed top-4 right-4 z-50 bg-[#C4F042] text-[#18181B] px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 max-w-sm"
+                >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span className="text-sm font-medium">{actionSuccess}</span>
+                </motion.div>
+            )}
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-sm text-[#A1A1AA]">
                 <Link href="/mosh-cockpit/missions" className="hover:text-[#18181B] transition-colors flex items-center gap-1">
@@ -296,11 +358,12 @@ export default function AdminMissionDetailPage() {
                 </div>
                 {!isStepCompleted('brief_received') && (
                     <button
-                        onClick={() => handleCompleteStep('brief_received')}
+                        onClick={handleValidateBrief}
                         disabled={actionLoading}
-                        className="mt-4 px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors disabled:opacity-50"
+                        className="mt-4 px-4 py-2 bg-[#C4F042] text-[#18181B] font-medium rounded-xl hover:bg-[#C4F042]/80 transition-colors disabled:opacity-50 flex items-center gap-2"
                     >
-                        ✓ Marquer le brief comme traité
+                        {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                        Valider le brief
                     </button>
                 )}
             </motion.div>

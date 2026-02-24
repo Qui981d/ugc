@@ -265,6 +265,119 @@ export async function notifyDeliverableRejected(
     )
 }
 
+// ================================================
+// ADMIN WORKFLOW NOTIFICATIONS
+// These use existing enum types to avoid DB migration issues
+// ================================================
+
+/**
+ * Notify a creator they've been proposed for a mission by MOSH
+ */
+export async function notifyCreatorProposed(
+    creatorId: string,
+    campaignId: string,
+    campaignTitle: string
+): Promise<boolean> {
+    return createNotification(
+        creatorId,
+        'new_application',
+        'Nouvelle mission proposée 🎯',
+        `MOSH vous a sélectionné pour la mission "${campaignTitle}"`,
+        campaignId,
+        'campaign'
+    )
+}
+
+/**
+ * Notify a creator they've been assigned to a mission
+ */
+export async function notifyCreatorAssigned(
+    creatorId: string,
+    campaignId: string,
+    campaignTitle: string
+): Promise<boolean> {
+    return createNotification(
+        creatorId,
+        'application_accepted',
+        'Mission confirmée ! 🎉',
+        `Vous êtes assigné à la mission "${campaignTitle}". Préparez-vous !`,
+        campaignId,
+        'campaign'
+    )
+}
+
+/**
+ * Notify a brand that a creator has been assigned to their campaign
+ */
+export async function notifyBrandCreatorAssigned(
+    brandId: string,
+    campaignId: string,
+    creatorName: string
+): Promise<boolean> {
+    return createNotification(
+        brandId,
+        'new_application',
+        'Créateur assigné ✅',
+        `${creatorName} a été assigné à votre campagne par MOSH`,
+        campaignId,
+        'campaign'
+    )
+}
+
+/**
+ * Notify a creator that the script has been validated
+ */
+export async function notifyScriptValidated(
+    creatorId: string,
+    campaignId: string,
+    campaignTitle: string
+): Promise<boolean> {
+    return createNotification(
+        creatorId,
+        'application_accepted',
+        'Script validé ✅',
+        `Le script de la mission "${campaignTitle}" a été validé. Vous pouvez commencer le tournage !`,
+        campaignId,
+        'campaign'
+    )
+}
+
+/**
+ * Notify a brand that their video is ready
+ */
+export async function notifyVideoReady(
+    brandId: string,
+    campaignId: string,
+    campaignTitle: string
+): Promise<boolean> {
+    return createNotification(
+        brandId,
+        'deliverable_submitted',
+        'Votre vidéo est prête ! 🎬',
+        `La vidéo pour "${campaignTitle}" a été validée et est prête à être récupérée`,
+        campaignId,
+        'campaign'
+    )
+}
+
+/**
+ * Notify a brand that their brief has been validated by MOSH
+ */
+export async function notifyBriefValidated(
+    brandId: string,
+    campaignId: string,
+    campaignTitle: string
+): Promise<boolean> {
+    return createNotification(
+        brandId,
+        'application_accepted',
+        'Brief validé par MOSH ✅',
+        `Votre brief "${campaignTitle}" a été validé. Nous recherchons le créateur idéal.`,
+        campaignId,
+        'campaign'
+    )
+}
+
 /**
  * Subscribe to real-time notification updates
  */
