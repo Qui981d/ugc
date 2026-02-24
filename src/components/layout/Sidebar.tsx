@@ -191,20 +191,20 @@ export function Sidebar({ role }: SidebarProps) {
         )
     }
 
-    /* ─── Brand / Creator: standard wide sidebar ─── */
+    /* ─── Brand / Creator: warm cream sidebar ─── */
     return (
-        <aside className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 hidden md:flex flex-col z-40">
-            <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200">
-                <Link href="/" className="flex items-center gap-1 font-bold text-lg">
-                    <span className="text-gray-900">UGC</span>
-                    <span className="text-[#6C3FA0]">Suisse</span>
+        <aside className="fixed left-0 top-0 h-screen w-64 bg-[#F4F3EF] border-r border-[#D9D7D0]/60 hidden md:flex flex-col z-40">
+            <div className="h-16 flex items-center justify-between px-6 border-b border-[#D9D7D0]/60">
+                <Link href="/" className="flex items-center gap-1.5 font-bold text-lg">
+                    <span className="text-[#18181B]">UGC</span>
+                    <span className="text-[#18181B]/50">Suisse</span>
                 </Link>
-                <Link href="/" className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">
-                    <ChevronLeft className="h-4 w-4" />
+                <Link href="/" className="p-2 rounded-xl hover:bg-[#E8E6DF] text-[#A1A1AA] hover:text-[#18181B] transition-colors">
+                    <ChevronLeft className="h-4 w-4" strokeWidth={1.5} />
                 </Link>
             </div>
             <div className="px-4 py-4">
-                <div className="px-3 py-1.5 rounded-full bg-gray-100 border border-gray-200 text-xs text-gray-600 inline-block">
+                <div className="px-3 py-1.5 rounded-full bg-[#E8E6DF] border border-[#D9D7D0]/50 text-xs text-[#52525B] font-medium inline-block">
                     {role === 'brand' ? '🏢 Espace Marque' : '🎬 Espace Créateur'}
                 </div>
             </div>
@@ -217,10 +217,15 @@ export function Sidebar({ role }: SidebarProps) {
                             <li key={item.href}>
                                 <Link
                                     href={item.href}
-                                    className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${isActive ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                                    className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${isActive
+                                        ? "bg-[#18181B] text-white shadow-sm"
+                                        : "text-[#71717A] hover:text-[#18181B] hover:bg-[#E8E6DF]"
                                         }`}
                                 >
-                                    <item.icon className={`h-5 w-5 ${isActive ? 'text-[#6C3FA0]' : ''}`} />
+                                    <item.icon
+                                        className={`h-[19px] w-[19px] flex-shrink-0 ${isActive ? 'text-[#C4F042]' : ''}`}
+                                        strokeWidth={1.5}
+                                    />
                                     {item.label}
                                     {notifCount > 0 && <span className="ml-auto w-2.5 h-2.5 bg-red-500 rounded-full" />}
                                 </Link>
@@ -229,11 +234,11 @@ export function Sidebar({ role }: SidebarProps) {
                     })}
                 </ul>
             </nav>
-            <div className="p-4 border-t border-gray-200">
-                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-                    <p className="text-sm font-medium text-gray-900 mb-1">Besoin d&apos;aide?</p>
-                    <p className="text-xs text-gray-500 mb-3">Notre équipe est disponible 24/7</p>
-                    <button className="w-full text-xs text-[#6C3FA0] hover:underline">Contacter le support →</button>
+            <div className="p-4 border-t border-[#D9D7D0]/60">
+                <div className="bg-[#E8E6DF] border border-[#D9D7D0]/50 rounded-2xl p-4">
+                    <p className="text-sm font-medium text-[#18181B] mb-1">Besoin d&apos;aide?</p>
+                    <p className="text-xs text-[#71717A] mb-3">Notre équipe est disponible 24/7</p>
+                    <button className="w-full text-xs text-[#18181B] font-medium hover:text-[#C4F042] transition-colors">Contacter le support →</button>
                 </div>
             </div>
         </aside>

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, CheckCircle2, Upload, ArrowUpRight, Wallet, Loader2, Briefcase, Star } from "lucide-react"
@@ -12,10 +11,10 @@ import { useAuth } from "@/contexts/AuthContext"
 import { getAssignedCampaigns } from "@/lib/services/campaignService"
 
 const statusConfig: Record<string, { label: string; class: string }> = {
-    draft: { label: "Brief reçu", class: "bg-yellow-500/20 text-yellow-700" },
-    open: { label: "En recherche", class: "bg-blue-500/20 text-blue-700" },
-    in_progress: { label: "En cours", class: "bg-purple-500/20 text-purple-700" },
-    completed: { label: "Terminée", class: "bg-green-500/20 text-green-700" },
+    draft: { label: "Brief reçu", class: "bg-amber-500/15 text-amber-700 border border-amber-500/25" },
+    open: { label: "En recherche", class: "bg-blue-500/15 text-blue-700 border border-blue-500/25" },
+    in_progress: { label: "En cours", class: "bg-[#C4F042]/20 text-[#18181B] border border-[#C4F042]/30" },
+    completed: { label: "Terminée", class: "bg-emerald-500/15 text-emerald-700 border border-emerald-500/25" },
 }
 
 interface MissionDisplay {
@@ -72,7 +71,7 @@ export default function CreatorDashboardPage() {
     if (!mounted || (!user && isLoading)) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#A1A1AA]" />
             </div>
         )
     }
@@ -86,16 +85,16 @@ export default function CreatorDashboardPage() {
                 className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
                 <div>
-                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                    <h1 className="text-[28px] md:text-[34px] font-semibold text-[#18181B] tracking-[-0.02em]">
                         Bienvenue, {user?.full_name?.split(' ')[0] || 'Créateur'} 👋
                     </h1>
-                    <p className="text-gray-500 mt-1">
+                    <p className="text-[#71717A] mt-1">
                         Voici un aperçu de votre activité
                     </p>
                 </div>
             </motion.div>
 
-            {/* Stats Grid */}
+            {/* Stats Grid — glassmorphism */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                 {stats.map((stat, index) => (
                     <motion.div
@@ -103,21 +102,18 @@ export default function CreatorDashboardPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
+                        className="bg-white/90 backdrop-blur-sm rounded-[20px] border border-black/[0.03] p-5"
                     >
-                        <Card className="bg-white border-white/[0.10] backdrop-blur-xl">
-                            <CardContent className="pt-6">
-                                <div className="flex items-center justify-between gap-2">
-                                    <div className="min-w-0">
-                                        <p className="text-sm text-gray-500">{stat.label}</p>
-                                        <p className="text-lg md:text-2xl font-bold text-gray-900 mt-1 truncate">{stat.value}</p>
-                                        <p className="text-xs text-gray-400 mt-1">{stat.change}</p>
-                                    </div>
-                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gray-50 flex items-center justify-center flex-shrink-0">
-                                        <stat.icon className="h-5 w-5 md:h-6 md:w-6 text-gray-400" />
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <div className="flex items-center justify-between gap-2">
+                            <div className="min-w-0">
+                                <p className="text-sm text-[#71717A]">{stat.label}</p>
+                                <p className="text-lg md:text-2xl font-bold text-[#18181B] mt-1 truncate">{stat.value}</p>
+                                <p className="text-xs text-[#A1A1AA] mt-1">{stat.change}</p>
+                            </div>
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-[#C4F042]/15 flex items-center justify-center flex-shrink-0">
+                                <stat.icon className="h-5 w-5 md:h-6 md:w-6 text-[#18181B]" strokeWidth={1.5} />
+                            </div>
+                        </div>
                     </motion.div>
                 ))}
             </div>
@@ -127,55 +123,55 @@ export default function CreatorDashboardPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
+                className="bg-white/90 backdrop-blur-sm rounded-[24px] border border-black/[0.03] overflow-hidden"
             >
-                <Card className="bg-white border-white/[0.10] backdrop-blur-xl">
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle className="text-gray-900">Missions récentes</CardTitle>
-                        <Link href="/creator/missions">
-                            <Button variant="ghost" className="text-gray-500 hover:text-gray-900">
-                                Voir tout
-                                <ArrowUpRight className="h-4 w-4 ml-1" />
-                            </Button>
-                        </Link>
-                    </CardHeader>
-                    <CardContent>
-                        {missions.length === 0 ? (
-                            <div className="text-center py-12 text-gray-400">
-                                <Clock className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                                <p>Aucune mission pour le moment</p>
-                                <p className="text-sm mt-2">MOSH vous contactera dès qu&apos;une mission correspond à votre profil</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                {missions.map((mission, index) => (
-                                    <motion.div
-                                        key={mission.id}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.3 + index * 0.05 }}
-                                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-gray-50 border border-white/[0.08] hover:bg-white transition-colors"
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-lg bg-[#6C3FA0]/20 flex items-center justify-center text-[#6C3FA0] font-bold">
-                                                {mission.brand.charAt(0)}
-                                            </div>
-                                            <div>
-                                                <p className="font-medium text-gray-900">{mission.title}</p>
-                                                <p className="text-sm text-gray-500">{mission.brand}</p>
-                                            </div>
+                <div className="flex items-center justify-between p-6 pb-4">
+                    <h2 className="text-lg font-semibold text-[#18181B]">Missions récentes</h2>
+                    <Link href="/creator/missions">
+                        <Button variant="ghost" className="text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F3EF] rounded-full">
+                            Voir tout
+                            <ArrowUpRight className="h-4 w-4 ml-1" strokeWidth={1.5} />
+                        </Button>
+                    </Link>
+                </div>
+                <div className="px-6 pb-6">
+                    {missions.length === 0 ? (
+                        <div className="text-center py-12 text-[#A1A1AA]">
+                            <Clock className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                            <p>Aucune mission pour le moment</p>
+                            <p className="text-sm mt-2">MOSH vous contactera dès qu&apos;une mission correspond à votre profil</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-2">
+                            {missions.map((mission, index) => (
+                                <motion.div
+                                    key={mission.id}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.3 + index * 0.05 }}
+                                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-[#F4F3EF]/60 hover:bg-[#F4F3EF] transition-all group"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-xl bg-[#C4F042]/20 flex items-center justify-center text-[#18181B] font-bold text-sm">
+                                            {mission.brand.charAt(0)}
                                         </div>
-                                        <div className="flex items-center gap-4">
-                                            <Badge className={statusConfig[mission.status]?.class || 'bg-gray-100 text-gray-500'}>
-                                                {statusConfig[mission.status]?.label || mission.status}
-                                            </Badge>
-                                            <span className="text-gray-900 font-semibold">{formatCHF(mission.budget)}</span>
+                                        <div>
+                                            <p className="font-medium text-[#18181B]">{mission.title}</p>
+                                            <p className="text-sm text-[#71717A]">{mission.brand}</p>
                                         </div>
-                                    </motion.div>
-                                ))}
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        <Badge className={statusConfig[mission.status]?.class || 'bg-[#F4F3EF] text-[#71717A]'}>
+                                            {statusConfig[mission.status]?.label || mission.status}
+                                        </Badge>
+                                        <span className="text-[#18181B] font-semibold">{formatCHF(mission.budget)}</span>
+                                        <ArrowUpRight className="w-4 h-4 text-[#A1A1AA] group-hover:text-[#C4F042] transition-colors" strokeWidth={1.5} />
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </motion.div>
 
             {/* Quick Actions */}
@@ -184,46 +180,40 @@ export default function CreatorDashboardPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
             >
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions rapides</h2>
+                <h2 className="text-lg font-semibold text-[#18181B] mb-4">Actions rapides</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Link href="/creator/portfolio">
-                        <Card className="bg-white border-white/[0.10] hover:bg-white/[0.12] transition-colors cursor-pointer group">
-                            <CardContent className="pt-6 flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <Upload className="h-6 w-6 text-purple-700" />
-                                </div>
-                                <div>
-                                    <p className="font-medium text-gray-900">Mettre à jour le portfolio</p>
-                                    <p className="text-sm text-gray-500">Ajoutez vos dernières créations</p>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <div className="bg-white/90 backdrop-blur-sm rounded-[20px] border border-black/[0.03] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-[#C4F042]/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Upload className="h-6 w-6 text-[#18181B]" strokeWidth={1.5} />
+                            </div>
+                            <div>
+                                <p className="font-medium text-[#18181B]">Mettre à jour le portfolio</p>
+                                <p className="text-sm text-[#71717A]">Ajoutez vos dernières créations</p>
+                            </div>
+                        </div>
                     </Link>
                     <Link href="/creator/missions">
-                        <Card className="bg-white border-white/[0.10] hover:bg-white/[0.12] transition-colors cursor-pointer group">
-                            <CardContent className="pt-6 flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <Briefcase className="h-6 w-6 text-blue-700" />
-                                </div>
-                                <div>
-                                    <p className="font-medium text-gray-900">Mes missions</p>
-                                    <p className="text-sm text-gray-500">Suivre vos missions en cours</p>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <div className="bg-white/90 backdrop-blur-sm rounded-[20px] border border-black/[0.03] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-blue-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Briefcase className="h-6 w-6 text-blue-700" strokeWidth={1.5} />
+                            </div>
+                            <div>
+                                <p className="font-medium text-[#18181B]">Mes missions</p>
+                                <p className="text-sm text-[#71717A]">Suivre vos missions en cours</p>
+                            </div>
+                        </div>
                     </Link>
                     <Link href="/creator/settings">
-                        <Card className="bg-white border-white/[0.10] hover:bg-white/[0.12] transition-colors cursor-pointer group">
-                            <CardContent className="pt-6 flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <Star className="h-6 w-6 text-emerald-700" />
-                                </div>
-                                <div>
-                                    <p className="font-medium text-gray-900">Compléter le profil</p>
-                                    <p className="text-sm text-gray-500">Augmentez votre visibilité</p>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <div className="bg-white/90 backdrop-blur-sm rounded-[20px] border border-black/[0.03] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Star className="h-6 w-6 text-emerald-700" strokeWidth={1.5} />
+                            </div>
+                            <div>
+                                <p className="font-medium text-[#18181B]">Compléter le profil</p>
+                                <p className="text-sm text-[#71717A]">Augmentez votre visibilité</p>
+                            </div>
+                        </div>
                     </Link>
                 </div>
             </motion.div>
