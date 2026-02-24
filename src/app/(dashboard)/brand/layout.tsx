@@ -1,12 +1,28 @@
 'use client'
 
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
 import { NotificationProvider } from '@/contexts/NotificationContext'
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function BrandDashboardLayout({ children }: { children: ReactNode }) {
+    const { user, isLoading } = useAuth()
+    const router = useRouter()
+
+    useEffect(() => {
+        if (!isLoading && user && user.role !== 'brand' && user.role !== 'admin') {
+            router.replace(user.role === 'creator' ? '/creator' : '/login')
+        }
+    }, [user, isLoading, router])
+
+    // Don't render the wrong dashboard while redirecting
+    if (!isLoading && user && user.role !== 'brand' && user.role !== 'admin') {
+        return null
+    }
+
     return (
         <NotificationProvider>
             <div className="min-h-screen bg-[#E8E6DF]">

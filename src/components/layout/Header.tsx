@@ -53,17 +53,27 @@ export function Header() {
         }
     }
 
-    // Get link based on notification type
+    // Get link based on notification type and user role
     const getNotifLink = (notif: Notification) => {
-        const basePath = user?.role === 'brand' ? '/brand' : '/creator'
+        const isBrand = user?.role === 'brand'
+        const isAdmin = user?.role === 'admin'
+        const basePath = isBrand ? '/brand' : isAdmin ? '/mosh-cockpit' : '/creator'
 
         switch (notif.type) {
             case 'new_application':
-                return notif.reference_id ? `/brand/campaigns/${notif.reference_id}` : '/brand/campaigns'
+                // Brand: link to campaign detail. Creator: link to missions (they got proposed)
+                if (isBrand || isAdmin) {
+                    return notif.reference_id ? `/brand/campaigns/${notif.reference_id}` : '/brand/campaigns'
+                }
+                return '/creator/missions'
             case 'message_received':
                 return `${basePath}/messages`
             case 'deliverable_submitted':
-                return notif.reference_id ? `/brand/campaigns/${notif.reference_id}` : '/brand/campaigns'
+                // Brand: link to campaign detail. Creator: link to missions
+                if (isBrand || isAdmin) {
+                    return notif.reference_id ? `/brand/campaigns/${notif.reference_id}` : '/brand/campaigns'
+                }
+                return '/creator/missions'
             case 'deliverable_approved':
             case 'deliverable_revision':
             case 'deliverable_rejected':
@@ -77,7 +87,7 @@ export function Header() {
     }
 
     // Determine base path based on user role
-    const basePath = user?.role === 'brand' ? '/brand' : '/creator'
+    const basePath = user?.role === 'brand' ? '/brand' : user?.role === 'admin' ? '/mosh-cockpit' : '/creator'
 
     return (
         <header className="sticky top-0 z-30 h-16 bg-[#E8E6DF]/80 backdrop-blur-xl">

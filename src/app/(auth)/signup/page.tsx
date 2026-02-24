@@ -15,7 +15,7 @@ function SignupForm() {
     const searchParams = useSearchParams()
     const router = useRouter()
     const { signUp } = useAuth()
-    const defaultRole = searchParams.get('role') || 'brand'
+    const defaultRole = searchParams.get('role') || 'creator'
     const redirectTo = searchParams.get('redirect')
 
     const [role, setRole] = useState<'brand' | 'creator'>(defaultRole as 'brand' | 'creator')

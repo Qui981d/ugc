@@ -214,7 +214,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 storeState.setCreatorProfile(fullProfile.creatorProfile || null)
 
                 // Redirect based on role
-                const redirectPath = fullProfile.user.role === 'brand' ? '/brand' : '/creator'
+                const redirectPath = fullProfile.user.role === 'brand'
+                    ? '/brand'
+                    : fullProfile.user.role === 'admin'
+                        ? '/mosh-cockpit'
+                        : '/creator'
                 router.push(redirectPath)
             } else {
                 return { error: 'Profil utilisateur introuvable. Veuillez recréer votre compte.' }
