@@ -26,9 +26,9 @@ interface NavItem {
 
 const brandItems: NavItem[] = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/brand" },
-    { icon: Megaphone, label: "Mes briefs", href: "/brand/campaigns", notifKey: 'applications' },
+    { icon: Megaphone, label: "Briefs", href: "/brand/campaigns", notifKey: 'applications' },
     { icon: MessageSquare, label: "Messages", href: "/brand/messages", notifKey: 'messages' },
-    { icon: Settings, label: "Paramètres", href: "/brand/settings" },
+    { icon: Settings, label: "Réglages", href: "/brand/settings" },
 ]
 
 const creatorMainItems: NavItem[] = [
@@ -79,15 +79,15 @@ export function MobileBottomNav() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setMoreOpen(false)}
-                className={`relative flex flex-col items-center justify-center gap-1 px-3 py-2 min-w-[64px] transition-colors ${isActive
-                    ? 'text-[#6C3FA0]'
-                    : 'text-gray-400 active:text-gray-600'
+                className={`relative flex flex-col items-center justify-center gap-1 px-3 py-2 min-w-[64px] transition-all duration-200 ${isActive
+                    ? 'text-[#C4F042]'
+                    : 'text-[#6B6B70] active:text-white'
                     }`}
             >
                 <div className="relative">
-                    <item.icon className="h-5 w-5" />
+                    <item.icon className="h-5 w-5" strokeWidth={1.5} />
                     {notifCount > 0 && (
-                        <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[9px] font-bold text-white">
+                        <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[9px] font-bold text-white border-2 border-[#1A1A1D]">
                             {notifCount > 9 ? '9+' : notifCount}
                         </span>
                     )}
@@ -106,7 +106,7 @@ export function MobileBottomNav() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[45] bg-black/30 md:hidden"
+                        className="fixed inset-0 z-[45] bg-black/40 md:hidden"
                         onClick={() => setMoreOpen(false)}
                     />
                 )}
@@ -118,13 +118,13 @@ export function MobileBottomNav() {
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                        className="fixed bottom-16 left-0 right-0 z-[46] md:hidden bg-white border-t border-gray-200 rounded-t-2xl shadow-xl"
+                        className="fixed bottom-16 left-2 right-2 z-[46] md:hidden bg-[#27272A] border border-white/[0.08] rounded-2xl shadow-2xl shadow-black/40"
                         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
                     >
                         <div className="p-4 space-y-1">
                             <div className="flex items-center justify-between mb-2">
-                                <p className="text-sm font-medium text-gray-500">Plus</p>
-                                <button onClick={() => setMoreOpen(false)} className="p-1 text-gray-400 hover:text-gray-700">
+                                <p className="text-xs font-semibold uppercase tracking-widest text-[#6B6B70]">Plus</p>
+                                <button onClick={() => setMoreOpen(false)} className="p-1 text-[#6B6B70] hover:text-white transition-colors">
                                     <X className="w-4 h-4" />
                                 </button>
                             </div>
@@ -135,13 +135,13 @@ export function MobileBottomNav() {
                                         key={item.href}
                                         href={item.href}
                                         onClick={() => setMoreOpen(false)}
-                                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive
-                                            ? 'bg-gray-100 text-gray-900'
-                                            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${isActive
+                                            ? 'bg-[#C4F042] text-[#1A1A1D]'
+                                            : 'text-[#A1A1AA] hover:text-white hover:bg-white/[0.06]'
                                             }`}
                                     >
-                                        <item.icon className="w-5 h-5" />
-                                        <span className="font-medium">{item.label}</span>
+                                        <item.icon className="w-5 h-5" strokeWidth={1.5} />
+                                        <span className="font-medium text-sm">{item.label}</span>
                                     </Link>
                                 )
                             })}
@@ -150,26 +150,24 @@ export function MobileBottomNav() {
                 )}
             </AnimatePresence>
 
-            {/* Bottom Navigation Bar */}
-            <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white/95 backdrop-blur-xl border-t border-gray-200"
+            {/* Bottom Navigation Bar - Dark theme matching sidebar */}
+            <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[#1A1A1D]/95 backdrop-blur-xl border-t border-white/[0.06]"
                 style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
             >
                 <div className="flex items-center justify-around h-16">
                     {isBrand ? (
-                        // Brand: 5 direct items
                         brandItems.map(renderNavItem)
                     ) : (
-                        // Creator: 3 main items + "Plus" button
                         <>
                             {creatorMainItems.map(renderNavItem)}
                             <button
                                 onClick={() => setMoreOpen(!moreOpen)}
-                                className={`relative flex flex-col items-center justify-center gap-1 px-3 py-2 min-w-[64px] transition-colors ${moreOpen || isMoreItemActive
-                                    ? 'text-[#6C3FA0]'
-                                    : 'text-gray-400 active:text-gray-600'
+                                className={`relative flex flex-col items-center justify-center gap-1 px-3 py-2 min-w-[64px] transition-all duration-200 ${moreOpen || isMoreItemActive
+                                    ? 'text-[#C4F042]'
+                                    : 'text-[#6B6B70] active:text-white'
                                     }`}
                             >
-                                <MoreHorizontal className="h-5 w-5" />
+                                <MoreHorizontal className="h-5 w-5" strokeWidth={1.5} />
                                 <span className="text-[10px] font-medium leading-none">Plus</span>
                             </button>
                         </>

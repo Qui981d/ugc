@@ -1,22 +1,24 @@
-import { Sidebar } from "@/components/layout/Sidebar"
-import { Header } from "@/components/layout/Header"
-import { MobileBottomNav } from "@/components/layout/MobileBottomNav"
+'use client'
 
-export default function CreatorDashboardLayout({
-    children,
-}: {
-    children: React.ReactNode
-}) {
+import { ReactNode } from 'react'
+import { Sidebar } from '@/components/layout/Sidebar'
+import { Header } from '@/components/layout/Header'
+import { NotificationProvider } from '@/contexts/NotificationContext'
+import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
+
+export default function CreatorDashboardLayout({ children }: { children: ReactNode }) {
     return (
-        <div className="min-h-screen bg-[#E8E6DF]">
-            <Sidebar role="creator" />
-            <div className="md:ml-64">
-                <Header />
-                <main className="p-4 md:p-8 pb-24 md:pb-8">
-                    {children}
-                </main>
+        <NotificationProvider>
+            <div className="min-h-screen bg-[#E8E6DF]">
+                <Sidebar role="creator" />
+                <div className="md:ml-[82px]">
+                    <Header />
+                    <main className="p-4 md:p-8 pt-20 pb-24 md:pb-8">
+                        {children}
+                    </main>
+                </div>
+                <MobileBottomNav />
             </div>
-            <MobileBottomNav />
-        </div>
+        </NotificationProvider>
     )
 }
