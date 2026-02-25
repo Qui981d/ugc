@@ -57,32 +57,39 @@ export function Header() {
     const getNotifLink = (notif: Notification) => {
         const isBrand = user?.role === 'brand'
         const isAdmin = user?.role === 'admin'
-        const basePath = isBrand ? '/brand' : isAdmin ? '/mosh-cockpit' : '/creator'
 
         switch (notif.type) {
             case 'new_application':
-                // Brand: link to campaign detail. Creator: link to missions (they got proposed)
-                if (isBrand || isAdmin) {
+                if (isAdmin) {
+                    return notif.reference_id ? `/mosh-cockpit/missions/${notif.reference_id}` : '/mosh-cockpit/missions'
+                }
+                if (isBrand) {
                     return notif.reference_id ? `/brand/campaigns/${notif.reference_id}` : '/brand/campaigns'
                 }
                 return '/creator/missions'
             case 'message_received':
-                return `${basePath}/messages`
+                if (isAdmin) return '/mosh-cockpit/messages'
+                if (isBrand) return '/brand/messages'
+                return '/creator/messages'
             case 'deliverable_submitted':
-                // Brand: link to campaign detail. Creator: link to missions
-                if (isBrand || isAdmin) {
+                if (isAdmin) {
+                    return notif.reference_id ? `/mosh-cockpit/missions/${notif.reference_id}` : '/mosh-cockpit/missions'
+                }
+                if (isBrand) {
                     return notif.reference_id ? `/brand/campaigns/${notif.reference_id}` : '/brand/campaigns'
                 }
                 return '/creator/missions'
             case 'deliverable_approved':
             case 'deliverable_revision':
             case 'deliverable_rejected':
+                if (isAdmin) return notif.reference_id ? `/mosh-cockpit/missions/${notif.reference_id}` : '/mosh-cockpit/missions'
                 return '/creator/missions'
             case 'application_accepted':
             case 'application_rejected':
+                if (isAdmin) return notif.reference_id ? `/mosh-cockpit/missions/${notif.reference_id}` : '/mosh-cockpit/missions'
                 return '/creator/missions'
             default:
-                return basePath
+                return isAdmin ? '/mosh-cockpit' : isBrand ? '/brand' : '/creator'
         }
     }
 
