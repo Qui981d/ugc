@@ -378,6 +378,181 @@ export async function notifyBriefValidated(
     )
 }
 
+// ================================================
+// BRAND WORKFLOW FEEDBACK NOTIFICATIONS
+// Bidirectional feedback loops: Brand ↔ MOSH ↔ Creator
+// ================================================
+
+/**
+ * Phase 1: MOSH asks the brand to clarify/complete their brief
+ */
+export async function notifyBriefFeedback(
+    brandId: string,
+    campaignId: string,
+    campaignTitle: string
+): Promise<boolean> {
+    return createNotification(
+        brandId,
+        'deliverable_revision',
+        'Précisions requises sur votre brief 📋',
+        `MOSH a besoin de précisions sur "${campaignTitle}". Consultez les notes et mettez à jour votre brief.`,
+        campaignId,
+        'campaign'
+    )
+}
+
+/**
+ * Phase 2: MOSH tells the brand that creator profiles are ready for review
+ */
+export async function notifyProfilesReady(
+    brandId: string,
+    campaignId: string,
+    campaignTitle: string,
+    count: number
+): Promise<boolean> {
+    return createNotification(
+        brandId,
+        'new_application',
+        `${count} profils proposés pour votre mission 👥`,
+        `Nous avons sélectionné ${count} créateurs pour "${campaignTitle}". Consultez leurs profils et choisissez votre favori.`,
+        campaignId,
+        'campaign'
+    )
+}
+
+/**
+ * Phase 2: Brand selects a creator profile → notify MOSH admin
+ */
+export async function notifyProfileSelected(
+    adminId: string,
+    campaignId: string,
+    brandName: string,
+    creatorName: string
+): Promise<boolean> {
+    return createNotification(
+        adminId,
+        'application_accepted',
+        'Profil sélectionné par la marque ✅',
+        `${brandName} a sélectionné ${creatorName} pour la mission`,
+        campaignId,
+        'campaign'
+    )
+}
+
+/**
+ * Phase 2: Brand rejects all proposed profiles → notify MOSH admin
+ */
+export async function notifyProfilesRejected(
+    adminId: string,
+    campaignId: string,
+    brandName: string,
+    reason: string | null
+): Promise<boolean> {
+    return createNotification(
+        adminId,
+        'application_rejected',
+        'Profils refusés par la marque ⚠️',
+        `${brandName} n'a retenu aucun profil${reason ? `: "${reason}"` : ''}. Proposez de nouveaux créateurs.`,
+        campaignId,
+        'campaign'
+    )
+}
+
+/**
+ * Phase 3: Script is ready for brand review
+ */
+export async function notifyScriptReadyForBrand(
+    brandId: string,
+    campaignId: string,
+    campaignTitle: string
+): Promise<boolean> {
+    return createNotification(
+        brandId,
+        'deliverable_submitted',
+        'Script prêt pour validation ✍️',
+        `Le script de "${campaignTitle}" est prêt. Relisez-le et validez pour lancer la production.`,
+        campaignId,
+        'campaign'
+    )
+}
+
+/**
+ * Phase 3: Brand approves the script → notify MOSH admin
+ */
+export async function notifyScriptApprovedByBrand(
+    adminId: string,
+    campaignId: string,
+    brandName: string,
+    campaignTitle: string
+): Promise<boolean> {
+    return createNotification(
+        adminId,
+        'application_accepted',
+        'Script validé par la marque ✅',
+        `${brandName} a validé le script de "${campaignTitle}". Production autorisée.`,
+        campaignId,
+        'campaign'
+    )
+}
+
+/**
+ * Phase 3: Brand requests script changes → notify MOSH admin
+ */
+export async function notifyScriptFeedback(
+    adminId: string,
+    campaignId: string,
+    brandName: string,
+    campaignTitle: string
+): Promise<boolean> {
+    return createNotification(
+        adminId,
+        'deliverable_revision',
+        'Modifications script demandées ✏️',
+        `${brandName} souhaite des modifications sur le script de "${campaignTitle}"`,
+        campaignId,
+        'campaign'
+    )
+}
+
+/**
+ * Phase 5: Brand approves the final video → notify MOSH admin
+ */
+export async function notifyBrandFinalApproval(
+    adminId: string,
+    campaignId: string,
+    brandName: string,
+    campaignTitle: string
+): Promise<boolean> {
+    return createNotification(
+        adminId,
+        'deliverable_approved',
+        'Vidéo validée par la marque 🎉',
+        `${brandName} a approuvé la vidéo finale de "${campaignTitle}". Mission terminée !`,
+        campaignId,
+        'campaign'
+    )
+}
+
+/**
+ * Phase 5: Brand requests revision on final video → notify MOSH admin (max 2 rounds)
+ */
+export async function notifyBrandRevisionRequest(
+    adminId: string,
+    campaignId: string,
+    brandName: string,
+    campaignTitle: string,
+    revisionNumber: number
+): Promise<boolean> {
+    return createNotification(
+        adminId,
+        'deliverable_revision',
+        `Révision demandée (${revisionNumber}/2) 🔄`,
+        `${brandName} demande une révision sur la vidéo de "${campaignTitle}"`,
+        campaignId,
+        'campaign'
+    )
+}
+
 /**
  * Subscribe to real-time notification updates
  */

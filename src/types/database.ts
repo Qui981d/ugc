@@ -10,15 +10,21 @@ export type DeliverableStatus = 'pending' | 'review' | 'revision_requested' | 'a
 export type RightsUsageType = 'organic' | 'paid_3m' | 'paid_6m' | 'paid_12m' | 'perpetual'
 export type VideoFormat = '9_16' | '16_9' | '1_1' | '4_5'
 export type ScriptType = 'testimonial' | 'unboxing' | 'asmr' | 'tutorial' | 'lifestyle' | 'review'
-export type ScriptStatus = 'draft' | 'pending_validation' | 'validated'
+export type ScriptStatus = 'draft' | 'pending_validation' | 'validated' | 'brand_review' | 'brand_approved'
 export type MissionStepType =
     | 'brief_received'
+    | 'brief_feedback'           // MOSH asks brand to clarify the brief
     | 'creators_proposed'
+    | 'brand_reviewing_profiles'  // Brand is reviewing proposed creators
     | 'creator_validated'
     | 'script_sent'
+    | 'script_brand_review'      // Brand is reviewing the script
+    | 'script_brand_approved'    // Brand approved the script
     | 'video_delivered'
     | 'video_validated'
     | 'video_sent_to_brand'
+    | 'brand_final_review'       // Brand is reviewing final video
+    | 'brand_final_approved'     // Brand approved final video = mission done
 export type PricingPack = '1_video' | '3_videos' | 'custom'
 export type NotificationType =
     | 'new_application'
@@ -108,6 +114,20 @@ export interface Campaign {
     script_content: string | null
     script_status: ScriptStatus | null
     pricing_pack: PricingPack | null
+    // Brief feedback (MOSH → Brand)
+    brief_feedback_notes: string | null
+    brief_feedback_at: string | null
+    // Profile selection (Brand reviews proposed creators)
+    proposed_creator_ids: string[] | null
+    brand_profile_selection_at: string | null
+    brand_profile_rejection_reason: string | null
+    // Script brand review
+    script_brand_feedback: string | null
+    script_brand_approved_at: string | null
+    // Brand final video review (max 2 revisions)
+    brand_final_feedback: string | null
+    brand_final_approved_at: string | null
+    brand_revision_count: number
     // Contract fields (MOSH ↔ Creator)
     contract_mosh_url: string | null
     contract_mosh_status: 'pending_creator' | 'active' | null

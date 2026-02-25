@@ -34,6 +34,8 @@ import {
     updateCampaignScript,
     completeMissionStep,
     validateBrief,
+    requestBriefFeedback,
+    sendScriptToBrand,
     type CampaignWithDetails,
     type CreatorWithProfile,
 } from '@/lib/services/adminService'
@@ -42,11 +44,16 @@ import type { MissionStep, MissionStepType } from '@/types/database'
 const WORKFLOW_STEPS: { type: MissionStepType; label: string; icon: typeof FileText }[] = [
     { type: 'brief_received', label: 'Brief reçu', icon: FileText },
     { type: 'creators_proposed', label: 'Profils proposés', icon: Users },
+    { type: 'brand_reviewing_profiles', label: 'Marque review', icon: Users },
     { type: 'creator_validated', label: 'Créateur validé', icon: CheckCircle2 },
-    { type: 'script_sent', label: 'Script envoyé', icon: Send },
+    { type: 'script_sent', label: 'Script validé', icon: Send },
+    { type: 'script_brand_review', label: 'Script → Marque', icon: Send },
+    { type: 'script_brand_approved', label: 'Script OK Marque', icon: CheckCircle2 },
     { type: 'video_delivered', label: 'Vidéo livrée', icon: Video },
     { type: 'video_validated', label: 'Vidéo validée', icon: Shield },
-    { type: 'video_sent_to_brand', label: 'Envoyée à la marque', icon: CheckCircle2 },
+    { type: 'video_sent_to_brand', label: 'Envoyée marque', icon: CheckCircle2 },
+    { type: 'brand_final_review', label: 'Review marque', icon: Shield },
+    { type: 'brand_final_approved', label: 'Validé ✓', icon: CheckCircle2 },
 ]
 
 export default function AdminMissionDetailPage() {
@@ -71,6 +78,9 @@ export default function AdminMissionDetailPage() {
     const [showContractPreview, setShowContractPreview] = useState(false)
     const [invoiceText, setInvoiceText] = useState<string | null>(null)
     const [showInvoicePreview, setShowInvoicePreview] = useState(false)
+    // Brief feedback
+    const [briefFeedbackNotes, setBriefFeedbackNotes] = useState('')
+    const [showBriefFeedback, setShowBriefFeedback] = useState(false)
 
     const loadData = useCallback(async () => {
         const [campaigns, allCreators, missionSteps] = await Promise.all([
@@ -109,6 +119,37 @@ export default function AdminMissionDetailPage() {
             setActionError(result.error || 'Erreur lors de la validation du brief')
         } else {
             setActionSuccess('Brief validé avec succès !')
+            setTimeout(() => setActionSuccess(null), 3000)
+        }
+        await loadData()
+        setActionLoading(false)
+    }
+
+    const handleBriefFeedback = async () => {
+        if (!briefFeedbackNotes.trim()) return
+        setActionLoading(true)
+        setActionError(null)
+        const result = await requestBriefFeedback(campaignId, briefFeedbackNotes)
+        if (!result.success) {
+            setActionError(result.error || 'Erreur')
+        } else {
+            setActionSuccess('Retour envoyé à la marque !')
+            setTimeout(() => setActionSuccess(null), 3000)
+            setShowBriefFeedback(false)
+            setBriefFeedbackNotes('')
+        }
+        await loadData()
+        setActionLoading(false)
+    }
+
+    const handleSendScriptToBrand = async () => {
+        setActionLoading(true)
+        setActionError(null)
+        const result = await sendScriptToBrand(campaignId)
+        if (!result.success) {
+            setActionError(result.error || 'Erreur')
+        } else {
+            setActionSuccess('Script envoyé à la marque pour validation !')
             setTimeout(() => setActionSuccess(null), 3000)
         }
         await loadData()
@@ -357,14 +398,48 @@ export default function AdminMissionDetailPage() {
                     )}
                 </div>
                 {!isStepCompleted('brief_received') && (
-                    <button
-                        onClick={handleValidateBrief}
-                        disabled={actionLoading}
-                        className="mt-4 px-4 py-2 bg-[#C4F042] text-[#18181B] font-medium rounded-xl hover:bg-[#C4F042]/80 transition-colors disabled:opacity-50 flex items-center gap-2"
-                    >
-                        {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                        Valider le brief
-                    </button>
+                    <div className="flex gap-3 mt-4">
+                        <button
+                            onClick={handleValidateBrief}
+                            disabled={actionLoading}
+                            className="px-4 py-2 bg-[#C4F042] text-[#18181B] font-medium rounded-xl hover:bg-[#C4F042]/80 transition-colors disabled:opacity-50 flex items-center gap-2"
+                        >
+                            {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                            Valider le brief
+                        </button>
+                        <button
+                            onClick={() => setShowBriefFeedback(!showBriefFeedback)}
+                            className="px-4 py-2 bg-[#F4F3EF] text-[#18181B] rounded-xl hover:bg-[#E8E6DF] transition-colors flex items-center gap-2"
+                        >
+                            <Pencil className="w-4 h-4" strokeWidth={1.5} />
+                            Demander des précisions
+                        </button>
+                    </div>
+                )}
+                {showBriefFeedback && (
+                    <div className="mt-4 space-y-3">
+                        <textarea
+                            value={briefFeedbackNotes}
+                            onChange={(e) => setBriefFeedbackNotes(e.target.value)}
+                            placeholder="Quelles précisions manquent dans le brief ?"
+                            rows={3}
+                            className="w-full bg-[#F4F3EF]/50 border border-black/[0.04] rounded-xl p-4 text-[#18181B] text-sm placeholder:text-[#A1A1AA] focus:outline-none focus:border-[#C4F042]/50 focus:ring-2 focus:ring-[#C4F042]/20 resize-y"
+                        />
+                        <button
+                            onClick={handleBriefFeedback}
+                            disabled={actionLoading || !briefFeedbackNotes.trim()}
+                            className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors disabled:opacity-50 flex items-center gap-2"
+                        >
+                            <Send className="w-4 h-4" strokeWidth={1.5} />
+                            Envoyer les retours à la marque
+                        </button>
+                    </div>
+                )}
+                {campaign.brief_feedback_notes && (
+                    <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm">
+                        <p className="text-amber-800 font-medium text-xs mb-1">Précisions demandées :</p>
+                        <p className="text-amber-700 whitespace-pre-wrap">{campaign.brief_feedback_notes}</p>
+                    </div>
                 )}
             </motion.div>
 
@@ -461,18 +536,30 @@ export default function AdminMissionDetailPage() {
                     <Pencil className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} />
                     Script
                     {campaign.script_status === 'validated' && (
-                        <span className="text-xs bg-[#C4F042]/20 text-[#18181B] px-2 py-0.5 rounded-full font-medium">Validé</span>
+                        <span className="text-xs bg-[#C4F042]/20 text-[#18181B] px-2 py-0.5 rounded-full font-medium">Validé MOSH</span>
+                    )}
+                    {campaign.script_status === 'brand_review' && (
+                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">En attente marque</span>
+                    )}
+                    {campaign.script_status === 'brand_approved' && (
+                        <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Validé par la marque ✓</span>
                     )}
                 </h2>
+                {campaign.script_brand_feedback && (
+                    <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm">
+                        <p className="text-amber-800 font-medium text-xs mb-1">Retour de la marque :</p>
+                        <p className="text-amber-700 whitespace-pre-wrap">{campaign.script_brand_feedback}</p>
+                    </div>
+                )}
                 <textarea
                     value={scriptDraft}
                     onChange={(e) => setScriptDraft(e.target.value)}
                     placeholder="Rédigez le script ici..."
                     rows={8}
-                    disabled={campaign.script_status === 'validated'}
+                    disabled={campaign.script_status === 'brand_review' || campaign.script_status === 'brand_approved'}
                     className="w-full bg-[#F4F3EF]/50 border border-black/[0.04] rounded-xl p-4 text-[#18181B] text-sm placeholder:text-[#A1A1AA] focus:outline-none focus:border-[#C4F042]/50 focus:ring-2 focus:ring-[#C4F042]/20 resize-y disabled:opacity-50"
                 />
-                {campaign.script_status !== 'validated' && (
+                {campaign.script_status !== 'validated' && campaign.script_status !== 'brand_review' && campaign.script_status !== 'brand_approved' && (
                     <div className="flex gap-3 mt-3">
                         <button
                             onClick={() => handleSaveScript('draft')}
@@ -486,7 +573,19 @@ export default function AdminMissionDetailPage() {
                             disabled={actionLoading || !scriptDraft}
                             className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors disabled:opacity-50"
                         >
-                            ✓ Valider et envoyer au créateur
+                            ✓ Valider le script MOSH
+                        </button>
+                    </div>
+                )}
+                {campaign.script_status === 'validated' && (
+                    <div className="flex gap-3 mt-3">
+                        <button
+                            onClick={handleSendScriptToBrand}
+                            disabled={actionLoading}
+                            className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors disabled:opacity-50 flex items-center gap-2"
+                        >
+                            <Send className="w-4 h-4" strokeWidth={1.5} />
+                            Envoyer à la marque pour validation
                         </button>
                     </div>
                 )}
@@ -644,11 +743,29 @@ export default function AdminMissionDetailPage() {
                             Envoyer la vidéo à la marque
                         </button>
                     </div>
-                ) : (
+                ) : isStepCompleted('brand_final_approved') ? (
                     <p className="text-[#18181B] text-sm font-medium flex items-center gap-1.5">
                         <CheckCircle2 className="w-4 h-4 text-[#C4F042]" strokeWidth={1.5} />
-                        Vidéo envoyée à la marque — Mission terminée
+                        Vidéo validée par la marque — Mission terminée
                     </p>
+                ) : (
+                    <div className="space-y-3">
+                        <p className="text-[#18181B] text-sm font-medium flex items-center gap-1.5">
+                            <Clock className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
+                            En attente de validation par la marque
+                        </p>
+                        {campaign.brand_revision_count > 0 && (
+                            <div className="text-xs text-amber-600 bg-amber-50 rounded-xl px-3 py-2">
+                                Révisions demandées par la marque : {campaign.brand_revision_count}/2
+                            </div>
+                        )}
+                        {campaign.brand_final_feedback && (
+                            <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm">
+                                <p className="text-amber-800 font-medium text-xs mb-1">Retour de la marque :</p>
+                                <p className="text-amber-700 whitespace-pre-wrap">{campaign.brand_final_feedback}</p>
+                            </div>
+                        )}
+                    </div>
                 )}
             </motion.div>
 

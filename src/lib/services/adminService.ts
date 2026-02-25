@@ -17,6 +17,15 @@ import {
     notifyVideoReady,
     notifyBriefValidated,
     notifyApplicationStatus,
+    notifyBriefFeedback,
+    notifyProfilesReady,
+    notifyProfileSelected,
+    notifyProfilesRejected,
+    notifyScriptReadyForBrand,
+    notifyScriptApprovedByBrand,
+    notifyScriptFeedback,
+    notifyBrandFinalApproval,
+    notifyBrandRevisionRequest,
 } from '@/lib/services/notificationService'
 
 // ================================================
@@ -247,19 +256,35 @@ export async function proposeCreatorsForCampaign(
 
     if (error) return { success: false, error: error.message }
 
-    // Update campaign status
+    // Store proposed_creator_ids and update campaign status
     await (supabase
         .from('campaigns') as ReturnType<typeof supabase.from>)
-        .update({ status: 'open', assigned_admin_id: user.id })
+        .update({
+            status: 'open',
+            assigned_admin_id: user.id,
+            proposed_creator_ids: creatorIds,
+        })
         .eq('id', campaignId)
 
-    // Record step
+    // Record steps
     await completeMissionStep(campaignId, 'creators_proposed')
+    await completeMissionStep(campaignId, 'brand_reviewing_profiles')
 
     // Notify each proposed creator
     const campaignTitle = campInfo?.title || 'Nouvelle mission'
     for (const creatorId of creatorIds) {
         await notifyCreatorProposed(creatorId, campaignId, campaignTitle)
+    }
+
+    // Notify brand that profiles are ready for review
+    const { data: campBrand } = await supabase
+        .from('campaigns')
+        .select('brand_id')
+        .eq('id', campaignId)
+        .single()
+    const brandId = (campBrand as any)?.brand_id
+    if (brandId) {
+        await notifyProfilesReady(brandId, campaignId, campaignTitle, creatorIds.length)
     }
 
     return { success: true }
@@ -447,11 +472,342 @@ export async function completeMissionStep(
             )
         }
 
-        // Also mark campaign as completed
+        // Mark brand_final_review step (brand must validate before completion)
         await (supabase
-            .from('campaigns') as ReturnType<typeof supabase.from>)
-            .update({ status: 'completed' })
-            .eq('id', campaignId)
+            .from('mission_steps') as ReturnType<typeof supabase.from>)
+            .upsert({
+                campaign_id: campaignId,
+                step_type: 'brand_final_review',
+                completed_by: user?.id || null,
+                completed_at: new Date().toISOString(),
+            }, { onConflict: 'campaign_id,step_type' })
+    }
+
+    return { success: true }
+}
+
+// ================================================
+// BRAND WORKFLOW ACTIONS
+// Methods called by brands to provide feedback
+// ================================================
+
+/**
+ * MOSH admin requests brief clarifications from the brand
+ */
+export async function requestBriefFeedback(
+    campaignId: string,
+    notes: string
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+
+    const { data: campData } = await supabase
+        .from('campaigns')
+        .select('title, brand_id')
+        .eq('id', campaignId)
+        .single()
+    const camp = campData as any
+    if (!camp) return { success: false, error: 'Campaign not found' }
+
+    // Store feedback notes and revert to draft
+    const { error } = await (supabase
+        .from('campaigns') as ReturnType<typeof supabase.from>)
+        .update({
+            brief_feedback_notes: notes,
+            brief_feedback_at: new Date().toISOString(),
+            status: 'draft',
+        })
+        .eq('id', campaignId)
+
+    if (error) return { success: false, error: error.message }
+
+    await completeMissionStep(campaignId, 'brief_feedback', notes)
+    await notifyBriefFeedback(camp.brand_id, campaignId, camp.title || 'Votre campagne')
+
+    return { success: true }
+}
+
+/**
+ * Send script to brand for review (MOSH → Brand)
+ */
+export async function sendScriptToBrand(
+    campaignId: string
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+
+    const { data: campData } = await supabase
+        .from('campaigns')
+        .select('title, brand_id, script_content')
+        .eq('id', campaignId)
+        .single()
+    const camp = campData as any
+    if (!camp) return { success: false, error: 'Campaign not found' }
+    if (!camp.script_content) return { success: false, error: 'No script content' }
+
+    const { error } = await (supabase
+        .from('campaigns') as ReturnType<typeof supabase.from>)
+        .update({ script_status: 'brand_review' })
+        .eq('id', campaignId)
+
+    if (error) return { success: false, error: error.message }
+
+    await completeMissionStep(campaignId, 'script_brand_review')
+    await notifyScriptReadyForBrand(camp.brand_id, campaignId, camp.title)
+
+    return { success: true }
+}
+
+/**
+ * Brand selects a creator from the proposed profiles
+ */
+export async function brandSelectCreator(
+    campaignId: string,
+    creatorId: string
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+
+    // Get campaign + brand + creator names for notifications
+    const [{ data: campData }, { data: creatorData }] = await Promise.all([
+        supabase.from('campaigns').select('title, brand_id, assigned_admin_id').eq('id', campaignId).single(),
+        supabase.from('users').select('full_name').eq('id', creatorId).single(),
+    ])
+    const camp = campData as any
+    const creator = creatorData as any
+    if (!camp) return { success: false, error: 'Campaign not found' }
+
+    // Get brand name
+    const { data: brandData } = await supabase
+        .from('users')
+        .select('full_name')
+        .eq('id', camp.brand_id)
+        .single()
+    const brandName = (brandData as any)?.full_name || 'La marque'
+
+    // Record selection timestamp
+    await (supabase
+        .from('campaigns') as ReturnType<typeof supabase.from>)
+        .update({
+            brand_profile_selection_at: new Date().toISOString(),
+            brand_profile_rejection_reason: null,
+        })
+        .eq('id', campaignId)
+
+    // Notify admin that brand has selected a profile
+    if (camp.assigned_admin_id) {
+        await notifyProfileSelected(
+            camp.assigned_admin_id,
+            campaignId,
+            brandName,
+            creator?.full_name || 'Un créateur'
+        )
+    }
+
+    return { success: true }
+}
+
+/**
+ * Brand rejects all proposed profiles
+ */
+export async function brandRejectProfiles(
+    campaignId: string,
+    reason: string | null
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+
+    const { data: campData } = await supabase
+        .from('campaigns')
+        .select('title, brand_id, assigned_admin_id')
+        .eq('id', campaignId)
+        .single()
+    const camp = campData as any
+    if (!camp) return { success: false, error: 'Campaign not found' }
+
+    // Clear proposed creators and store rejection reason
+    const { error } = await (supabase
+        .from('campaigns') as ReturnType<typeof supabase.from>)
+        .update({
+            proposed_creator_ids: null,
+            brand_profile_rejection_reason: reason,
+        })
+        .eq('id', campaignId)
+
+    if (error) return { success: false, error: error.message }
+
+    // Get brand name
+    const { data: brandData } = await supabase
+        .from('users')
+        .select('full_name')
+        .eq('id', camp.brand_id)
+        .single()
+    const brandName = (brandData as any)?.full_name || 'La marque'
+
+    // Notify admin
+    if (camp.assigned_admin_id) {
+        await notifyProfilesRejected(camp.assigned_admin_id, campaignId, brandName, reason)
+    }
+
+    return { success: true }
+}
+
+/**
+ * Brand approves the script
+ */
+export async function brandApproveScript(
+    campaignId: string
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+
+    const { data: campData } = await supabase
+        .from('campaigns')
+        .select('title, brand_id, assigned_admin_id')
+        .eq('id', campaignId)
+        .single()
+    const camp = campData as any
+    if (!camp) return { success: false, error: 'Campaign not found' }
+
+    const { error } = await (supabase
+        .from('campaigns') as ReturnType<typeof supabase.from>)
+        .update({
+            script_status: 'brand_approved',
+            script_brand_approved_at: new Date().toISOString(),
+            script_brand_feedback: null,
+        })
+        .eq('id', campaignId)
+
+    if (error) return { success: false, error: error.message }
+
+    await completeMissionStep(campaignId, 'script_brand_approved')
+
+    // Get brand name
+    const { data: brandData } = await supabase
+        .from('users').select('full_name').eq('id', camp.brand_id).single()
+    const brandName = (brandData as any)?.full_name || 'La marque'
+
+    if (camp.assigned_admin_id) {
+        await notifyScriptApprovedByBrand(camp.assigned_admin_id, campaignId, brandName, camp.title)
+    }
+
+    return { success: true }
+}
+
+/**
+ * Brand provides feedback on the script (requests changes)
+ */
+export async function brandFeedbackScript(
+    campaignId: string,
+    feedback: string
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+
+    const { data: campData } = await supabase
+        .from('campaigns')
+        .select('title, brand_id, assigned_admin_id')
+        .eq('id', campaignId)
+        .single()
+    const camp = campData as any
+    if (!camp) return { success: false, error: 'Campaign not found' }
+
+    const { error } = await (supabase
+        .from('campaigns') as ReturnType<typeof supabase.from>)
+        .update({
+            script_status: 'draft',
+            script_brand_feedback: feedback,
+        })
+        .eq('id', campaignId)
+
+    if (error) return { success: false, error: error.message }
+
+    const { data: brandData } = await supabase
+        .from('users').select('full_name').eq('id', camp.brand_id).single()
+    const brandName = (brandData as any)?.full_name || 'La marque'
+
+    if (camp.assigned_admin_id) {
+        await notifyScriptFeedback(camp.assigned_admin_id, campaignId, brandName, camp.title)
+    }
+
+    return { success: true }
+}
+
+/**
+ * Brand approves the final video (mission complete)
+ */
+export async function brandApproveVideo(
+    campaignId: string
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+
+    const { data: campData } = await supabase
+        .from('campaigns')
+        .select('title, brand_id, assigned_admin_id')
+        .eq('id', campaignId)
+        .single()
+    const camp = campData as any
+    if (!camp) return { success: false, error: 'Campaign not found' }
+
+    // Mark campaign as completed
+    const { error } = await (supabase
+        .from('campaigns') as ReturnType<typeof supabase.from>)
+        .update({
+            status: 'completed',
+            brand_final_approved_at: new Date().toISOString(),
+            brand_final_feedback: null,
+        })
+        .eq('id', campaignId)
+
+    if (error) return { success: false, error: error.message }
+
+    await completeMissionStep(campaignId, 'brand_final_approved')
+
+    const { data: brandData } = await supabase
+        .from('users').select('full_name').eq('id', camp.brand_id).single()
+    const brandName = (brandData as any)?.full_name || 'La marque'
+
+    if (camp.assigned_admin_id) {
+        await notifyBrandFinalApproval(camp.assigned_admin_id, campaignId, brandName, camp.title)
+    }
+
+    return { success: true }
+}
+
+/**
+ * Brand requests revision on the final video (max 2)
+ */
+export async function brandRequestRevision(
+    campaignId: string,
+    feedback: string
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+
+    const { data: campData } = await supabase
+        .from('campaigns')
+        .select('title, brand_id, assigned_admin_id, brand_revision_count')
+        .eq('id', campaignId)
+        .single()
+    const camp = campData as any
+    if (!camp) return { success: false, error: 'Campaign not found' }
+
+    const currentCount = camp.brand_revision_count || 0
+    if (currentCount >= 2) {
+        return { success: false, error: 'Nombre maximum de révisions atteint (2/2)' }
+    }
+
+    const newCount = currentCount + 1
+
+    const { error } = await (supabase
+        .from('campaigns') as ReturnType<typeof supabase.from>)
+        .update({
+            brand_final_feedback: feedback,
+            brand_revision_count: newCount,
+        })
+        .eq('id', campaignId)
+
+    if (error) return { success: false, error: error.message }
+
+    const { data: brandData } = await supabase
+        .from('users').select('full_name').eq('id', camp.brand_id).single()
+    const brandName = (brandData as any)?.full_name || 'La marque'
+
+    if (camp.assigned_admin_id) {
+        await notifyBrandRevisionRequest(camp.assigned_admin_id, campaignId, brandName, camp.title, newCount)
     }
 
     return { success: true }
