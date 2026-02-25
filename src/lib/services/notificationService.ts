@@ -582,3 +582,33 @@ export function subscribeToNotifications(
         supabase.removeChannel(subscription)
     }
 }
+
+/**
+ * Notify all admin users when a new brief is submitted by a brand
+ */
+export async function notifyAdminNewBrief(
+    campaignId: string,
+    campaignTitle: string,
+    brandName: string
+): Promise<boolean> {
+    const supabase = createClient()
+    // Find all admin users
+    const { data: admins } = await supabase
+        .from('users')
+        .select('id')
+        .eq('role', 'admin')
+
+    if (!admins || admins.length === 0) return false
+
+    for (const admin of admins) {
+        await createNotification(
+            (admin as any).id,
+            'new_application',
+            `Nouveau brief reçu`,
+            `${brandName} a soumis un nouveau brief : "${campaignTitle}"`,
+            campaignId,
+            'campaign'
+        )
+    }
+    return true
+}

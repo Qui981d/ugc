@@ -530,67 +530,85 @@ export default function AdminMissionDetailPage() {
             </motion.div>
 
             {/* Script Section */}
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}
-                className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[24px] p-6"
-            >
-                <h2 className="text-sm font-semibold text-[#18181B] mb-4 flex items-center gap-2">
-                    <Pencil className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} />
-                    Script
+            {isStepCompleted('brand_reviewing_profiles') && !isStepCompleted('creator_validated') ? (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}
+                    className="bg-white/90 backdrop-blur-sm border border-amber-200 rounded-[24px] p-6"
+                >
+                    <h2 className="text-sm font-semibold text-[#18181B] mb-3 flex items-center gap-2">
+                        <Pencil className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} />
+                        Script
+                    </h2>
+                    <div className="flex items-center gap-3 text-amber-700 bg-amber-50 rounded-xl p-4">
+                        <Clock className="w-5 h-5 shrink-0" />
+                        <div>
+                            <p className="font-medium text-sm">En attente du choix de la marque</p>
+                            <p className="text-xs text-amber-600 mt-0.5">La marque doit d'abord valider un créateur parmi les profils proposés.</p>
+                        </div>
+                    </div>
+                </motion.div>
+            ) : (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}
+                    className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[24px] p-6"
+                >
+                    <h2 className="text-sm font-semibold text-[#18181B] mb-4 flex items-center gap-2">
+                        <Pencil className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} />
+                        Script
+                        {campaign.script_status === 'validated' && (
+                            <span className="text-xs bg-[#C4F042]/20 text-[#18181B] px-2 py-0.5 rounded-full font-medium">Validé MOSH</span>
+                        )}
+                        {campaign.script_status === 'brand_review' && (
+                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">En attente marque</span>
+                        )}
+                        {campaign.script_status === 'brand_approved' && (
+                            <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Validé par la marque ✓</span>
+                        )}
+                    </h2>
+                    {campaign.script_brand_feedback && (
+                        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm">
+                            <p className="text-amber-800 font-medium text-xs mb-1">Retour de la marque :</p>
+                            <p className="text-amber-700 whitespace-pre-wrap">{campaign.script_brand_feedback}</p>
+                        </div>
+                    )}
+                    <textarea
+                        value={scriptDraft}
+                        onChange={(e) => setScriptDraft(e.target.value)}
+                        placeholder="Rédigez le script ici..."
+                        rows={8}
+                        disabled={campaign.script_status === 'brand_review' || campaign.script_status === 'brand_approved'}
+                        className="w-full bg-[#F4F3EF]/50 border border-black/[0.04] rounded-xl p-4 text-[#18181B] text-sm placeholder:text-[#A1A1AA] focus:outline-none focus:border-[#C4F042]/50 focus:ring-2 focus:ring-[#C4F042]/20 resize-y disabled:opacity-50"
+                    />
+                    {campaign.script_status !== 'validated' && campaign.script_status !== 'brand_review' && campaign.script_status !== 'brand_approved' && (
+                        <div className="flex gap-3 mt-3">
+                            <button
+                                onClick={() => handleSaveScript('draft')}
+                                disabled={actionLoading}
+                                className="px-4 py-2 bg-[#F4F3EF] text-[#18181B] rounded-xl hover:bg-[#E8E6DF] transition-colors disabled:opacity-50"
+                            >
+                                Sauvegarder le brouillon
+                            </button>
+                            <button
+                                onClick={() => handleSaveScript('validated')}
+                                disabled={actionLoading || !scriptDraft}
+                                className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors disabled:opacity-50"
+                            >
+                                ✓ Valider le script MOSH
+                            </button>
+                        </div>
+                    )}
                     {campaign.script_status === 'validated' && (
-                        <span className="text-xs bg-[#C4F042]/20 text-[#18181B] px-2 py-0.5 rounded-full font-medium">Validé MOSH</span>
+                        <div className="flex gap-3 mt-3">
+                            <button
+                                onClick={handleSendScriptToBrand}
+                                disabled={actionLoading}
+                                className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors disabled:opacity-50 flex items-center gap-2"
+                            >
+                                <Send className="w-4 h-4" strokeWidth={1.5} />
+                                Envoyer à la marque pour validation
+                            </button>
+                        </div>
                     )}
-                    {campaign.script_status === 'brand_review' && (
-                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">En attente marque</span>
-                    )}
-                    {campaign.script_status === 'brand_approved' && (
-                        <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Validé par la marque ✓</span>
-                    )}
-                </h2>
-                {campaign.script_brand_feedback && (
-                    <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm">
-                        <p className="text-amber-800 font-medium text-xs mb-1">Retour de la marque :</p>
-                        <p className="text-amber-700 whitespace-pre-wrap">{campaign.script_brand_feedback}</p>
-                    </div>
-                )}
-                <textarea
-                    value={scriptDraft}
-                    onChange={(e) => setScriptDraft(e.target.value)}
-                    placeholder="Rédigez le script ici..."
-                    rows={8}
-                    disabled={campaign.script_status === 'brand_review' || campaign.script_status === 'brand_approved'}
-                    className="w-full bg-[#F4F3EF]/50 border border-black/[0.04] rounded-xl p-4 text-[#18181B] text-sm placeholder:text-[#A1A1AA] focus:outline-none focus:border-[#C4F042]/50 focus:ring-2 focus:ring-[#C4F042]/20 resize-y disabled:opacity-50"
-                />
-                {campaign.script_status !== 'validated' && campaign.script_status !== 'brand_review' && campaign.script_status !== 'brand_approved' && (
-                    <div className="flex gap-3 mt-3">
-                        <button
-                            onClick={() => handleSaveScript('draft')}
-                            disabled={actionLoading}
-                            className="px-4 py-2 bg-[#F4F3EF] text-[#18181B] rounded-xl hover:bg-[#E8E6DF] transition-colors disabled:opacity-50"
-                        >
-                            Sauvegarder le brouillon
-                        </button>
-                        <button
-                            onClick={() => handleSaveScript('validated')}
-                            disabled={actionLoading || !scriptDraft}
-                            className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors disabled:opacity-50"
-                        >
-                            ✓ Valider le script MOSH
-                        </button>
-                    </div>
-                )}
-                {campaign.script_status === 'validated' && (
-                    <div className="flex gap-3 mt-3">
-                        <button
-                            onClick={handleSendScriptToBrand}
-                            disabled={actionLoading}
-                            className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors disabled:opacity-50 flex items-center gap-2"
-                        >
-                            <Send className="w-4 h-4" strokeWidth={1.5} />
-                            Envoyer à la marque pour validation
-                        </button>
-                    </div>
-                )}
-            </motion.div>
+                </motion.div>
+            )}
 
             {/* Contract Section */}
             {campaign.selected_creator && (

@@ -558,6 +558,12 @@ export async function sendScriptToBrand(
 
 /**
  * Brand selects a creator from the proposed profiles
+ * This delegates to assignCreatorToCampaign which handles:
+ * - Setting selected_creator_id
+ * - Updating campaign status to in_progress
+ * - Accepting/rejecting applications
+ * - Completing creator_validated step
+ * - Sending all notifications
  */
 export async function brandSelectCreator(
     campaignId: string,
@@ -565,24 +571,7 @@ export async function brandSelectCreator(
 ): Promise<{ success: boolean; error?: string }> {
     const supabase = createClient()
 
-    // Get campaign + brand + creator names for notifications
-    const [{ data: campData }, { data: creatorData }] = await Promise.all([
-        supabase.from('campaigns').select('title, brand_id, assigned_admin_id').eq('id', campaignId).single(),
-        supabase.from('users').select('full_name').eq('id', creatorId).single(),
-    ])
-    const camp = campData as any
-    const creator = creatorData as any
-    if (!camp) return { success: false, error: 'Campaign not found' }
-
-    // Get brand name
-    const { data: brandData } = await supabase
-        .from('users')
-        .select('full_name')
-        .eq('id', camp.brand_id)
-        .single()
-    const brandName = (brandData as any)?.full_name || 'La marque'
-
-    // Record selection timestamp
+    // Record brand selection timestamp
     await (supabase
         .from('campaigns') as ReturnType<typeof supabase.from>)
         .update({
@@ -591,17 +580,8 @@ export async function brandSelectCreator(
         })
         .eq('id', campaignId)
 
-    // Notify admin that brand has selected a profile
-    if (camp.assigned_admin_id) {
-        await notifyProfileSelected(
-            camp.assigned_admin_id,
-            campaignId,
-            brandName,
-            creator?.full_name || 'Un créateur'
-        )
-    }
-
-    return { success: true }
+    // Delegate to the full assignment flow
+    return assignCreatorToCampaign(campaignId, creatorId)
 }
 
 /**

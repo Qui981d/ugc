@@ -152,7 +152,18 @@ export async function createCampaign(campaignData: {
 
     if (error) return { campaign: null, error: error.message }
 
-    return { campaign: data as Campaign }
+    const campaign = data as Campaign
+
+    // Notify all admin users about the new brief
+    try {
+        const { notifyAdminNewBrief } = await import('@/lib/services/notificationService')
+        const brandName = user.user_metadata?.full_name || user.email || 'Une marque'
+        await notifyAdminNewBrief(campaign.id, campaign.title, brandName)
+    } catch {
+        // Non-blocking — don't fail campaign creation if notification fails
+    }
+
+    return { campaign }
 }
 
 /**
