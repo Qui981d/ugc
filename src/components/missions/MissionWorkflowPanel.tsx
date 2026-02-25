@@ -79,13 +79,26 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
     useEffect(() => {
         async function load() {
             if (!user) return
-            const data = await getMyCampaigns()
-            setCampaigns(data)
-            if (data.length > 0) setSelectedCampaignId(data[0].id)
+            if (userRole === 'admin') {
+                // Admin: load ALL campaigns
+                const supabase = createClient()
+                const { data } = await supabase
+                    .from('campaigns')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                const campaigns = (data || []) as Campaign[]
+                setCampaigns(campaigns)
+                if (campaigns.length > 0) setSelectedCampaignId(campaigns[0].id)
+            } else {
+                // Brand: load own campaigns
+                const data = await getMyCampaigns()
+                setCampaigns(data)
+                if (data.length > 0) setSelectedCampaignId(data[0].id)
+            }
             setIsLoading(false)
         }
         load()
-    }, [user])
+    }, [user, userRole])
 
     // Load steps + messages for selected campaign
     const loadCampaignData = useCallback(async () => {
@@ -200,8 +213,8 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
             <div className="grid grid-cols-2 gap-3">
                 {/* MOSH Column */}
                 <div className={`rounded-2xl p-4 border-2 transition-all ${isMoshTurn
-                        ? 'border-emerald-400 bg-emerald-50/50 shadow-lg shadow-emerald-100'
-                        : 'border-gray-200 bg-gray-50/50 opacity-60'
+                    ? 'border-emerald-400 bg-emerald-50/50 shadow-lg shadow-emerald-100'
+                    : 'border-gray-200 bg-gray-50/50 opacity-60'
                     }`}>
                     <div className="flex items-center gap-2 mb-3">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isMoshTurn ? 'bg-emerald-500 text-white' : 'bg-gray-300 text-gray-600'
@@ -220,8 +233,8 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                             const Icon = step.icon
                             return (
                                 <div key={step.type} className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs transition-all ${completed ? 'bg-emerald-100 text-emerald-800' :
-                                        isActive ? 'bg-white border border-emerald-300 text-emerald-700 font-semibold shadow-sm' :
-                                            'text-gray-400'
+                                    isActive ? 'bg-white border border-emerald-300 text-emerald-700 font-semibold shadow-sm' :
+                                        'text-gray-400'
                                     }`}>
                                     {completed ? (
                                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
@@ -239,8 +252,8 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
 
                 {/* BRAND Column */}
                 <div className={`rounded-2xl p-4 border-2 transition-all ${isBrandTurn
-                        ? 'border-[#6C3FA0] bg-purple-50/50 shadow-lg shadow-purple-100'
-                        : 'border-gray-200 bg-gray-50/50 opacity-60'
+                    ? 'border-[#6C3FA0] bg-purple-50/50 shadow-lg shadow-purple-100'
+                    : 'border-gray-200 bg-gray-50/50 opacity-60'
                     }`}>
                     <div className="flex items-center gap-2 mb-3">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isBrandTurn ? 'bg-[#6C3FA0] text-white' : 'bg-gray-300 text-gray-600'
@@ -259,8 +272,8 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                             const Icon = step.icon
                             return (
                                 <div key={step.type} className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs transition-all ${completed ? 'bg-purple-100 text-purple-800' :
-                                        isActive ? 'bg-white border border-[#6C3FA0]/40 text-[#6C3FA0] font-semibold shadow-sm' :
-                                            'text-gray-400'
+                                    isActive ? 'bg-white border border-[#6C3FA0]/40 text-[#6C3FA0] font-semibold shadow-sm' :
+                                        'text-gray-400'
                                     }`}>
                                     {completed ? (
                                         <CheckCircle2 className="w-3.5 h-3.5 text-[#6C3FA0] shrink-0" />
@@ -306,8 +319,8 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                                 className={`flex ${msg.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}
                             >
                                 <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${msg.sender_id === user?.id
-                                        ? 'bg-[#6C3FA0] text-white rounded-br-md'
-                                        : 'bg-gray-100 text-gray-800 rounded-bl-md'
+                                    ? 'bg-[#6C3FA0] text-white rounded-br-md'
+                                    : 'bg-gray-100 text-gray-800 rounded-bl-md'
                                     }`}>
                                     <p>{msg.content}</p>
                                     <p className={`text-[10px] mt-1 text-right ${msg.sender_id === user?.id ? 'text-white/60' : 'text-gray-400'
@@ -377,8 +390,8 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                         <h2 className="font-semibold text-gray-900 truncate">{selectedCampaign.title}</h2>
                         <div className="flex items-center gap-2 mt-0.5">
                             <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${activeOwner === 'brand'
-                                    ? 'bg-purple-100 text-[#6C3FA0]'
-                                    : 'bg-emerald-100 text-emerald-700'
+                                ? 'bg-purple-100 text-[#6C3FA0]'
+                                : 'bg-emerald-100 text-emerald-700'
                                 }`}>
                                 {activeOwner === 'brand' ? '⚡ Action requise' : '⏳ MOSH travaille'}
                             </span>

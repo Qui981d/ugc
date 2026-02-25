@@ -558,12 +558,7 @@ export async function sendScriptToBrand(
 
 /**
  * Brand selects a creator from the proposed profiles
- * This delegates to assignCreatorToCampaign which handles:
- * - Setting selected_creator_id
- * - Updating campaign status to in_progress
- * - Accepting/rejecting applications
- * - Completing creator_validated step
- * - Sending all notifications
+ * Fully self-contained — performs all updates inline (no delegation to admin-context functions)
  */
 export async function brandSelectCreator(
     campaignId: string,
@@ -571,17 +566,78 @@ export async function brandSelectCreator(
 ): Promise<{ success: boolean; error?: string }> {
     const supabase = createClient()
 
-    // Record brand selection timestamp
-    await (supabase
+    // Get campaign details
+    const { data: campData } = await supabase
+        .from('campaigns')
+        .select('title, brand_id, assigned_admin_id')
+        .eq('id', campaignId)
+        .single()
+    const camp = campData as any
+    if (!camp) return { success: false, error: 'Campaign not found' }
+
+    // Get creator name for notifications
+    const { data: creatorData } = await supabase
+        .from('users')
+        .select('full_name')
+        .eq('id', creatorId)
+        .single()
+    const creatorName = (creatorData as any)?.full_name || 'Un créateur'
+
+    // Get brand name for notifications
+    const { data: brandData } = await supabase
+        .from('users')
+        .select('full_name')
+        .eq('id', camp.brand_id)
+        .single()
+    const brandName = (brandData as any)?.full_name || 'La marque'
+
+    // 1. Update campaign: set selected creator, status, and brand selection timestamp
+    const { error: updateError } = await (supabase
         .from('campaigns') as ReturnType<typeof supabase.from>)
         .update({
+            selected_creator_id: creatorId,
+            status: 'in_progress',
             brand_profile_selection_at: new Date().toISOString(),
             brand_profile_rejection_reason: null,
         })
         .eq('id', campaignId)
 
-    // Delegate to the full assignment flow
-    return assignCreatorToCampaign(campaignId, creatorId)
+    if (updateError) return { success: false, error: updateError.message }
+
+    // 2. Accept this application
+    await (supabase
+        .from('applications') as ReturnType<typeof supabase.from>)
+        .upsert({
+            campaign_id: campaignId,
+            creator_id: creatorId,
+            status: 'accepted',
+            pitch_message: 'Sélectionné par la marque',
+        }, { onConflict: 'campaign_id,creator_id' })
+
+    // 3. Reject other applications
+    await (supabase
+        .from('applications') as ReturnType<typeof supabase.from>)
+        .update({ status: 'rejected' })
+        .eq('campaign_id', campaignId)
+        .neq('creator_id', creatorId)
+
+    // 4. Complete creator_validated mission step
+    await completeMissionStep(campaignId, 'creator_validated')
+
+    // 5. Notify admin that brand selected a profile
+    if (camp.assigned_admin_id) {
+        await notifyProfileSelected(
+            camp.assigned_admin_id,
+            campaignId,
+            brandName,
+            creatorName
+        )
+    }
+
+    // 6. Notify creator they've been assigned
+    await notifyCreatorAssigned(creatorId, campaignId, camp.title || 'Mission')
+
+    return { success: true }
 }
 
 /**

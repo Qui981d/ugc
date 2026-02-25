@@ -41,6 +41,7 @@ const creatorMenuItems = [
 const adminMenuItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/mosh-cockpit", notifKey: null },
     { icon: ClipboardList, label: "Pipeline", href: "/mosh-cockpit/missions", notifKey: 'applications' as const },
+    { icon: MessageSquare, label: "Messages", href: "/mosh-cockpit/messages", notifKey: 'messages' as const },
     { icon: Users, label: "Créateurs", href: "/mosh-cockpit/creators", notifKey: null },
     { icon: Building2, label: "Marques", href: "/mosh-cockpit/brands", notifKey: null },
 ]
