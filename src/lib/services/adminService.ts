@@ -252,7 +252,7 @@ export async function proposeCreatorsForCampaign(
 
     const { error } = await (supabase
         .from('applications') as ReturnType<typeof supabase.from>)
-        .insert(insertData)
+        .upsert(insertData, { onConflict: 'campaign_id,creator_id' })
 
     if (error) return { success: false, error: error.message }
 

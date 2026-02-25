@@ -245,7 +245,7 @@ export default function BrandCampaignDetailPage() {
     const needsBriefUpdate = !!campaign.brief_feedback_notes && campaign.status === 'draft'
     const needsProfileReview = isStepCompleted('brand_reviewing_profiles') && !isStepCompleted('creator_validated') && proposedCreators.length > 0
     const needsScriptReview = campaign.script_status === 'brand_review' && campaign.script_content
-    const needsVideoReview = isStepCompleted('brand_final_review') && !isStepCompleted('brand_final_approved') && campaign.status !== 'completed'
+    const needsVideoReview = isStepCompleted('video_sent_to_brand') && !isStepCompleted('brand_final_approved') && campaign.status !== 'completed'
     const revisionCount = campaign.brand_revision_count || 0
 
     return (

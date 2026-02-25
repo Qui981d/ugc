@@ -212,6 +212,7 @@ export default function AdminMissionDetailPage() {
             setTimeout(() => setActionSuccess(null), 3000)
         }
         if (stepType === 'video_sent_to_brand') {
+            await completeMissionStep(campaignId, 'brand_final_review')
             await generateInvoice(campaignId)
         }
         await loadData()
