@@ -36,6 +36,7 @@ import {
     validateBrief,
     requestBriefFeedback,
     sendScriptToBrand,
+    sendMissionToCreator,
     type CampaignWithDetails,
     type CreatorWithProfile,
 } from '@/lib/services/adminService'
@@ -48,9 +49,12 @@ const WORKFLOW_STEPS: { type: MissionStepType; label: string; icon: typeof FileT
     { type: 'creator_validated', label: 'Créateur validé', icon: CheckCircle2 },
     { type: 'script_sent', label: 'Script validé', icon: Send },
     { type: 'script_brand_review', label: 'Script → Marque', icon: Send },
-    { type: 'script_brand_approved', label: 'Script OK Marque', icon: CheckCircle2 },
-    { type: 'video_delivered', label: 'Vidéo livrée', icon: Video },
-    { type: 'video_validated', label: 'Vidéo validée', icon: Shield },
+    { type: 'script_brand_approved', label: 'Script OK', icon: CheckCircle2 },
+    { type: 'mission_sent_to_creator', label: 'Mission envoyée', icon: Send },
+    { type: 'creator_accepted', label: 'Créateur accepte', icon: CheckCircle2 },
+    { type: 'creator_shooting', label: 'En tournage', icon: Video },
+    { type: 'video_uploaded_by_creator', label: 'Vidéo reçue', icon: Video },
+    { type: 'video_validated', label: 'QC MOSH', icon: Shield },
     { type: 'video_sent_to_brand', label: 'Envoyée marque', icon: CheckCircle2 },
     { type: 'brand_final_review', label: 'Review marque', icon: Shield },
     { type: 'brand_final_approved', label: 'Validé ✓', icon: CheckCircle2 },
@@ -150,6 +154,22 @@ export default function AdminMissionDetailPage() {
             setActionError(result.error || 'Erreur')
         } else {
             setActionSuccess('Script envoyé à la marque pour validation !')
+            setTimeout(() => setActionSuccess(null), 3000)
+        }
+        await loadData()
+        setActionLoading(false)
+    }
+
+    const handleSendToCreator = async () => {
+        const amount = parseFloat(creatorAmount)
+        if (!amount || amount <= 0) return
+        setActionLoading(true)
+        setActionError(null)
+        const result = await sendMissionToCreator(campaignId, amount)
+        if (!result.success) {
+            setActionError(result.error || 'Erreur')
+        } else {
+            setActionSuccess('Contrat généré et mission envoyée au créateur !')
             setTimeout(() => setActionSuccess(null), 3000)
         }
         await loadData()
@@ -610,8 +630,44 @@ export default function AdminMissionDetailPage() {
                 </motion.div>
             )}
 
-            {/* Contract Section */}
-            {campaign.selected_creator && (
+            {/* ─── Unified: Contract + Send to Creator ─── */}
+            {isStepCompleted('script_brand_approved') && !isStepCompleted('mission_sent_to_creator') && campaign.selected_creator && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.13 }}
+                    className="bg-[#C4F042]/10 border-2 border-[#C4F042]/40 rounded-[24px] p-6"
+                >
+                    <h2 className="text-sm font-semibold text-[#18181B] mb-2 flex items-center gap-2">
+                        <ScrollText className="w-4 h-4 text-[#18181B]" strokeWidth={1.5} />
+                        Préparer & envoyer au créateur
+                    </h2>
+                    <p className="text-xs text-[#71717A] mb-4">
+                        Le script a été validé par la marque. Définissez la rémunération du créateur, un contrat sera automatiquement généré et la mission sera envoyée.
+                    </p>
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="relative flex-1 max-w-xs">
+                            <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A1A1AA]" strokeWidth={1.5} />
+                            <input
+                                type="number"
+                                value={creatorAmount}
+                                onChange={(e) => setCreatorAmount(e.target.value)}
+                                placeholder="Ex: 300"
+                                className="w-full pl-10 pr-16 py-3 bg-white/80 border border-black/[0.06] rounded-xl text-[#18181B] placeholder:text-[#A1A1AA] focus:outline-none focus:border-[#C4F042]/50 focus:ring-2 focus:ring-[#C4F042]/20"
+                            />
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#A1A1AA]">CHF</span>
+                        </div>
+                    </div>
+                    <button
+                        onClick={handleSendToCreator}
+                        disabled={actionLoading || !creatorAmount || parseFloat(creatorAmount) <= 0}
+                        className="px-5 py-2.5 bg-[#C4F042] text-[#18181B] font-medium rounded-xl hover:bg-[#C4F042]/80 transition-colors disabled:opacity-50 flex items-center gap-2"
+                    >
+                        {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" strokeWidth={1.5} />}
+                        Générer le contrat & envoyer la mission
+                    </button>
+                </motion.div>
+            )}
+
+            {/* Contract Section (read-only, after contract exists) */}
+            {campaign.selected_creator && campaign.contract_mosh_status && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }}
                     className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[24px] p-6"
                 >
@@ -622,105 +678,59 @@ export default function AdminMissionDetailPage() {
                             <span className="text-xs bg-[#C4F042]/20 text-[#18181B] px-2 py-0.5 rounded-full font-medium">Signé ✓</span>
                         )}
                         {campaign.contract_mosh_status === 'pending_creator' && (
-                            <span className="text-xs bg-[#F4F3EF] text-[#71717A] px-2 py-0.5 rounded-full font-medium">En attente</span>
+                            <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">En attente de signature</span>
                         )}
                     </h2>
-
-                    {!campaign.contract_mosh_status ? (
-                        showContractForm ? (
-                            <div className="space-y-4">
-                                <p className="text-sm text-[#71717A]">Définissez le montant de rémunération du créateur pour cette mission :</p>
-                                <div className="flex items-center gap-3">
-                                    <div className="relative flex-1 max-w-xs">
-                                        <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A1A1AA]" strokeWidth={1.5} />
-                                        <input
-                                            type="number"
-                                            value={creatorAmount}
-                                            onChange={(e) => setCreatorAmount(e.target.value)}
-                                            placeholder="Ex: 300"
-                                            className="w-full pl-10 pr-16 py-3 bg-[#F4F3EF]/50 border border-black/[0.04] rounded-xl text-[#18181B] placeholder:text-[#A1A1AA] focus:outline-none focus:border-[#C4F042]/50 focus:ring-2 focus:ring-[#C4F042]/20"
-                                        />
-                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#A1A1AA]">CHF</span>
-                                    </div>
-                                </div>
-                                <div className="flex gap-3">
-                                    <button
-                                        onClick={handleGenerateContract}
-                                        disabled={actionLoading || !creatorAmount || parseFloat(creatorAmount) <= 0}
-                                        className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors disabled:opacity-50 flex items-center gap-2"
-                                    >
-                                        {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ScrollText className="w-4 h-4" strokeWidth={1.5} />}
-                                        Générer le contrat
-                                    </button>
-                                    <button
-                                        onClick={() => setShowContractForm(false)}
-                                        className="px-4 py-2 bg-[#F4F3EF] text-[#18181B] rounded-xl hover:bg-[#E8E6DF] transition-colors"
-                                    >
-                                        Annuler
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <button
-                                onClick={() => setShowContractForm(true)}
-                                className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors flex items-center gap-2"
-                            >
-                                <ScrollText className="w-4 h-4" strokeWidth={1.5} />
-                                Générer le contrat
-                            </button>
-                        )
-                    ) : (
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-4 text-sm text-[#71717A]">
-                                <span>Montant créateur : <strong className="text-[#18181B]">CHF {campaign.creator_amount_chf?.toLocaleString('fr-CH')}</strong></span>
-                                {campaign.contract_mosh_generated_at && (
-                                    <span>Généré le {new Date(campaign.contract_mosh_generated_at).toLocaleDateString('fr-CH')}</span>
-                                )}
-                                {campaign.contract_mosh_signed_at && (
-                                    <span className="text-[#18181B] font-medium">Signé le {new Date(campaign.contract_mosh_signed_at).toLocaleDateString('fr-CH')}</span>
-                                )}
-                            </div>
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={handleViewContract}
-                                    className="px-4 py-2 bg-[#F4F3EF] text-[#18181B] rounded-xl hover:bg-[#E8E6DF] transition-colors flex items-center gap-2"
-                                >
-                                    <FileText className="w-4 h-4" strokeWidth={1.5} />
-                                    Voir le contrat
-                                </button>
-                                {campaign.contract_mosh_url && (
-                                    <a
-                                        href={campaign.contract_mosh_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="px-4 py-2 bg-[#F4F3EF] text-[#18181B] rounded-xl hover:bg-[#E8E6DF] transition-colors flex items-center gap-2"
-                                    >
-                                        <Download className="w-4 h-4" strokeWidth={1.5} />
-                                        Télécharger
-                                    </a>
-                                )}
-                            </div>
+                    <div className="space-y-3">
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-[#71717A]">
+                            <span>Montant créateur : <strong className="text-[#18181B]">CHF {campaign.creator_amount_chf?.toLocaleString('fr-CH')}</strong></span>
+                            {campaign.contract_mosh_generated_at && (
+                                <span>Généré le {new Date(campaign.contract_mosh_generated_at).toLocaleDateString('fr-CH')}</span>
+                            )}
+                            {campaign.contract_mosh_signed_at && (
+                                <span className="text-[#18181B] font-medium">Signé le {new Date(campaign.contract_mosh_signed_at).toLocaleDateString('fr-CH')}</span>
+                            )}
                         </div>
-                    )}
+                        <button
+                            onClick={handleViewContract}
+                            className="px-4 py-2 bg-[#F4F3EF] text-[#18181B] rounded-xl hover:bg-[#E8E6DF] transition-colors flex items-center gap-2"
+                        >
+                            <FileText className="w-4 h-4" strokeWidth={1.5} />
+                            Voir le contrat
+                        </button>
+                        {campaign.contract_mosh_url && (
+                            <a
+                                href={campaign.contract_mosh_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-4 py-2 bg-[#F4F3EF] text-[#18181B] rounded-xl hover:bg-[#E8E6DF] transition-colors flex items-center gap-2"
+                            >
+                                <Download className="w-4 h-4" strokeWidth={1.5} />
+                                Télécharger
+                            </a>
+                        )}
+                    </div>
                 </motion.div>
             )}
 
             {/* Contract Preview Modal */}
-            {showContractPreview && contractText && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowContractPreview(false)}>
-                    <div className="bg-[#FAFAF8] border border-black/[0.06] rounded-[24px] w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
-                        <div className="flex items-center justify-between p-5 border-b border-black/[0.04]">
-                            <h3 className="text-sm font-bold text-[#18181B] flex items-center gap-2">
-                                <ScrollText className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} /> Contrat de mandat
-                            </h3>
-                            <button onClick={() => setShowContractPreview(false)} className="text-[#A1A1AA] hover:text-[#18181B] transition-colors">✕</button>
-                        </div>
-                        <div className="flex-1 overflow-y-auto p-5">
-                            <pre className="text-xs text-[#71717A] whitespace-pre-wrap font-mono leading-relaxed">{contractText}</pre>
+            {
+                showContractPreview && contractText && (
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowContractPreview(false)}>
+                        <div className="bg-[#FAFAF8] border border-black/[0.06] rounded-[24px] w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+                            <div className="flex items-center justify-between p-5 border-b border-black/[0.04]">
+                                <h3 className="text-sm font-bold text-[#18181B] flex items-center gap-2">
+                                    <ScrollText className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} /> Contrat de mandat
+                                </h3>
+                                <button onClick={() => setShowContractPreview(false)} className="text-[#A1A1AA] hover:text-[#18181B] transition-colors">✕</button>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-5">
+                                <pre className="text-xs text-[#71717A] whitespace-pre-wrap font-mono leading-relaxed">{contractText}</pre>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Video / Deliverables Section */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }}
@@ -730,7 +740,7 @@ export default function AdminMissionDetailPage() {
                     <Video className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} />
                     Vidéo
                 </h2>
-                {!isStepCompleted('video_delivered') ? (
+                {!isStepCompleted('video_uploaded_by_creator') ? (
                     <div className="text-[#A1A1AA] text-sm py-4">
                         En attente de la livraison du créateur...
                     </div>
@@ -789,79 +799,83 @@ export default function AdminMissionDetailPage() {
             </motion.div>
 
             {/* Invoice Section */}
-            {isStepCompleted('video_sent_to_brand') && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}
-                    className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[24px] p-6"
-                >
-                    <h2 className="text-sm font-semibold text-[#18181B] mb-4 flex items-center gap-2">
-                        <Receipt className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} />
-                        Facture
-                        {campaign.invoice_number && (
-                            <span className="text-xs bg-[#C4F042]/20 text-[#18181B] px-2 py-0.5 rounded-full font-medium">{campaign.invoice_number}</span>
-                        )}
-                    </h2>
+            {
+                isStepCompleted('video_sent_to_brand') && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}
+                        className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[24px] p-6"
+                    >
+                        <h2 className="text-sm font-semibold text-[#18181B] mb-4 flex items-center gap-2">
+                            <Receipt className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} />
+                            Facture
+                            {campaign.invoice_number && (
+                                <span className="text-xs bg-[#C4F042]/20 text-[#18181B] px-2 py-0.5 rounded-full font-medium">{campaign.invoice_number}</span>
+                            )}
+                        </h2>
 
-                    {campaign.invoice_number ? (
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-4 text-sm text-[#71717A]">
-                                <span>Montant : <strong className="text-[#18181B]">CHF {campaign.creator_amount_chf?.toLocaleString('fr-CH')}</strong></span>
-                                {campaign.invoice_generated_at && (
-                                    <span>Générée le {new Date(campaign.invoice_generated_at).toLocaleDateString('fr-CH')}</span>
-                                )}
-                            </div>
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={handleViewInvoice}
-                                    className="px-4 py-2 bg-[#F4F3EF] text-[#18181B] rounded-xl hover:bg-[#E8E6DF] transition-colors flex items-center gap-2"
-                                >
-                                    <FileText className="w-4 h-4" strokeWidth={1.5} />
-                                    Voir la facture
-                                </button>
-                                {campaign.invoice_url && (
-                                    <a
-                                        href={campaign.invoice_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                        {campaign.invoice_number ? (
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-4 text-sm text-[#71717A]">
+                                    <span>Montant : <strong className="text-[#18181B]">CHF {campaign.creator_amount_chf?.toLocaleString('fr-CH')}</strong></span>
+                                    {campaign.invoice_generated_at && (
+                                        <span>Générée le {new Date(campaign.invoice_generated_at).toLocaleDateString('fr-CH')}</span>
+                                    )}
+                                </div>
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={handleViewInvoice}
                                         className="px-4 py-2 bg-[#F4F3EF] text-[#18181B] rounded-xl hover:bg-[#E8E6DF] transition-colors flex items-center gap-2"
                                     >
-                                        <Download className="w-4 h-4" strokeWidth={1.5} />
-                                        Télécharger
-                                    </a>
-                                )}
+                                        <FileText className="w-4 h-4" strokeWidth={1.5} />
+                                        Voir la facture
+                                    </button>
+                                    {campaign.invoice_url && (
+                                        <a
+                                            href={campaign.invoice_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="px-4 py-2 bg-[#F4F3EF] text-[#18181B] rounded-xl hover:bg-[#E8E6DF] transition-colors flex items-center gap-2"
+                                        >
+                                            <Download className="w-4 h-4" strokeWidth={1.5} />
+                                            Télécharger
+                                        </a>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ) : (
-                        <div className="space-y-3">
-                            <p className="text-sm text-[#71717A]">La mission est terminée. Générez la facture pour le créateur.</p>
-                            <button
-                                onClick={handleGenerateInvoice}
-                                disabled={actionLoading}
-                                className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors disabled:opacity-50 flex items-center gap-2"
-                            >
-                                {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Receipt className="w-4 h-4" strokeWidth={1.5} />}
-                                Générer la facture
-                            </button>
-                        </div>
-                    )}
-                </motion.div>
-            )}
+                        ) : (
+                            <div className="space-y-3">
+                                <p className="text-sm text-[#71717A]">La mission est terminée. Générez la facture pour le créateur.</p>
+                                <button
+                                    onClick={handleGenerateInvoice}
+                                    disabled={actionLoading}
+                                    className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors disabled:opacity-50 flex items-center gap-2"
+                                >
+                                    {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Receipt className="w-4 h-4" strokeWidth={1.5} />}
+                                    Générer la facture
+                                </button>
+                            </div>
+                        )}
+                    </motion.div>
+                )
+            }
 
             {/* Invoice Preview Modal */}
-            {showInvoicePreview && invoiceText && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowInvoicePreview(false)}>
-                    <div className="bg-[#FAFAF8] border border-black/[0.06] rounded-[24px] w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
-                        <div className="flex items-center justify-between p-5 border-b border-black/[0.04]">
-                            <h3 className="text-sm font-bold text-[#18181B] flex items-center gap-2">
-                                <Receipt className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} /> Facture
-                            </h3>
-                            <button onClick={() => setShowInvoicePreview(false)} className="text-[#A1A1AA] hover:text-[#18181B] transition-colors">✕</button>
-                        </div>
-                        <div className="flex-1 overflow-y-auto p-5">
-                            <pre className="text-xs text-[#71717A] whitespace-pre-wrap font-mono leading-relaxed">{invoiceText}</pre>
+            {
+                showInvoicePreview && invoiceText && (
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowInvoicePreview(false)}>
+                        <div className="bg-[#FAFAF8] border border-black/[0.06] rounded-[24px] w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+                            <div className="flex items-center justify-between p-5 border-b border-black/[0.04]">
+                                <h3 className="text-sm font-bold text-[#18181B] flex items-center gap-2">
+                                    <Receipt className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} /> Facture
+                                </h3>
+                                <button onClick={() => setShowInvoicePreview(false)} className="text-[#A1A1AA] hover:text-[#18181B] transition-colors">✕</button>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-5">
+                                <pre className="text-xs text-[#71717A] whitespace-pre-wrap font-mono leading-relaxed">{invoiceText}</pre>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     )
 }

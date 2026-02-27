@@ -1,20 +1,13 @@
 'use client'
 
-import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
-import MessagesPage from "@/components/messages/MessagesPage"
-
-function MessagesContent() {
-    const searchParams = useSearchParams()
-    const campaignId = searchParams.get('campaign') || undefined
-
-    return <MessagesPage userRole="creator" initialCampaignId={campaignId} />
-}
+import MissionWorkflowPanel from "@/components/missions/MissionWorkflowPanel"
+import { Loader2 } from 'lucide-react'
 
 export default function CreatorMessagesPage() {
     return (
-        <Suspense fallback={null}>
-            <MessagesContent />
+        <Suspense fallback={<div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-gray-500" /></div>}>
+            <MissionWorkflowPanel userRole="creator" />
         </Suspense>
     )
 }

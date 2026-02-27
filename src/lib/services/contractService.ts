@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 import { generateMoshContractText, MOSH_COMPANY_INFO, type ContractVariables } from '@/lib/contracts/contractTemplate'
+import { completeMissionStep } from '@/lib/services/adminService'
 import type { Campaign, ProfileCreator, ProfileBrand, User } from '@/types/database'
 
 // ============================================================
@@ -201,10 +202,11 @@ export async function createMoshContract(
     // Generate contract text
     const contractText = generateMoshContractText(vars)
 
-    // Upload to Supabase Storage
+    // Upload to Supabase Storage (best-effort — contract is regenerated dynamically)
     const fileName = `mosh/${contractId}.txt`
     const blob = new Blob([contractText], { type: 'text/plain;charset=utf-8' })
 
+    let contractUrl: string | null = null
     const { error: uploadError } = await supabase.storage
         .from('contracts')
         .upload(fileName, blob, {
@@ -213,14 +215,14 @@ export async function createMoshContract(
         })
 
     if (uploadError) {
-        console.error('[Contract] Upload error:', uploadError)
+        console.warn('[Contract] Storage upload skipped (RLS or bucket not configured):', uploadError.message)
+        // Contract text will be generated dynamically via getMoshContractText — not blocking
+    } else {
+        const { data: urlData } = supabase.storage
+            .from('contracts')
+            .getPublicUrl(fileName)
+        contractUrl = urlData?.publicUrl || null
     }
-
-    const { data: urlData } = supabase.storage
-        .from('contracts')
-        .getPublicUrl(fileName)
-
-    const contractUrl = urlData?.publicUrl || null
 
     // Update campaign with contract data
     const { error: updateError } = await (supabase
@@ -282,6 +284,9 @@ export async function signMoshContract(
         .eq('id', campaignId)
 
     if (error) return { success: false, error: error.message }
+
+    // Record contract_signed step in workflow
+    await completeMissionStep(campaignId, 'contract_signed')
 
     // Re-generate contract with signature info
     const data = await getContractData(campaignId)

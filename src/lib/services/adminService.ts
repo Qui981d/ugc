@@ -487,6 +487,46 @@ export async function completeMissionStep(
 }
 
 // ================================================
+// CREATOR WORKFLOW ACTIONS
+// Methods called by admin to dispatch mission to creators
+// ================================================
+
+/**
+ * Send mission to creator — generates contract + dispatches mission in one step
+ */
+export async function sendMissionToCreator(
+    campaignId: string,
+    creatorAmountChf?: number
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+
+    const { data: campData } = await supabase
+        .from('campaigns')
+        .select('title, selected_creator_id')
+        .eq('id', campaignId)
+        .single()
+    const camp = campData as any
+    if (!camp) return { success: false, error: 'Campaign not found' }
+    if (!camp.selected_creator_id) return { success: false, error: 'No creator assigned' }
+
+    // Generate contract if amount provided and no contract exists yet
+    if (creatorAmountChf && creatorAmountChf > 0) {
+        const { createMoshContract } = await import('@/lib/services/contractService')
+        const contractResult = await createMoshContract(campaignId, creatorAmountChf)
+        if (!contractResult.success) {
+            return { success: false, error: contractResult.error || 'Erreur de génération du contrat' }
+        }
+    }
+
+    await completeMissionStep(campaignId, 'mission_sent_to_creator')
+
+    // Notify the creator
+    await notifyCreatorAssigned(camp.selected_creator_id, campaignId, camp.title || 'Nouvelle mission')
+
+    return { success: true }
+}
+
+// ================================================
 // BRAND WORKFLOW ACTIONS
 // Methods called by brands to provide feedback
 // ================================================

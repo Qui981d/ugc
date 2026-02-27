@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, CheckCircle2, Upload, ArrowUpRight, Wallet, Loader2, Briefcase, Star } from "lucide-react"
+import { Calendar, Clock, CheckCircle2, Upload, ChevronRight, Wallet, Loader2, Briefcase, Star } from "lucide-react"
 import Link from "next/link"
 import { formatCHF } from "@/lib/validations/swiss"
 import { useAuth } from "@/contexts/AuthContext"
@@ -130,7 +130,7 @@ export default function CreatorDashboardPage() {
                     <Link href="/creator/missions">
                         <Button variant="ghost" className="text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F3EF] rounded-full">
                             Voir tout
-                            <ArrowUpRight className="h-4 w-4 ml-1" strokeWidth={1.5} />
+                            <ChevronRight className="h-4 w-4 ml-1" strokeWidth={1.5} />
                         </Button>
                     </Link>
                 </div>
@@ -149,24 +149,27 @@ export default function CreatorDashboardPage() {
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.3 + index * 0.05 }}
-                                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-[#F4F3EF]/60 hover:bg-[#F4F3EF] transition-all group"
                                 >
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-xl bg-[#C4F042]/20 flex items-center justify-center text-[#18181B] font-bold text-sm">
-                                            {mission.brand.charAt(0)}
+                                    <Link href={`/creator/missions/${mission.id}`}>
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-[#F4F3EF]/60 hover:bg-[#F4F3EF] transition-all group cursor-pointer">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 rounded-xl bg-[#C4F042]/20 flex items-center justify-center text-[#18181B] font-bold text-sm">
+                                                    {mission.brand.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-[#18181B] group-hover:text-blue-600 transition-colors">{mission.title}</p>
+                                                    <p className="text-sm text-[#71717A]">{mission.brand}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-4">
+                                                <Badge className={statusConfig[mission.status]?.class || 'bg-[#F4F3EF] text-[#71717A]'}>
+                                                    {statusConfig[mission.status]?.label || mission.status}
+                                                </Badge>
+                                                <span className="text-[#18181B] font-semibold">{formatCHF(mission.budget)}</span>
+                                                <ChevronRight className="w-4 h-4 text-[#A1A1AA] group-hover:text-blue-500 transition-colors" strokeWidth={1.5} />
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-medium text-[#18181B]">{mission.title}</p>
-                                            <p className="text-sm text-[#71717A]">{mission.brand}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        <Badge className={statusConfig[mission.status]?.class || 'bg-[#F4F3EF] text-[#71717A]'}>
-                                            {statusConfig[mission.status]?.label || mission.status}
-                                        </Badge>
-                                        <span className="text-[#18181B] font-semibold">{formatCHF(mission.budget)}</span>
-                                        <ArrowUpRight className="w-4 h-4 text-[#A1A1AA] group-hover:text-[#C4F042] transition-colors" strokeWidth={1.5} />
-                                    </div>
+                                    </Link>
                                 </motion.div>
                             ))}
                         </div>

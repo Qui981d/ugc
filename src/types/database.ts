@@ -20,6 +20,11 @@ export type MissionStepType =
     | 'script_sent'
     | 'script_brand_review'      // Brand is reviewing the script
     | 'script_brand_approved'    // Brand approved the script
+    | 'mission_sent_to_creator'  // Mission + script sent to the creator
+    | 'contract_signed'          // Creator signed the MOSH contract
+    | 'creator_accepted'         // Creator acknowledged and accepted the mission
+    | 'creator_shooting'         // Creator is filming/producing the content
+    | 'video_uploaded_by_creator' // Creator uploaded the video draft
     | 'video_delivered'
     | 'video_validated'
     | 'video_sent_to_brand'
