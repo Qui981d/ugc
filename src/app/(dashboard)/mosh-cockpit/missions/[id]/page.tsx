@@ -21,7 +21,8 @@ import {
     Receipt,
     Download,
     Loader2,
-    Banknote
+    Banknote,
+    RotateCcw
 } from 'lucide-react'
 import { createMoshContract, getMoshContractText } from '@/lib/services/contractService'
 import { generateInvoice, getInvoiceText } from '@/lib/services/invoiceService'
@@ -85,6 +86,9 @@ export default function AdminMissionDetailPage() {
     // Brief feedback
     const [briefFeedbackNotes, setBriefFeedbackNotes] = useState('')
     const [showBriefFeedback, setShowBriefFeedback] = useState(false)
+    // QC
+    const [showQcFeedback, setShowQcFeedback] = useState(false)
+    const [qcFeedback, setQcFeedback] = useState('')
 
     const loadData = useCallback(async () => {
         const [campaigns, allCreators, missionSteps] = await Promise.all([
@@ -268,6 +272,27 @@ export default function AdminMissionDetailPage() {
         const text = await getInvoiceText(campaignId)
         setInvoiceText(text)
         setShowInvoicePreview(true)
+    }
+
+    const handleQcRevision = async () => {
+        setActionLoading(true)
+        setActionError(null)
+        const supabase = (await import('@/lib/supabase/client')).createClient()
+        // Save QC feedback to campaign
+        await (supabase.from('campaigns') as ReturnType<typeof supabase.from>)
+            .update({ mosh_qc_feedback: qcFeedback })
+            .eq('id', campaignId)
+        // Delete the video_uploaded_by_creator step so the creator can re-upload
+        await (supabase.from('mission_steps') as ReturnType<typeof supabase.from>)
+            .delete()
+            .eq('campaign_id', campaignId)
+            .eq('step_type', 'video_uploaded_by_creator')
+        setActionSuccess('Feedback envoyé au créateur')
+        setTimeout(() => setActionSuccess(null), 3000)
+        setShowQcFeedback(false)
+        setQcFeedback('')
+        await loadData()
+        setActionLoading(false)
     }
 
     if (isLoading) {
@@ -750,20 +775,61 @@ export default function AdminMissionDetailPage() {
                             <CheckCircle2 className="w-4 h-4 text-[#C4F042]" strokeWidth={1.5} />
                             Vidéo livrée par le créateur
                         </p>
-                        <button
-                            onClick={() => handleCompleteStep('video_validated')}
-                            disabled={actionLoading}
-                            className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors disabled:opacity-50"
-                        >
-                            ✓ Valider la vidéo
-                        </button>
+
+                        {/* Video player */}
+                        {campaign.video_url && (
+                            <video src={campaign.video_url} controls className="w-full rounded-xl bg-black max-h-[400px]" />
+                        )}
+
+                        {/* QC Actions */}
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => handleCompleteStep('video_validated')}
+                                disabled={actionLoading}
+                                className="flex-1 px-4 py-2.5 bg-[#C4F042] text-[#18181B] font-medium rounded-xl hover:bg-[#C4F042]/80 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                <CheckCircle2 className="w-4 h-4" strokeWidth={1.5} />
+                                Valider le QC
+                            </button>
+                            <button
+                                onClick={() => setShowQcFeedback(!showQcFeedback)}
+                                className="px-4 py-2.5 bg-amber-100 text-amber-800 font-medium rounded-xl hover:bg-amber-200 transition-colors flex items-center gap-2"
+                            >
+                                <RotateCcw className="w-4 h-4" strokeWidth={1.5} />
+                                Demander révision
+                            </button>
+                        </div>
+
+                        {/* QC Feedback form */}
+                        {showQcFeedback && (
+                            <div className="space-y-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
+                                <textarea
+                                    value={qcFeedback}
+                                    onChange={(e) => setQcFeedback(e.target.value)}
+                                    placeholder="Décrivez ce qui doit être corrigé..."
+                                    rows={3}
+                                    className="w-full px-3 py-2 bg-white border border-amber-200 rounded-lg text-sm placeholder:text-[#A1A1AA] focus:outline-none focus:border-amber-400"
+                                />
+                                <button
+                                    onClick={handleQcRevision}
+                                    disabled={actionLoading || !qcFeedback.trim()}
+                                    className="w-full px-4 py-2 bg-amber-500 text-white font-medium rounded-xl hover:bg-amber-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" strokeWidth={1.5} />}
+                                    Envoyer le feedback au créateur
+                                </button>
+                            </div>
+                        )}
                     </div>
                 ) : !isStepCompleted('video_sent_to_brand') ? (
                     <div className="space-y-4">
                         <p className="text-[#18181B] text-sm font-medium flex items-center gap-1.5">
                             <CheckCircle2 className="w-4 h-4 text-[#C4F042]" strokeWidth={1.5} />
-                            Vidéo validée
+                            Vidéo validée (QC OK)
                         </p>
+                        {campaign.video_url && (
+                            <video src={campaign.video_url} controls className="w-full rounded-xl bg-black max-h-[300px]" />
+                        )}
                         <button
                             onClick={() => handleCompleteStep('video_sent_to_brand')}
                             disabled={actionLoading}
@@ -773,16 +839,24 @@ export default function AdminMissionDetailPage() {
                         </button>
                     </div>
                 ) : isStepCompleted('brand_final_approved') ? (
-                    <p className="text-[#18181B] text-sm font-medium flex items-center gap-1.5">
-                        <CheckCircle2 className="w-4 h-4 text-[#C4F042]" strokeWidth={1.5} />
-                        Vidéo validée par la marque — Mission terminée
-                    </p>
+                    <div className="space-y-3">
+                        <p className="text-[#18181B] text-sm font-medium flex items-center gap-1.5">
+                            <CheckCircle2 className="w-4 h-4 text-[#C4F042]" strokeWidth={1.5} />
+                            Vidéo validée par la marque — Mission terminée
+                        </p>
+                        {campaign.video_url && (
+                            <video src={campaign.video_url} controls className="w-full rounded-xl bg-black max-h-[300px]" />
+                        )}
+                    </div>
                 ) : (
                     <div className="space-y-3">
                         <p className="text-[#18181B] text-sm font-medium flex items-center gap-1.5">
                             <Clock className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
                             En attente de validation par la marque
                         </p>
+                        {campaign.video_url && (
+                            <video src={campaign.video_url} controls className="w-full rounded-xl bg-black max-h-[300px]" />
+                        )}
                         {campaign.brand_revision_count > 0 && (
                             <div className="text-xs text-amber-600 bg-amber-50 rounded-xl px-3 py-2">
                                 Révisions demandées par la marque : {campaign.brand_revision_count}/2

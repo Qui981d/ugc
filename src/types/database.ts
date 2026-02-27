@@ -143,6 +143,11 @@ export interface Campaign {
     invoice_number: string | null
     invoice_generated_at: string | null
     creator_amount_chf: number | null
+    // Video production
+    video_url: string | null
+    video_uploaded_at: string | null
+    mosh_qc_feedback: string | null
+    mosh_qc_approved_at: string | null
     created_at: string
     updated_at: string
 }

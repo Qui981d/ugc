@@ -489,6 +489,65 @@ export default function BrandCampaignDetailPage() {
                 </div>
             </motion.div>
 
+            {/* ========== VIDEO REVIEW ========== */}
+            {isStepCompleted('video_sent_to_brand') && campaign.video_url && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 }}
+                    className="bg-white border border-gray-200 rounded-2xl p-6"
+                >
+                    <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <Video className="w-5 h-5 text-[#6C3FA0]" />
+                        Vidéo UGC
+                        {isStepCompleted('brand_final_approved') && (
+                            <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Approuvée ✓</span>
+                        )}
+                    </h2>
+
+                    {/* Video player */}
+                    <video src={campaign.video_url} controls className="w-full rounded-xl bg-black max-h-[450px] mb-4" />
+
+                    {/* Actions — only if not yet approved */}
+                    {!isStepCompleted('brand_final_approved') && (
+                        <div className="space-y-3">
+                            {campaign.brand_revision_count > 0 && (
+                                <div className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
+                                    Révisions utilisées : {campaign.brand_revision_count}/2
+                                </div>
+                            )}
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={handleApproveVideo}
+                                    disabled={actionLoading}
+                                    className="flex-1 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    Approuver la vidéo
+                                </button>
+                                {(campaign.brand_revision_count || 0) < 2 && (
+                                    <button
+                                        onClick={() => setShowVideoModal(true)}
+                                        className="flex-1 py-2.5 bg-amber-100 text-amber-800 rounded-xl text-sm font-medium hover:bg-amber-200 flex items-center justify-center gap-2"
+                                    >
+                                        <Send className="w-4 h-4" />
+                                        Demander une révision
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Approved celebrations */}
+                    {isStepCompleted('brand_final_approved') && (
+                        <div className="text-center bg-emerald-50 rounded-xl p-4 mt-2">
+                            <p className="text-emerald-700 font-medium">🎉 Vidéo approuvée — Mission terminée !</p>
+                            <p className="text-emerald-600 text-sm mt-1">Merci pour votre confiance. Votre contenu UGC est prêt.</p>
+                        </div>
+                    )}
+                </motion.div>
+            )}
+
             {/* Brief Details */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}

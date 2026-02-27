@@ -22,6 +22,8 @@ import {
     ScrollText,
     MessageSquare,
     Hourglass,
+    Play,
+    RotateCcw,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase/client'
@@ -61,6 +63,12 @@ export default function CreatorMissionDetailPage() {
     const [contractOpen, setContractOpen] = useState(false)
     const [contractText, setContractText] = useState<string | null>(null)
     const [signLoading, setSignLoading] = useState(false)
+
+    // Video upload
+    const [videoFile, setVideoFile] = useState<File | null>(null)
+    const [videoUploading, setVideoUploading] = useState(false)
+    const [uploadProgress, setUploadProgress] = useState(0)
+    const [dragOver, setDragOver] = useState(false)
 
     const loadData = useCallback(async () => {
         const supabase = createClient()
@@ -120,6 +128,47 @@ export default function CreatorMissionDetailPage() {
             await loadData()
         }
         setSignLoading(false)
+    }
+
+    const handleVideoUpload = async () => {
+        if (!videoFile) return
+        setVideoUploading(true)
+        setUploadProgress(10)
+        const supabase = createClient()
+        const ext = videoFile.name.split('.').pop() || 'mp4'
+        const filePath = `missions/${campaignId}/${Date.now()}.${ext}`
+
+        setUploadProgress(30)
+        const { error: uploadError } = await supabase.storage
+            .from('videos')
+            .upload(filePath, videoFile, { cacheControl: '3600', upsert: true })
+
+        if (uploadError) {
+            console.error('Upload error:', uploadError)
+            setVideoUploading(false)
+            return
+        }
+
+        setUploadProgress(70)
+        const { data: urlData } = supabase.storage.from('videos').getPublicUrl(filePath)
+        const videoUrl = urlData?.publicUrl || ''
+
+        // Save URL to campaign
+        await (supabase.from('campaigns') as ReturnType<typeof supabase.from>)
+            .update({ video_url: videoUrl, video_uploaded_at: new Date().toISOString() })
+            .eq('id', campaignId)
+
+        setUploadProgress(90)
+        // Complete the pipeline step
+        await completeMissionStep(campaignId, 'video_uploaded_by_creator')
+
+        setUploadProgress(100)
+        setActionSuccess('Vidéo livrée avec succès !')
+        setTimeout(() => setActionSuccess(null), 3000)
+        setVideoFile(null)
+        setVideoUploading(false)
+        setUploadProgress(0)
+        await loadData()
     }
 
     if (isLoading) {
@@ -300,28 +349,123 @@ export default function CreatorMissionDetailPage() {
                 </motion.div>
             )}
 
-            {/* 5) Upload video */}
+            {/* 5) Upload video — full production workspace */}
             {nextStep?.type === 'video_uploaded_by_creator' && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-5"
+                    className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6"
                 >
-                    <div className="flex items-center gap-3 mb-3">
+                    <div className="flex items-center gap-3 mb-4">
                         <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
                             <Upload className="w-5 h-5 text-emerald-600" />
                         </div>
                         <div>
                             <h3 className="font-semibold text-[#18181B]">⚡ Livrer votre vidéo</h3>
-                            <p className="text-sm text-[#71717A]">Marquez votre vidéo comme livrée pour la faire vérifier par MOSH</p>
+                            <p className="text-sm text-[#71717A]">Uploadez votre vidéo finale pour la faire vérifier par MOSH</p>
                         </div>
                     </div>
-                    <button
-                        onClick={() => handleCreatorAction('video_uploaded_by_creator', 'Vidéo livrée !')}
-                        disabled={actionLoading}
-                        className="w-full py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
-                        {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                        Marquer comme livrée
-                    </button>
+
+                    {/* QC Feedback (if MOSH requested revision) */}
+                    {campaign.mosh_qc_feedback && (
+                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
+                            <div className="flex items-center gap-2 mb-1">
+                                <RotateCcw className="w-4 h-4 text-amber-600" />
+                                <p className="text-sm font-medium text-amber-800">Révision demandée par MOSH</p>
+                            </div>
+                            <p className="text-sm text-amber-700 whitespace-pre-wrap">{campaign.mosh_qc_feedback}</p>
+                        </div>
+                    )}
+
+                    {/* Drag & Drop zone */}
+                    {!videoFile ? (
+                        <div
+                            onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+                            onDragLeave={() => setDragOver(false)}
+                            onDrop={(e) => {
+                                e.preventDefault()
+                                setDragOver(false)
+                                const file = e.dataTransfer.files[0]
+                                if (file && (file.type.startsWith('video/') || file.name.match(/\.(mp4|mov|avi|webm)$/i))) {
+                                    setVideoFile(file)
+                                }
+                            }}
+                            className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${dragOver ? 'border-emerald-400 bg-emerald-100/50' : 'border-emerald-300 bg-white/60 hover:bg-white'
+                                }`}
+                            onClick={() => {
+                                const input = document.createElement('input')
+                                input.type = 'file'
+                                input.accept = 'video/*,.mp4,.mov,.avi,.webm'
+                                input.onchange = (e) => {
+                                    const file = (e.target as HTMLInputElement).files?.[0]
+                                    if (file) setVideoFile(file)
+                                }
+                                input.click()
+                            }}
+                        >
+                            <Upload className="w-8 h-8 text-emerald-400 mx-auto mb-3" />
+                            <p className="text-sm font-medium text-[#18181B]">Glissez votre vidéo ici</p>
+                            <p className="text-xs text-[#71717A] mt-1">ou cliquez pour sélectionner — MP4, MOV, WebM (max 500 MB)</p>
+                        </div>
+                    ) : (
+                        <div className="bg-white rounded-xl border border-emerald-200 p-4 space-y-3">
+                            {/* Video preview */}
+                            <video
+                                src={URL.createObjectURL(videoFile)}
+                                controls
+                                className="w-full rounded-lg bg-black max-h-[300px]"
+                            />
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <Play className="w-4 h-4 text-emerald-600" />
+                                    <span className="text-sm text-[#18181B] font-medium truncate max-w-[200px]">{videoFile.name}</span>
+                                    <span className="text-xs text-[#71717A]">({(videoFile.size / 1024 / 1024).toFixed(1)} MB)</span>
+                                </div>
+                                <button
+                                    onClick={() => setVideoFile(null)}
+                                    className="text-xs text-[#71717A] hover:text-red-500 transition-colors"
+                                >
+                                    Changer
+                                </button>
+                            </div>
+
+                            {/* Upload progress */}
+                            {videoUploading && (
+                                <div className="w-full bg-emerald-100 rounded-full h-2">
+                                    <div
+                                        className="bg-emerald-500 h-2 rounded-full transition-all duration-500"
+                                        style={{ width: `${uploadProgress}%` }}
+                                    />
+                                </div>
+                            )}
+
+                            <button
+                                onClick={handleVideoUpload}
+                                disabled={videoUploading}
+                                className="w-full py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                {videoUploading ? (
+                                    <><Loader2 className="w-4 h-4 animate-spin" /> Upload en cours ({uploadProgress}%)...</>
+                                ) : (
+                                    <><Upload className="w-4 h-4" /> Livrer cette vidéo</>
+                                )}
+                            </button>
+                        </div>
+                    )}
+                </motion.div>
+            )}
+
+            {/* Video already uploaded — show preview */}
+            {campaign.video_url && isStepCompleted('video_uploaded_by_creator') && !isStepCompleted('brand_final_approved') && (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                    className="bg-white border border-gray-200 rounded-2xl p-6"
+                >
+                    <h2 className="text-lg font-semibold text-[#18181B] mb-3 flex items-center gap-2">
+                        <Play className="w-4 h-4 text-emerald-600" />
+                        Votre vidéo
+                        {isStepCompleted('video_validated') && (
+                            <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">QC validé ✓</span>
+                        )}
+                    </h2>
+                    <video src={campaign.video_url} controls className="w-full rounded-xl bg-black max-h-[400px]" />
                 </motion.div>
             )}
 
