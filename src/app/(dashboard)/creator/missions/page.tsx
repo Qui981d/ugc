@@ -201,8 +201,8 @@ export default function CreatorMissionsPage() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                 {[
                     { label: 'Total missions', value: String(stats.total), color: 'text-[#18181B]' },
-                    { label: 'En cours', value: String(stats.active), color: 'text-blue-700' },
-                    { label: 'Terminées', value: String(stats.completed), color: 'text-emerald-700' },
+                    { label: 'En cours', value: String(stats.active), color: 'text-[#18181B]' },
+                    { label: 'Terminées', value: String(stats.completed), color: 'text-[#18181B]' },
                     { label: 'Revenus en attente', value: formatCHF(stats.pendingRevenue), color: 'text-[#18181B]' },
                 ].map((stat, i) => (
                     <motion.div key={stat.label}
@@ -261,7 +261,7 @@ export default function CreatorMissionsPage() {
                                 >
                                     <Link href={`/creator/missions/${mission.campaign_id}`}>
                                         <div className={`bg-white/90 backdrop-blur-sm border rounded-[20px] p-6 transition-all duration-300 hover:bg-white hover:shadow-md cursor-pointer group ${mission.isCreatorAction
-                                            ? 'border-blue-200 hover:border-blue-300'
+                                            ? 'border-[#C4F042]/30 hover:border-[#C4F042]/40'
                                             : 'border-black/[0.03]'
                                             }`}>
                                             <div className="flex items-start gap-5">
@@ -280,14 +280,14 @@ export default function CreatorMissionsPage() {
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-start justify-between gap-4">
                                                         <div>
-                                                            <h3 className="text-lg font-semibold text-[#18181B] mb-0.5 group-hover:text-blue-600 transition-colors">{mission.title}</h3>
+                                                            <h3 className="text-lg font-semibold text-[#18181B] mb-0.5 group-hover:text-[#18181B] transition-colors">{mission.title}</h3>
                                                             <p className="text-sm text-[#71717A]">{mission.brand_name}</p>
                                                         </div>
                                                         <div className="flex items-center gap-2 flex-shrink-0">
                                                             {/* Active step badge */}
                                                             {mission.activeStep ? (
                                                                 <Badge className={`border flex-shrink-0 ${mission.isCreatorAction
-                                                                    ? 'bg-blue-100 text-blue-700 border-blue-200'
+                                                                    ? 'bg-[#C4F042]/20 text-[#18181B] border-[#C4F042]/30'
                                                                     : 'bg-[#F4F3EF] text-[#71717A] border-[#D9D7D0]'
                                                                     }`}>
                                                                     <ActiveIcon className="w-3 h-3 mr-1" />
@@ -295,12 +295,12 @@ export default function CreatorMissionsPage() {
                                                                     {mission.activeStep.label}
                                                                 </Badge>
                                                             ) : (
-                                                                <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">
+                                                                <Badge className="bg-[#C4F042]/20 text-[#18181B] border-[#C4F042]/30">
                                                                     <CheckCircle2 className="w-3 h-3 mr-1" />
                                                                     Terminée
                                                                 </Badge>
                                                             )}
-                                                            <ChevronRight className="w-4 h-4 text-[#A1A1AA] group-hover:text-blue-500 transition-colors" />
+                                                            <ChevronRight className="w-4 h-4 text-[#A1A1AA] group-hover:text-[#C4F042] transition-colors" />
                                                         </div>
                                                     </div>
 
@@ -308,7 +308,7 @@ export default function CreatorMissionsPage() {
                                                     <div className="mt-3 flex items-center gap-2">
                                                         <div className="flex-1 h-1.5 rounded-full bg-black/[0.04] overflow-hidden">
                                                             <div
-                                                                className={`h-full rounded-full transition-all duration-700 ${mission.isCreatorAction ? 'bg-blue-500' : 'bg-[#C4F042]'}`}
+                                                                className={`h-full rounded-full transition-all duration-700 ${mission.isCreatorAction ? 'bg-[#C4F042]' : 'bg-[#C4F042]'}`}
                                                                 style={{ width: `${progress}%` }}
                                                             />
                                                         </div>

@@ -6,10 +6,8 @@ import {
     Play,
     Pause,
     Scissors,
-    Film,
     Loader2,
-    Download,
-    Send,
+    Upload,
     RotateCcw,
     Volume2,
     VolumeX,
@@ -18,7 +16,6 @@ import {
     Trash2,
     ChevronDown,
     ChevronUp,
-    Maximize2,
 } from 'lucide-react'
 import { useFFmpeg, type TrimRange, type SubtitleEntry } from '@/hooks/useFFmpeg'
 
@@ -31,8 +28,6 @@ interface VideoEditorProps {
 export default function VideoEditor({ file, onExport, onCancel }: VideoEditorProps) {
     const videoRef = useRef<HTMLVideoElement>(null)
     const timelineRef = useRef<HTMLDivElement>(null)
-    const canvasRef = useRef<HTMLCanvasElement>(null)
-    const animFrameRef = useRef<number>(0)
 
     // Video state
     const [duration, setDuration] = useState(0)
@@ -114,7 +109,6 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
 
         const onTimeUpdate = () => {
             setCurrentTime(video.currentTime)
-            // Auto-stop at trim end
             if (video.currentTime >= trimEnd) {
                 video.pause()
                 setPlaying(false)
@@ -140,7 +134,7 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
         }
     }
 
-    // Timeline interaction (drag handles & playhead)
+    // Timeline interaction
     const getTimeFromX = (clientX: number): number => {
         const rect = timelineRef.current?.getBoundingClientRect()
         if (!rect) return 0
@@ -152,7 +146,7 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
         const time = getTimeFromX(e.clientX)
         const startDist = Math.abs(time - trimStart)
         const endDist = Math.abs(time - trimEnd)
-        const handleThreshold = duration * 0.02 // 2% of duration
+        const handleThreshold = duration * 0.025
 
         if (startDist < handleThreshold) {
             setDragging('start')
@@ -219,21 +213,16 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
         setSubtitles(subtitles.filter(s => s.id !== id))
     }
 
-    // Active subtitle at current time
     const activeSub = subtitles.find(s => currentTime >= s.start && currentTime <= s.end)
 
     // Export
     const handleExport = async () => {
         setExporting(true)
-
-        // Load FFmpeg if not loaded
         if (!ffmpeg.loaded) {
             await ffmpeg.load()
         }
-
         const trimRange: TrimRange = { start: trimStart, end: trimEnd }
         const blob = await ffmpeg.trimAndBurnSubtitles(file, trimRange, subtitles)
-
         if (blob) {
             await onExport(blob)
         }
@@ -248,7 +237,7 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
     return (
         <div className="space-y-4">
             {/* ===== VIDEO PREVIEW ===== */}
-            <div className="relative bg-black rounded-xl overflow-hidden group">
+            <div className="relative bg-black rounded-2xl overflow-hidden group">
                 <video
                     ref={videoRef}
                     src={videoUrl}
@@ -275,28 +264,28 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
                 </div>
 
                 {/* Time display */}
-                <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-md font-mono">
+                <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-lg font-mono">
                     {fmt(currentTime)} / {fmt(duration)}
                 </div>
 
                 {/* Mute button */}
                 <button onClick={() => { setMuted(!muted); if (videoRef.current) videoRef.current.muted = !muted }}
-                    className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-white p-1.5 rounded-md hover:bg-black/80 transition">
+                    className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-white p-1.5 rounded-lg hover:bg-black/80 transition">
                     {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                 </button>
             </div>
 
             {/* ===== CONTROLS BAR ===== */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-[#F4F3EF] rounded-xl px-3 py-2">
                 <button onClick={togglePlay}
-                    className="w-9 h-9 rounded-lg bg-purple-600 text-white flex items-center justify-center hover:bg-purple-700 transition shrink-0">
+                    className="w-9 h-9 rounded-lg bg-[#18181B] text-[#C4F042] flex items-center justify-center hover:bg-[#18181B]/80 transition shrink-0">
                     {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
                 </button>
 
                 {/* Trim info */}
-                <div className="flex-1 flex items-center justify-center gap-4">
+                <div className="flex-1 flex items-center justify-center gap-3">
                     <div className="flex items-center gap-1.5 text-xs">
-                        <Scissors className="w-3.5 h-3.5 text-purple-500" />
+                        <Scissors className="w-3.5 h-3.5 text-[#C4F042]" />
                         <span className="text-[#71717A]">Trim :</span>
                         <span className="font-mono text-[#18181B] font-medium">{fmt(trimStart)}</span>
                         <span className="text-[#A1A1AA]">→</span>
@@ -313,17 +302,16 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
             </div>
 
             {/* ===== TIMELINE ===== */}
-            <div className="bg-[#18181B] rounded-xl p-3 space-y-2">
-                {/* Timeline with thumbnails */}
+            <div className="bg-[#18181B] rounded-2xl p-3 space-y-2">
                 <div
                     ref={timelineRef}
-                    className="relative h-16 rounded-lg overflow-hidden cursor-pointer select-none"
+                    className="relative h-16 rounded-xl overflow-hidden cursor-pointer select-none"
                     onMouseDown={handleTimelineMouseDown}
                 >
                     {/* Thumbnails */}
                     {thumbLoading ? (
-                        <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                            <Loader2 className="w-5 h-5 text-gray-500 animate-spin" />
+                        <div className="w-full h-full bg-[#27272A] flex items-center justify-center">
+                            <Loader2 className="w-5 h-5 text-[#52525B] animate-spin" />
                         </div>
                     ) : (
                         <div className="flex h-full">
@@ -339,22 +327,22 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
 
                     {/* Trim start handle */}
                     <div
-                        className="absolute inset-y-0 w-3 bg-purple-500 cursor-col-resize z-20 flex items-center justify-center group/handle hover:bg-purple-400 transition-colors"
-                        style={{ left: `calc(${startPercent}% - 6px)` }}
+                        className="absolute inset-y-0 w-4 bg-[#C4F042] cursor-col-resize z-20 flex items-center justify-center hover:bg-[#D4FF52] transition-colors"
+                        style={{ left: `calc(${startPercent}% - 8px)` }}
                     >
-                        <div className="w-0.5 h-6 bg-white/80 rounded-full" />
+                        <div className="w-0.5 h-6 bg-[#18181B]/60 rounded-full" />
                     </div>
 
                     {/* Trim end handle */}
                     <div
-                        className="absolute inset-y-0 w-3 bg-purple-500 cursor-col-resize z-20 flex items-center justify-center group/handle hover:bg-purple-400 transition-colors"
-                        style={{ left: `calc(${endPercent}% - 6px)` }}
+                        className="absolute inset-y-0 w-4 bg-[#C4F042] cursor-col-resize z-20 flex items-center justify-center hover:bg-[#D4FF52] transition-colors"
+                        style={{ left: `calc(${endPercent}% - 8px)` }}
                     >
-                        <div className="w-0.5 h-6 bg-white/80 rounded-full" />
+                        <div className="w-0.5 h-6 bg-[#18181B]/60 rounded-full" />
                     </div>
 
                     {/* Trim border */}
-                    <div className="absolute inset-y-0 border-t-2 border-b-2 border-purple-500 z-10 pointer-events-none"
+                    <div className="absolute inset-y-0 border-t-2 border-b-2 border-[#C4F042] z-10 pointer-events-none"
                         style={{ left: `${startPercent}%`, width: `${endPercent - startPercent}%` }} />
 
                     {/* Playhead */}
@@ -369,7 +357,7 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
                     {subtitles.map(sub => (
                         <div
                             key={sub.id}
-                            className="absolute bottom-0 h-2 bg-yellow-400/70 rounded-t z-15"
+                            className="absolute bottom-0 h-2 bg-amber-400/70 rounded-t z-[15]"
                             style={{
                                 left: `${(sub.start / duration) * 100}%`,
                                 width: `${((sub.end - sub.start) / duration) * 100}%`,
@@ -379,7 +367,7 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
                 </div>
 
                 {/* Time markers */}
-                <div className="flex justify-between text-[10px] font-mono text-gray-500 px-1">
+                <div className="flex justify-between text-[10px] font-mono text-[#52525B] px-1">
                     {[0, 0.25, 0.5, 0.75, 1].map(pct => (
                         <span key={pct}>{fmt(pct * duration)}</span>
                     ))}
@@ -387,34 +375,34 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
             </div>
 
             {/* ===== SUBTITLE PANEL ===== */}
-            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <div className="bg-white border border-[#E5E7EB] rounded-2xl overflow-hidden">
                 <button
                     onClick={() => setShowSubPanel(!showSubPanel)}
-                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition"
+                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#F4F3EF] transition"
                 >
                     <div className="flex items-center gap-2 text-sm font-medium text-[#18181B]">
-                        <Type className="w-4 h-4 text-yellow-500" />
+                        <Type className="w-4 h-4 text-amber-500" />
                         Sous-titres
                         {subtitles.length > 0 && (
-                            <span className="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded-full">{subtitles.length}</span>
+                            <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">{subtitles.length}</span>
                         )}
                     </div>
-                    {showSubPanel ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                    {showSubPanel ? <ChevronUp className="w-4 h-4 text-[#A1A1AA]" /> : <ChevronDown className="w-4 h-4 text-[#A1A1AA]" />}
                 </button>
 
                 {showSubPanel && (
-                    <div className="border-t border-gray-100 px-4 py-3 space-y-3">
+                    <div className="border-t border-[#F4F3EF] px-4 py-3 space-y-3">
                         {subtitles.length === 0 && (
                             <p className="text-xs text-[#A1A1AA] text-center py-2">Aucun sous-titre. Cliquez + pour en ajouter.</p>
                         )}
 
                         {subtitles.map(sub => (
-                            <div key={sub.id} className="flex items-start gap-2 bg-gray-50 rounded-lg p-2.5">
+                            <div key={sub.id} className="flex items-start gap-2 bg-[#F4F3EF] rounded-xl p-3">
                                 <div className="flex-1 space-y-1.5">
                                     <input
                                         value={sub.text}
                                         onChange={e => updateSubtitle(sub.id, 'text', e.target.value)}
-                                        className="w-full bg-white border border-gray-200 rounded-md px-2.5 py-1.5 text-sm focus:outline-none focus:border-purple-400"
+                                        className="w-full bg-white border border-[#E5E7EB] rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:border-[#C4F042] focus:ring-1 focus:ring-[#C4F042]/25"
                                         placeholder="Texte du sous-titre..."
                                     />
                                     <div className="flex items-center gap-2 text-xs">
@@ -422,24 +410,24 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
                                         <input type="number" step="0.1" min={0} max={duration}
                                             value={sub.start.toFixed(1)}
                                             onChange={e => updateSubtitle(sub.id, 'start', parseFloat(e.target.value) || 0)}
-                                            className="w-16 bg-white border border-gray-200 rounded px-1.5 py-0.5 text-center font-mono focus:outline-none focus:border-purple-400" />
+                                            className="w-16 bg-white border border-[#E5E7EB] rounded-lg px-1.5 py-0.5 text-center font-mono focus:outline-none focus:border-[#C4F042] focus:ring-1 focus:ring-[#C4F042]/25" />
                                         <label className="text-[#71717A]">à</label>
                                         <input type="number" step="0.1" min={0} max={duration}
                                             value={sub.end.toFixed(1)}
                                             onChange={e => updateSubtitle(sub.id, 'end', parseFloat(e.target.value) || 0)}
-                                            className="w-16 bg-white border border-gray-200 rounded px-1.5 py-0.5 text-center font-mono focus:outline-none focus:border-purple-400" />
+                                            className="w-16 bg-white border border-[#E5E7EB] rounded-lg px-1.5 py-0.5 text-center font-mono focus:outline-none focus:border-[#C4F042] focus:ring-1 focus:ring-[#C4F042]/25" />
                                         <span className="text-[#A1A1AA]">({fmt(sub.end - sub.start)})</span>
                                     </div>
                                 </div>
                                 <button onClick={() => removeSubtitle(sub.id)}
-                                    className="p-1 text-gray-400 hover:text-red-500 transition mt-1">
+                                    className="p-1 text-[#A1A1AA] hover:text-red-500 transition mt-1">
                                     <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                             </div>
                         ))}
 
                         <button onClick={addSubtitle}
-                            className="w-full py-2 border border-dashed border-gray-300 rounded-lg text-xs text-[#71717A] hover:bg-gray-50 hover:border-purple-300 hover:text-purple-600 transition flex items-center justify-center gap-1.5">
+                            className="w-full py-2.5 border border-dashed border-[#D9D7D0] rounded-xl text-xs text-[#71717A] hover:bg-[#C4F042]/10 hover:border-[#C4F042]/40 hover:text-[#18181B] transition flex items-center justify-center gap-1.5">
                             <Plus className="w-3.5 h-3.5" />
                             Ajouter un sous-titre à {fmt(currentTime)}
                         </button>
@@ -450,14 +438,14 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
             {/* ===== EXPORT BAR ===== */}
             <div className="flex items-center gap-3">
                 <button onClick={onCancel}
-                    className="px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-[#71717A] hover:bg-gray-50 transition">
+                    className="px-4 py-2.5 border border-[#D9D7D0] rounded-xl text-sm text-[#71717A] hover:bg-[#F4F3EF] transition">
                     Annuler
                 </button>
 
                 <button
                     onClick={handleExport}
                     disabled={exporting || ffmpeg.loading}
-                    className="flex-1 py-2.5 bg-purple-600 text-white rounded-xl text-sm font-semibold hover:bg-purple-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-1 py-2.5 bg-[#18181B] text-[#C4F042] rounded-xl text-sm font-semibold hover:bg-[#18181B]/90 transition disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                     {exporting || ffmpeg.loading ? (
                         <>
@@ -468,7 +456,7 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
                         </>
                     ) : (
                         <>
-                            <Send className="w-4 h-4" />
+                            <Upload className="w-4 h-4" />
                             {subtitles.length > 0 ? 'Exporter & Livrer (trim + sous-titres)' : 'Exporter & Livrer'}
                         </>
                     )}
@@ -477,9 +465,9 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
 
             {/* Export progress bar */}
             {(exporting || ffmpeg.loading) && (
-                <div className="w-full bg-purple-100 rounded-full h-2">
+                <div className="w-full bg-[#F4F3EF] rounded-full h-2">
                     <motion.div
-                        className="bg-purple-500 h-2 rounded-full"
+                        className="bg-[#C4F042] h-2 rounded-full"
                         initial={{ width: '0%' }}
                         animate={{ width: ffmpeg.loading ? '30%' : `${ffmpeg.progress}%` }}
                         transition={{ duration: 0.3 }}

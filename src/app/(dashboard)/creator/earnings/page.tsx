@@ -33,7 +33,7 @@ interface Transaction {
 }
 
 const statusConfig: Record<string, { label: string; class: string }> = {
-    completed: { label: "Payé", class: "bg-emerald-500/20 text-emerald-700 border-emerald-500/30" },
+    completed: { label: "Payé", class: "bg-[#C4F042]/20 text-[#18181B] border-[#C4F042]/30" },
     pending: { label: "En attente", class: "bg-amber-500/20 text-amber-700 border-amber-500/30" },
     failed: { label: "Échoué", class: "bg-red-500/20 text-red-700 border-red-500/30" },
 }
@@ -136,10 +136,10 @@ export default function CreatorEarningsPage() {
                     className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[20px] p-5"
                 >
                     <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center">
-                            <Wallet className="w-5 h-5 text-emerald-700" strokeWidth={1.5} />
+                        <div className="w-10 h-10 rounded-xl bg-[#C4F042]/15 flex items-center justify-center">
+                            <Wallet className="w-5 h-5 text-[#18181B]" strokeWidth={1.5} />
                         </div>
-                        <span className="text-emerald-700 text-xs font-medium flex items-center gap-1">
+                        <span className="text-[#18181B] text-xs font-medium flex items-center gap-1">
                             <TrendingUp className="w-3 h-3" />
                             Total
                         </span>
@@ -236,12 +236,12 @@ export default function CreatorEarningsPage() {
                                 className="flex items-center justify-between p-5 hover:bg-[#F4F3EF]/40 transition-colors"
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${tx.type === 'payment' ? 'bg-emerald-500/20' : 'bg-blue-500/20'
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${tx.type === 'payment' ? 'bg-[#C4F042]/20' : 'bg-[#C4F042]/20'
                                         }`}>
                                         {tx.type === 'payment' ? (
-                                            <ArrowDownRight className="w-5 h-5 text-emerald-700" />
+                                            <ArrowDownRight className="w-5 h-5 text-[#18181B]" />
                                         ) : (
-                                            <ArrowUpRight className="w-5 h-5 text-blue-700" />
+                                            <ArrowUpRight className="w-5 h-5 text-[#18181B]" />
                                         )}
                                     </div>
                                     <div>
@@ -255,7 +255,7 @@ export default function CreatorEarningsPage() {
                                     <Badge className={`${statusConfig[tx.status].class} border`}>
                                         {statusConfig[tx.status].label}
                                     </Badge>
-                                    <span className={`text-lg font-semibold ${tx.amount >= 0 ? 'text-emerald-700' : 'text-[#18181B]'
+                                    <span className={`text-lg font-semibold ${tx.amount >= 0 ? 'text-[#18181B]' : 'text-[#18181B]'
                                         }`}>
                                         {tx.amount >= 0 ? '+' : ''}{formatCHF(tx.amount)}
                                     </span>

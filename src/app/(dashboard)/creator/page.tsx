@@ -12,9 +12,9 @@ import { getAssignedCampaigns } from "@/lib/services/campaignService"
 
 const statusConfig: Record<string, { label: string; class: string }> = {
     draft: { label: "Brief reçu", class: "bg-amber-500/15 text-amber-700 border border-amber-500/25" },
-    open: { label: "En recherche", class: "bg-blue-500/15 text-blue-700 border border-blue-500/25" },
+    open: { label: "En recherche", class: "bg-[#C4F042]/15 text-[#18181B] border border-[#C4F042]/25" },
     in_progress: { label: "En cours", class: "bg-[#C4F042]/20 text-[#18181B] border border-[#C4F042]/30" },
-    completed: { label: "Terminée", class: "bg-emerald-500/15 text-emerald-700 border border-emerald-500/25" },
+    completed: { label: "Terminée", class: "bg-[#C4F042]/15 text-[#18181B] border border-[#C4F042]/25" },
 }
 
 interface MissionDisplay {
@@ -157,7 +157,7 @@ export default function CreatorDashboardPage() {
                                                     {mission.brand.charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <p className="font-medium text-[#18181B] group-hover:text-blue-600 transition-colors">{mission.title}</p>
+                                                    <p className="font-medium text-[#18181B] group-hover:text-[#18181B] transition-colors">{mission.title}</p>
                                                     <p className="text-sm text-[#71717A]">{mission.brand}</p>
                                                 </div>
                                             </div>
@@ -166,7 +166,7 @@ export default function CreatorDashboardPage() {
                                                     {statusConfig[mission.status]?.label || mission.status}
                                                 </Badge>
                                                 <span className="text-[#18181B] font-semibold">{formatCHF(mission.budget)}</span>
-                                                <ChevronRight className="w-4 h-4 text-[#A1A1AA] group-hover:text-blue-500 transition-colors" strokeWidth={1.5} />
+                                                <ChevronRight className="w-4 h-4 text-[#A1A1AA] group-hover:text-[#C4F042] transition-colors" strokeWidth={1.5} />
                                             </div>
                                         </div>
                                     </Link>
@@ -198,8 +198,8 @@ export default function CreatorDashboardPage() {
                     </Link>
                     <Link href="/creator/missions">
                         <div className="bg-white/90 backdrop-blur-sm rounded-[20px] border border-black/[0.03] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-blue-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Briefcase className="h-6 w-6 text-blue-700" strokeWidth={1.5} />
+                            <div className="w-12 h-12 rounded-2xl bg-[#C4F042]/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Briefcase className="h-6 w-6 text-[#18181B]" strokeWidth={1.5} />
                             </div>
                             <div>
                                 <p className="font-medium text-[#18181B]">Mes missions</p>
@@ -209,8 +209,8 @@ export default function CreatorDashboardPage() {
                     </Link>
                     <Link href="/creator/settings">
                         <div className="bg-white/90 backdrop-blur-sm rounded-[20px] border border-black/[0.03] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Star className="h-6 w-6 text-emerald-700" strokeWidth={1.5} />
+                            <div className="w-12 h-12 rounded-2xl bg-[#C4F042]/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Star className="h-6 w-6 text-[#18181B]" strokeWidth={1.5} />
                             </div>
                             <div>
                                 <p className="font-medium text-[#18181B]">Compléter le profil</p>

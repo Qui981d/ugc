@@ -52,9 +52,9 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
 
-  /* Brand Accent — Coral/Energy */
-  --color-brand: #FF6B6B;
-  --color-brand-hover: #FF5252;
+  /* Brand Accent — Lime/Chartreuse */
+  --color-brand: #C4F042;
+  --color-brand-hover: #B5E035;
 
   /* Border Radius */
   --radius-sm: calc(var(--radius) - 4px);
@@ -101,9 +101,9 @@
   --muted: #F1F3F5;
   --muted-foreground: #6B7280;
 
-  /* Accent — Coral */
-  --accent: #FF6B6B;
-  --accent-foreground: #FFFFFF;
+  /* Accent — Lime */
+  --accent: #C4F042;
+  --accent-foreground: #18181B;
 
   /* Destructive */
   --destructive: #EF4444;
@@ -111,7 +111,7 @@
   /* Borders */
   --border: #E5E7EB;
   --input: #E5E7EB;
-  --ring: #FF6B6B;
+  --ring: #C4F042;
 
   /* Charts */
   --chart-1: #FF6B6B;
@@ -128,7 +128,7 @@
   --sidebar-accent: #2D2D44;
   --sidebar-accent-foreground: #F8F9FA;
   --sidebar-border: #2D2D44;
-  --sidebar-ring: #FF6B6B;
+  --sidebar-ring: #C4F042;
 }
 
 /* ================================================
@@ -190,25 +190,25 @@
     @apply transition-all duration-300 ease-out;
     @apply focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-background;
     @apply active:scale-[0.97];
-    background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%) !important;
-    box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
-    color: #FFFFFF !important;
+    background: linear-gradient(135deg, #C4F042 0%, #A8D935 100%) !important;
+    box-shadow: 0 4px 20px rgba(196, 240, 66, 0.3);
+    color: #18181B !important;
   }
 
   .btn-primary:hover,
   .btn-primary:focus,
   .btn-primary:active {
-    background: linear-gradient(135deg, #FF8E53 0%, #FF6B6B 100%) !important;
-    box-shadow: 0 6px 30px rgba(255, 107, 107, 0.5);
+    background: linear-gradient(135deg, #A8D935 0%, #C4F042 100%) !important;
+    box-shadow: 0 6px 30px rgba(196, 240, 66, 0.5);
     transform: translateY(-2px);
-    color: #FFFFFF !important;
+    color: #18181B !important;
   }
 
   .btn-primary span,
   .btn-primary svg,
   .btn-primary:hover span,
   .btn-primary:hover svg {
-    color: #FFFFFF !important;
+    color: #18181B !important;
   }
 
   /* Secondary Button — Light border */
@@ -275,7 +275,7 @@
 
   /* Gradient Text — Coral to Orange */
   .gradient-text {
-    @apply bg-gradient-to-r from-[#FF6B6B] via-[#FF8E53] to-[#FF6B6B] bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[#C4F042] via-[#A8D935] to-[#C4F042] bg-clip-text text-transparent;
   }
 }
 
@@ -336,7 +336,7 @@
   .shimmer::after {
     content: '';
     @apply absolute inset-0;
-    background: linear-gradient(90deg, transparent 0%, rgba(255, 107, 107, 0.08) 50%, transparent 100%);
+    background: linear-gradient(90deg, transparent 0%, rgba(196, 240, 66, 0.08) 50%, transparent 100%);
     animation: shimmer 2s infinite;
   }
 
@@ -351,7 +351,7 @@
   }
 
   .glow {
-    box-shadow: 0 0 40px rgba(255, 107, 107, 0.2);
+    box-shadow: 0 0 40px rgba(196, 240, 66, 0.2);
   }
 
   .video-overlay {

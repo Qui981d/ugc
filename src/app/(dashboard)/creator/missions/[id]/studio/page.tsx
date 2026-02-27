@@ -35,7 +35,7 @@ const VideoEditor = dynamic(() => import('@/components/studio/VideoEditor'), {
     ssr: false,
     loading: () => (
         <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
+            <Loader2 className="w-6 h-6 animate-spin text-[#C4F042]" />
         </div>
     ),
 })
@@ -235,7 +235,7 @@ export default function CreatorStudioPage() {
                     </Link>
                     <div>
                         <h1 className="text-xl font-bold text-[#18181B] flex items-center gap-2">
-                            <Film className="w-5 h-5 text-purple-600" />
+                            <Film className="w-5 h-5 text-[#C4F042]" />
                             Studio
                         </h1>
                         <p className="text-sm text-[#71717A]">{campaign.title}</p>
@@ -245,7 +245,7 @@ export default function CreatorStudioPage() {
                     {daysLeft !== null && (
                         <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${daysLeft <= 3 ? 'bg-red-100 text-red-700' :
                             daysLeft <= 7 ? 'bg-amber-100 text-amber-700' :
-                                'bg-emerald-100 text-emerald-700'
+                                'bg-[#C4F042]/20 text-[#18181B]'
                             }`}>
                             <Calendar className="w-3.5 h-3.5" />
                             {daysLeft === 0 ? 'Aujourd\'hui !' : `${daysLeft}j restants`}
@@ -262,7 +262,7 @@ export default function CreatorStudioPage() {
             {/* Success toast */}
             {actionSuccess && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-emerald-700 text-sm font-medium flex items-center gap-2">
+                    className="bg-[#C4F042]/20 border border-[#C4F042]/30 rounded-xl px-4 py-3 text-[#18181B] text-sm font-medium flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4" />
                     {actionSuccess}
                 </motion.div>
@@ -277,16 +277,16 @@ export default function CreatorStudioPage() {
                     {/* Current step banner */}
                     {!isStepCompleted('creator_shooting') && isStepCompleted('creator_accepted') && (
                         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                            className="bg-purple-50 border-2 border-purple-200 rounded-xl p-5">
+                            className="bg-[#C4F042]/10 border-2 border-[#C4F042]/30 rounded-xl p-5">
                             <div className="flex items-center gap-3 mb-3">
-                                <Camera className="w-5 h-5 text-purple-600" />
+                                <Camera className="w-5 h-5 text-[#C4F042]" />
                                 <div>
                                     <h3 className="font-semibold text-[#18181B]">Prêt à tourner ?</h3>
                                     <p className="text-sm text-[#71717A]">Signalez le début de votre tournage</p>
                                 </div>
                             </div>
                             <button onClick={() => handleStepAction('creator_shooting', 'Tournage en cours !')}
-                                className="w-full py-2.5 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors flex items-center justify-center gap-2">
+                                className="w-full py-2.5 bg-[#18181B] text-[#C4F042] rounded-xl text-sm font-medium hover:bg-[#18181B]/90 transition-colors flex items-center justify-center gap-2">
                                 <Camera className="w-4 h-4" /> Commencer le tournage
                             </button>
                         </motion.div>
@@ -296,7 +296,7 @@ export default function CreatorStudioPage() {
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                         className="bg-white border border-gray-200 rounded-2xl p-6">
                         <h2 className="text-lg font-semibold text-[#18181B] mb-4 flex items-center gap-2">
-                            <Film className="w-5 h-5 text-purple-600" />
+                            <Film className="w-5 h-5 text-[#C4F042]" />
                             {videoFile ? 'Éditeur vidéo' : 'Votre vidéo'}
                         </h2>
 
@@ -318,7 +318,7 @@ export default function CreatorStudioPage() {
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         {isStepCompleted('video_validated') ? (
-                                            <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">QC validé ✓</span>
+                                            <span className="text-xs bg-[#C4F042]/20 text-[#18181B] px-2 py-0.5 rounded-full font-medium">QC validé ✓</span>
                                         ) : (
                                             <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
                                                 <Clock className="w-3 h-3" /> En vérification par MOSH
@@ -355,7 +355,7 @@ export default function CreatorStudioPage() {
                                                 setVideoFile(file)
                                             }
                                         }}
-                                        className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all ${dragOver ? 'border-purple-400 bg-purple-50' : 'border-gray-200 bg-gray-50/50 hover:bg-gray-50 hover:border-gray-300'
+                                        className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all ${dragOver ? 'border-[#C4F042] bg-[#C4F042]/10' : 'border-gray-200 bg-gray-50/50 hover:bg-gray-50 hover:border-gray-300'
                                             }`}
                                         onClick={() => {
                                             const input = document.createElement('input')
@@ -387,7 +387,7 @@ export default function CreatorStudioPage() {
                         className="bg-white border border-gray-200 rounded-2xl p-6">
                         <div className="flex items-center justify-between mb-3">
                             <h2 className="text-lg font-semibold text-[#18181B] flex items-center gap-2">
-                                <StickyNote className="w-5 h-5 text-amber-500" />
+                                <StickyNote className="w-5 h-5 text-[#C4F042]" />
                                 Mes notes
                             </h2>
                             <span className="text-xs text-[#A1A1AA]">
@@ -399,7 +399,7 @@ export default function CreatorStudioPage() {
                             onChange={(e) => handleNotesChange(e.target.value)}
                             placeholder="Idées de tournage, shot list, rappels personnels..."
                             rows={5}
-                            className="w-full px-4 py-3 bg-amber-50/50 border border-amber-100 rounded-xl text-sm placeholder:text-[#A1A1AA] focus:outline-none focus:border-amber-300 resize-none"
+                            className="w-full px-4 py-3 bg-[#F4F3EF] border border-[#E5E7EB] rounded-xl text-sm placeholder:text-[#A1A1AA] focus:outline-none focus:border-[#C4F042] focus:ring-1 focus:ring-[#C4F042]/25 resize-none"
                         />
                     </motion.div>
                 </div>
@@ -412,24 +412,24 @@ export default function CreatorStudioPage() {
                         className="bg-white border border-gray-200 rounded-2xl p-5">
                         <h2 className="text-sm font-semibold text-[#18181B] mb-3 flex items-center justify-between">
                             <span className="flex items-center gap-2">
-                                <ListChecks className="w-4 h-4 text-blue-500" />
+                                <ListChecks className="w-4 h-4 text-[#C4F042]" />
                                 Checklist
                             </span>
                             <span className="text-xs text-[#71717A] font-normal">{completedChecks}/{checklist.length}</span>
                         </h2>
 
                         {/* Progress bar */}
-                        <div className="w-full bg-gray-100 rounded-full h-1.5 mb-3">
-                            <div className="bg-blue-500 h-1.5 rounded-full transition-all" style={{ width: checklist.length ? `${(completedChecks / checklist.length) * 100}%` : '0%' }} />
+                        <div className="w-full bg-[#F4F3EF] rounded-full h-1.5 mb-3">
+                            <div className="bg-[#C4F042] h-1.5 rounded-full transition-all" style={{ width: checklist.length ? `${(completedChecks / checklist.length) * 100}%` : '0%' }} />
                         </div>
 
                         <div className="space-y-1.5">
                             {checklist.map((item, i) => (
                                 <div key={i} className="flex items-center gap-2 group">
                                     <button onClick={() => toggleCheckItem(i)}
-                                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors shrink-0 ${item.done ? 'bg-blue-500 border-blue-500' : 'border-gray-300 hover:border-blue-400'
+                                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors shrink-0 ${item.done ? 'bg-[#C4F042] border-[#C4F042]' : 'border-[#D9D7D0] hover:border-[#C4F042]/60'
                                             }`}>
-                                        {item.done && <CheckCircle2 className="w-3 h-3 text-white" />}
+                                        {item.done && <CheckCircle2 className="w-3 h-3 text-[#18181B]" />}
                                     </button>
                                     <span className={`text-sm flex-1 ${item.done ? 'line-through text-[#A1A1AA]' : 'text-[#18181B]'}`}>{item.text}</span>
                                     <button onClick={() => removeCheckItem(i)}
@@ -446,10 +446,10 @@ export default function CreatorStudioPage() {
                                 onChange={(e) => setNewCheckItem(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && addCheckItem()}
                                 placeholder="Ajouter un élément..."
-                                className="flex-1 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs placeholder:text-[#A1A1AA] focus:outline-none focus:border-blue-300"
+                                className="flex-1 px-3 py-1.5 bg-[#F4F3EF] border border-[#E5E7EB] rounded-lg text-xs placeholder:text-[#A1A1AA] focus:outline-none focus:border-[#C4F042] focus:ring-1 focus:ring-[#C4F042]/25"
                             />
                             <button onClick={addCheckItem}
-                                className="w-7 h-7 bg-blue-500 text-white rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors">
+                                className="w-7 h-7 bg-[#18181B] text-[#C4F042] rounded-lg flex items-center justify-center hover:bg-[#18181B]/80 transition-colors">
                                 <Plus className="w-3.5 h-3.5" />
                             </button>
                         </div>
@@ -462,13 +462,13 @@ export default function CreatorStudioPage() {
                             <button onClick={() => setScriptExpanded(!scriptExpanded)}
                                 className="w-full flex items-center justify-between">
                                 <h2 className="text-sm font-semibold text-[#18181B] flex items-center gap-2">
-                                    <Pen className="w-4 h-4 text-blue-500" />
+                                    <Pen className="w-4 h-4 text-[#C4F042]" />
                                     Script
                                 </h2>
                                 {scriptExpanded ? <ChevronUp className="w-4 h-4 text-[#71717A]" /> : <ChevronDown className="w-4 h-4 text-[#71717A]" />}
                             </button>
                             {scriptExpanded && (
-                                <div className="mt-3 bg-blue-50 rounded-xl p-3 border border-blue-100">
+                                <div className="mt-3 bg-[#C4F042]/10 rounded-xl p-3 border border-[#C4F042]/20">
                                     <p className="text-xs text-[#18181B] whitespace-pre-wrap leading-relaxed">{campaign.script_content}</p>
                                 </div>
                             )}
@@ -481,7 +481,7 @@ export default function CreatorStudioPage() {
                         <button onClick={() => setBriefExpanded(!briefExpanded)}
                             className="w-full flex items-center justify-between">
                             <h2 className="text-sm font-semibold text-[#18181B] flex items-center gap-2">
-                                <FileText className="w-4 h-4 text-emerald-500" />
+                                <FileText className="w-4 h-4 text-[#C4F042]" />
                                 Brief
                             </h2>
                             {briefExpanded ? <ChevronUp className="w-4 h-4 text-[#71717A]" /> : <ChevronDown className="w-4 h-4 text-[#71717A]" />}
@@ -541,7 +541,7 @@ export default function CreatorStudioPage() {
                                 { step: 'brand_final_approved' as MissionStepType, label: 'Terminée ✅' },
                             ].map(({ step, label }) => (
                                 <div key={step} className="flex items-center gap-2">
-                                    <div className={`w-2 h-2 rounded-full ${isStepCompleted(step) ? 'bg-emerald-500' : 'bg-gray-200'}`} />
+                                    <div className={`w-2 h-2 rounded-full ${isStepCompleted(step) ? 'bg-[#C4F042]' : 'bg-[#E5E7EB]'}`} />
                                     <span className={`text-xs ${isStepCompleted(step) ? 'text-[#18181B]' : 'text-[#A1A1AA]'}`}>{label}</span>
                                 </div>
                             ))}
