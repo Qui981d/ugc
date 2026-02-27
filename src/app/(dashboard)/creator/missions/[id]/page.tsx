@@ -192,8 +192,8 @@ export default function CreatorMissionDetailPage() {
                 </div>
             </div>
 
-            {/* Studio Access — visible once mission is accepted */}
-            {missionAccepted && (
+            {/* Studio Access — visible once accepted, hidden when upload step already shows Studio link */}
+            {missionAccepted && nextStep?.type !== 'video_uploaded_by_creator' && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
                     <Link href={`/creator/missions/${campaignId}/studio`}
                         className="w-full flex items-center justify-between bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-2xl p-5 hover:from-purple-700 hover:to-purple-800 transition-all group shadow-lg shadow-purple-200">
