@@ -238,6 +238,25 @@ export default function CreatorMissionDetailPage() {
                 </div>
             </div>
 
+            {/* Studio Access — visible once mission is accepted */}
+            {missionAccepted && (
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+                    <Link href={`/creator/missions/${campaignId}/studio`}
+                        className="w-full flex items-center justify-between bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-2xl p-5 hover:from-purple-700 hover:to-purple-800 transition-all group shadow-lg shadow-purple-200">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                                <Camera className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-sm">Ouvrir le Studio</h3>
+                                <p className="text-xs text-white/70">Checklist, notes, upload vidéo, script</p>
+                            </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-white/60 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                </motion.div>
+            )}
+
             {/* ========================================================== */}
             {/* MAIN ACTION BANNER — always visible, adapts to state */}
             {/* ========================================================== */}

@@ -6,6 +6,8 @@ ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS video_url TEXT;
 ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS video_uploaded_at TIMESTAMPTZ;
 ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS mosh_qc_feedback TEXT;
 ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS mosh_qc_approved_at TIMESTAMPTZ;
+ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS creator_notes TEXT;
+ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS creator_checklist TEXT[];
 
 -- Storage bucket for videos (if not exists)
 INSERT INTO storage.buckets (id, name, public)

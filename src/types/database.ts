@@ -148,6 +148,9 @@ export interface Campaign {
     video_uploaded_at: string | null
     mosh_qc_feedback: string | null
     mosh_qc_approved_at: string | null
+    // Creator studio
+    creator_notes: string | null
+    creator_checklist: string[] | null
     created_at: string
     updated_at: string
 }
