@@ -29,6 +29,16 @@ import {
 import { createClient } from '@/lib/supabase/client'
 import { getMissionSteps, completeMissionStep } from '@/lib/services/adminService'
 import type { Campaign, MissionStep, MissionStepType } from '@/types/database'
+import dynamic from 'next/dynamic'
+
+const VideoEditor = dynamic(() => import('@/components/studio/VideoEditor'), {
+    ssr: false,
+    loading: () => (
+        <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
+        </div>
+    ),
+})
 
 // Default checklist items for a new production
 const DEFAULT_CHECKLIST = [
@@ -152,19 +162,17 @@ export default function CreatorStudioPage() {
         saveChecklist(updated)
     }
 
-    // ---- VIDEO UPLOAD ----
-    const handleVideoUpload = async () => {
-        if (!videoFile) return
+    // ---- VIDEO EXPORT FROM EDITOR ----
+    const handleEditorExport = async (blob: Blob) => {
         setVideoUploading(true)
         setUploadProgress(10)
         const supabase = createClient()
-        const ext = videoFile.name.split('.').pop() || 'mp4'
-        const filePath = `missions/${campaignId}/${Date.now()}.${ext}`
+        const filePath = `missions/${campaignId}/${Date.now()}.mp4`
 
         setUploadProgress(30)
         const { error: uploadError } = await supabase.storage
             .from('videos')
-            .upload(filePath, videoFile, { cacheControl: '3600', upsert: true })
+            .upload(filePath, blob, { cacheControl: '3600', upsert: true, contentType: 'video/mp4' })
 
         if (uploadError) {
             console.error('Upload error:', uploadError)
@@ -184,7 +192,7 @@ export default function CreatorStudioPage() {
         await completeMissionStep(campaignId, 'video_uploaded_by_creator')
 
         setUploadProgress(100)
-        setActionSuccess('Vidéo livrée avec succès !')
+        setActionSuccess('Vidéo montée et livrée avec succès !')
         setTimeout(() => setActionSuccess(null), 3000)
         setVideoFile(null)
         setVideoUploading(false)
@@ -289,7 +297,7 @@ export default function CreatorStudioPage() {
                         className="bg-white border border-gray-200 rounded-2xl p-6">
                         <h2 className="text-lg font-semibold text-[#18181B] mb-4 flex items-center gap-2">
                             <Film className="w-5 h-5 text-purple-600" />
-                            Votre vidéo
+                            {videoFile ? 'Éditeur vidéo' : 'Votre vidéo'}
                         </h2>
 
                         {/* QC Feedback banner */}
@@ -325,9 +333,17 @@ export default function CreatorStudioPage() {
                                 </div>
                             </div>
                         ) : isStepCompleted('creator_shooting') ? (
-                            /* Upload zone */
+                            /* Editor or Drop zone */
                             <>
-                                {!videoFile ? (
+                                {videoFile ? (
+                                    /* ===== VIDEO EDITOR ===== */
+                                    <VideoEditor
+                                        file={videoFile}
+                                        onExport={handleEditorExport}
+                                        onCancel={() => setVideoFile(null)}
+                                    />
+                                ) : (
+                                    /* Drop zone to load video into editor */
                                     <div
                                         onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
                                         onDragLeave={() => setDragOver(false)}
@@ -354,41 +370,14 @@ export default function CreatorStudioPage() {
                                     >
                                         <Upload className="w-10 h-10 text-gray-300 mx-auto mb-3" />
                                         <p className="text-sm font-medium text-[#18181B]">Glissez votre vidéo ici</p>
-                                        <p className="text-xs text-[#71717A] mt-1">ou cliquez pour sélectionner — MP4, MOV, WebM (max 500 MB)</p>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-3">
-                                        <video src={URL.createObjectURL(videoFile)} controls className="w-full rounded-xl bg-black max-h-[350px]" />
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-2">
-                                                <Play className="w-4 h-4 text-purple-600" />
-                                                <span className="text-sm text-[#18181B] font-medium truncate max-w-[250px]">{videoFile.name}</span>
-                                                <span className="text-xs text-[#71717A]">({(videoFile.size / 1024 / 1024).toFixed(1)} MB)</span>
-                                            </div>
-                                            <button onClick={() => setVideoFile(null)} className="text-xs text-[#71717A] hover:text-red-500">Changer</button>
-                                        </div>
-
-                                        {videoUploading && (
-                                            <div className="w-full bg-purple-100 rounded-full h-2">
-                                                <div className="bg-purple-500 h-2 rounded-full transition-all duration-500" style={{ width: `${uploadProgress}%` }} />
-                                            </div>
-                                        )}
-
-                                        <button onClick={handleVideoUpload} disabled={videoUploading}
-                                            className="w-full py-3 bg-purple-600 text-white rounded-xl text-sm font-semibold hover:bg-purple-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
-                                            {videoUploading ? (
-                                                <><Loader2 className="w-4 h-4 animate-spin" /> Upload en cours ({uploadProgress}%)...</>
-                                            ) : (
-                                                <><Send className="w-4 h-4" /> Livrer cette vidéo à MOSH</>
-                                            )}
-                                        </button>
+                                        <p className="text-xs text-[#71717A] mt-1">Elle s&apos;ouvrira dans l&apos;éditeur — trim, sous-titres, export</p>
                                     </div>
                                 )}
                             </>
                         ) : (
                             <div className="text-center py-8 text-[#A1A1AA]">
                                 <Camera className="w-10 h-10 mx-auto mb-3 text-gray-200" />
-                                <p className="text-sm">Commencez le tournage pour accéder à l&apos;upload</p>
+                                <p className="text-sm">Commencez le tournage pour accéder à l&apos;éditeur</p>
                             </div>
                         )}
                     </motion.div>
