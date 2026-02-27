@@ -493,6 +493,7 @@ export async function completeMissionStep(
 
 /**
  * Send mission to creator — generates contract + dispatches mission in one step
+ * Also ensures all prerequisite pipeline steps are recorded so the creator timeline is complete.
  */
 export async function sendMissionToCreator(
     campaignId: string,
@@ -516,6 +517,19 @@ export async function sendMissionToCreator(
         if (!contractResult.success) {
             return { success: false, error: contractResult.error || 'Erreur de génération du contrat' }
         }
+    }
+
+    // Ensure all prerequisite steps are recorded (fill gaps in the pipeline)
+    const prerequisiteSteps: MissionStepType[] = [
+        'brief_received',
+        'creators_proposed',
+        'creator_validated',
+        'script_sent',
+        'script_brand_review',
+        'script_brand_approved',
+    ]
+    for (const step of prerequisiteSteps) {
+        await completeMissionStep(campaignId, step)
     }
 
     await completeMissionStep(campaignId, 'mission_sent_to_creator')
