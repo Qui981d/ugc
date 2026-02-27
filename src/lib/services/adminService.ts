@@ -492,8 +492,9 @@ export async function completeMissionStep(
 // ================================================
 
 /**
- * Send mission to creator — generates contract + dispatches mission in one step
- * Also ensures all prerequisite pipeline steps are recorded so the creator timeline is complete.
+ * Send mission to creator — generates contract + dispatches mission in one step.
+ * Ensures all prerequisite pipeline steps are recorded so the creator timeline is complete.
+ * Contract generation is best-effort: the mission is always sent even if contract fails.
  */
 export async function sendMissionToCreator(
     campaignId: string,
@@ -503,23 +504,28 @@ export async function sendMissionToCreator(
 
     const { data: campData } = await supabase
         .from('campaigns')
-        .select('title, selected_creator_id')
+        .select('title, selected_creator_id, contract_mosh_status')
         .eq('id', campaignId)
         .single()
     const camp = campData as any
     if (!camp) return { success: false, error: 'Campaign not found' }
     if (!camp.selected_creator_id) return { success: false, error: 'No creator assigned' }
 
-    // Generate contract if amount provided and no contract exists yet
-    if (creatorAmountChf && creatorAmountChf > 0) {
-        const { createMoshContract } = await import('@/lib/services/contractService')
-        const contractResult = await createMoshContract(campaignId, creatorAmountChf)
-        if (!contractResult.success) {
-            return { success: false, error: contractResult.error || 'Erreur de génération du contrat' }
+    // Generate contract only if no contract exists yet
+    const hasContract = camp.contract_mosh_status && camp.contract_mosh_status !== 'none'
+    if (!hasContract && creatorAmountChf && creatorAmountChf > 0) {
+        try {
+            const { createMoshContract } = await import('@/lib/services/contractService')
+            const contractResult = await createMoshContract(campaignId, creatorAmountChf)
+            if (!contractResult.success) {
+                console.warn('[SendMission] Contract generation failed (non-blocking):', contractResult.error)
+            }
+        } catch (err) {
+            console.warn('[SendMission] Contract generation error (non-blocking):', err)
         }
     }
 
-    // Ensure all prerequisite steps are recorded (fill gaps in the pipeline)
+    // ALWAYS record all prerequisite steps (fill gaps in the pipeline)
     const prerequisiteSteps: MissionStepType[] = [
         'brief_received',
         'creators_proposed',
