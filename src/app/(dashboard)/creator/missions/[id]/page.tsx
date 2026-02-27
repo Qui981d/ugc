@@ -9,20 +9,19 @@ import {
     FileText,
     Users,
     CheckCircle2,
-    Video,
     Clock,
     ChevronRight,
     Send,
     Upload,
-    Play,
     Package,
     Star,
     Pen,
     Loader2,
-    Briefcase,
     AlertCircle,
     Camera,
     ScrollText,
+    MessageSquare,
+    Hourglass,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase/client'
@@ -32,20 +31,19 @@ import ContractViewer from '@/components/contracts/ContractViewer'
 import type { Campaign, MissionStep, MissionStepType } from '@/types/database'
 
 // ================================================
-// CREATOR TIMELINE STEPS — only what the creator needs to see
-// (the creator journey starts at selection, not at brief)
+// CREATOR TIMELINE — starts at selection
 // ================================================
-const TIMELINE_STEPS: { type: MissionStepType; label: string; description: string; icon: typeof FileText; creatorAction?: boolean }[] = [
-    { type: 'creator_validated', label: 'Vous avez été sélectionné', description: 'La marque vous a choisi pour cette mission !', icon: Users },
-    { type: 'script_brand_approved', label: 'Script prêt', description: 'Le script a été rédigé et validé. Consultez-le dans la section ci-dessous.', icon: Pen },
-    { type: 'mission_sent_to_creator', label: 'Mission reçue', description: 'Vous avez reçu la mission avec le brief et le script.', icon: Send },
-    { type: 'contract_signed', label: 'Contrat signé', description: 'Lisez et signez votre contrat pour pouvoir démarrer.', icon: ScrollText, creatorAction: true },
-    { type: 'creator_accepted', label: 'Mission acceptée', description: 'Confirmez que vous acceptez cette mission.', icon: CheckCircle2, creatorAction: true },
-    { type: 'creator_shooting', label: 'En tournage', description: 'Marquez le début de votre production.', icon: Camera, creatorAction: true },
-    { type: 'video_uploaded_by_creator', label: 'Vidéo livrée', description: 'Uploadez votre vidéo pour validation.', icon: Upload, creatorAction: true },
-    { type: 'video_validated', label: 'Vérification MOSH', description: 'MOSH vérifie la qualité de votre vidéo.', icon: CheckCircle2 },
-    { type: 'video_sent_to_brand', label: 'Envoyée à la marque', description: 'Votre vidéo a été transmise à la marque pour validation finale.', icon: Package },
-    { type: 'brand_final_approved', label: 'Mission terminée ✅', description: 'La marque a validé votre vidéo. Bravo !', icon: Star },
+const TIMELINE_STEPS: { type: MissionStepType; label: string; waitingDesc: string; doneDesc: string; icon: typeof FileText; creatorAction?: boolean }[] = [
+    { type: 'creator_validated', label: 'Vous avez été sélectionné', waitingDesc: 'En attente de sélection par la marque.', doneDesc: 'La marque vous a choisi pour cette mission !', icon: Users },
+    { type: 'script_brand_approved', label: 'Script prêt', waitingDesc: 'Le script est en cours de rédaction et de validation par la marque. Vous serez notifié dès qu\'il sera prêt.', doneDesc: 'Le script est validé. Consultez-le dans la section « Script » ci-dessous.', icon: Pen },
+    { type: 'mission_sent_to_creator', label: 'Mission reçue', waitingDesc: 'MOSH prépare l\'envoi de votre mission avec le brief, le script et votre contrat.', doneDesc: 'Vous avez reçu la mission. Lisez le brief et le script, puis signez votre contrat pour commencer.', icon: Send },
+    { type: 'contract_signed', label: 'Contrat signé', waitingDesc: 'Lisez et signez votre contrat pour pouvoir démarrer la mission.', doneDesc: 'Contrat signé ! Vous pouvez maintenant accepter la mission.', icon: ScrollText, creatorAction: true },
+    { type: 'creator_accepted', label: 'Mission acceptée', waitingDesc: 'Confirmez que vous acceptez cette mission.', doneDesc: 'Vous avez accepté la mission. C\'est parti !', icon: CheckCircle2, creatorAction: true },
+    { type: 'creator_shooting', label: 'En tournage', waitingDesc: 'Indiquez que vous commencez le tournage.', doneDesc: 'Tournage en cours — bonne création !', icon: Camera, creatorAction: true },
+    { type: 'video_uploaded_by_creator', label: 'Vidéo livrée', waitingDesc: 'Uploadez votre vidéo pour la faire valider.', doneDesc: 'Vidéo livrée — en attente de vérification.', icon: Upload, creatorAction: true },
+    { type: 'video_validated', label: 'Vérification MOSH', waitingDesc: 'MOSH vérifie la qualité de votre vidéo.', doneDesc: 'Vidéo validée par MOSH ✓', icon: CheckCircle2 },
+    { type: 'video_sent_to_brand', label: 'Envoyée à la marque', waitingDesc: 'Votre vidéo va être transmise à la marque.', doneDesc: 'Vidéo transmise — en attente de validation finale.', icon: Package },
+    { type: 'brand_final_approved', label: 'Mission terminée ✅', waitingDesc: 'La marque examine votre vidéo.', doneDesc: 'La marque a validé votre vidéo. Bravo !', icon: Star },
 ]
 
 export default function CreatorMissionDetailPage() {
@@ -144,6 +142,12 @@ export default function CreatorMissionDetailPage() {
     const currentStep = getCurrentStepIndex()
     const nextStep = TIMELINE_STEPS[currentStep + 1]
 
+    // Determine what the creator should see
+    const missionReceived = isStepCompleted('mission_sent_to_creator')
+    const contractSigned = isStepCompleted('contract_signed')
+    const missionAccepted = isStepCompleted('creator_accepted')
+    const isWaitingForOthers = nextStep && !nextStep.creatorAction
+
     return (
         <div className="max-w-3xl mx-auto space-y-6">
             {/* Success toast */}
@@ -177,12 +181,47 @@ export default function CreatorMissionDetailPage() {
                             {new Date(campaign.deadline).toLocaleDateString('fr-CH')}
                         </span>
                     )}
-                    <span className="font-semibold text-[#18181B]">CHF {campaign.budget_chf?.toLocaleString('fr-CH')}</span>
+                    {campaign.creator_amount_chf ? (
+                        <span className="font-semibold text-[#18181B]">CHF {campaign.creator_amount_chf?.toLocaleString('fr-CH')}</span>
+                    ) : (
+                        <span className="font-semibold text-[#18181B]">CHF {campaign.budget_chf?.toLocaleString('fr-CH')}</span>
+                    )}
                 </div>
             </div>
 
-            {/* ========== ACTION BANNER ========== */}
-            {/* Contract signing gate: must sign before accepting */}
+            {/* ========================================================== */}
+            {/* MAIN ACTION BANNER — always visible, adapts to state */}
+            {/* ========================================================== */}
+
+            {/* 1) Waiting for others (script, QC, brand review, etc.) */}
+            {isWaitingForOthers && (
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+                    className="bg-[#F4F3EF] border border-[#D9D7D0] rounded-xl p-5"
+                >
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center">
+                            <Hourglass className="w-5 h-5 text-[#71717A]" />
+                        </div>
+                        <div>
+                            <h3 className="font-semibold text-[#18181B] flex items-center gap-2">
+                                En attente
+                                <span className="text-xs bg-[#E8E6DF] text-[#71717A] px-2 py-0.5 rounded-full font-medium">{nextStep.label}</span>
+                            </h3>
+                            <p className="text-sm text-[#71717A] mt-0.5">{nextStep.waitingDesc}</p>
+                        </div>
+                    </div>
+                    <div className="mt-3 flex">
+                        <Link href={`/creator/messages?campaign=${campaignId}`}
+                            className="text-sm text-[#71717A] hover:text-[#18181B] flex items-center gap-1.5 transition-colors"
+                        >
+                            <MessageSquare className="w-3.5 h-3.5" />
+                            Envoyer un message à MOSH
+                        </Link>
+                    </div>
+                </motion.div>
+            )}
+
+            {/* 2) Contract to sign */}
             {nextStep?.type === 'contract_signed' && campaign.contract_mosh_status === 'pending_creator' && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
                     className="bg-amber-50 border-2 border-amber-200 rounded-xl p-5"
@@ -192,8 +231,8 @@ export default function CreatorMissionDetailPage() {
                             <ScrollText className="w-5 h-5 text-amber-600" />
                         </div>
                         <div>
-                            <h3 className="font-semibold text-[#18181B]">Contrat à signer</h3>
-                            <p className="text-sm text-[#71717A]">Lisez et signez votre contrat pour pouvoir démarrer la mission</p>
+                            <h3 className="font-semibold text-[#18181B]">⚡ Contrat à signer</h3>
+                            <p className="text-sm text-[#71717A]">Lisez et signez votre contrat pour pouvoir démarrer</p>
                         </div>
                     </div>
                     {campaign.creator_amount_chf && (
@@ -211,39 +250,94 @@ export default function CreatorMissionDetailPage() {
                 </motion.div>
             )}
 
-            {/* Other creator actions (accept, shoot, deliver) — only if contract is signed or not applicable */}
-            {nextStep?.creatorAction && nextStep.type !== 'contract_signed' && (
+            {/* 3) Accept mission */}
+            {nextStep?.type === 'creator_accepted' && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
                     className="bg-blue-50 border-2 border-blue-200 rounded-xl p-5"
                 >
                     <div className="flex items-center gap-3 mb-3">
                         <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
-                            <AlertCircle className="w-5 h-5 text-blue-600" />
+                            <CheckCircle2 className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
-                            <h3 className="font-semibold text-[#18181B]">{nextStep.label}</h3>
-                            <p className="text-sm text-[#71717A]">{nextStep.description}</p>
+                            <h3 className="font-semibold text-[#18181B]">⚡ Accepter la mission</h3>
+                            <p className="text-sm text-[#71717A]">Confirmez que vous êtes prêt à commencer</p>
                         </div>
                     </div>
                     <button
-                        onClick={() => handleCreatorAction(nextStep.type,
-                            nextStep.type === 'creator_accepted' ? 'Mission acceptée !' :
-                                nextStep.type === 'creator_shooting' ? 'Tournage en cours !' :
-                                    'Vidéo marquée comme livrée !'
-                        )}
+                        onClick={() => handleCreatorAction('creator_accepted', 'Mission acceptée !')}
                         disabled={actionLoading}
                         className="w-full py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                        {nextStep.type === 'creator_accepted' ? 'Accepter la mission' :
-                            nextStep.type === 'creator_shooting' ? 'Commencer le tournage' :
-                                'Marquer la vidéo comme livrée'}
+                        Accepter la mission
                     </button>
                 </motion.div>
             )}
 
-            {/* Contract banner (after signed — just info) */}
-            {campaign.contract_mosh_status === 'active' && (
+            {/* 4) Start shooting */}
+            {nextStep?.type === 'creator_shooting' && (
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+                    className="bg-purple-50 border-2 border-purple-200 rounded-xl p-5"
+                >
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
+                            <Camera className="w-5 h-5 text-purple-600" />
+                        </div>
+                        <div>
+                            <h3 className="font-semibold text-[#18181B]">⚡ Prêt à tourner ?</h3>
+                            <p className="text-sm text-[#71717A]">Signalez le début de votre tournage — consultez le script ci-dessous</p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => handleCreatorAction('creator_shooting', 'Tournage en cours !')}
+                        disabled={actionLoading}
+                        className="w-full py-2.5 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                        {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+                        Commencer le tournage
+                    </button>
+                </motion.div>
+            )}
+
+            {/* 5) Upload video */}
+            {nextStep?.type === 'video_uploaded_by_creator' && (
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+                    className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-5"
+                >
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                            <Upload className="w-5 h-5 text-emerald-600" />
+                        </div>
+                        <div>
+                            <h3 className="font-semibold text-[#18181B]">⚡ Livrer votre vidéo</h3>
+                            <p className="text-sm text-[#71717A]">Marquez votre vidéo comme livrée pour la faire vérifier par MOSH</p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => handleCreatorAction('video_uploaded_by_creator', 'Vidéo livrée !')}
+                        disabled={actionLoading}
+                        className="w-full py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                        {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                        Marquer comme livrée
+                    </button>
+                </motion.div>
+            )}
+
+            {/* Mission complete banner */}
+            {isStepCompleted('brand_final_approved') && (
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+                    className="bg-[#C4F042]/20 border-2 border-[#C4F042]/40 rounded-xl p-5 text-center"
+                >
+                    <Star className="w-8 h-8 text-[#18181B] mx-auto mb-2" />
+                    <h3 className="font-bold text-[#18181B] text-lg">Mission terminée ! 🎉</h3>
+                    <p className="text-sm text-[#71717A] mt-1">La marque a validé votre vidéo. Bravo pour cette collaboration !</p>
+                </motion.div>
+            )}
+
+            {/* Contract signed info banner */}
+            {contractSigned && !isStepCompleted('brand_final_approved') && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
                     className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3 cursor-pointer hover:bg-emerald-100 transition-colors"
                     onClick={handleViewContract}
@@ -257,10 +351,28 @@ export default function CreatorMissionDetailPage() {
                 </motion.div>
             )}
 
-            {/* Timeline */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+            {/* ========================================================== */}
+            {/* SCRIPT — visible once mission_sent_to_creator */}
+            {/* ========================================================== */}
+            {campaign.script_content && missionReceived && (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                    className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6"
+                >
+                    <h2 className="text-lg font-semibold text-[#18181B] mb-1 flex items-center gap-2">
+                        <Pen className="w-4 h-4 text-blue-600" />
+                        Script de la mission
+                    </h2>
+                    <p className="text-xs text-blue-600 mb-4">Voici le script à suivre pour votre production</p>
+                    <div className="bg-white rounded-xl border border-blue-100 p-4">
+                        <p className="text-sm text-[#18181B] whitespace-pre-wrap leading-relaxed">{campaign.script_content}</p>
+                    </div>
+                </motion.div>
+            )}
+
+            {/* ========================================================== */}
+            {/* TIMELINE */}
+            {/* ========================================================== */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                 className="bg-white border border-gray-200 rounded-2xl p-6"
             >
                 <h2 className="text-lg font-semibold text-[#18181B] mb-6">Suivi de votre mission</h2>
@@ -312,7 +424,7 @@ export default function CreatorMissionDetailPage() {
                                         )}
                                     </p>
                                     <p className={`text-sm mt-0.5 ${completed || isCurrent ? 'text-gray-500' : 'text-gray-300'}`}>
-                                        {step.description}
+                                        {completed ? step.doneDesc : isCurrent ? step.waitingDesc : step.waitingDesc}
                                     </p>
                                     {completedStep?.completed_at && (
                                         <p className="text-xs text-gray-400 mt-1">
@@ -328,31 +440,11 @@ export default function CreatorMissionDetailPage() {
                 </div>
             </motion.div>
 
-            {/* ========== SCRIPT SECTION ========== */}
-            {campaign.script_content && isStepCompleted('script_brand_approved') && (
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6"
-                >
-                    <h2 className="text-lg font-semibold text-[#18181B] mb-1 flex items-center gap-2">
-                        <Pen className="w-4 h-4 text-blue-600" />
-                        Script validé
-                    </h2>
-                    <p className="text-xs text-blue-600 mb-4">Voici le script à suivre pour cette mission</p>
-                    <div className="bg-white rounded-xl border border-blue-100 p-4">
-                        <p className="text-sm text-[#18181B] whitespace-pre-wrap leading-relaxed">{campaign.script_content}</p>
-                    </div>
-                </motion.div>
-            )}
-
-            {/* Brief / Product Info */}
+            {/* ========================================================== */}
+            {/* BRIEF — always visible (the creator needs context) */}
+            {/* ========================================================== */}
             {(campaign.description || campaign.product_name) && (
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15 }}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                     className="bg-white border border-gray-200 rounded-2xl p-6"
                 >
                     <h2 className="text-lg font-semibold text-[#18181B] mb-4">Brief de la mission</h2>
@@ -389,39 +481,9 @@ export default function CreatorMissionDetailPage() {
                 </motion.div>
             )}
 
-            {/* Contract section */}
-            {campaign.contract_mosh_status && (
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15 }}
-                    className="bg-white border border-gray-200 rounded-2xl p-6"
-                >
-                    <h2 className="text-lg font-semibold text-[#18181B] mb-4 flex items-center gap-2">
-                        Contrat
-                        {campaign.contract_mosh_status === 'active' && (
-                            <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Signé ✓</span>
-                        )}
-                    </h2>
-                    <div className="flex items-center gap-4 text-sm text-[#71717A]">
-                        <span>Montant : <strong className="text-[#18181B]">CHF {campaign.creator_amount_chf?.toLocaleString('fr-CH')}</strong></span>
-                    </div>
-                    <button
-                        onClick={handleViewContract}
-                        className="mt-3 px-4 py-2 bg-[#F4F3EF] text-[#18181B] rounded-xl hover:bg-[#E8E6DF] transition-colors text-sm flex items-center gap-2"
-                    >
-                        <FileText className="w-4 h-4" />
-                        {campaign.contract_mosh_status === 'pending_creator' ? 'Signer le contrat' : 'Voir le contrat'}
-                    </button>
-                </motion.div>
-            )}
-
             {/* Video feedback section */}
             {campaign.brand_final_feedback && (
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                     className="bg-amber-50 border border-amber-200 rounded-2xl p-6"
                 >
                     <h2 className="text-sm font-semibold text-amber-800 mb-2 flex items-center gap-2">
