@@ -37,19 +37,19 @@ interface WorkflowStep {
 }
 
 const WORKFLOW_STEPS: WorkflowStep[] = [
-    { type: 'brief_received', label: 'Brief analysé', owner: 'mosh', icon: FileText },
-    { type: 'creators_proposed', label: 'Profils proposés', owner: 'mosh', icon: Users },
-    { type: 'creator_validated', label: 'Créateur choisi', owner: 'brand', icon: CheckCircle2 },
-    { type: 'script_sent', label: 'Script rédigé', owner: 'mosh', icon: Pen },
-    { type: 'script_brand_review', label: 'Script envoyé', owner: 'mosh', icon: Send },
-    { type: 'script_brand_approved', label: 'Script validé', owner: 'brand', icon: CheckCircle2 },
-    { type: 'mission_sent_to_creator', label: 'Mission envoyée', owner: 'mosh', icon: Send },
-    { type: 'contract_signed', label: 'Contrat signé', owner: 'creator', icon: FileText },
-    { type: 'creator_accepted', label: 'Mission acceptée', owner: 'creator', icon: CheckCircle2 },
-    { type: 'creator_shooting', label: 'En tournage', owner: 'creator', icon: Video },
-    { type: 'video_uploaded_by_creator', label: 'Vidéo livrée', owner: 'creator', icon: Video },
-    { type: 'video_validated', label: 'QC MOSH', owner: 'mosh', icon: CheckCircle2 },
-    { type: 'video_sent_to_brand', label: 'Vidéo envoyée', owner: 'mosh', icon: Package },
+    { type: 'brief_received', label: 'Analyse du brief', owner: 'mosh', icon: FileText },
+    { type: 'creators_proposed', label: 'Proposition de profils', owner: 'mosh', icon: Users },
+    { type: 'creator_validated', label: 'Choix du créateur', owner: 'brand', icon: CheckCircle2 },
+    { type: 'script_sent', label: 'Rédaction du script', owner: 'mosh', icon: Pen },
+    { type: 'script_brand_review', label: 'Envoi du script', owner: 'mosh', icon: Send },
+    { type: 'script_brand_approved', label: 'Validation du script', owner: 'brand', icon: CheckCircle2 },
+    { type: 'mission_sent_to_creator', label: 'Envoi de la mission', owner: 'mosh', icon: Send },
+    { type: 'contract_signed', label: 'Signature du contrat', owner: 'creator', icon: FileText },
+    { type: 'creator_accepted', label: 'Acceptation mission', owner: 'creator', icon: CheckCircle2 },
+    { type: 'creator_shooting', label: 'Tournage', owner: 'creator', icon: Video },
+    { type: 'video_uploaded_by_creator', label: 'Livraison de la vidéo', owner: 'creator', icon: Video },
+    { type: 'video_validated', label: 'Contrôle qualité', owner: 'mosh', icon: CheckCircle2 },
+    { type: 'video_sent_to_brand', label: 'Envoi à la marque', owner: 'mosh', icon: Package },
     { type: 'brand_final_approved', label: 'Validation finale', owner: 'brand', icon: Star },
 ]
 

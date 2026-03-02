@@ -44,21 +44,21 @@ import {
 import type { MissionStep, MissionStepType } from '@/types/database'
 
 const WORKFLOW_STEPS: { type: MissionStepType; label: string; icon: typeof FileText }[] = [
-    { type: 'brief_received', label: 'Brief reçu', icon: FileText },
-    { type: 'creators_proposed', label: 'Profils proposés', icon: Users },
-    { type: 'brand_reviewing_profiles', label: 'Marque review', icon: Users },
-    { type: 'creator_validated', label: 'Créateur validé', icon: CheckCircle2 },
-    { type: 'script_sent', label: 'Script rédigé', icon: Send },
-    { type: 'script_brand_review', label: 'Script → Marque', icon: Send },
-    { type: 'script_brand_approved', label: 'Script OK', icon: CheckCircle2 },
-    { type: 'mission_sent_to_creator', label: 'Mission envoyée', icon: Send },
-    { type: 'creator_accepted', label: 'Créateur accepte', icon: CheckCircle2 },
-    { type: 'creator_shooting', label: 'En tournage', icon: Video },
-    { type: 'video_uploaded_by_creator', label: 'Vidéo reçue', icon: Video },
-    { type: 'video_validated', label: 'QC MOSH', icon: Shield },
-    { type: 'video_sent_to_brand', label: 'Envoyée marque', icon: CheckCircle2 },
-    { type: 'brand_final_review', label: 'Review marque', icon: Shield },
-    { type: 'brand_final_approved', label: 'Validé ✓', icon: CheckCircle2 },
+    { type: 'brief_received', label: 'Analyse brief', icon: FileText },
+    { type: 'creators_proposed', label: 'Proposition profils', icon: Users },
+    { type: 'brand_reviewing_profiles', label: 'Choix marque', icon: Users },
+    { type: 'creator_validated', label: 'Créateur choisi', icon: CheckCircle2 },
+    { type: 'script_sent', label: 'Rédaction script', icon: Send },
+    { type: 'script_brand_review', label: 'Envoi script', icon: Send },
+    { type: 'script_brand_approved', label: 'Validation script', icon: CheckCircle2 },
+    { type: 'mission_sent_to_creator', label: 'Envoi mission', icon: Send },
+    { type: 'creator_accepted', label: 'Acceptation', icon: CheckCircle2 },
+    { type: 'creator_shooting', label: 'Tournage', icon: Video },
+    { type: 'video_uploaded_by_creator', label: 'Livraison vidéo', icon: Video },
+    { type: 'video_validated', label: 'Contrôle qualité', icon: Shield },
+    { type: 'video_sent_to_brand', label: 'Envoi marque', icon: CheckCircle2 },
+    { type: 'brand_final_review', label: 'Review finale', icon: Shield },
+    { type: 'brand_final_approved', label: 'Validation ✓', icon: CheckCircle2 },
 ]
 
 export default function AdminMissionDetailPage() {
