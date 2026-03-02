@@ -21,6 +21,7 @@ import { useNotifications } from "@/contexts/NotificationContext"
 
 interface SidebarProps {
     role: 'brand' | 'creator' | 'admin'
+    onExpandChange?: (expanded: boolean) => void
 }
 
 const brandMenuItems = [
@@ -52,11 +53,16 @@ const roleConfig = {
     creator: { logoText: 'Mosh', logoHref: '/creator', badge: 'Créateur' },
 }
 
-export function Sidebar({ role }: SidebarProps) {
+export function Sidebar({ role, onExpandChange }: SidebarProps) {
     const pathname = usePathname()
     const [expanded, setExpanded] = useState(false)
     const menuItems = role === 'brand' ? brandMenuItems : role === 'admin' ? adminMenuItems : creatorMenuItems
     const config = roleConfig[role]
+
+    const toggleExpanded = (value: boolean) => {
+        setExpanded(value)
+        onExpandChange?.(value)
+    }
 
     let unreadCounts = { total: 0, messages: 0, applications: 0, deliverables: 0 }
     try {
@@ -75,7 +81,7 @@ export function Sidebar({ role }: SidebarProps) {
             {expanded && (
                 <div
                     className="fixed inset-0 bg-black/20 z-40 md:hidden"
-                    onClick={() => setExpanded(false)}
+                    onClick={() => toggleExpanded(false)}
                 />
             )}
 
@@ -168,7 +174,7 @@ export function Sidebar({ role }: SidebarProps) {
 
                 {/* Collapse / Expand toggle */}
                 <button
-                    onClick={() => setExpanded(!expanded)}
+                    onClick={() => toggleExpanded(!expanded)}
                     className={`
                         flex items-center gap-2 rounded-xl
                         text-[#6B6B70] hover:text-white hover:bg-white/[0.06]

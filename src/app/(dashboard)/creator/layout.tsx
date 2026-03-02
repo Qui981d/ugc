@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useEffect } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext'
 export default function CreatorDashboardLayout({ children }: { children: ReactNode }) {
     const { user, isLoading } = useAuth()
     const router = useRouter()
+    const [sidebarExpanded, setSidebarExpanded] = useState(false)
 
     useEffect(() => {
         if (!isLoading && user && user.role !== 'creator' && user.role !== 'admin') {
@@ -26,8 +27,11 @@ export default function CreatorDashboardLayout({ children }: { children: ReactNo
     return (
         <NotificationProvider>
             <div className="min-h-screen bg-[#E8E6DF]">
-                <Sidebar role="creator" />
-                <div className="md:ml-[82px]">
+                <Sidebar role="creator" onExpandChange={setSidebarExpanded} />
+                <div
+                    className="md:transition-[margin-left] md:duration-300 md:ease-[cubic-bezier(0.4,0,0.2,1)]"
+                    data-sidebar-expanded={sidebarExpanded}
+                >
                     <Header />
                     <main className="p-4 md:p-8 pt-20 pb-24 md:pb-8">
                         {children}
@@ -35,6 +39,12 @@ export default function CreatorDashboardLayout({ children }: { children: ReactNo
                 </div>
                 <MobileBottomNav />
             </div>
+            <style>{`
+                @media (min-width: 768px) {
+                    [data-sidebar-expanded="false"] { margin-left: 82px; }
+                    [data-sidebar-expanded="true"] { margin-left: 218px; }
+                }
+            `}</style>
         </NotificationProvider>
     )
 }
