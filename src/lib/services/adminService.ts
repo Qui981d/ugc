@@ -511,11 +511,23 @@ export async function sendMissionToCreator(
         'script_brand_review',
         'script_brand_approved',
     ]
+
+    // Check which steps already exist to avoid re-insert RLS errors
+    const { data: existingSteps } = await supabase
+        .from('mission_steps')
+        .select('step_type')
+        .eq('campaign_id', campaignId)
+    const existingTypes = new Set((existingSteps || []).map((s: any) => s.step_type))
+
     for (const step of prerequisiteSteps) {
-        await completeMissionStep(campaignId, step)
+        if (!existingTypes.has(step)) {
+            await completeMissionStep(campaignId, step)
+        }
     }
 
-    await completeMissionStep(campaignId, 'mission_sent_to_creator')
+    if (!existingTypes.has('mission_sent_to_creator')) {
+        await completeMissionStep(campaignId, 'mission_sent_to_creator')
+    }
 
     // Notify the creator
     await notifyCreatorAssigned(camp.selected_creator_id, campaignId, camp.title || 'Nouvelle mission')
