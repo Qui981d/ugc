@@ -35,10 +35,13 @@ export interface NotificationCounts {
  */
 export async function getNotifications(limit = 20): Promise<Notification[]> {
     const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return []
 
     const { data, error } = await supabase
         .from('notifications')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(limit)
 
@@ -55,10 +58,13 @@ export async function getNotifications(limit = 20): Promise<Notification[]> {
  */
 export async function getUnreadCounts(): Promise<NotificationCounts> {
     const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { total: 0, messages: 0, applications: 0, deliverables: 0 }
 
     const { data, error } = await supabase
         .from('notifications')
         .select('type')
+        .eq('user_id', user.id)
         .eq('is_read', false)
 
     if (error) {

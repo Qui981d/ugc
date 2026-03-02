@@ -190,7 +190,8 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
     }
 
     const activeStep = getActiveStep()
-    const activeOwner = activeStep?.owner || 'mosh'
+    const isMissionCompleted = activeStep === null && getCompletedCount() === WORKFLOW_STEPS.length
+    const activeOwner: StepOwner | 'none' = isMissionCompleted ? 'none' : (activeStep?.owner || 'mosh')
     const selectedCampaign = campaigns.find(c => c.id === selectedCampaignId)
     const completedCount = getCompletedCount()
 
@@ -229,6 +230,8 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
     }
 
     const getStatusBadge = () => {
+        if (isMissionCompleted)
+            return { bg: 'bg-emerald-100 text-emerald-700', text: '✅ Mission terminée' }
         if (activeOwner === 'brand')
             return { bg: 'bg-[#C4F042] text-[#18181B]', text: userRole === 'brand' ? `⚡ ${activeStep?.label || 'Action requise'}` : `⏳ Marque : ${activeStep?.label || 'en attente'}` }
         if (activeOwner === 'creator')
@@ -260,7 +263,7 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                 >{letter}</div>
                 <div className="min-w-0">
                     <p className={`text-xs font-semibold ${isActive && darkMode ? 'text-white' : 'text-[#18181B]'}`}>{title}</p>
-                    {isActive && (
+                    {isActive && !isMissionCompleted && (
                         <p className={`text-[9px] font-medium flex items-center gap-1 ${darkMode ? '' : 'text-[#18181B]'}`}
                             style={darkMode ? { color: accentColor } : {}}
                         >
