@@ -196,7 +196,7 @@ export default function CreatorMissionDetailPage() {
             {missionAccepted && nextStep?.type !== 'video_uploaded_by_creator' && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
                     <Link href={`/creator/missions/${campaignId}/studio`}
-                        className="w-full flex items-center justify-between bg-gradient-to-r from-[#18181B] to-[#18181B] text-white rounded-2xl p-5 hover:from-purple-700 hover:to-purple-800 transition-all group shadow-lg shadow-black/10">
+                        className="w-full flex items-center justify-between bg-[#18181B] text-white rounded-2xl p-5 hover:bg-[#27272A] transition-all group shadow-lg shadow-black/10">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
                                 <Camera className="w-5 h-5" />
@@ -275,21 +275,21 @@ export default function CreatorMissionDetailPage() {
             {/* 3) Accept mission */}
             {nextStep?.type === 'creator_accepted' && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-[#C4F042]/10 border-2 border-[#C4F042]/30 rounded-xl p-5"
+                    className="bg-white border border-black/[0.06] rounded-xl p-5"
                 >
-                    <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-[#C4F042]/20 flex items-center justify-center">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 rounded-xl bg-[#F4F3EF] flex items-center justify-center">
                             <CheckCircle2 className="w-5 h-5 text-[#18181B]" />
                         </div>
                         <div>
-                            <h3 className="font-semibold text-[#18181B]">⚡ Accepter la mission</h3>
-                            <p className="text-sm text-[#71717A]">Confirmez que vous êtes prêt à commencer</p>
+                            <h3 className="font-semibold text-[#18181B] text-sm">Accepter la mission</h3>
+                            <p className="text-xs text-[#71717A]">Confirmez que vous êtes prêt à commencer</p>
                         </div>
                     </div>
                     <button
                         onClick={() => handleCreatorAction('creator_accepted', 'Mission acceptée !')}
                         disabled={actionLoading}
-                        className="w-full py-2.5 bg-[#18181B] text-[#C4F042] rounded-xl text-sm font-medium hover:bg-[#18181B]/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="w-full py-2.5 bg-[#18181B] text-white rounded-xl text-sm font-medium hover:bg-[#27272A] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                         Accepter la mission
@@ -300,21 +300,21 @@ export default function CreatorMissionDetailPage() {
             {/* 4) Start shooting */}
             {nextStep?.type === 'creator_shooting' && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-[#C4F042]/10 border-2 border-[#C4F042]/30 rounded-xl p-5"
+                    className="bg-white border border-black/[0.06] rounded-xl p-5"
                 >
-                    <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-[#C4F042]/20 flex items-center justify-center">
-                            <Camera className="w-5 h-5 text-[#C4F042]" />
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 rounded-xl bg-[#F4F3EF] flex items-center justify-center">
+                            <Camera className="w-5 h-5 text-[#18181B]" />
                         </div>
                         <div>
-                            <h3 className="font-semibold text-[#18181B]">⚡ Prêt à tourner ?</h3>
-                            <p className="text-sm text-[#71717A]">Signalez le début de votre tournage — consultez le script ci-dessous</p>
+                            <h3 className="font-semibold text-[#18181B] text-sm">Prêt à tourner ?</h3>
+                            <p className="text-xs text-[#71717A]">Signalez le début de votre tournage — consultez le script ci-dessous</p>
                         </div>
                     </div>
                     <button
                         onClick={() => handleCreatorAction('creator_shooting', 'Tournage en cours !')}
                         disabled={actionLoading}
-                        className="w-full py-2.5 bg-[#C4F042] text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="w-full py-2.5 bg-[#18181B] text-white rounded-xl text-sm font-medium hover:bg-[#27272A] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
                         Commencer le tournage
@@ -335,7 +335,7 @@ export default function CreatorMissionDetailPage() {
                         </div>
                     )}
                     <Link href={`/creator/missions/${campaignId}/studio`}
-                        className="flex items-center justify-between bg-gradient-to-r from-[#18181B] to-[#18181B] text-white rounded-2xl p-5 hover:from-purple-700 hover:to-purple-800 transition-all group shadow-lg shadow-black/10">
+                        className="flex items-center justify-between bg-[#18181B] text-white rounded-2xl p-5 hover:bg-[#27272A] transition-all group shadow-lg shadow-black/10">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
                                 <Film className="w-5 h-5" />
@@ -379,15 +379,12 @@ export default function CreatorMissionDetailPage() {
             {/* Contract signed info banner */}
             {contractSigned && !isStepCompleted('brand_final_approved') && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-[#C4F042]/10 border border-[#C4F042]/30 rounded-xl p-4 flex items-center gap-3 cursor-pointer hover:bg-[#C4F042]/20 transition-colors"
+                    className="bg-[#F4F3EF] border border-black/[0.04] rounded-xl px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-[#E8E6DF] transition-colors"
                     onClick={handleViewContract}
                 >
-                    <ScrollText className="w-5 h-5 text-[#C4F042]" />
-                    <div className="flex-1">
-                        <p className="font-medium text-[#18181B] text-sm">Contrat signé ✓</p>
-                        <p className="text-xs text-[#C4F042]">Cliquez pour consulter votre contrat</p>
-                    </div>
-                    <span className="text-xs bg-[#C4F042]/30 text-[#18181B] px-2 py-0.5 rounded-full font-medium">CHF {campaign.creator_amount_chf?.toLocaleString('fr-CH')}</span>
+                    <ScrollText className="w-4 h-4 text-[#71717A]" />
+                    <p className="flex-1 text-sm text-[#18181B]">Contrat signé ✓ · <span className="text-[#71717A]">Consulter</span></p>
+                    <span className="text-xs text-[#71717A] font-medium">CHF {campaign.creator_amount_chf?.toLocaleString('fr-CH')}</span>
                 </motion.div>
             )}
 
@@ -396,14 +393,14 @@ export default function CreatorMissionDetailPage() {
             {/* ========================================================== */}
             {campaign.script_content && missionReceived && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-[#C4F042]/10 border-2 border-[#C4F042]/30 rounded-2xl p-6"
+                    className="bg-white border border-black/[0.06] rounded-2xl p-6"
                 >
-                    <h2 className="text-lg font-semibold text-[#18181B] mb-1 flex items-center gap-2">
-                        <Pen className="w-4 h-4 text-[#18181B]" />
+                    <h2 className="text-sm font-semibold text-[#18181B] mb-1 flex items-center gap-2">
+                        <Pen className="w-4 h-4 text-[#71717A]" />
                         Script de la mission
                     </h2>
-                    <p className="text-xs text-[#18181B] mb-4">Voici le script à suivre pour votre production</p>
-                    <div className="bg-white rounded-xl border border-[#C4F042]/20 p-4">
+                    <p className="text-xs text-[#71717A] mb-4">Voici le script à suivre pour votre production</p>
+                    <div className="bg-[#F4F3EF]/50 rounded-xl border border-black/[0.04] p-4">
                         <p className="text-sm text-[#18181B] whitespace-pre-wrap leading-relaxed">{campaign.script_content}</p>
                     </div>
                 </motion.div>
