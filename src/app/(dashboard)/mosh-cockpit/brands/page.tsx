@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Building2 } from 'lucide-react'
+import { Search, Building2, ChevronRight } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { getAllBrands, type BrandWithProfile } from '@/lib/services/adminService'
 
 export default function AdminBrandsPage() {
     const [brands, setBrands] = useState<BrandWithProfile[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState('')
+    const router = useRouter()
 
     useEffect(() => {
         async function load() {
@@ -71,6 +73,7 @@ export default function AdminBrandsPage() {
                                 <th className="text-left text-xs text-[#A1A1AA] font-medium px-6 py-4">Industrie</th>
                                 <th className="text-left text-xs text-[#A1A1AA] font-medium px-6 py-4">Contact</th>
                                 <th className="text-left text-xs text-[#A1A1AA] font-medium px-6 py-4">Inscription</th>
+                                <th className="w-10" />
                             </tr>
                         </thead>
                         <tbody>
@@ -80,7 +83,8 @@ export default function AdminBrandsPage() {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ delay: i * 0.03 }}
-                                    className="border-b border-black/[0.03] last:border-0 hover:bg-[#F4F3EF]/50 transition-colors"
+                                    className="border-b border-black/[0.03] last:border-0 hover:bg-[#F4F3EF]/50 transition-colors cursor-pointer"
+                                    onClick={() => router.push(`/mosh-cockpit/brands/${brand.id}`)}
                                 >
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
@@ -109,6 +113,9 @@ export default function AdminBrandsPage() {
                                     </td>
                                     <td className="px-6 py-4 text-sm text-[#A1A1AA]">
                                         {new Date(brand.created_at).toLocaleDateString('fr-CH')}
+                                    </td>
+                                    <td className="pr-4 py-4">
+                                        <ChevronRight className="w-4 h-4 text-[#D4D4D8]" strokeWidth={1.5} />
                                     </td>
                                 </motion.tr>
                             ))}

@@ -183,6 +183,38 @@ export async function getAllBrands(): Promise<BrandWithProfile[]> {
 }
 
 /**
+ * Get a single brand by ID with profile + campaign history
+ */
+export async function getBrandById(userId: string): Promise<{
+    brand: BrandWithProfile | null
+    campaigns: CampaignWithDetails[]
+}> {
+    const supabase = createClient()
+
+    // Fetch the brand
+    const { data: brandData } = await supabase
+        .from('users')
+        .select(`*, profiles_brand(*)`)
+        .eq('id', userId)
+        .eq('role', 'brand')
+        .single()
+
+    if (!brandData) return { brand: null, campaigns: [] }
+
+    // Fetch all campaigns owned by this brand
+    const { data: campaignData } = await supabase
+        .from('campaigns')
+        .select(`*, selected_creator:users!selected_creator_id(*, profiles_creator(*))`)
+        .eq('brand_id', userId)
+        .order('created_at', { ascending: false })
+
+    return {
+        brand: brandData as unknown as BrandWithProfile,
+        campaigns: (campaignData || []) as unknown as CampaignWithDetails[],
+    }
+}
+
+/**
  * Validate a brief (draft → open) and mark brief_received step
  */
 export async function validateBrief(
