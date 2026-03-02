@@ -10,7 +10,6 @@ import type {
     ScriptStatus
 } from '@/types/database'
 import {
-    notifyCreatorProposed,
     notifyCreatorAssigned,
     notifyBrandCreatorAssigned,
     notifyScriptValidated,
@@ -289,13 +288,7 @@ export async function proposeCreatorsForCampaign(
     await completeMissionStep(campaignId, 'creators_proposed')
     await completeMissionStep(campaignId, 'brand_reviewing_profiles')
 
-    // Notify each proposed creator
-    const campaignTitle = campInfo?.title || 'Nouvelle mission'
-    for (const creatorId of creatorIds) {
-        await notifyCreatorProposed(creatorId, campaignId, campaignTitle)
-    }
-
-    // Notify brand that profiles are ready for review
+    // Notify brand that profiles are ready for review (don't notify creators yet — they'll be notified only when selected)
     const { data: campBrand } = await supabase
         .from('campaigns')
         .select('brand_id')
@@ -303,7 +296,7 @@ export async function proposeCreatorsForCampaign(
         .single()
     const brandId = (campBrand as any)?.brand_id
     if (brandId) {
-        await notifyProfilesReady(brandId, campaignId, campaignTitle, creatorIds.length)
+        await notifyProfilesReady(brandId, campaignId, campInfo?.title || 'Nouvelle mission', creatorIds.length)
     }
 
     return { success: true }

@@ -48,7 +48,7 @@ const WORKFLOW_STEPS: { type: MissionStepType; label: string; icon: typeof FileT
     { type: 'creators_proposed', label: 'Profils proposés', icon: Users },
     { type: 'brand_reviewing_profiles', label: 'Marque review', icon: Users },
     { type: 'creator_validated', label: 'Créateur validé', icon: CheckCircle2 },
-    { type: 'script_sent', label: 'Script validé', icon: Send },
+    { type: 'script_sent', label: 'Script rédigé', icon: Send },
     { type: 'script_brand_review', label: 'Script → Marque', icon: Send },
     { type: 'script_brand_approved', label: 'Script OK', icon: CheckCircle2 },
     { type: 'mission_sent_to_creator', label: 'Mission envoyée', icon: Send },
@@ -598,9 +598,6 @@ export default function AdminMissionDetailPage() {
                     <h2 className="text-sm font-semibold text-[#18181B] mb-4 flex items-center gap-2">
                         <Pencil className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} />
                         Script
-                        {campaign.script_status === 'validated' && (
-                            <span className="text-xs bg-[#C4F042]/20 text-[#18181B] px-2 py-0.5 rounded-full font-medium">Validé MOSH</span>
-                        )}
                         {campaign.script_status === 'brand_review' && (
                             <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">En attente marque</span>
                         )}
@@ -622,7 +619,7 @@ export default function AdminMissionDetailPage() {
                         disabled={campaign.script_status === 'brand_review' || campaign.script_status === 'brand_approved'}
                         className="w-full bg-[#F4F3EF]/50 border border-black/[0.04] rounded-xl p-4 text-[#18181B] text-sm placeholder:text-[#A1A1AA] focus:outline-none focus:border-[#C4F042]/50 focus:ring-2 focus:ring-[#C4F042]/20 resize-y disabled:opacity-50"
                     />
-                    {campaign.script_status !== 'validated' && campaign.script_status !== 'brand_review' && campaign.script_status !== 'brand_approved' && (
+                    {campaign.script_status !== 'brand_review' && campaign.script_status !== 'brand_approved' && (
                         <div className="flex gap-3 mt-3">
                             <button
                                 onClick={() => handleSaveScript('draft')}
@@ -632,19 +629,11 @@ export default function AdminMissionDetailPage() {
                                 Sauvegarder le brouillon
                             </button>
                             <button
-                                onClick={() => handleSaveScript('validated')}
+                                onClick={async () => {
+                                    await handleSaveScript('validated')
+                                    await handleSendScriptToBrand()
+                                }}
                                 disabled={actionLoading || !scriptDraft}
-                                className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors disabled:opacity-50"
-                            >
-                                ✓ Valider le script MOSH
-                            </button>
-                        </div>
-                    )}
-                    {campaign.script_status === 'validated' && (
-                        <div className="flex gap-3 mt-3">
-                            <button
-                                onClick={handleSendScriptToBrand}
-                                disabled={actionLoading}
                                 className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors disabled:opacity-50 flex items-center gap-2"
                             >
                                 <Send className="w-4 h-4" strokeWidth={1.5} />
