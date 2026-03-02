@@ -140,7 +140,7 @@ export function Header() {
                                 {unreadCounts.total > 0 && (
                                     <button
                                         onClick={() => markAllAsRead()}
-                                        className="text-xs text-[#6C3FA0] hover:underline flex items-center gap-1"
+                                        className="text-xs text-[#18181B] hover:underline flex items-center gap-1"
                                     >
                                         <CheckCheck className="w-3 h-3" />
                                         Tout marquer lu
@@ -164,7 +164,7 @@ export function Header() {
                                             <Link
                                                 href={getNotifLink(notif)}
                                                 onClick={() => !notif.is_read && markAsRead(notif.id)}
-                                                className={`flex items-start gap-3 p-3 cursor-pointer ${!notif.is_read ? 'bg-purple-50' : ''
+                                                className={`flex items-start gap-3 p-3 cursor-pointer ${!notif.is_read ? 'bg-gray-50' : ''
                                                     }`}
                                             >
                                                 <span className="text-lg">{getNotifIcon(notif.type)}</span>
@@ -187,7 +187,7 @@ export function Header() {
                                                     </p>
                                                 </div>
                                                 {!notif.is_read && (
-                                                    <span className="w-2 h-2 bg-[#6C3FA0] rounded-full flex-shrink-0 mt-1.5" />
+                                                    <span className="w-2 h-2 bg-[#18181B] rounded-full flex-shrink-0 mt-1.5" />
                                                 )}
                                             </Link>
                                         </DropdownMenuItem>

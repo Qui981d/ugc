@@ -177,7 +177,7 @@ export default function NewCampaignPage() {
                 {[1, 2, 3].map(s => (
                     <div key={s} className="flex items-center gap-3 flex-1">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${step >= s
-                            ? 'bg-[#6C3FA0] text-gray-900'
+                            ? 'bg-[#18181B] text-white'
                             : 'bg-gray-100 text-gray-400'
                             }`}>
                             {step > s ? <CheckCircle2 className="w-4 h-4" /> : s}
@@ -185,7 +185,7 @@ export default function NewCampaignPage() {
                         <span className={`text-sm ${step >= s ? 'text-gray-900' : 'text-gray-400'}`}>
                             {s === 1 ? 'Détails' : s === 2 ? 'Contenu' : 'Budget'}
                         </span>
-                        {s < 3 && <div className={`flex-1 h-px ${step > s ? 'bg-[#6C3FA0]' : 'bg-gray-100'}`} />}
+                        {s < 3 && <div className={`flex-1 h-px ${step > s ? 'bg-[#18181B]' : 'bg-gray-100'}`} />}
                     </div>
                 ))}
             </div>
@@ -235,7 +235,7 @@ export default function NewCampaignPage() {
                                         key={specialty.id}
                                         onClick={() => toggleSpecialty(specialty.id)}
                                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedSpecialties.includes(specialty.id)
-                                            ? 'bg-[#6C3FA0] text-gray-900'
+                                            ? 'bg-[#18181B] text-white'
                                             : 'bg-gray-50 text-gray-500 hover:bg-gray-100 border border-gray-200'
                                             }`}
                                     >
@@ -272,7 +272,7 @@ export default function NewCampaignPage() {
                                             className="w-32 h-32 object-cover rounded-lg"
                                         />
                                         <p className="text-sm text-gray-500">{campaign.thumbnail.name}</p>
-                                        <p className="text-xs text-[#6C3FA0]">Cliquez pour changer</p>
+                                        <p className="text-xs text-[#18181B]">Cliquez pour changer</p>
                                     </div>
                                 ) : (
                                     <>
@@ -299,7 +299,7 @@ export default function NewCampaignPage() {
                                         key={type.id}
                                         onClick={() => setCampaign({ ...campaign, contentType: type.id })}
                                         className={`p-4 rounded-xl text-left transition-all ${campaign.contentType === type.id
-                                            ? 'bg-[#6C3FA0]/20 border-[#6C3FA0]/50 border'
+                                            ? 'bg-[#18181B]/20 border-[#18181B]/50 border'
                                             : 'bg-gray-50 border border-gray-200 hover:border-gray-200'
                                             }`}
                                     >
@@ -414,7 +414,7 @@ export default function NewCampaignPage() {
                                         key={pack.id}
                                         onClick={() => setCampaign({ ...campaign, pricingPack: pack.id })}
                                         className={`w-full p-4 rounded-xl text-left transition-all flex items-center justify-between ${campaign.pricingPack === pack.id
-                                            ? 'bg-[#6C3FA0]/20 border-[#6C3FA0]/50 border-2'
+                                            ? 'bg-[#18181B]/20 border-[#18181B]/50 border-2'
                                             : 'bg-gray-50 border border-gray-200 hover:border-gray-200'
                                             }`}
                                     >
@@ -424,7 +424,7 @@ export default function NewCampaignPage() {
                                             </p>
                                             <p className="text-xs text-gray-400 mt-0.5">{pack.desc}</p>
                                         </div>
-                                        <span className={`text-lg font-bold ${campaign.pricingPack === pack.id ? 'text-[#6C3FA0]' : 'text-gray-500'}`}>
+                                        <span className={`text-lg font-bold ${campaign.pricingPack === pack.id ? 'text-[#18181B]' : 'text-gray-500'}`}>
                                             {pack.price}
                                         </span>
                                     </button>
@@ -448,7 +448,7 @@ export default function NewCampaignPage() {
                         {/* Summary Card */}
                         <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 mt-8">
                             <div className="flex items-center gap-2 mb-4">
-                                <Sparkles className="w-4 h-4 text-[#6C3FA0]" />
+                                <Sparkles className="w-4 h-4 text-[#18181B]" />
                                 <span className="text-gray-900 font-medium">Résumé de la campagne</span>
                             </div>
                             <div className="space-y-2 text-sm">

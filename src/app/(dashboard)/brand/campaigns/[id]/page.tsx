@@ -80,10 +80,10 @@ function CreatorCard({ creator, onSelect }: {
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="border border-gray-200 rounded-xl p-4 hover:border-[#6C3FA0]/40 hover:shadow-md transition-all"
+            className="border border-gray-200 rounded-xl p-4 hover:border-[#18181B]/40 hover:shadow-md transition-all"
         >
             <div className="flex items-start gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#6C3FA0]/20 to-[#6C3FA0]/5 flex items-center justify-center text-[#6C3FA0] font-bold text-lg shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#18181B]/20 to-[#18181B]/5 flex items-center justify-center text-[#18181B] font-bold text-lg shrink-0">
                     {creator.full_name?.charAt(0) || '?'}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -98,7 +98,7 @@ function CreatorCard({ creator, onSelect }: {
                     </div>
                     {(profile?.portfolio_video_urls?.length ?? 0) > 0 && profile && (
                         <a href={profile.portfolio_video_urls[0]} target="_blank" rel="noopener noreferrer"
-                            className="text-xs text-[#6C3FA0] hover:underline mt-2 inline-flex items-center gap-1">
+                            className="text-xs text-[#18181B] hover:underline mt-2 inline-flex items-center gap-1">
                             <Eye className="w-3 h-3" /> Voir le portfolio
                         </a>
                     )}
@@ -106,7 +106,7 @@ function CreatorCard({ creator, onSelect }: {
             </div>
             <button
                 onClick={() => onSelect(creator.id)}
-                className="w-full mt-3 py-2 px-4 bg-[#6C3FA0] text-white rounded-lg text-sm font-medium hover:bg-[#5a3488] transition-colors flex items-center justify-center gap-2"
+                className="w-full mt-3 py-2 px-4 bg-[#18181B] text-white rounded-lg text-sm font-medium hover:bg-[#27272A] transition-colors flex items-center justify-center gap-2"
             >
                 <ThumbsUp className="w-4 h-4" />
                 Sélectionner ce profil
@@ -255,7 +255,7 @@ export default function BrandCampaignDetailPage() {
         <div className="max-w-3xl mx-auto space-y-8">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-sm text-gray-400">
-                <Link href="/brand/campaigns" className="hover:text-[#6C3FA0] transition-colors flex items-center gap-1">
+                <Link href="/brand/campaigns" className="hover:text-[#18181B] transition-colors flex items-center gap-1">
                     <ArrowLeft className="w-4 h-4" />
                     Mes briefs
                 </Link>
@@ -305,12 +305,12 @@ export default function BrandCampaignDetailPage() {
             {/* Profile selection action */}
             {needsProfileReview && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-white border-2 border-[#6C3FA0]/30 rounded-xl p-6"
+                    className="bg-white border-2 border-[#18181B]/30 rounded-xl p-6"
                 >
                     <div className="flex items-center gap-2 mb-4">
-                        <Users className="w-5 h-5 text-[#6C3FA0]" />
+                        <Users className="w-5 h-5 text-[#18181B]" />
                         <h3 className="text-lg font-semibold text-gray-900">Choisissez votre créateur</h3>
-                        <span className="ml-auto px-2 py-0.5 text-xs rounded-full bg-[#6C3FA0]/10 text-[#6C3FA0] font-medium">
+                        <span className="ml-auto px-2 py-0.5 text-xs rounded-full bg-[#18181B]/10 text-[#18181B] font-medium">
                             Action requise
                         </span>
                     </div>
@@ -336,12 +336,12 @@ export default function BrandCampaignDetailPage() {
             {/* Script review action */}
             {needsScriptReview && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-white border-2 border-[#6C3FA0]/30 rounded-xl p-6"
+                    className="bg-white border-2 border-[#18181B]/30 rounded-xl p-6"
                 >
                     <div className="flex items-center gap-2 mb-4">
-                        <Pen className="w-5 h-5 text-[#6C3FA0]" />
+                        <Pen className="w-5 h-5 text-[#18181B]" />
                         <h3 className="text-lg font-semibold text-gray-900">Script à valider</h3>
-                        <span className="ml-auto px-2 py-0.5 text-xs rounded-full bg-[#6C3FA0]/10 text-[#6C3FA0] font-medium">
+                        <span className="ml-auto px-2 py-0.5 text-xs rounded-full bg-[#18181B]/10 text-[#18181B] font-medium">
                             Action requise
                         </span>
                     </div>
@@ -372,12 +372,12 @@ export default function BrandCampaignDetailPage() {
             {/* Video review action */}
             {needsVideoReview && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-white border-2 border-[#6C3FA0]/30 rounded-xl p-6"
+                    className="bg-white border-2 border-[#18181B]/30 rounded-xl p-6"
                 >
                     <div className="flex items-center gap-2 mb-4">
-                        <Video className="w-5 h-5 text-[#6C3FA0]" />
+                        <Video className="w-5 h-5 text-[#18181B]" />
                         <h3 className="text-lg font-semibold text-gray-900">Vidéo à valider</h3>
-                        <span className="ml-auto px-2 py-0.5 text-xs rounded-full bg-[#6C3FA0]/10 text-[#6C3FA0] font-medium">
+                        <span className="ml-auto px-2 py-0.5 text-xs rounded-full bg-[#18181B]/10 text-[#18181B] font-medium">
                             Action requise
                         </span>
                     </div>
@@ -439,7 +439,7 @@ export default function BrandCampaignDetailPage() {
                                 {/* Step icon */}
                                 <div className={`relative z-10 w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${completed ? 'bg-emerald-100 text-emerald-600' :
                                     isAction ? 'bg-amber-100 text-amber-600 ring-2 ring-amber-300 animate-pulse' :
-                                        isCurrent ? 'bg-[#6C3FA0]/10 text-[#6C3FA0] ring-2 ring-[#6C3FA0]/30' :
+                                        isCurrent ? 'bg-[#18181B]/10 text-[#18181B] ring-2 ring-[#18181B]/30' :
                                             'bg-gray-50 text-gray-300'
                                     }`}>
                                     {completed ? (
@@ -455,7 +455,7 @@ export default function BrandCampaignDetailPage() {
                                 <div className="pb-8 flex-1 min-w-0">
                                     <p className={`font-medium ${completed ? 'text-gray-900' :
                                         isAction ? 'text-amber-700' :
-                                            isCurrent ? 'text-[#6C3FA0]' :
+                                            isCurrent ? 'text-[#18181B]' :
                                                 'text-gray-400'
                                         }`}>
                                         {step.label}
@@ -466,7 +466,7 @@ export default function BrandCampaignDetailPage() {
                                             </span>
                                         )}
                                         {isCurrent && !isAction && (
-                                            <span className="ml-2 inline-flex items-center gap-1 text-xs bg-[#6C3FA0]/10 text-[#6C3FA0] px-2 py-0.5 rounded-full">
+                                            <span className="ml-2 inline-flex items-center gap-1 text-xs bg-[#18181B]/10 text-[#18181B] px-2 py-0.5 rounded-full">
                                                 <Clock className="w-3 h-3" />
                                                 En cours
                                             </span>
@@ -498,7 +498,7 @@ export default function BrandCampaignDetailPage() {
                     className="bg-white border border-gray-200 rounded-2xl p-6"
                 >
                     <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <Video className="w-5 h-5 text-[#6C3FA0]" />
+                        <Video className="w-5 h-5 text-[#18181B]" />
                         Vidéo UGC
                         {isStepCompleted('brand_final_approved') && (
                             <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Approuvée ✓</span>
@@ -617,7 +617,7 @@ export default function BrandCampaignDetailPage() {
                                 value={feedback}
                                 onChange={e => setFeedback(e.target.value)}
                                 placeholder="Décrivez les modifications que vous souhaitez..."
-                                className="w-full h-32 border border-gray-200 rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#6C3FA0]/30 focus:border-[#6C3FA0]"
+                                className="w-full h-32 border border-gray-200 rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#18181B]/30 focus:border-[#18181B]"
                             />
                             <div className="flex gap-3 mt-4">
                                 <button onClick={() => setShowScriptModal(false)}
@@ -626,7 +626,7 @@ export default function BrandCampaignDetailPage() {
                                 </button>
                                 <button onClick={handleScriptFeedback}
                                     disabled={!feedback.trim() || actionLoading}
-                                    className="flex-1 py-2.5 bg-[#6C3FA0] text-white rounded-lg text-sm font-medium hover:bg-[#5a3488] disabled:opacity-50 flex items-center justify-center gap-2">
+                                    className="flex-1 py-2.5 bg-[#18181B] text-white rounded-lg text-sm font-medium hover:bg-[#27272A] disabled:opacity-50 flex items-center justify-center gap-2">
                                     <Send className="w-4 h-4" />
                                     Envoyer
                                 </button>
@@ -666,7 +666,7 @@ export default function BrandCampaignDetailPage() {
                                 value={feedback}
                                 onChange={e => setFeedback(e.target.value)}
                                 placeholder="Décrivez précisément ce que vous souhaitez modifier..."
-                                className="w-full h-32 border border-gray-200 rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#6C3FA0]/30 focus:border-[#6C3FA0]"
+                                className="w-full h-32 border border-gray-200 rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#18181B]/30 focus:border-[#18181B]"
                             />
                             <div className="flex gap-3 mt-4">
                                 <button onClick={() => setShowVideoModal(false)}
