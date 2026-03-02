@@ -189,27 +189,8 @@ export async function notifyMessageReceived(
     )
 }
 
-export async function notifyApplicationStatus(
-    creatorId: string,
-    campaignId: string,
-    status: 'accepted' | 'rejected',
-    campaignTitle: string
-): Promise<boolean> {
-    const type = status === 'accepted' ? 'application_accepted' : 'application_rejected'
-    const title = status === 'accepted' ? 'Mission confirmée !' : 'Mission non retenue'
-    const message = status === 'accepted'
-        ? `Vous avez été sélectionné pour la mission "${campaignTitle}"`
-        : `Vous n'avez pas été retenu pour la mission "${campaignTitle}"`
 
-    return createNotification(
-        creatorId,
-        type,
-        title,
-        message,
-        campaignId,
-        'campaign'
-    )
-}
+
 
 export async function notifyDeliverableSubmitted(
     brandId: string,

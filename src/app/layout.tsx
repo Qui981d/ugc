@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
-import { DataModeProvider } from "@/contexts/DataModeContext";
 import "./globals.css";
 
 const inter = Inter({
@@ -25,17 +24,16 @@ export default function RootLayout({
   return (
     <html lang="fr-CH">
       <body className={`${inter.variable} font-sans antialiased`}>
-        <DataModeProvider>
-          <AuthProvider>
-            <NotificationProvider>
-              {children}
-            </NotificationProvider>
-          </AuthProvider>
-        </DataModeProvider>
+        <AuthProvider>
+          <NotificationProvider>
+            {children}
+          </NotificationProvider>
+        </AuthProvider>
         <Toaster />
       </body>
     </html>
   );
 }
+
 
 

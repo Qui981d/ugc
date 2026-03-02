@@ -26,7 +26,7 @@ interface SidebarProps {
 
 const brandMenuItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/brand", notifKey: null },
-    { icon: Megaphone, label: "Mes briefs", href: "/brand/campaigns", notifKey: 'applications' as const },
+    { icon: Megaphone, label: "Mes briefs", href: "/brand/campaigns", notifKey: null },
     { icon: MessageSquare, label: "Messages", href: "/brand/messages", notifKey: 'messages' as const },
     { icon: Settings, label: "Paramètres", href: "/brand/settings", notifKey: null },
 ]

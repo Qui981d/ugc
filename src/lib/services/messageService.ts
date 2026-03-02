@@ -59,17 +59,17 @@ export async function getConversations(): Promise<Conversation[]> {
     let otherUsersMap = new Map<string, User>()
 
     if (userData.role === 'brand') {
-        // For brand: get all creators who have accepted applications on these campaigns
-        const { data: appData } = await supabase
-            .from('applications')
-            .select('campaign_id, creator:users!creator_id(*)')
-            .in('campaign_id', campaignIds)
-            .in('status', ['accepted', 'completed'])
+        // For brand: get all creators who are assigned to these campaigns
+        const { data: campData } = await supabase
+            .from('campaigns')
+            .select('id, selected_creator:users!selected_creator_id(*)')
+            .in('id', campaignIds)
+            .not('selected_creator_id', 'is', null)
 
-        if (appData) {
-            for (const app of appData as unknown as Array<{ campaign_id: string; creator: User }>) {
-                if (app.creator) {
-                    otherUsersMap.set(app.campaign_id, app.creator)
+        if (campData) {
+            for (const camp of campData as unknown as Array<{ id: string; selected_creator: User }>) {
+                if (camp.selected_creator) {
+                    otherUsersMap.set(camp.id, camp.selected_creator)
                 }
             }
         }
@@ -186,15 +186,14 @@ export async function sendMessage(
         let recipientId: string | null = null
 
         if (sender.role === 'brand') {
-            // Brand sending to creator - find accepted creator for this campaign
-            const { data: app } = await (supabase
-                .from('applications') as ReturnType<typeof supabase.from>)
-                .select('creator_id')
-                .eq('campaign_id', campaignId)
-                .in('status', ['accepted', 'completed'])
-                .limit(1)
+            // Brand sending to creator - find assigned creator for this campaign
+            const { data: campCreator } = await supabase
+                .from('campaigns')
+                .select('selected_creator_id')
+                .eq('id', campaignId)
+                .not('selected_creator_id', 'is', null)
                 .single()
-            recipientId = (app as { creator_id: string } | null)?.creator_id ?? null
+            recipientId = (campCreator as { selected_creator_id: string } | null)?.selected_creator_id ?? null
         } else {
             // Creator sending to brand
             recipientId = campaign.brand_id
@@ -320,29 +319,16 @@ export async function startConversation(
     let targetCampaignId = campaignId
 
     if (!targetCampaignId) {
-        // Find an existing accepted application between this brand and creator
-        const { data: appData } = await supabase
-            .from('applications')
-            .select('campaign_id')
-            .eq('creator_id', creatorId)
-            .in('status', ['accepted', 'completed'])
+        // Find a campaign where this creator is assigned
+        const { data: campData } = await supabase
+            .from('campaigns')
+            .select('id')
+            .eq('selected_creator_id', creatorId)
             .limit(1)
             .single()
 
-        if (appData) {
-            targetCampaignId = (appData as { campaign_id: string }).campaign_id
-        } else {
-            // Find any campaign by this brand that the creator applied to
-            const { data: anyApp } = await supabase
-                .from('applications')
-                .select('campaign_id, campaigns!inner(brand_id)')
-                .eq('creator_id', creatorId)
-                .limit(1)
-                .single()
-
-            if (anyApp) {
-                targetCampaignId = (anyApp as { campaign_id: string }).campaign_id
-            }
+        if (campData) {
+            targetCampaignId = (campData as { id: string }).id
         }
     }
 

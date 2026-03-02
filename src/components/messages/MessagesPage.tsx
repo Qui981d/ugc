@@ -82,31 +82,27 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
             let query
 
             if (userRole === 'creator') {
-                // Get campaigns where creator has accepted applications
-                const { data: applications } = await supabase
-                    .from('applications')
+                // Get campaigns where creator is assigned
+                const { data: campaigns } = await supabase
+                    .from('campaigns')
                     .select(`
-                        campaign_id,
-                        campaign:campaigns (
+                        id,
+                        title,
+                        brand:users!campaigns_brand_id_fkey (
                             id,
-                            title,
-                            brand:users!campaigns_brand_id_fkey (
-                                id,
-                                full_name,
-                                avatar_url
-                            )
+                            full_name,
+                            avatar_url
                         )
                     `)
-                    .eq('creator_id', userId!)
-                    .eq('status', 'accepted')
+                    .eq('selected_creator_id', userId!) as { data: any[] | null }
 
-                if (applications && applications.length > 0) {
-                    const convs: Conversation[] = applications.map((app: any) => ({
-                        id: app.campaign_id,
-                        campaignId: app.campaign_id,
-                        campaignTitle: app.campaign?.title || 'Campagne',
-                        partnerName: app.campaign?.brand?.full_name || 'Marque',
-                        partnerAvatar: app.campaign?.brand?.avatar_url,
+                if (campaigns && campaigns.length > 0) {
+                    const convs: Conversation[] = campaigns.map((camp: any) => ({
+                        id: camp.id,
+                        campaignId: camp.id,
+                        campaignTitle: camp.title || 'Campagne',
+                        partnerName: camp.brand?.full_name || 'Marque',
+                        partnerAvatar: camp.brand?.avatar_url,
                         lastMessage: '',
                         timestamp: '',
                         unread: 0,
@@ -114,43 +110,32 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
                     setConversations(convs)
                 }
             } else {
-                // Get brand's campaigns
+                // Get brand's campaigns with assigned creators
                 const { data: campaigns } = await supabase
                     .from('campaigns')
-                    .select('id, title')
-                    .eq('brand_id', userId!) as { data: any[] | null }
+                    .select(`
+                        id,
+                        title,
+                        selected_creator:users!selected_creator_id (
+                            id,
+                            full_name,
+                            avatar_url
+                        )
+                    `)
+                    .eq('brand_id', userId!)
+                    .not('selected_creator_id', 'is', null) as { data: any[] | null }
 
                 if (campaigns && campaigns.length > 0) {
-                    // For each campaign, check if there are accepted applications
-                    const convs: Conversation[] = []
-                    for (const camp of campaigns as any[]) {
-                        const { data: apps } = await supabase
-                            .from('applications')
-                            .select(`
-                                creator:users!applications_creator_id_fkey (
-                                    id,
-                                    full_name,
-                                    avatar_url
-                                )
-                            `)
-                            .eq('campaign_id', camp.id)
-                            .eq('status', 'accepted')
-                            .limit(1) as { data: any[] | null }
-
-                        if (apps && apps.length > 0) {
-                            const app = apps[0] as any
-                            convs.push({
-                                id: camp.id,
-                                campaignId: camp.id,
-                                campaignTitle: camp.title,
-                                partnerName: app.creator?.full_name || 'Créateur',
-                                partnerAvatar: app.creator?.avatar_url,
-                                lastMessage: '',
-                                timestamp: '',
-                                unread: 0,
-                            })
-                        }
-                    }
+                    const convs: Conversation[] = campaigns.map((camp: any) => ({
+                        id: camp.id,
+                        campaignId: camp.id,
+                        campaignTitle: camp.title,
+                        partnerName: camp.selected_creator?.full_name || 'Créateur',
+                        partnerAvatar: camp.selected_creator?.avatar_url,
+                        lastMessage: '',
+                        timestamp: '',
+                        unread: 0,
+                    }))
                     setConversations(convs)
                 }
             }

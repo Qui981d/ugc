@@ -58,37 +58,34 @@ export default function CreatorEarningsPage() {
             setIsDataLoading(true)
             const supabase = createClient()
 
-            // Fetch completed applications as transactions
+            // Fetch campaigns assigned to this creator as transactions
             const { data, error } = await supabase
-                .from('applications')
+                .from('campaigns')
                 .select(`
                     id,
+                    title,
                     status,
+                    budget_chf,
                     created_at,
-                    campaign:campaigns (
-                        title,
-                        budget_chf,
-                        brand:users!campaigns_brand_id_fkey (
-                            full_name
-                        )
+                    brand:users!campaigns_brand_id_fkey (
+                        full_name
                     )
                 `)
-                .eq('creator_id', userId!)
-                .eq('status', 'accepted')
+                .eq('selected_creator_id', userId!)
                 .order('created_at', { ascending: false })
 
             if (error && error.message) {
                 console.error('Error fetching earnings:', error.message)
             } else {
                 // Transform to transactions format
-                const txs: Transaction[] = (data || []).map((app: any) => ({
-                    id: app.id,
+                const txs: Transaction[] = (data || []).map((camp: any) => ({
+                    id: camp.id,
                     type: 'payment' as const,
-                    description: `Mission: ${app.campaign?.title || 'Sans titre'}`,
-                    brand: app.campaign?.brand?.full_name || 'Marque',
-                    amount: app.campaign?.budget_chf || 0,
-                    status: app.status === 'completed' ? 'completed' : 'pending',
-                    date: new Date(app.created_at).toLocaleDateString('fr-CH')
+                    description: `Mission: ${camp.title || 'Sans titre'}`,
+                    brand: camp.brand?.full_name || 'Marque',
+                    amount: camp.budget_chf || 0,
+                    status: camp.status === 'completed' ? 'completed' : 'pending',
+                    date: new Date(camp.created_at).toLocaleDateString('fr-CH')
                 }))
                 setTransactions(txs)
             }

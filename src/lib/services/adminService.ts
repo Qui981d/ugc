@@ -16,7 +16,6 @@ import {
     notifyScriptValidated,
     notifyVideoReady,
     notifyBriefValidated,
-    notifyApplicationStatus,
     notifyBriefFeedback,
     notifyProfilesReady,
     notifyProfileSelected,
@@ -274,22 +273,8 @@ export async function proposeCreatorsForCampaign(
         .single()
     const campInfo = campData as any
 
-    // Create applications for each proposed creator
-    const insertData = creatorIds.map(creatorId => ({
-        campaign_id: campaignId,
-        creator_id: creatorId,
-        pitch_message: 'Proposé par MOSH',
-        status: 'pending' as const,
-    }))
-
-    const { error } = await (supabase
-        .from('applications') as ReturnType<typeof supabase.from>)
-        .upsert(insertData, { onConflict: 'campaign_id,creator_id' })
-
-    if (error) return { success: false, error: error.message }
-
     // Store proposed_creator_ids and update campaign status
-    await (supabase
+    const { error } = await (supabase
         .from('campaigns') as ReturnType<typeof supabase.from>)
         .update({
             status: 'open',
@@ -297,6 +282,8 @@ export async function proposeCreatorsForCampaign(
             proposed_creator_ids: creatorIds,
         })
         .eq('id', campaignId)
+
+    if (error) return { success: false, error: error.message }
 
     // Record steps
     await completeMissionStep(campaignId, 'creators_proposed')
@@ -349,23 +336,6 @@ export async function assignCreatorToCampaign(
 
     if (error) return { success: false, error: error.message }
 
-    // Upsert application — create if it doesn't exist (agency model: MOSH assigns directly)
-    await (supabase
-        .from('applications') as ReturnType<typeof supabase.from>)
-        .upsert({
-            campaign_id: campaignId,
-            creator_id: creatorId,
-            status: 'accepted',
-            pitch_message: 'Assigné par MOSH',
-        }, { onConflict: 'campaign_id,creator_id' })
-
-    // Reject other applications
-    await (supabase
-        .from('applications') as ReturnType<typeof supabase.from>)
-        .update({ status: 'rejected' })
-        .eq('campaign_id', campaignId)
-        .neq('creator_id', creatorId)
-
     // Record step
     await completeMissionStep(campaignId, 'creator_validated')
 
@@ -380,24 +350,6 @@ export async function assignCreatorToCampaign(
             campaignId,
             creatorInfo?.full_name || 'Un créateur'
         )
-    }
-
-    // Notify rejected creators
-    const { data: rejectedApps } = await supabase
-        .from('applications')
-        .select('creator_id')
-        .eq('campaign_id', campaignId)
-        .eq('status', 'rejected')
-
-    if (rejectedApps) {
-        for (const app of rejectedApps) {
-            await notifyApplicationStatus(
-                (app as any).creator_id,
-                campaignId,
-                'rejected',
-                campaignTitle
-            )
-        }
     }
 
     return { success: true }
@@ -696,24 +648,7 @@ export async function brandSelectCreator(
 
     if (updateError) return { success: false, error: updateError.message }
 
-    // 2. Accept this application
-    await (supabase
-        .from('applications') as ReturnType<typeof supabase.from>)
-        .upsert({
-            campaign_id: campaignId,
-            creator_id: creatorId,
-            status: 'accepted',
-            pitch_message: 'Sélectionné par la marque',
-        }, { onConflict: 'campaign_id,creator_id' })
-
-    // 3. Reject other applications
-    await (supabase
-        .from('applications') as ReturnType<typeof supabase.from>)
-        .update({ status: 'rejected' })
-        .eq('campaign_id', campaignId)
-        .neq('creator_id', creatorId)
-
-    // 4. Complete creator_validated mission step
+    // 2. Complete creator_validated mission step
     await completeMissionStep(campaignId, 'creator_validated')
 
     // 5. Notify admin that brand selected a profile

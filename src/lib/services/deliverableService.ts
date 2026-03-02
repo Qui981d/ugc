@@ -196,42 +196,22 @@ export async function updateDeliverableStatus(
     // application + campaign as completed
     // ========================================
     if (status === 'approved') {
-        // Get the deliverable to find campaign_id and creator_id
+        // Get the deliverable to find campaign_id
         const { data: deliv } = await (supabase as any)
             .from('deliverables')
-            .select('campaign_id, creator_id')
+            .select('campaign_id')
             .eq('id', id)
             .single()
 
         if (deliv) {
-            // 1. Mark application as completed
-            const { error: appError } = await (supabase as any)
-                .from('applications')
+            // Mark campaign as completed
+            const { error: campError } = await (supabase as any)
+                .from('campaigns')
                 .update({ status: 'completed' })
-                .eq('campaign_id', deliv.campaign_id)
-                .eq('creator_id', deliv.creator_id)
+                .eq('id', deliv.campaign_id)
 
-            if (appError) {
-                console.error('[Deliverables] Error marking application as completed:', appError)
-            }
-
-            // 2. Check if ALL accepted applications for this campaign are now completed
-            const { data: pendingApps } = await (supabase as any)
-                .from('applications')
-                .select('id')
-                .eq('campaign_id', deliv.campaign_id)
-                .eq('status', 'accepted')
-
-            // If no more pending accepted applications, mark campaign as completed
-            if (!pendingApps || pendingApps.length === 0) {
-                const { error: campError } = await (supabase as any)
-                    .from('campaigns')
-                    .update({ status: 'completed' })
-                    .eq('id', deliv.campaign_id)
-
-                if (campError) {
-                    console.error('[Deliverables] Error marking campaign as completed:', campError)
-                }
+            if (campError) {
+                console.error('[Deliverables] Error marking campaign as completed:', campError)
             }
         }
     }

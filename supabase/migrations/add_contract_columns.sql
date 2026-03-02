@@ -30,6 +30,7 @@ ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS brand_profile_rejection_reason TE
 -- Invoice columns
 ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS invoice_url TEXT;
 ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS invoice_number TEXT;
+ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS invoice_generated_at TIMESTAMPTZ;
 
 -- Storage bucket for contracts (if not exists)
 INSERT INTO storage.buckets (id, name, public) 

@@ -21,19 +21,19 @@ interface NavItem {
     icon: typeof LayoutDashboard
     label: string
     href: string
-    notifKey?: 'messages' | 'applications' | 'deliverables'
+    notifKey?: 'messages' | 'deliverables'
 }
 
 const brandItems: NavItem[] = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/brand" },
-    { icon: Megaphone, label: "Briefs", href: "/brand/campaigns", notifKey: 'applications' },
+    { icon: Megaphone, label: "Briefs", href: "/brand/campaigns" },
     { icon: MessageSquare, label: "Messages", href: "/brand/messages", notifKey: 'messages' },
     { icon: Settings, label: "Réglages", href: "/brand/settings" },
 ]
 
 const creatorMainItems: NavItem[] = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/creator" },
-    { icon: Briefcase, label: "Missions", href: "/creator/missions", notifKey: 'applications' },
+    { icon: Briefcase, label: "Missions", href: "/creator/missions" },
     { icon: MessageSquare, label: "Messages", href: "/creator/messages", notifKey: 'messages' },
 ]
 
