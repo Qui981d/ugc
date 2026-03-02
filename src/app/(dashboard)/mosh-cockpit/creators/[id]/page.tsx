@@ -241,22 +241,18 @@ export default function CreatorDetailPage() {
                     <div className="flex items-center gap-2 mb-4">
                         <Video className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} />
                         <h2 className="text-sm font-semibold text-[#18181B]">Portfolio</h2>
+                        <span className="text-xs text-[#A1A1AA] ml-auto">{profile.portfolio_video_urls.length} vidéo{profile.portfolio_video_urls.length > 1 ? 's' : ''}</span>
                     </div>
-                    <div className="space-y-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {profile.portfolio_video_urls.map((url, i) => (
-                            <a
-                                key={i}
-                                href={url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-3 p-3 bg-[#F4F3EF] rounded-xl hover:bg-[#C4F042]/10 transition-colors group"
-                            >
-                                <div className="w-8 h-8 rounded-lg border border-black/[0.06] flex items-center justify-center">
-                                    <Video className="w-3.5 h-3.5 text-[#71717A]" strokeWidth={1.5} />
-                                </div>
-                                <span className="text-sm text-[#18181B] truncate flex-1">{url}</span>
-                                <ExternalLink className="w-3.5 h-3.5 text-[#A1A1AA] group-hover:text-[#18181B] transition-colors" strokeWidth={1.5} />
-                            </a>
+                            <div key={i} className="rounded-xl overflow-hidden bg-black border border-black/[0.06]">
+                                <video
+                                    src={url}
+                                    controls
+                                    preload="metadata"
+                                    className="w-full aspect-video object-contain"
+                                />
+                            </div>
                         ))}
                     </div>
                 </motion.div>

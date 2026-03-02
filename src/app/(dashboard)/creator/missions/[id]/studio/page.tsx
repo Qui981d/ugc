@@ -191,6 +191,22 @@ export default function CreatorStudioPage() {
         setUploadProgress(90)
         await completeMissionStep(campaignId, 'video_uploaded_by_creator')
 
+        // Auto-add video to creator's portfolio
+        const { data: { user: currentUser } } = await supabase.auth.getUser()
+        if (currentUser) {
+            const { data: profileData } = await supabase
+                .from('profiles_creator')
+                .select('portfolio_video_urls')
+                .eq('user_id', currentUser.id)
+                .single()
+            const existing: string[] = (profileData as any)?.portfolio_video_urls || []
+            if (!existing.includes(videoUrl)) {
+                await (supabase.from('profiles_creator') as ReturnType<typeof supabase.from>)
+                    .update({ portfolio_video_urls: [...existing, videoUrl] })
+                    .eq('user_id', currentUser.id)
+            }
+        }
+
         setUploadProgress(100)
         setActionSuccess('Vidéo montée et livrée avec succès !')
         setTimeout(() => setActionSuccess(null), 3000)
