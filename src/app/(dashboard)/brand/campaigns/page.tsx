@@ -20,15 +20,9 @@ import Link from "next/link"
 import { formatCHF } from "@/lib/validations/swiss"
 import { useAuth } from "@/contexts/AuthContext"
 import { getMyCampaigns } from "@/lib/services/campaignService"
+import { getStatusConfig } from "@/lib/constants/statusConfig"
 import type { Campaign } from "@/types/database"
 
-const statusConfig: Record<string, { label: string; class: string; icon: typeof Clock }> = {
-    draft: { label: "Brief envoyé", class: "bg-amber-500/15 text-amber-700 border border-amber-500/25", icon: Clock },
-    open: { label: "Créateur en sélection", class: "bg-blue-500/15 text-blue-700 border border-blue-500/25", icon: Eye },
-    in_progress: { label: "En production", class: "bg-[#C4F042]/20 text-[#18181B] border border-[#C4F042]/30", icon: Clock },
-    completed: { label: "Vidéo livrée", class: "bg-emerald-500/15 text-emerald-700 border border-emerald-500/25", icon: CheckCircle2 },
-    cancelled: { label: "Annulé", class: "bg-red-500/15 text-red-700 border border-red-500/25", icon: XCircle },
-}
 
 export default function BrandCampaignsPage() {
     const { user, isLoading } = useAuth()
@@ -132,7 +126,7 @@ export default function BrandCampaignsPage() {
                         </div>
                     ) : (
                         filteredCampaigns.map((campaign, index) => {
-                            const status = statusConfig[campaign.status] || statusConfig.draft
+                            const status = getStatusConfig(campaign.status)
                             const StatusIcon = status.icon
 
                             return (
@@ -152,7 +146,7 @@ export default function BrandCampaignsPage() {
                                                     <h3 className="text-[#18181B] font-semibold truncate group-hover:text-[#18181B] transition-colors">
                                                         {campaign.title}
                                                     </h3>
-                                                    <Badge className={status.class}>
+                                                    <Badge className={status.badgeClass}>
                                                         <StatusIcon className="w-3 h-3 mr-1" strokeWidth={1.5} />
                                                         {status.label}
                                                     </Badge>

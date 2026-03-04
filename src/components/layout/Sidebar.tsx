@@ -15,12 +15,14 @@ import {
     ClipboardList,
     PanelLeftClose,
     PanelLeft,
-    MoreHorizontal
+    MoreHorizontal,
+    Wallet
 } from "lucide-react"
 import { useNotifications } from "@/contexts/NotificationContext"
 
 interface SidebarProps {
     role: 'brand' | 'creator' | 'admin'
+    userName?: string
     onExpandChange?: (expanded: boolean) => void
 }
 
@@ -34,6 +36,7 @@ const brandMenuItems = [
 const creatorMenuItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/creator", notifKey: null },
     { icon: Briefcase, label: "Missions", href: "/creator/missions", notifKey: 'applications' as const },
+    { icon: Wallet, label: "Revenus", href: "/creator/earnings", notifKey: null },
     { icon: Upload, label: "Portfolio", href: "/creator/portfolio", notifKey: null },
     { icon: MessageSquare, label: "Messages", href: "/creator/messages", notifKey: 'messages' as const },
     { icon: Settings, label: "Paramètres", href: "/creator/settings", notifKey: null },
@@ -53,7 +56,7 @@ const roleConfig = {
     creator: { logoText: 'Mosh', logoHref: '/creator', badge: 'Créateur' },
 }
 
-export function Sidebar({ role, onExpandChange }: SidebarProps) {
+export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
     const pathname = usePathname()
     const [expanded, setExpanded] = useState(false)
     const menuItems = role === 'brand' ? brandMenuItems : role === 'admin' ? adminMenuItems : creatorMenuItems
@@ -201,7 +204,7 @@ export function Sidebar({ role, onExpandChange }: SidebarProps) {
                         ${expanded ? 'w-8 h-8' : 'w-9 h-9'}
                     `}>
                         <span className="text-[#1A1A1D] text-xs font-bold">
-                            {role === 'admin' ? 'A' : role === 'brand' ? 'B' : 'C'}
+                            {userName?.charAt(0)?.toUpperCase() || (role === 'admin' ? 'A' : role === 'brand' ? 'B' : 'C')}
                         </span>
                     </div>
                 </div>

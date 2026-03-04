@@ -1,18 +1,21 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import {
     Send,
     Search,
     Paperclip,
-    Image as ImageIcon,
+    FileText,
     MoreVertical,
     MessageSquare,
     Loader2,
-    ArrowLeft
+    ArrowLeft,
+    X,
+    Download
 } from "lucide-react"
+import { uploadMessageAttachment } from '@/lib/services/messageService'
 import Image from "next/image"
 import { useAuth } from "@/contexts/AuthContext"
 import { createClient } from "@/lib/supabase/client"
@@ -22,6 +25,9 @@ interface Message {
     content: string
     sender_id: string
     created_at: string
+    attachment_url: string | null
+    attachment_name: string | null
+    attachment_type: string | null
 }
 
 interface Conversation {
@@ -48,6 +54,9 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
     const [selectedConversation, setSelectedConversation] = useState<string | null>(null)
     const [messages, setMessages] = useState<Message[]>([])
     const [messageInput, setMessageInput] = useState("")
+    const [pendingFile, setPendingFile] = useState<File | null>(null)
+    const [isUploading, setIsUploading] = useState(false)
+    const fileInputRef = useRef<HTMLInputElement>(null)
     const [searchQuery, setSearchQuery] = useState("")
     const [isDataLoading, setIsDataLoading] = useState(false)
     const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -181,17 +190,38 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
         fetchMessages()
     }, [selectedConversation, user])
 
+    const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) setPendingFile(file)
+        if (e.target) e.target.value = '' // reset so same file can be re-selected
+    }, [])
+
     const handleSendMessage = async () => {
-        if (!messageInput.trim() || !user || !selectedConversation) return
+        if ((!messageInput.trim() && !pendingFile) || !user || !selectedConversation) return
+
+        setIsUploading(!!pendingFile)
+        let attachment: { url: string; name: string; type: string } | undefined
+
+        // Upload attachment if present
+        if (pendingFile) {
+            const result = await uploadMessageAttachment(pendingFile, selectedConversation)
+            if ('error' in result) {
+                setIsUploading(false)
+                return // TODO: show toast
+            }
+            attachment = result
+        }
 
         const supabase = createClient()
-
         const { data, error } = await supabase
             .from('messages')
             .insert({
                 campaign_id: selectedConversation,
                 sender_id: user.id,
-                content: messageInput.trim(),
+                content: (messageInput || '').trim(),
+                attachment_url: attachment?.url || null,
+                attachment_name: attachment?.name || null,
+                attachment_type: attachment?.type || null,
             } as any)
             .select()
             .single()
@@ -199,7 +229,9 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
         if (!error && data) {
             setMessages(prev => [...prev, data as Message])
             setMessageInput("")
+            setPendingFile(null)
         }
+        setIsUploading(false)
     }
 
     const selectedConv = conversations.find(c => c.id === selectedConversation)
@@ -237,7 +269,30 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
                                 ? 'bg-accent text-white rounded-2xl rounded-br-md'
                                 : 'bg-white/10 text-white rounded-2xl rounded-bl-md'
                                 } px-4 py-2.5`}>
-                                <p className="text-sm">{msg.content}</p>
+                                {/* Attachment rendering */}
+                                {msg.attachment_url && (
+                                    msg.attachment_type === 'image' ? (
+                                        <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer" className="block mb-2">
+                                            <img
+                                                src={msg.attachment_url}
+                                                alt={msg.attachment_name || 'Image'}
+                                                className="max-w-full max-h-48 rounded-lg object-cover"
+                                            />
+                                        </a>
+                                    ) : (
+                                        <a
+                                            href={msg.attachment_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-2 mb-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/15 transition-colors"
+                                        >
+                                            <FileText className="w-4 h-4 flex-shrink-0" />
+                                            <span className="text-xs truncate flex-1">{msg.attachment_name || 'Fichier'}</span>
+                                            <Download className="w-3.5 h-3.5 flex-shrink-0 opacity-60" />
+                                        </a>
+                                    )
+                                )}
+                                {msg.content && <p className="text-sm">{msg.content}</p>}
                                 <div className={`flex items-center justify-end gap-1 mt-1 ${msg.sender_id === user?.id ? 'text-white/70' : 'text-white/40'
                                     }`}>
                                     <span className="text-[10px]">
@@ -381,7 +436,21 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
 
                         {/* Input — pinned just above bottom nav */}
                         <div className="flex-shrink-0 p-3 border-t border-white/10 bg-[#0A0A0A] mb-16">
+                            {/* Pending file preview */}
+                            {pendingFile && (
+                                <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-white/5 rounded-lg">
+                                    <Paperclip className="w-3.5 h-3.5 text-white/50 flex-shrink-0" />
+                                    <span className="text-xs text-white/70 truncate flex-1">{pendingFile.name}</span>
+                                    <span className="text-[10px] text-white/40">{(pendingFile.size / 1024).toFixed(0)} KB</span>
+                                    <button onClick={() => setPendingFile(null)} className="text-white/40 hover:text-white">
+                                        <X className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+                            )}
                             <div className="flex items-center gap-2">
+                                <button onClick={() => fileInputRef.current?.click()} className="text-white/50 hover:text-white p-2">
+                                    <Paperclip className="w-5 h-5" />
+                                </button>
                                 <input
                                     type="text"
                                     placeholder="Écrivez votre message..."
@@ -392,10 +461,10 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
                                 />
                                 <Button
                                     onClick={handleSendMessage}
-                                    disabled={!messageInput.trim()}
+                                    disabled={(!messageInput.trim() && !pendingFile) || isUploading}
                                     className="btn-primary"
                                 >
-                                    <Send className="w-4 h-4" />
+                                    {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                                 </Button>
                             </div>
                         </div>
@@ -436,12 +505,20 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
 
                         {/* Input */}
                         <div className="p-4 border-t border-white/10">
+                            {/* Pending file preview */}
+                            {pendingFile && (
+                                <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-white/5 rounded-lg">
+                                    <Paperclip className="w-3.5 h-3.5 text-white/50 flex-shrink-0" />
+                                    <span className="text-xs text-white/70 truncate flex-1">{pendingFile.name}</span>
+                                    <span className="text-[10px] text-white/40">{(pendingFile.size / 1024).toFixed(0)} KB</span>
+                                    <button onClick={() => setPendingFile(null)} className="text-white/40 hover:text-white">
+                                        <X className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+                            )}
                             <div className="flex items-center gap-3">
-                                <Button size="sm" variant="ghost" className="text-white/50 hover:text-white hover:bg-white/10">
+                                <Button size="sm" variant="ghost" className="text-white/50 hover:text-white hover:bg-white/10" onClick={() => fileInputRef.current?.click()}>
                                     <Paperclip className="w-5 h-5" />
-                                </Button>
-                                <Button size="sm" variant="ghost" className="text-white/50 hover:text-white hover:bg-white/10">
-                                    <ImageIcon className="w-5 h-5" />
                                 </Button>
                                 <input
                                     type="text"
@@ -453,10 +530,10 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
                                 />
                                 <Button
                                     onClick={handleSendMessage}
-                                    disabled={!messageInput.trim()}
+                                    disabled={(!messageInput.trim() && !pendingFile) || isUploading}
                                     className="btn-primary"
                                 >
-                                    <Send className="w-4 h-4" />
+                                    {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                                 </Button>
                             </div>
                         </div>
@@ -472,6 +549,15 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
                     </div>
                 </div>
             )}
+
+            {/* Hidden file input shared by both mobile and desktop */}
+            <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                onChange={handleFileSelect}
+            />
         </div>
     )
 }

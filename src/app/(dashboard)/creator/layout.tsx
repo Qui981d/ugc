@@ -27,7 +27,7 @@ export default function CreatorDashboardLayout({ children }: { children: ReactNo
     return (
         <NotificationProvider>
             <div className="min-h-screen bg-[#E8E6DF]">
-                <Sidebar role="creator" onExpandChange={setSidebarExpanded} />
+                <Sidebar role="creator" userName={user?.full_name} onExpandChange={setSidebarExpanded} />
                 <div
                     className="md:transition-[margin-left] md:duration-300 md:ease-[cubic-bezier(0.4,0,0.2,1)]"
                     data-sidebar-expanded={sidebarExpanded}

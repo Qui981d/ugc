@@ -42,24 +42,13 @@ import {
     type CreatorWithProfile,
 } from '@/lib/services/adminService'
 import type { MissionStep, MissionStepType } from '@/types/database'
+import { WORKFLOW_STEPS as CENTRAL_STEPS } from '@/lib/constants/workflowSteps'
 
-const WORKFLOW_STEPS: { type: MissionStepType; label: string; icon: typeof FileText }[] = [
-    { type: 'brief_received', label: 'Analyse brief', icon: FileText },
-    { type: 'creators_proposed', label: 'Proposition profils', icon: Users },
-    { type: 'brand_reviewing_profiles', label: 'Choix marque', icon: Users },
-    { type: 'creator_validated', label: 'Créateur choisi', icon: CheckCircle2 },
-    { type: 'script_sent', label: 'Rédaction script', icon: Send },
-    { type: 'script_brand_review', label: 'Envoi script', icon: Send },
-    { type: 'script_brand_approved', label: 'Validation script', icon: CheckCircle2 },
-    { type: 'mission_sent_to_creator', label: 'Envoi mission', icon: Send },
-    { type: 'creator_accepted', label: 'Acceptation', icon: CheckCircle2 },
-    { type: 'creator_shooting', label: 'Tournage', icon: Video },
-    { type: 'video_uploaded_by_creator', label: 'Livraison vidéo', icon: Video },
-    { type: 'video_validated', label: 'Contrôle qualité', icon: Shield },
-    { type: 'video_sent_to_brand', label: 'Envoi marque', icon: CheckCircle2 },
-    { type: 'brand_final_review', label: 'Review finale', icon: Shield },
-    { type: 'brand_final_approved', label: 'Validation ✓', icon: CheckCircle2 },
-]
+const WORKFLOW_STEPS = CENTRAL_STEPS.map(s => ({
+    type: s.type as MissionStepType,
+    label: s.label,
+    icon: s.icon,
+}))
 
 export default function AdminMissionDetailPage() {
     const params = useParams()
@@ -374,7 +363,7 @@ export default function AdminMissionDetailPage() {
                 className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[24px] p-6"
             >
                 <h2 className="text-sm font-semibold text-[#18181B] mb-4">Progression du workflow</h2>
-                <div className="flex items-center gap-1">
+                <div className="flex items-start gap-1">
                     {WORKFLOW_STEPS.map((step, i) => {
                         const completed = isStepCompleted(step.type)
                         const isCurrent = i === currentStep + 1
@@ -397,7 +386,7 @@ export default function AdminMissionDetailPage() {
                                     </p>
                                 </div>
                                 {i < WORKFLOW_STEPS.length - 1 && (
-                                    <div className={`h-0.5 flex-1 mx-1 mt-[-20px] ${completed ? 'bg-[#C4F042]' : 'bg-[#F4F3EF]'}`} />
+                                    <div className={`h-0.5 flex-1 mx-1 mt-5 ${completed ? 'bg-[#C4F042]' : 'bg-[#F4F3EF]'}`} />
                                 )}
                             </div>
                         )

@@ -15,35 +15,19 @@ import {
 } from 'lucide-react'
 import { getAdminStats, getAllCampaigns, type CampaignWithDetails } from '@/lib/services/adminService'
 
-const STEP_LABELS: Record<string, string> = {
-    draft: 'Brief reçu',
-    open: 'Profils proposés',
-    in_progress: 'En production',
-    completed: 'Terminée',
-    cancelled: 'Annulée',
-}
-
-const STATUS_DOT: Record<string, string> = {
-    draft: 'bg-amber-500',
-    open: 'bg-blue-500',
-    in_progress: 'bg-violet-500',
-    completed: 'bg-emerald-500',
-    cancelled: 'bg-gray-400',
-}
+import { STATUS_CONFIG, getStatusConfig } from '@/lib/constants/statusConfig'
 
 /* ── Capsule progress indicators (like Make.com) ── */
-function CapsuleBar({ filled, total = 7, dark = false }: { filled: number; total?: number; dark?: boolean }) {
+function CapsuleBar({ filled, total, dark = false }: { filled: number; total: number; dark?: boolean }) {
+    const pct = total > 0 ? Math.round((filled / total) * 100) : 0
     return (
-        <div className="flex gap-[4px] mt-5">
-            {[...Array(total)].map((_, i) => (
+        <div className="mt-5">
+            <div className={`h-2 w-full rounded-full ${dark ? 'bg-white/[0.1]' : 'bg-black/[0.06]'}`}>
                 <div
-                    key={i}
-                    className={`h-[15px] w-[15px] rounded-full transition-all ${i < filled
-                        ? dark ? 'bg-[#C4F042]' : 'bg-[#18181B]'
-                        : dark ? 'bg-white/[0.1]' : 'bg-black/[0.06]'
-                        }`}
+                    className={`h-2 rounded-full transition-all duration-500 ${dark ? 'bg-[#C4F042]' : 'bg-[#18181B]'}`}
+                    style={{ width: `${pct}%` }}
                 />
-            ))}
+            </div>
         </div>
     )
 }
@@ -91,7 +75,8 @@ export default function AdminDashboardPage() {
                         href="/mosh-cockpit/missions?filter=draft"
                         className="flex items-center gap-2 px-5 py-2.5 bg-[#18181B] text-white text-sm font-medium rounded-full hover:bg-[#2A2A2E] transition-colors shadow-sm"
                     >
-                        + Nouveau brief
+                        <FileText className="w-4 h-4" />
+                        Briefs en attente
                     </Link>
                 </motion.div>
 
@@ -111,7 +96,7 @@ export default function AdminDashboardPage() {
                                 </div>
                                 <span className="text-sm font-medium text-[#71717A]">Briefs</span>
                             </div>
-                            <button className="text-[#A1A1AA] hover:text-[#71717A]">⋮</button>
+                            <span />
                         </div>
                         <div className="flex items-baseline gap-2 mt-4">
                             <span className="text-[52px] leading-none font-bold text-[#18181B] tracking-[-0.03em]">
@@ -119,7 +104,7 @@ export default function AdminDashboardPage() {
                             </span>
                             <span className="text-sm text-[#A1A1AA] font-normal">en attente</span>
                         </div>
-                        <CapsuleBar filled={isLoading ? 0 : Math.min(stats.pendingBriefs, 7)} />
+                        <CapsuleBar filled={isLoading ? 0 : stats.pendingBriefs} total={totalMissions || 1} />
                     </motion.div>
 
                     {/* Card 2: Missions — accent lime/green bg */}
@@ -136,7 +121,7 @@ export default function AdminDashboardPage() {
                                 </div>
                                 <span className="text-sm font-medium text-[#3F3F00]/70">Missions actives</span>
                             </div>
-                            <button className="text-[#3F3F00]/40 hover:text-[#3F3F00]/70">⋮</button>
+                            <span />
                         </div>
                         <div className="flex items-baseline gap-2 mt-4">
                             <span className="text-[52px] leading-none font-bold text-[#18181B] tracking-[-0.03em]">
@@ -144,7 +129,7 @@ export default function AdminDashboardPage() {
                             </span>
                             <span className="text-sm text-[#3F3F00]/50 font-normal">/ {totalMissions || '—'}</span>
                         </div>
-                        <CapsuleBar filled={isLoading ? 0 : Math.min(stats.activeMissions, 7)} />
+                        <CapsuleBar filled={isLoading ? 0 : stats.activeMissions} total={totalMissions || 1} />
                     </motion.div>
 
                     {/* Card 3: CTA promo card — dark bg */}
@@ -223,8 +208,8 @@ export default function AdminDashboardPage() {
                                             </p>
                                         </div>
                                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#F4F4F5] text-[#52525B]">
-                                            <span className={`w-[6px] h-[6px] rounded-full ${STATUS_DOT[campaign.status] || 'bg-gray-400'}`} />
-                                            {STEP_LABELS[campaign.status] || campaign.status}
+                                            <span className={`w-[6px] h-[6px] rounded-full ${getStatusConfig(campaign.status).dotColor}`} />
+                                            {getStatusConfig(campaign.status).label}
                                         </span>
                                         <span className="text-xs text-[#D4D4D8] font-medium tabular-nums">
                                             {new Date(campaign.created_at).toLocaleDateString('fr-CH')}

@@ -422,6 +422,17 @@ export default function BrandSettingsPage() {
                 <p className="text-[#71717A] mt-1">Gérez votre entreprise et préférences</p>
             </div>
 
+            {/* Coming Soon Banner */}
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                    <span className="text-lg">🚧</span>
+                </div>
+                <div>
+                    <p className="text-sm font-medium text-amber-900">Page en construction</p>
+                    <p className="text-xs text-amber-700">Les paramètres seront bientôt configurables. Les données affichées sont des exemples.</p>
+                </div>
+            </div>
+
             <div className="flex flex-col md:flex-row gap-6 md:gap-8">
                 {/* Sidebar Tabs — horizontal scroll on mobile, vertical on desktop */}
                 <div className="flex md:flex-col md:w-60 md:flex-shrink-0 gap-1 overflow-x-auto pb-2 md:pb-0 md:space-y-1">

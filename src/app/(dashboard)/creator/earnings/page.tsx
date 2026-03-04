@@ -119,9 +119,9 @@ export default function CreatorEarningsPage() {
                     <h1 className="text-[28px] md:text-[34px] font-semibold text-[#18181B] tracking-[-0.02em]">Revenus</h1>
                     <p className="text-[#71717A] mt-1">Suivez vos gains et paiements</p>
                 </div>
-                <Button variant="outline" className="border-[#D9D7D0] text-[#18181B] hover:bg-[#F4F3EF] rounded-full">
+                <Button variant="outline" className="border-[#D9D7D0] text-[#A1A1AA] rounded-full cursor-not-allowed opacity-50" disabled>
                     <Download className="h-4 w-4 mr-2" />
-                    Exporter
+                    Exporter (bientôt)
                 </Button>
             </div>
 
@@ -198,9 +198,9 @@ export default function CreatorEarningsPage() {
                         </div>
                     </div>
 
-                    <Button variant="outline" className="w-full border-[#D9D7D0] text-[#18181B] hover:bg-[#F4F3EF] rounded-full">
+                    <Button variant="outline" className="w-full border-[#D9D7D0] text-[#A1A1AA] rounded-full cursor-not-allowed opacity-50" disabled>
                         <CreditCard className="w-4 h-4 mr-2" />
-                        Configurer IBAN
+                        Configurer IBAN (bientôt)
                     </Button>
                 </div>
             </motion.div>

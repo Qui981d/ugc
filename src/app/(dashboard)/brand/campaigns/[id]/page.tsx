@@ -38,6 +38,7 @@ import {
     brandRequestRevision,
 } from '@/lib/services/adminService'
 import { formatCHF } from '@/lib/validations/swiss'
+import { getStatusConfig } from '@/lib/constants/statusConfig'
 import type { Campaign, MissionStep, MissionStepType, ProfileCreator } from '@/types/database'
 import { createClient } from '@/lib/supabase/client'
 
@@ -45,27 +46,27 @@ import { createClient } from '@/lib/supabase/client'
 // TIMELINE CONFIGURATION — Visible steps for the brand
 // ================================================
 const TIMELINE_STEPS: { type: MissionStepType; label: string; description: string; icon: typeof FileText; actionRequired?: boolean }[] = [
-    { type: 'brief_received', label: 'Brief reçu par MOSH', description: 'Votre brief a été reçu et est en cours d\'analyse.', icon: FileText },
-    { type: 'creators_proposed', label: 'Profils proposés', description: 'MOSH a sélectionné des créateurs pour vous. Choisissez votre favori !', icon: Users, actionRequired: true },
-    { type: 'creator_validated', label: 'Créateur validé', description: 'Un créateur a été assigné à votre projet.', icon: CheckCircle2 },
-    { type: 'script_sent', label: 'Script rédigé', description: 'Le script de votre vidéo est prêt.', icon: FileText },
+    { type: 'brief_received', label: 'Analyse du brief', description: 'Votre brief a été reçu et est en cours d\'analyse.', icon: FileText },
+    { type: 'creators_proposed', label: 'Proposition de profils', description: 'MOSH a sélectionné des créateurs pour vous. Choisissez votre favori !', icon: Users, actionRequired: true },
+    { type: 'creator_validated', label: 'Choix du créateur', description: 'Un créateur a été assigné à votre projet.', icon: CheckCircle2 },
+    { type: 'script_sent', label: 'Rédaction du script', description: 'Le script de votre vidéo est prêt.', icon: FileText },
     { type: 'script_brand_review', label: 'Validation du script', description: 'Relisez le script et validez pour lancer la production.', icon: Pen, actionRequired: true },
-    { type: 'mission_sent_to_creator', label: 'Mission envoyée au créateur', description: 'Le créateur a reçu la mission et le script validé.', icon: Send },
-    { type: 'creator_accepted', label: 'Créateur en action', description: 'Le créateur a accepté et prépare le tournage.', icon: CheckCircle2 },
-    { type: 'creator_shooting', label: 'Tournage en cours', description: 'Le créateur produit votre vidéo.', icon: Video },
-    { type: 'video_uploaded_by_creator', label: 'Vidéo livrée par le créateur', description: 'Le créateur a soumis la vidéo pour vérification.', icon: Video },
-    { type: 'video_validated', label: 'Qualité vérifiée par MOSH', description: 'MOSH a vérifié la qualité de la vidéo.', icon: CheckCircle2 },
-    { type: 'video_sent_to_brand', label: 'Vidéo livrée', description: 'Votre vidéo est prête pour votre validation finale.', icon: Package },
+    { type: 'mission_sent_to_creator', label: 'Envoi de la mission', description: 'Le créateur a reçu la mission et le script validé.', icon: Send },
+    { type: 'creator_accepted', label: 'Acceptation mission', description: 'Le créateur a accepté et prépare le tournage.', icon: CheckCircle2 },
+    { type: 'creator_shooting', label: 'Tournage', description: 'Le créateur produit votre vidéo.', icon: Video },
+    { type: 'video_uploaded_by_creator', label: 'Livraison de la vidéo', description: 'Le créateur a soumis la vidéo pour vérification.', icon: Video },
+    { type: 'video_validated', label: 'Contrôle qualité', description: 'MOSH a vérifié la qualité de la vidéo.', icon: CheckCircle2 },
+    { type: 'video_sent_to_brand', label: 'Envoi à la marque', description: 'Votre vidéo est prête pour votre validation finale.', icon: Package },
     { type: 'brand_final_review', label: 'Validation finale', description: 'Validez la vidéo ou demandez une révision (max 2).', icon: Star, actionRequired: true },
     { type: 'brand_final_approved', label: 'Mission terminée ✅', description: 'Votre vidéo UGC est finalisée. Téléchargez-la !', icon: CheckCircle2 },
 ]
 
 const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
-    draft: { label: 'Brief envoyé', color: 'text-amber-700', bg: 'bg-amber-50' },
-    open: { label: 'Créateur en sélection', color: 'text-blue-700', bg: 'bg-blue-50' },
-    in_progress: { label: 'En production', color: 'text-purple-700', bg: 'bg-purple-50' },
-    completed: { label: 'Vidéo livrée', color: 'text-emerald-700', bg: 'bg-emerald-50' },
-    cancelled: { label: 'Annulé', color: 'text-red-700', bg: 'bg-red-50' },
+    draft: { label: 'Brief envoyé', color: getStatusConfig('draft').color, bg: getStatusConfig('draft').bg },
+    open: { label: 'Créateur en sélection', color: getStatusConfig('open').color, bg: getStatusConfig('open').bg },
+    in_progress: { label: 'En production', color: getStatusConfig('in_progress').color, bg: getStatusConfig('in_progress').bg },
+    completed: { label: 'Terminée', color: getStatusConfig('completed').color, bg: getStatusConfig('completed').bg },
+    cancelled: { label: 'Annulé', color: getStatusConfig('cancelled').color, bg: getStatusConfig('cancelled').bg },
 }
 
 // ================================================
@@ -170,6 +171,8 @@ export default function BrandCampaignDetailPage() {
 
     // ---- Action handlers ----
     const handleSelectCreator = async (creatorId: string) => {
+        const confirmed = window.confirm('Êtes-vous sûr de vouloir sélectionner ce créateur ? Ce choix est définitif.')
+        if (!confirmed) return
         setActionLoading(true)
         const result = await brandSelectCreator(campaignId, creatorId)
         if (result.success) await loadData()
@@ -283,6 +286,10 @@ export default function BrandCampaignDetailPage() {
                         </span>
                     )}
                     <span className="font-semibold text-gray-900">{formatCHF(campaign.budget_chf)}</span>
+                    <Link href="/brand/messages" className="ml-auto text-sm text-[#71717A] hover:text-[#18181B] transition-colors flex items-center gap-1.5">
+                        <MessageSquare className="w-4 h-4" />
+                        Contacter MOSH
+                    </Link>
                 </div>
             </div>
 

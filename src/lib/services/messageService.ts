@@ -15,6 +15,60 @@ export type Conversation = {
 
 // Max message length (matches DB constraint)
 const MAX_MESSAGE_LENGTH = 5000
+const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024 // 10 MB
+const ALLOWED_MIME_TYPES = [
+    'image/jpeg', 'image/png', 'image/webp', 'image/gif',
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+]
+
+/**
+ * Detect attachment type category from MIME type
+ */
+function getAttachmentType(mimeType: string): string {
+    if (mimeType.startsWith('image/')) return 'image'
+    if (mimeType === 'application/pdf') return 'pdf'
+    return 'document'
+}
+
+/**
+ * Upload a file to Supabase Storage for message attachments
+ */
+export async function uploadMessageAttachment(
+    file: File,
+    campaignId: string
+): Promise<{ url: string; name: string; type: string } | { error: string }> {
+    if (file.size > MAX_ATTACHMENT_SIZE) {
+        return { error: `Fichier trop volumineux (max ${MAX_ATTACHMENT_SIZE / 1024 / 1024} MB)` }
+    }
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+        return { error: 'Type de fichier non supporté. Utilisez des images, PDF ou documents Word.' }
+    }
+
+    const supabase = createClient()
+    const timestamp = Date.now()
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+    const path = `${campaignId}/${timestamp}_${safeName}`
+
+    const { error } = await supabase.storage
+        .from('message-attachments')
+        .upload(path, file, { contentType: file.type })
+
+    if (error) {
+        return { error: `Erreur d'upload: ${error.message}` }
+    }
+
+    const { data: urlData } = supabase.storage
+        .from('message-attachments')
+        .getPublicUrl(path)
+
+    return {
+        url: urlData.publicUrl,
+        name: file.name,
+        type: getAttachmentType(file.type),
+    }
+}
 
 /**
  * Get all conversations for current user
@@ -146,17 +200,18 @@ export async function getMessages(campaignId: string): Promise<MessageWithSender
  */
 export async function sendMessage(
     campaignId: string,
-    content: string
+    content: string,
+    attachment?: { url: string; name: string; type: string }
 ): Promise<{ message: Message | null; error?: string }> {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { message: null, error: 'Not authenticated' }
 
-    // Input validation
-    if (!content || content.trim().length === 0) {
+    // Input validation — content can be empty if there's an attachment
+    if ((!content || content.trim().length === 0) && !attachment) {
         return { message: null, error: 'Le message ne peut pas être vide' }
     }
-    if (content.length > MAX_MESSAGE_LENGTH) {
+    if (content && content.length > MAX_MESSAGE_LENGTH) {
         return { message: null, error: `Le message est trop long (max ${MAX_MESSAGE_LENGTH} caractères)` }
     }
 
@@ -174,7 +229,10 @@ export async function sendMessage(
         .insert({
             campaign_id: campaignId,
             sender_id: user.id,
-            content: content.trim(),
+            content: (content || '').trim(),
+            attachment_url: attachment?.url || null,
+            attachment_name: attachment?.name || null,
+            attachment_type: attachment?.type || null,
         })
         .select()
         .single()

@@ -9,15 +9,10 @@ import Link from "next/link"
 import { formatCHF } from "@/lib/validations/swiss"
 import { useAuth } from "@/contexts/AuthContext"
 import { getMyCampaigns } from "@/lib/services/campaignService"
+import { getStatusConfig } from "@/lib/constants/statusConfig"
 import type { Campaign } from "@/types/database"
 
-const statusConfig: Record<string, { label: string; icon: typeof Clock; class: string }> = {
-    draft: { label: "Brief envoyé", icon: Clock, class: "bg-amber-500/15 text-amber-700 border border-amber-500/25" },
-    open: { label: "Créateur en sélection", icon: Eye, class: "bg-blue-500/15 text-blue-700 border border-blue-500/25" },
-    in_progress: { label: "En production", icon: Clock, class: "bg-[#C4F042]/20 text-[#18181B] border border-[#C4F042]/30" },
-    completed: { label: "Vidéo livrée", icon: CheckCircle2, class: "bg-emerald-500/15 text-emerald-700 border border-emerald-500/25" },
-    cancelled: { label: "Annulé", icon: XCircle, class: "bg-red-500/15 text-red-700 border border-red-500/25" },
-}
+
 
 export default function BrandDashboardPage() {
     const { user, isLoading } = useAuth()
@@ -81,6 +76,37 @@ export default function BrandDashboardPage() {
                 </Link>
             </motion.div>
 
+            {/* Action Required Banner (B10) */}
+            {(() => {
+                const actionCampaigns = campaigns.filter(c => c.status === 'open')
+                if (actionCampaigns.length === 0) return null
+                return (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-[#C4F042]/15 border border-[#C4F042]/30 rounded-2xl p-4 flex items-center gap-3"
+                    >
+                        <div className="w-10 h-10 rounded-xl bg-[#C4F042]/25 flex items-center justify-center flex-shrink-0">
+                            <span className="text-lg">⚡</span>
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-sm font-medium text-[#18181B]">
+                                {actionCampaigns.length} brief{actionCampaigns.length > 1 ? 's' : ''} nécessite{actionCampaigns.length > 1 ? 'nt' : ''} votre attention
+                            </p>
+                            <p className="text-xs text-[#71717A]">
+                                Sélection de créateur en attente
+                            </p>
+                        </div>
+                        <Link href={`/brand/campaigns/${actionCampaigns[0].id}`}>
+                            <Button size="sm" className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full px-4">
+                                Voir
+                                <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
+                            </Button>
+                        </Link>
+                    </motion.div>
+                )
+            })()}
+
             {/* Stats Grid — glassmorphism */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                 {stats.map((stat, index) => (
@@ -130,7 +156,7 @@ export default function BrandDashboardPage() {
                     ) : (
                         <div className="space-y-2">
                             {campaigns.slice(0, 5).map((campaign, index) => {
-                                const status = statusConfig[campaign.status] || statusConfig.draft
+                                const status = getStatusConfig(campaign.status)
                                 const StatusIcon = status.icon
 
                                 return (
@@ -154,7 +180,7 @@ export default function BrandDashboardPage() {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-4">
-                                                <Badge className={status.class}>
+                                                <Badge className={status.badgeClass}>
                                                     {status.label}
                                                 </Badge>
                                                 <span className="text-[#18181B] font-semibold">{formatCHF(campaign.budget_chf)}</span>

@@ -12,6 +12,7 @@ import {
     Settings,
     MoreHorizontal,
     X,
+    Wallet,
 } from "lucide-react"
 import { useNotifications } from "@/contexts/NotificationContext"
 import { useAuth } from "@/contexts/AuthContext"
@@ -38,6 +39,7 @@ const creatorMainItems: NavItem[] = [
 ]
 
 const creatorMoreItems: NavItem[] = [
+    { icon: Wallet, label: "Revenus", href: "/creator/earnings" },
     { icon: Upload, label: "Portfolio", href: "/creator/portfolio" },
     { icon: Settings, label: "Paramètres", href: "/creator/settings" },
 ]

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { toast } from 'sonner'
 import {
     ArrowLeft,
     Upload,
@@ -105,17 +106,10 @@ export default function NewCampaignPage() {
 
     const handleSubmit = async () => {
         setIsSubmitting(true)
-        console.log('Starting campaign creation...')
 
         try {
-            // Map form data to API format
             const { createCampaign } = await import('@/lib/services/campaignService')
-
-            // Store form data reference before API call
             const formData = campaign
-
-            console.log('Form data:', formData)
-            console.log('Selected specialties:', selectedSpecialties)
 
             const campaignPayload = {
                 title: formData.title,
@@ -131,26 +125,25 @@ export default function NewCampaignPage() {
                 pricing_pack: (formData.pricingPack || undefined) as any,
             }
 
-            console.log('Campaign payload:', campaignPayload)
-
             const result = await createCampaign(campaignPayload)
 
-            console.log('API result:', result)
-
             if (result.error) {
-                console.error('Error creating campaign:', result.error)
-                alert('Erreur lors de la création de la campagne: ' + result.error)
+                toast.error('Erreur lors de la création du brief', {
+                    description: result.error,
+                })
                 setIsSubmitting(false)
                 return
             }
 
-            console.log('Campaign created successfully:', result.campaign)
-            // Reset submitting state before navigation
+            toast.success('Brief envoyé avec succès ! 🎉', {
+                description: 'MOSH va analyser votre brief et vous proposer des créateurs.',
+            })
             setIsSubmitting(false)
             router.push('/brand/campaigns')
         } catch (err) {
-            console.error('Unexpected error:', err)
-            alert('Erreur inattendue lors de la création: ' + (err instanceof Error ? err.message : String(err)))
+            toast.error('Erreur inattendue', {
+                description: err instanceof Error ? err.message : String(err),
+            })
             setIsSubmitting(false)
         }
     }

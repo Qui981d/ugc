@@ -37,15 +37,15 @@ import type { Campaign, MissionStep, MissionStepType } from '@/types/database'
 // CREATOR TIMELINE — starts at selection
 // ================================================
 const TIMELINE_STEPS: { type: MissionStepType; label: string; waitingDesc: string; doneDesc: string; icon: typeof FileText; creatorAction?: boolean }[] = [
-    { type: 'creator_validated', label: 'Vous avez été sélectionné', waitingDesc: 'En attente de sélection par la marque.', doneDesc: 'La marque vous a choisi pour cette mission !', icon: Users },
-    { type: 'script_brand_approved', label: 'Script prêt', waitingDesc: 'Le script est en cours de rédaction et de validation par la marque. Vous serez notifié dès qu\'il sera prêt.', doneDesc: 'Le script est validé. Consultez-le dans la section « Script » ci-dessous.', icon: Pen },
-    { type: 'mission_sent_to_creator', label: 'Mission reçue', waitingDesc: 'MOSH prépare l\'envoi de votre mission avec le brief, le script et votre contrat.', doneDesc: 'Vous avez reçu la mission. Lisez le brief et le script, puis signez votre contrat pour commencer.', icon: Send },
-    { type: 'contract_signed', label: 'Contrat signé', waitingDesc: 'Lisez et signez votre contrat pour pouvoir démarrer la mission.', doneDesc: 'Contrat signé ! Vous pouvez maintenant accepter la mission.', icon: ScrollText, creatorAction: true },
-    { type: 'creator_accepted', label: 'Mission acceptée', waitingDesc: 'Confirmez que vous acceptez cette mission.', doneDesc: 'Vous avez accepté la mission. C\'est parti !', icon: CheckCircle2, creatorAction: true },
-    { type: 'creator_shooting', label: 'En tournage', waitingDesc: 'Indiquez que vous commencez le tournage.', doneDesc: 'Tournage en cours — bonne création !', icon: Camera, creatorAction: true },
-    { type: 'video_uploaded_by_creator', label: 'Vidéo livrée', waitingDesc: 'Uploadez votre vidéo pour la faire valider.', doneDesc: 'Vidéo livrée — en attente de vérification.', icon: Upload, creatorAction: true },
-    { type: 'video_validated', label: 'Vérification MOSH', waitingDesc: 'MOSH vérifie la qualité de votre vidéo.', doneDesc: 'Vidéo validée par MOSH ✓', icon: CheckCircle2 },
-    { type: 'video_sent_to_brand', label: 'Envoyée à la marque', waitingDesc: 'Votre vidéo va être transmise à la marque.', doneDesc: 'Vidéo transmise — en attente de validation finale.', icon: Package },
+    { type: 'creator_validated', label: 'Sélection créateur', waitingDesc: 'En attente de sélection par la marque.', doneDesc: 'La marque vous a choisi pour cette mission !', icon: Users },
+    { type: 'script_brand_approved', label: 'Validation du script', waitingDesc: 'Le script est en cours de rédaction et de validation par la marque. Vous serez notifié dès qu\'il sera prêt.', doneDesc: 'Le script est validé. Consultez-le dans la section « Script » ci-dessous.', icon: Pen },
+    { type: 'mission_sent_to_creator', label: 'Envoi de la mission', waitingDesc: 'MOSH prépare l\'envoi de votre mission avec le brief, le script et votre contrat.', doneDesc: 'Vous avez reçu la mission. Lisez le brief et le script, puis signez votre contrat pour commencer.', icon: Send },
+    { type: 'contract_signed', label: 'Signature du contrat', waitingDesc: 'Lisez et signez votre contrat pour pouvoir démarrer la mission.', doneDesc: 'Contrat signé ! Vous pouvez maintenant accepter la mission.', icon: ScrollText, creatorAction: true },
+    { type: 'creator_accepted', label: 'Acceptation mission', waitingDesc: 'Confirmez que vous acceptez cette mission.', doneDesc: 'Vous avez accepté la mission. C\'est parti !', icon: CheckCircle2, creatorAction: true },
+    { type: 'creator_shooting', label: 'Tournage', waitingDesc: 'Indiquez que vous commencez le tournage.', doneDesc: 'Tournage en cours — bonne création !', icon: Camera, creatorAction: true },
+    { type: 'video_uploaded_by_creator', label: 'Livraison de la vidéo', waitingDesc: 'Uploadez votre vidéo pour la faire valider.', doneDesc: 'Vidéo livrée — en attente de vérification.', icon: Upload, creatorAction: true },
+    { type: 'video_validated', label: 'Contrôle qualité', waitingDesc: 'MOSH vérifie la qualité de votre vidéo.', doneDesc: 'Vidéo validée par MOSH ✓', icon: CheckCircle2 },
+    { type: 'video_sent_to_brand', label: 'Envoi à la marque', waitingDesc: 'Votre vidéo va être transmise à la marque.', doneDesc: 'Vidéo transmise — en attente de validation finale.', icon: Package },
     { type: 'brand_final_approved', label: 'Mission terminée ✅', waitingDesc: 'La marque examine votre vidéo.', doneDesc: 'La marque a validé votre vidéo. Bravo !', icon: Star },
 ]
 

@@ -17,41 +17,17 @@ import {
     Sparkles,
     ChevronDown,
     Shield,
+    Paperclip,
+    X,
+    Download,
 } from 'lucide-react'
+import { uploadMessageAttachment } from '@/lib/services/messageService'
 import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase/client'
 import { getMyCampaigns } from '@/lib/services/campaignService'
 import { getMissionSteps } from '@/lib/services/adminService'
 import type { Campaign, MissionStep, MissionStepType } from '@/types/database'
-
-// ================================================
-// WORKFLOW STEP DEFINITIONS
-// ================================================
-type StepOwner = 'mosh' | 'brand' | 'creator'
-
-interface WorkflowStep {
-    type: MissionStepType
-    label: string
-    owner: StepOwner
-    icon: typeof FileText
-}
-
-const WORKFLOW_STEPS: WorkflowStep[] = [
-    { type: 'brief_received', label: 'Analyse du brief', owner: 'mosh', icon: FileText },
-    { type: 'creators_proposed', label: 'Proposition de profils', owner: 'mosh', icon: Users },
-    { type: 'creator_validated', label: 'Choix du créateur', owner: 'brand', icon: CheckCircle2 },
-    { type: 'script_sent', label: 'Rédaction du script', owner: 'mosh', icon: Pen },
-    { type: 'script_brand_review', label: 'Envoi du script', owner: 'mosh', icon: Send },
-    { type: 'script_brand_approved', label: 'Validation du script', owner: 'brand', icon: CheckCircle2 },
-    { type: 'mission_sent_to_creator', label: 'Envoi de la mission', owner: 'mosh', icon: Send },
-    { type: 'contract_signed', label: 'Signature du contrat', owner: 'creator', icon: FileText },
-    { type: 'creator_accepted', label: 'Acceptation mission', owner: 'creator', icon: CheckCircle2 },
-    { type: 'creator_shooting', label: 'Tournage', owner: 'creator', icon: Video },
-    { type: 'video_uploaded_by_creator', label: 'Livraison de la vidéo', owner: 'creator', icon: Video },
-    { type: 'video_validated', label: 'Contrôle qualité', owner: 'mosh', icon: CheckCircle2 },
-    { type: 'video_sent_to_brand', label: 'Envoi à la marque', owner: 'mosh', icon: Package },
-    { type: 'brand_final_approved', label: 'Validation finale', owner: 'brand', icon: Star },
-]
+import { WORKFLOW_STEPS, getStepsByOwner, type StepOwner, type WorkflowStepDef } from '@/lib/constants/workflowSteps'
 
 // ================================================
 // MESSAGE INTERFACE
@@ -61,6 +37,9 @@ interface Message {
     content: string
     sender_id: string
     created_at: string
+    attachment_url: string | null
+    attachment_name: string | null
+    attachment_type: string | null
 }
 
 // ================================================
@@ -77,10 +56,13 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
     const [steps, setSteps] = useState<MissionStep[]>([])
     const [messages, setMessages] = useState<Message[]>([])
     const [messageInput, setMessageInput] = useState('')
+    const [pendingFile, setPendingFile] = useState<File | null>(null)
+    const [isUploading, setIsUploading] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
     const [projectDropdownOpen, setProjectDropdownOpen] = useState(false)
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     // Load campaigns
     useEffect(() => {
@@ -151,29 +133,51 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
 
     // Send message
     const handleSendMessage = async () => {
-        if (!messageInput.trim() || !user || !selectedCampaignId) return
+        if ((!messageInput.trim() && !pendingFile) || !user || !selectedCampaignId) return
+
+        setIsUploading(!!pendingFile)
+        let attachment: { url: string; name: string; type: string } | undefined
+
+        if (pendingFile) {
+            const result = await uploadMessageAttachment(pendingFile, selectedCampaignId)
+            if ('error' in result) {
+                setIsUploading(false)
+                return
+            }
+            attachment = result
+        }
+
         const supabase = createClient()
         const { data, error } = await supabase
             .from('messages')
-            .insert({ campaign_id: selectedCampaignId, sender_id: user.id, content: messageInput.trim() } as any)
+            .insert({
+                campaign_id: selectedCampaignId,
+                sender_id: user.id,
+                content: (messageInput || '').trim(),
+                attachment_url: attachment?.url || null,
+                attachment_name: attachment?.name || null,
+                attachment_type: attachment?.type || null,
+            } as any)
             .select()
             .single()
         if (!error && data) {
             setMessages(prev => [...prev, data as Message])
             setMessageInput('')
+            setPendingFile(null)
             if (textareaRef.current) {
                 textareaRef.current.style.height = 'auto'
             }
         }
+        setIsUploading(false)
     }
 
     // Helpers
     const isStepCompleted = (stepType: MissionStepType) =>
         steps.some(s => s.step_type === stepType)
 
-    const getActiveStep = (): WorkflowStep | null => {
+    const getActiveStep = (): WorkflowStepDef | null => {
         for (let i = WORKFLOW_STEPS.length - 1; i >= 0; i--) {
-            if (isStepCompleted(WORKFLOW_STEPS[i].type)) {
+            if (isStepCompleted(WORKFLOW_STEPS[i].type as MissionStepType)) {
                 return WORKFLOW_STEPS[i + 1] || null
             }
         }
@@ -183,7 +187,7 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
     const getCompletedCount = () => {
         let count = 0
         for (const step of WORKFLOW_STEPS) {
-            if (isStepCompleted(step.type)) count++
+            if (isStepCompleted(step.type as MissionStepType)) count++
             else break
         }
         return count
@@ -245,7 +249,7 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
     // RENDER COLUMN (workflow column helper)
     // ============================================================
     const renderColumn = (
-        title: string, letter: string, ownerSteps: WorkflowStep[],
+        title: string, letter: string, ownerSteps: WorkflowStepDef[],
         isActive: boolean, darkMode: boolean, accentColor: string
     ) => (
         <div className={`rounded-2xl p-4 transition-all ${isActive
@@ -275,7 +279,7 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
             </div>
             <div className="space-y-1">
                 {ownerSteps.map(step => {
-                    const completed = isStepCompleted(step.type)
+                    const completed = isStepCompleted(step.type as MissionStepType)
                     const isActiveStep = activeStep?.type === step.type
                     return (
                         <div key={step.type} className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] transition-all ${completed
@@ -472,7 +476,22 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                                                 ? 'bg-[#18181B] text-white rounded-[16px] rounded-br-[4px]'
                                                 : 'bg-[#F4F3EF] text-[#18181B] rounded-[16px] rounded-bl-[4px]'
                                                 }`}>
-                                                <p>{msg.content}</p>
+                                                {/* Attachment */}
+                                                {msg.attachment_url && (
+                                                    msg.attachment_type === 'image' ? (
+                                                        <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer" className="block mb-2">
+                                                            <img src={msg.attachment_url} alt={msg.attachment_name || 'Image'} className="max-w-full max-h-40 rounded-lg object-cover" />
+                                                        </a>
+                                                    ) : (
+                                                        <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer"
+                                                            className={`flex items-center gap-2 mb-2 px-3 py-2 rounded-lg transition-colors ${isOwn ? 'bg-white/10 hover:bg-white/15' : 'bg-black/[0.04] hover:bg-black/[0.06]'}`}>
+                                                            <FileText className="w-4 h-4 flex-shrink-0" />
+                                                            <span className="text-xs truncate flex-1">{msg.attachment_name || 'Fichier'}</span>
+                                                            <Download className="w-3.5 h-3.5 flex-shrink-0 opacity-60" />
+                                                        </a>
+                                                    )
+                                                )}
+                                                {msg.content && <p>{msg.content}</p>}
                                                 <p className={`text-[10px] mt-1.5 text-right ${isOwn ? 'text-white/40' : 'text-[#A1A1AA]'}`}>
                                                     {new Date(msg.created_at).toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit' })}
                                                 </p>
@@ -487,7 +506,21 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
 
                     {/* Input area */}
                     <div className="p-4 border-t border-black/[0.06] bg-white/80 flex-shrink-0">
-                        <div className="flex items-end gap-3">
+                        {/* Pending file preview */}
+                        {pendingFile && (
+                            <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-[#F4F3EF] rounded-xl">
+                                <Paperclip className="w-3.5 h-3.5 text-[#A1A1AA] flex-shrink-0" />
+                                <span className="text-xs text-[#52525B] truncate flex-1">{pendingFile.name}</span>
+                                <span className="text-[10px] text-[#A1A1AA]">{(pendingFile.size / 1024).toFixed(0)} KB</span>
+                                <button onClick={() => setPendingFile(null)} className="text-[#A1A1AA] hover:text-[#18181B]">
+                                    <X className="w-3.5 h-3.5" />
+                                </button>
+                            </div>
+                        )}
+                        <div className="flex items-center gap-2">
+                            <button onClick={() => fileInputRef.current?.click()} className="w-10 h-10 rounded-xl bg-[#F4F3EF] border border-black/[0.06] flex items-center justify-center text-[#A1A1AA] hover:text-[#18181B] hover:bg-[#E8E6DF] transition-all flex-shrink-0">
+                                <Paperclip className="w-4 h-4" />
+                            </button>
                             <div className="flex-1 relative">
                                 <textarea
                                     ref={textareaRef}
@@ -510,16 +543,29 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                             </div>
                             <button
                                 onClick={handleSendMessage}
-                                disabled={!messageInput.trim()}
+                                disabled={(!messageInput.trim() && !pendingFile) || isUploading}
                                 className="p-3 bg-[#18181B] text-white rounded-xl hover:bg-[#2A2A2E] transition-all disabled:opacity-30 disabled:cursor-not-allowed group flex-shrink-0"
                             >
-                                <Send className="w-4 h-4 group-hover:text-[#C4F042] transition-colors" />
+                                {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 group-hover:text-[#C4F042] transition-colors" />}
                             </button>
                         </div>
                         <p className="text-[10px] text-[#A1A1AA] mt-2 ml-1">
                             <kbd className="px-1.5 py-0.5 bg-[#F4F3EF] rounded text-[9px] font-mono">Entrée</kbd> envoyer · <kbd className="px-1.5 py-0.5 bg-[#F4F3EF] rounded text-[9px] font-mono">Maj+Entrée</kbd> retour à la ligne
                         </p>
                     </div>
+
+                    {/* Hidden file input */}
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        className="hidden"
+                        accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) setPendingFile(file)
+                            if (e.target) e.target.value = ''
+                        }}
+                    />
                 </div>
             </div>
         </div>

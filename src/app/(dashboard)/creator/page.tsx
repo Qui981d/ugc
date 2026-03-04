@@ -9,13 +9,9 @@ import Link from "next/link"
 import { formatCHF } from "@/lib/validations/swiss"
 import { useAuth } from "@/contexts/AuthContext"
 import { getAssignedCampaigns } from "@/lib/services/campaignService"
+import { getStatusConfig } from "@/lib/constants/statusConfig"
 
-const statusConfig: Record<string, { label: string; class: string }> = {
-    draft: { label: "Brief reçu", class: "bg-amber-500/15 text-amber-700 border border-amber-500/25" },
-    open: { label: "En recherche", class: "bg-[#C4F042]/15 text-[#18181B] border border-[#C4F042]/25" },
-    in_progress: { label: "En cours", class: "bg-[#C4F042]/20 text-[#18181B] border border-[#C4F042]/30" },
-    completed: { label: "Terminée", class: "bg-[#C4F042]/15 text-[#18181B] border border-[#C4F042]/25" },
-}
+
 
 interface MissionDisplay {
     id: string
@@ -162,8 +158,8 @@ export default function CreatorDashboardPage() {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-4">
-                                                <Badge className={statusConfig[mission.status]?.class || 'bg-[#F4F3EF] text-[#71717A]'}>
-                                                    {statusConfig[mission.status]?.label || mission.status}
+                                                <Badge className={getStatusConfig(mission.status)?.badgeClass || 'bg-[#F4F3EF] text-[#71717A]'}>
+                                                    {getStatusConfig(mission.status)?.label || mission.status}
                                                 </Badge>
                                                 <span className="text-[#18181B] font-semibold">{formatCHF(mission.budget)}</span>
                                                 <ChevronRight className="w-4 h-4 text-[#A1A1AA] group-hover:text-[#C4F042] transition-colors" strokeWidth={1.5} />
