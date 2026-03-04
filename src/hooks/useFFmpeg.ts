@@ -122,6 +122,7 @@ export function useFFmpeg() {
                     '-t', duration.toFixed(3),
                     '-vf', `subtitles=subs.srt:force_style='FontSize=24,PrimaryColour=&HFFFFFF&,OutlineColour=&H000000&,Outline=2'`,
                     '-c:a', 'copy',
+                    '-crf', '18',
                     '-preset', 'ultrafast',
                     outputName,
                 ])
