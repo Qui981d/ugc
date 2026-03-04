@@ -22,7 +22,8 @@ import {
     Download,
     Loader2,
     Banknote,
-    RotateCcw
+    RotateCcw,
+    Sparkles,
 } from 'lucide-react'
 import { createMoshContract, getMoshContractText } from '@/lib/services/contractService'
 import { generateInvoice, getInvoiceText } from '@/lib/services/invoiceService'
@@ -78,6 +79,78 @@ export default function AdminMissionDetailPage() {
     // QC
     const [showQcFeedback, setShowQcFeedback] = useState(false)
     const [qcFeedback, setQcFeedback] = useState('')
+    // AI
+    const [aiLoading, setAiLoading] = useState<'brief' | 'script' | null>(null)
+    const [aiBriefReview, setAiBriefReview] = useState<string | null>(null)
+
+    const handleAIBriefReview = async () => {
+        if (!campaign || aiLoading) return
+        setAiLoading('brief')
+        setAiBriefReview(null)
+        try {
+            const res = await fetch('/api/ai', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'review_brief',
+                    briefData: {
+                        title: campaign.title,
+                        product_name: campaign.product_name,
+                        product_description: campaign.product_description,
+                        description: campaign.description,
+                        format: campaign.format,
+                        script_type: campaign.script_type,
+                        script_notes: campaign.script_notes,
+                        rights_usage: campaign.rights_usage,
+                        budget_chf: campaign.budget_chf,
+                    },
+                }),
+            })
+            const data = await res.json()
+            if (data.error) {
+                setActionError(data.error)
+            } else {
+                setAiBriefReview(data.result)
+            }
+        } catch {
+            setActionError('Erreur de connexion au service IA')
+        }
+        setAiLoading(null)
+    }
+
+    const handleAIScriptGenerate = async () => {
+        if (!campaign || aiLoading) return
+        setAiLoading('script')
+        try {
+            const res = await fetch('/api/ai', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'generate_script',
+                    briefData: {
+                        title: campaign.title,
+                        product_name: campaign.product_name,
+                        product_description: campaign.product_description,
+                        description: campaign.description,
+                        format: campaign.format,
+                        script_type: campaign.script_type,
+                        script_notes: campaign.script_notes,
+                        rights_usage: campaign.rights_usage,
+                        script_brand_feedback: campaign.script_brand_feedback,
+                    },
+                }),
+            })
+            const data = await res.json()
+            if (data.error) {
+                setActionError(data.error)
+            } else {
+                setScriptDraft(data.result)
+            }
+        } catch {
+            setActionError('Erreur de connexion au service IA')
+        }
+        setAiLoading(null)
+    }
 
     const loadData = useCallback(async () => {
         const [campaigns, allCreators, missionSteps] = await Promise.all([
@@ -401,7 +474,29 @@ export default function AdminMissionDetailPage() {
                 <h2 className="text-sm font-semibold text-[#18181B] mb-4 flex items-center gap-2">
                     <FileText className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} />
                     Brief de la marque
+                    <div className="flex-1" />
+                    <button
+                        onClick={handleAIBriefReview}
+                        disabled={aiLoading === 'brief'}
+                        className="px-3 py-1.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-xs font-medium rounded-lg hover:from-violet-600 hover:to-purple-700 transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
+                    >
+                        {aiLoading === 'brief' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                        Relecture IA
+                    </button>
                 </h2>
+                {aiBriefReview && (
+                    <div className="mb-4 p-4 bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-200/50 rounded-xl">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Sparkles className="w-4 h-4 text-violet-500" />
+                            <p className="text-xs font-semibold text-violet-700">Analyse IA du brief</p>
+                            <div className="flex-1" />
+                            <button onClick={() => setAiBriefReview(null)} className="text-violet-400 hover:text-violet-600 text-xs">
+                                Fermer
+                            </button>
+                        </div>
+                        <div className="text-sm text-[#18181B] whitespace-pre-wrap leading-relaxed">{aiBriefReview}</div>
+                    </div>
+                )}
                 <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                         <p className="text-[#A1A1AA] mb-1">Produit</p>
@@ -609,7 +704,15 @@ export default function AdminMissionDetailPage() {
                         className="w-full bg-[#F4F3EF]/50 border border-black/[0.04] rounded-xl p-4 text-[#18181B] text-sm placeholder:text-[#A1A1AA] focus:outline-none focus:border-[#C4F042]/50 focus:ring-2 focus:ring-[#C4F042]/20 resize-y disabled:opacity-50"
                     />
                     {campaign.script_status !== 'brand_review' && campaign.script_status !== 'brand_approved' && (
-                        <div className="flex gap-3 mt-3">
+                        <div className="flex flex-wrap gap-3 mt-3">
+                            <button
+                                onClick={handleAIScriptGenerate}
+                                disabled={aiLoading === 'script'}
+                                className="px-4 py-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-medium rounded-xl hover:from-violet-600 hover:to-purple-700 transition-all disabled:opacity-50 flex items-center gap-2 shadow-sm"
+                            >
+                                {aiLoading === 'script' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                                Proposer script IA
+                            </button>
                             <button
                                 onClick={() => handleSaveScript('draft')}
                                 disabled={actionLoading}
