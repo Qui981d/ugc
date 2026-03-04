@@ -16,6 +16,7 @@ import {
     Trash2,
     ChevronDown,
     ChevronUp,
+    Sparkles,
 } from 'lucide-react'
 import { useFFmpeg, type TrimRange, type SubtitleEntry } from '@/hooks/useFFmpeg'
 
@@ -52,6 +53,9 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
     // FFmpeg
     const ffmpeg = useFFmpeg()
     const [exporting, setExporting] = useState(false)
+
+    // AI transcription
+    const [transcribing, setTranscribing] = useState(false)
 
     // Create object URL for the video file
     useEffect(() => {
@@ -211,6 +215,30 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
 
     const removeSubtitle = (id: string) => {
         setSubtitles(subtitles.filter(s => s.id !== id))
+    }
+
+    // AI subtitle generation
+    const handleGenerateSubtitles = async () => {
+        if (transcribing) return
+        setTranscribing(true)
+        try {
+            const formData = new FormData()
+            formData.append('file', file)
+            const res = await fetch('/api/ai/transcribe', {
+                method: 'POST',
+                body: formData,
+            })
+            const data = await res.json()
+            if (data.error) {
+                console.error('AI subtitle error:', data.error)
+            } else if (data.subtitles && data.subtitles.length > 0) {
+                setSubtitles(data.subtitles)
+                setShowSubPanel(true)
+            }
+        } catch (err) {
+            console.error('AI subtitle fetch error:', err)
+        }
+        setTranscribing(false)
     }
 
     const activeSub = subtitles.find(s => currentTime >= s.start && currentTime <= s.end)
@@ -393,7 +421,20 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
                 {showSubPanel && (
                     <div className="border-t border-[#F4F3EF] px-4 py-3 space-y-3">
                         {subtitles.length === 0 && (
-                            <p className="text-xs text-[#A1A1AA] text-center py-2">Aucun sous-titre. Cliquez + pour en ajouter.</p>
+                            <div className="text-center py-4 space-y-3">
+                                <p className="text-xs text-[#A1A1AA]">Aucun sous-titre.</p>
+                                <button
+                                    onClick={handleGenerateSubtitles}
+                                    disabled={transcribing}
+                                    className="w-full py-2.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-xl text-sm font-medium hover:from-violet-600 hover:to-purple-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm"
+                                >
+                                    {transcribing ? (
+                                        <><Loader2 className="w-4 h-4 animate-spin" /> Transcription en cours...</>
+                                    ) : (
+                                        <><Sparkles className="w-4 h-4" /> Générer les sous-titres IA</>
+                                    )}
+                                </button>
+                            </div>
                         )}
 
                         {subtitles.map(sub => (
@@ -426,11 +467,26 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
                             </div>
                         ))}
 
-                        <button onClick={addSubtitle}
-                            className="w-full py-2.5 border border-dashed border-[#D9D7D0] rounded-xl text-xs text-[#71717A] hover:bg-[#C4F042]/10 hover:border-[#C4F042]/40 hover:text-[#18181B] transition flex items-center justify-center gap-1.5">
-                            <Plus className="w-3.5 h-3.5" />
-                            Ajouter un sous-titre à {fmt(currentTime)}
-                        </button>
+                        <div className="flex gap-2">
+                            <button onClick={addSubtitle}
+                                className="flex-1 py-2.5 border border-dashed border-[#D9D7D0] rounded-xl text-xs text-[#71717A] hover:bg-[#C4F042]/10 hover:border-[#C4F042]/40 hover:text-[#18181B] transition flex items-center justify-center gap-1.5">
+                                <Plus className="w-3.5 h-3.5" />
+                                Ajouter à {fmt(currentTime)}
+                            </button>
+                            {subtitles.length > 0 && (
+                                <button
+                                    onClick={handleGenerateSubtitles}
+                                    disabled={transcribing}
+                                    className="py-2.5 px-4 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-xl text-xs font-medium hover:from-violet-600 hover:to-purple-700 transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
+                                >
+                                    {transcribing ? (
+                                        <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Transcription...</>
+                                    ) : (
+                                        <><Sparkles className="w-3.5 h-3.5" /> Regénérer IA</>
+                                    )}
+                                </button>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>
