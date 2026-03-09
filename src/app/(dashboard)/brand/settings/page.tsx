@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -18,38 +18,40 @@ import {
     Trash2,
     ChevronRight,
     Globe,
-    Mail
+    Mail,
+    Loader2
 } from "lucide-react"
-import Image from "next/image"
+import { useAuth } from "@/contexts/AuthContext"
+import { createClient } from "@/lib/supabase/client"
 
 const tabs = [
     { id: 'company', label: 'Entreprise', icon: Building2 },
-    { id: 'billing', label: 'Facturation', icon: CreditCard },
-    { id: 'team', label: 'Équipe', icon: Users },
     { id: 'notifications', label: 'Notifications', icon: Bell },
+    { id: 'billing', label: 'Facturation', icon: CreditCard },
     { id: 'security', label: 'Sécurité', icon: Shield },
 ]
 
-const MOCK_TEAM = [
-    { id: '1', name: 'Jean Martin', email: 'jean.martin@company.ch', role: 'Admin', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop' },
-    { id: '2', name: 'Sophie Dubois', email: 'sophie.dubois@company.ch', role: 'Éditeur', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop' },
-    { id: '3', name: 'Pierre Favre', email: 'pierre.favre@company.ch', role: 'Viewer', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop' },
-]
+// T5: Unified input class constant
+const INPUT_CLASS = 'w-full bg-[#F4F3EF] border border-[#D9D7D0] rounded-xl px-4 py-3 text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 focus:border-[#C4F042]/50'
 
 export default function BrandSettingsPage() {
+    const { user } = useAuth()
     const [activeTab, setActiveTab] = useState('company')
+    const [isLoading, setIsLoading] = useState(true)
+    const [saving, setSaving] = useState(false)
+    const [saveSuccess, setSaveSuccess] = useState(false)
 
-    // Company state
+    // Company state — loaded from DB
     const [company, setCompany] = useState({
-        name: 'Swiss Brand SA',
-        website: 'https://swissbrand.ch',
-        description: 'Entreprise leader dans le secteur horloger suisse depuis 1985. Nous créons des montres de qualité alliant tradition et innovation.',
-        industry: 'Horlogerie',
-        size: '50-200 employés',
-        location: 'Genève, Suisse'
+        company_name: '',
+        website: '',
+        description: '',
+        industry: '',
+        company_size: '',
+        address: '',
     })
 
-    // Notifications state
+    // Notifications state — loaded from DB
     const [notifications, setNotifications] = useState({
         emailNewApplicant: true,
         emailMessages: true,
@@ -58,45 +60,89 @@ export default function BrandSettingsPage() {
         emailMarketing: false,
     })
 
+    // B1: Load real data from Supabase
+    const loadProfile = useCallback(async () => {
+        if (!user) return
+        setIsLoading(true)
+        const supabase = createClient()
+        const { data } = await supabase
+            .from('profiles_brand')
+            .select('*')
+            .eq('user_id', user.id)
+            .single()
+
+        if (data) {
+            setCompany({
+                company_name: (data as any).company_name || '',
+                website: (data as any).website || '',
+                description: (data as any).description || '',
+                industry: (data as any).industry || '',
+                company_size: (data as any).company_size || '',
+                address: (data as any).address || '',
+            })
+            // B10: Load notification prefs
+            if ((data as any).notification_prefs) {
+                setNotifications((data as any).notification_prefs)
+            }
+        }
+        setIsLoading(false)
+    }, [user])
+
+    useEffect(() => { loadProfile() }, [loadProfile])
+
+    // B1: Save company changes to Supabase
+    const handleSaveCompany = async () => {
+        if (!user) return
+        setSaving(true)
+        const supabase = createClient()
+        await (supabase as any).from('profiles_brand')
+            .update({
+                company_name: company.company_name,
+                website: company.website || null,
+                description: company.description || null,
+                industry: company.industry || null,
+                company_size: company.company_size || null,
+                address: company.address || null,
+            })
+            .eq('user_id', user.id)
+        setSaving(false)
+        setSaveSuccess(true)
+        setTimeout(() => setSaveSuccess(false), 3000)
+    }
+
+    // B10: Save notification preferences to Supabase
+    const handleToggleNotification = async (key: string, checked: boolean) => {
+        const updated = { ...notifications, [key]: checked }
+        setNotifications(updated)
+        if (!user) return
+        const supabase = createClient()
+        await (supabase as any).from('profiles_brand')
+            .update({ notification_prefs: updated })
+            .eq('user_id', user.id)
+    }
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <Loader2 className="w-8 h-8 animate-spin text-[#A1A1AA]" />
+            </div>
+        )
+    }
+
     const renderTabContent = () => {
         switch (activeTab) {
             case 'company':
                 return (
                     <div className="space-y-8">
-                        {/* Logo */}
-                        <div className="flex items-center gap-6">
-                            <div className="relative">
-                                <div className="w-24 h-24 rounded-2xl overflow-hidden bg-[#F4F3EF] flex items-center justify-center">
-                                    <Image
-                                        src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&h=200&fit=crop"
-                                        alt="Company Logo"
-                                        width={96}
-                                        height={96}
-                                        className="object-cover"
-                                    />
-                                </div>
-                                <button className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-[#C4F042] flex items-center justify-center">
-                                    <Camera className="w-4 h-4 text-[#18181B]" />
-                                </button>
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-semibold text-[#18181B]">{company.name}</h3>
-                                <p className="text-sm text-[#71717A]">Compte vérifié</p>
-                                <Button variant="outline" size="sm" className="mt-2 border-[#D9D7D0] text-[#18181B] hover:bg-[#F4F3EF] rounded-full">
-                                    Changer le logo
-                                </Button>
-                            </div>
-                        </div>
-
-                        {/* Form Fields */}
+                        {/* Form Fields — T5: all using INPUT_CLASS */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-sm text-[#71717A] mb-2">Nom de l'entreprise</label>
+                                <label className="block text-sm text-[#71717A] mb-2">Nom de l&apos;entreprise</label>
                                 <input
                                     type="text"
-                                    value={company.name}
-                                    onChange={(e) => setCompany({ ...company, name: e.target.value })}
-                                    className="w-full bg-[#F4F3EF] border border-[#D9D7D0] rounded-xl px-4 py-3 text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 focus:border-[#C4F042]/50"
+                                    value={company.company_name}
+                                    onChange={(e) => setCompany({ ...company, company_name: e.target.value })}
+                                    className={INPUT_CLASS}
                                 />
                             </div>
                             <div>
@@ -107,7 +153,8 @@ export default function BrandSettingsPage() {
                                         type="url"
                                         value={company.website}
                                         onChange={(e) => setCompany({ ...company, website: e.target.value })}
-                                        className="w-full bg-[#F4F3EF] border border-[#D9D7D0] rounded-xl pl-11 pr-4 py-3 text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 focus:border-[#C4F042]/50"
+                                        placeholder="https://..."
+                                        className={`${INPUT_CLASS} pl-11`}
                                     />
                                 </div>
                             </div>
@@ -119,7 +166,8 @@ export default function BrandSettingsPage() {
                                 value={company.description}
                                 onChange={(e) => setCompany({ ...company, description: e.target.value })}
                                 rows={4}
-                                className="w-full bg-[#F4F3EF] border border-[#D9D7D0] rounded-xl px-4 py-3 text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 focus:border-[#C4F042]/50 resize-none"
+                                placeholder="Décrivez votre entreprise..."
+                                className={`${INPUT_CLASS} resize-none`}
                             />
                         </div>
 
@@ -130,202 +178,54 @@ export default function BrandSettingsPage() {
                                     type="text"
                                     value={company.industry}
                                     onChange={(e) => setCompany({ ...company, industry: e.target.value })}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
+                                    placeholder="Ex: Horlogerie"
+                                    className={INPUT_CLASS}
                                 />
                             </div>
                             <div>
                                 <label className="block text-sm text-[#71717A] mb-2">Taille</label>
                                 <input
                                     type="text"
-                                    value={company.size}
-                                    onChange={(e) => setCompany({ ...company, size: e.target.value })}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
+                                    value={company.company_size}
+                                    onChange={(e) => setCompany({ ...company, company_size: e.target.value })}
+                                    placeholder="Ex: 50-200 employés"
+                                    className={INPUT_CLASS}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm text-[#71717A] mb-2">Localisation</label>
+                                <label className="block text-sm text-[#71717A] mb-2">Adresse</label>
                                 <input
                                     type="text"
-                                    value={company.location}
-                                    onChange={(e) => setCompany({ ...company, location: e.target.value })}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
+                                    value={company.address}
+                                    onChange={(e) => setCompany({ ...company, address: e.target.value })}
+                                    placeholder="Genève, Suisse"
+                                    className={INPUT_CLASS}
                                 />
                             </div>
                         </div>
 
-                        <Button className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full px-6">
-                            <Save className="w-4 h-4 mr-2" />
-                            Enregistrer les modifications
-                        </Button>
-                    </div>
-                )
-
-            case 'billing':
-                return (
-                    <div className="space-y-8">
-                        {/* Current Plan */}
-                        <div>
-                            <h3 className="text-lg font-semibold text-[#18181B] mb-4">Plan actuel</h3>
-                            <div className="p-6 bg-gradient-to-br from-[#C4F042]/15 to-[#C4F042]/5 border border-[#C4F042]/30 rounded-2xl">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <Badge className="bg-[#C4F042] text-[#18181B] border-0 mb-2 font-semibold">Pro</Badge>
-                                        <p className="text-2xl font-bold text-[#18181B]">CHF 199/mois</p>
-                                        <p className="text-sm text-[#71717A] mt-1">Renouvelé le 1 Mars 2024</p>
-                                    </div>
-                                    <Button variant="outline" className="border-[#D9D7D0] text-[#18181B] hover:bg-[#F4F3EF] rounded-full">
-                                        Changer de plan
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Billing Address */}
-                        <div>
-                            <h3 className="text-lg font-semibold text-[#18181B] mb-4">Adresse de facturation</h3>
-                            <div className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm text-[#71717A] mb-2">Rue</label>
-                                        <input
-                                            type="text"
-                                            defaultValue="Rue du Rhône 45"
-                                            className="w-full bg-[#F4F3EF] border border-[#D9D7D0] rounded-xl px-4 py-3 text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 focus:border-[#C4F042]/50"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm text-[#71717A] mb-2">NPA & Ville</label>
-                                        <input
-                                            type="text"
-                                            defaultValue="1204 Genève"
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm text-[#71717A] mb-2">Pays</label>
-                                        <input
-                                            type="text"
-                                            defaultValue="Suisse"
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm text-[#71717A] mb-2">N° TVA (optionnel)</label>
-                                        <input
-                                            type="text"
-                                            defaultValue="CHE-123.456.789"
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 font-mono focus:outline-none focus:border-white/25"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Payment Method */}
-                        <div>
-                            <h3 className="text-lg font-semibold text-[#18181B] mb-4">Méthode de paiement</h3>
-                            <div className="p-5 bg-[#F4F3EF] border border-[#D9D7D0] rounded-2xl">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-[#E8E6DF] flex items-center justify-center">
-                                            <CreditCard className="w-6 h-6 text-[#52525B]" strokeWidth={1.5} />
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-[#18181B]">Visa •••• 4242</p>
-                                            <p className="text-sm text-[#A1A1AA]">Expire 12/25</p>
-                                        </div>
-                                    </div>
-                                    <Button variant="outline" size="sm" className="border-[#D9D7D0] text-[#18181B] hover:bg-[#E8E6DF] rounded-full">
-                                        Modifier
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Invoices */}
-                        <div>
-                            <h3 className="text-lg font-semibold text-[#18181B] mb-4">Historique des factures</h3>
-                            <div className="space-y-2">
-                                {[
-                                    { date: '1 Fév 2024', amount: 199, status: 'Payée' },
-                                    { date: '1 Jan 2024', amount: 199, status: 'Payée' },
-                                    { date: '1 Déc 2023', amount: 199, status: 'Payée' },
-                                ].map((invoice, i) => (
-                                    <div key={i} className="flex items-center justify-between p-4 bg-[#F4F3EF] rounded-xl hover:bg-[#E8E6DF] transition-colors">
-                                        <div className="flex items-center gap-4">
-                                            <div>
-                                                <p className="text-[#18181B] font-medium">{invoice.date}</p>
-                                                <p className="text-sm text-[#A1A1AA]">Plan Pro</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-4">
-                                            <Badge className="bg-emerald-500/20 text-emerald-700 border-0">
-                                                {invoice.status}
-                                            </Badge>
-                                            <span className="text-[#18181B] font-medium">CHF {invoice.amount}</span>
-                                            <Button size="sm" variant="ghost" className="text-[#71717A] hover:text-[#18181B]">
-                                                Télécharger
-                                            </Button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                )
-
-            case 'team':
-                return (
-                    <div className="space-y-8">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h3 className="text-lg font-semibold text-[#18181B]">Membres de l'équipe</h3>
-                                <p className="text-sm text-[#71717A]">Gérez les accès à votre compte</p>
-                            </div>
-                            <Button className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full px-6">
-                                <Plus className="w-4 h-4 mr-2" />
-                                Inviter un membre
+                        <div className="flex items-center gap-3">
+                            <Button
+                                onClick={handleSaveCompany}
+                                disabled={saving}
+                                className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full px-6"
+                            >
+                                {saving ? (
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                ) : (
+                                    <Save className="w-4 h-4 mr-2" />
+                                )}
+                                Enregistrer les modifications
                             </Button>
-                        </div>
-
-                        <div className="space-y-3">
-                            {MOCK_TEAM.map(member => (
-                                <div key={member.id} className="flex items-center justify-between p-4 bg-[#F4F3EF] border border-[#D9D7D0] rounded-2xl">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-full overflow-hidden bg-[#E8E6DF]">
-                                            <Image
-                                                src={member.avatar}
-                                                alt={member.name}
-                                                width={40}
-                                                height={40}
-                                                className="object-cover"
-                                            />
-                                        </div>
-                                        <div>
-                                            <p className="text-[#18181B] font-medium">{member.name}</p>
-                                            <p className="text-sm text-[#A1A1AA]">{member.email}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        <Badge className={`border ${member.role === 'Admin'
-                                            ? 'bg-[#C4F042]/20 text-[#18181B] border-[#C4F042]/30'
-                                            : 'bg-[#F4F3EF] text-[#71717A] border-[#D9D7D0]'
-                                            }`}>
-                                            {member.role}
-                                        </Badge>
-                                        <Button size="sm" variant="ghost" className="text-gray-500 hover:text-red-700">
-                                            <Trash2 className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="p-5 bg-[#F4F3EF] border border-dashed border-[#D9D7D0] rounded-2xl text-center">
-                            <Mail className="w-8 h-8 text-[#A1A1AA] mx-auto mb-2" strokeWidth={1.5} />
-                            <p className="text-[#71717A] text-sm">Invitez des collègues par email</p>
+                            {saveSuccess && (
+                                <motion.span
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    className="text-sm text-[#C4F042] font-medium flex items-center gap-1"
+                                >
+                                    <CheckCircle2 className="w-4 h-4" /> Sauvegardé
+                                </motion.span>
+                            )}
                         </div>
                     </div>
                 )
@@ -348,8 +248,8 @@ export default function BrandSettingsPage() {
                                         <p className="text-sm text-[#A1A1AA]">{item.desc}</p>
                                     </div>
                                     <Switch
-                                        checked={notifications[item.key as keyof typeof notifications]}
-                                        onCheckedChange={(checked) => setNotifications({ ...notifications, [item.key]: checked })}
+                                        checked={notifications[item.key as keyof typeof notifications] ?? false}
+                                        onCheckedChange={(checked) => handleToggleNotification(item.key, checked)}
                                     />
                                 </div>
                             ))}
@@ -357,53 +257,40 @@ export default function BrandSettingsPage() {
                     </div>
                 )
 
+            case 'billing':
+                return (
+                    <div className="space-y-8">
+                        <div className="p-6 bg-amber-50 border border-amber-200 rounded-2xl">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
+                                    <CreditCard className="w-5 h-5 text-amber-700" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-amber-900">Facturation à venir</p>
+                                    <p className="text-xs text-amber-700">Les options de facturation seront bientôt disponibles. Contactez MOSH pour toute question.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+
             case 'security':
                 return (
                     <div className="space-y-8">
-                        {/* Password */}
                         <div>
                             <h3 className="text-lg font-semibold text-[#18181B] mb-4">Mot de passe</h3>
                             <div className="space-y-4">
                                 <div>
                                     <label className="block text-sm text-[#71717A] mb-2">Mot de passe actuel</label>
-                                    <input
-                                        type="password"
-                                        placeholder="••••••••"
-                                        className="w-full bg-[#F4F3EF] border border-[#D9D7D0] rounded-xl px-4 py-3 text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 focus:border-[#C4F042]/50"
-                                    />
+                                    <input type="password" placeholder="••••••••" className={INPUT_CLASS} />
                                 </div>
                                 <div>
                                     <label className="block text-sm text-[#71717A] mb-2">Nouveau mot de passe</label>
-                                    <input
-                                        type="password"
-                                        placeholder="••••••••"
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-white/25"
-                                    />
+                                    <input type="password" placeholder="••••••••" className={INPUT_CLASS} />
                                 </div>
                                 <Button className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full px-6">
                                     Changer le mot de passe
                                 </Button>
-                            </div>
-                        </div>
-
-                        {/* 2FA */}
-                        <div>
-                            <h3 className="text-lg font-semibold text-[#18181B] mb-4">Authentification à deux facteurs</h3>
-                            <div className="p-5 bg-[#F4F3EF] border border-[#D9D7D0] rounded-2xl">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                                            <CheckCircle2 className="w-6 h-6 text-emerald-700" />
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-[#18181B]">2FA activée</p>
-                                            <p className="text-sm text-[#A1A1AA]">Via Google Authenticator</p>
-                                        </div>
-                                    </div>
-                                    <Button variant="outline" className="border-[#D9D7D0] text-[#18181B] hover:bg-[#E8E6DF] rounded-full">
-                                        Désactiver
-                                    </Button>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -422,19 +309,8 @@ export default function BrandSettingsPage() {
                 <p className="text-[#71717A] mt-1">Gérez votre entreprise et préférences</p>
             </div>
 
-            {/* Coming Soon Banner */}
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-                    <span className="text-lg">🚧</span>
-                </div>
-                <div>
-                    <p className="text-sm font-medium text-amber-900">Page en construction</p>
-                    <p className="text-xs text-amber-700">Les paramètres seront bientôt configurables. Les données affichées sont des exemples.</p>
-                </div>
-            </div>
-
             <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-                {/* Sidebar Tabs — horizontal scroll on mobile, vertical on desktop */}
+                {/* Sidebar Tabs */}
                 <div className="flex md:flex-col md:w-60 md:flex-shrink-0 gap-1 overflow-x-auto pb-2 md:pb-0 md:space-y-1">
                     {tabs.map(tab => {
                         const Icon = tab.icon

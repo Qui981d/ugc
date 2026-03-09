@@ -41,10 +41,12 @@ const CONTENT_TYPES = [
 export default function NewCampaignPage() {
     const router = useRouter()
     const [step, setStep] = useState(1)
+    const [errors, setErrors] = useState<Record<string, string>>({})
 
     // Form state
     const [campaign, setCampaign] = useState({
         title: '',
+        productName: '',
         description: '',
         category: '',
         contentType: '',
@@ -57,6 +59,27 @@ export default function NewCampaignPage() {
     })
 
     const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([])
+
+    const validateStep = (s: number): boolean => {
+        const errs: Record<string, string> = {}
+        if (s === 1) {
+            if (!campaign.title.trim()) errs.title = 'Le titre est requis'
+            if (!campaign.description.trim()) errs.description = 'La description est requise'
+            if (selectedSpecialties.length === 0) errs.category = 'Sélectionnez au moins une catégorie'
+        } else if (s === 2) {
+            if (!campaign.contentType) errs.contentType = 'Choisissez un format de contenu'
+        } else if (s === 3) {
+            if (!campaign.pricingPack) errs.pricingPack = 'Choisissez un pack tarifaire'
+        }
+        setErrors(errs)
+        return Object.keys(errs).length === 0
+    }
+
+    const handleNextStep = () => {
+        if (validateStep(step)) {
+            setStep(step + 1)
+        }
+    }
 
     const toggleSpecialty = (specialty: string) => {
         setSelectedSpecialties(prev =>
@@ -111,10 +134,26 @@ export default function NewCampaignPage() {
             const { createCampaign } = await import('@/lib/services/campaignService')
             const formData = campaign
 
+            // B3: Upload thumbnail if provided
+            let thumbnailUrl: string | undefined
+            if (formData.thumbnail) {
+                const { createClient } = await import('@/lib/supabase/client')
+                const supabase = createClient()
+                const ext = formData.thumbnail.name.split('.').pop()
+                const filePath = `thumbnails/${Date.now()}.${ext}`
+                const { error: uploadError } = await supabase.storage
+                    .from('thumbnails')
+                    .upload(filePath, formData.thumbnail, { cacheControl: '3600', upsert: true })
+                if (!uploadError) {
+                    const { data: urlData } = supabase.storage.from('thumbnails').getPublicUrl(filePath)
+                    thumbnailUrl = urlData?.publicUrl
+                }
+            }
+
             const campaignPayload = {
                 title: formData.title,
                 description: formData.description || undefined,
-                product_name: formData.title,
+                product_name: formData.productName || formData.title,
                 script_type: (selectedSpecialties[0] || 'testimonial') as any,
                 budget_chf: formData.pricingPack === '1_video' ? 490
                     : formData.pricingPack === '3_videos' ? 1290
@@ -123,6 +162,7 @@ export default function NewCampaignPage() {
                 status: 'draft' as const,
                 script_notes: formData.requirements || undefined,
                 pricing_pack: (formData.pricingPack || undefined) as any,
+                thumbnail_url: thumbnailUrl || undefined,
             }
 
             const result = await createCampaign(campaignPayload)
@@ -201,10 +241,11 @@ export default function NewCampaignPage() {
                             <input
                                 type="text"
                                 value={campaign.title}
-                                onChange={(e) => setCampaign({ ...campaign, title: e.target.value })}
+                                onChange={(e) => { setCampaign({ ...campaign, title: e.target.value }); setErrors(prev => ({ ...prev, title: '' })) }}
                                 placeholder="Ex: Témoignage pour notre nouvelle collection"
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-white/25"
+                                className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#18181B]/20 ${errors.title ? 'border-red-400' : 'border-gray-200'}`}
                             />
+                            {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title}</p>}
                         </div>
 
                         {/* Description */}
@@ -212,10 +253,23 @@ export default function NewCampaignPage() {
                             <label className="block text-sm text-gray-500 mb-2">Description *</label>
                             <textarea
                                 value={campaign.description}
-                                onChange={(e) => setCampaign({ ...campaign, description: e.target.value })}
+                                onChange={(e) => { setCampaign({ ...campaign, description: e.target.value }); setErrors(prev => ({ ...prev, description: '' })) }}
                                 rows={4}
                                 placeholder="Décrivez votre campagne, le produit/service, et ce que vous attendez des créateurs..."
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-white/25 resize-none"
+                                className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#18181B]/20 resize-none ${errors.description ? 'border-red-400' : 'border-gray-200'}`}
+                            />
+                            {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description}</p>}
+                        </div>
+
+                        {/* Product Name */}
+                        <div>
+                            <label className="block text-sm text-gray-500 mb-2">Nom du produit / service</label>
+                            <input
+                                type="text"
+                                value={campaign.productName}
+                                onChange={(e) => setCampaign({ ...campaign, productName: e.target.value })}
+                                placeholder="Ex: Montre Alpine Pro X"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#18181B]/20"
                             />
                         </div>
 
@@ -226,7 +280,7 @@ export default function NewCampaignPage() {
                                 {SPECIALTIES.map(specialty => (
                                     <button
                                         key={specialty.id}
-                                        onClick={() => toggleSpecialty(specialty.id)}
+                                        onClick={() => { toggleSpecialty(specialty.id); setErrors(prev => ({ ...prev, category: '' })) }}
                                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedSpecialties.includes(specialty.id)
                                             ? 'bg-[#18181B] text-white'
                                             : 'bg-gray-50 text-gray-500 hover:bg-gray-100 border border-gray-200'
@@ -236,6 +290,7 @@ export default function NewCampaignPage() {
                                     </button>
                                 ))}
                             </div>
+                            {errors.category && <p className="text-xs text-red-500 mt-1">{errors.category}</p>}
                         </div>
 
                         {/* Thumbnail */}
@@ -290,7 +345,7 @@ export default function NewCampaignPage() {
                                 {CONTENT_TYPES.map(type => (
                                     <button
                                         key={type.id}
-                                        onClick={() => setCampaign({ ...campaign, contentType: type.id })}
+                                        onClick={() => { setCampaign({ ...campaign, contentType: type.id }); setErrors(prev => ({ ...prev, contentType: '' })) }}
                                         className={`p-4 rounded-xl text-left transition-all ${campaign.contentType === type.id
                                             ? 'bg-[#18181B]/20 border-[#18181B]/50 border'
                                             : 'bg-gray-50 border border-gray-200 hover:border-gray-200'
@@ -303,6 +358,7 @@ export default function NewCampaignPage() {
                                     </button>
                                 ))}
                             </div>
+                            {errors.contentType && <p className="text-xs text-red-500 mt-1">{errors.contentType}</p>}
                         </div>
 
                         {/* Requirements */}
@@ -405,7 +461,7 @@ export default function NewCampaignPage() {
                                 ].map(pack => (
                                     <button
                                         key={pack.id}
-                                        onClick={() => setCampaign({ ...campaign, pricingPack: pack.id })}
+                                        onClick={() => { setCampaign({ ...campaign, pricingPack: pack.id }); setErrors(prev => ({ ...prev, pricingPack: '' })) }}
                                         className={`w-full p-4 rounded-xl text-left transition-all flex items-center justify-between ${campaign.pricingPack === pack.id
                                             ? 'bg-[#18181B]/20 border-[#18181B]/50 border-2'
                                             : 'bg-gray-50 border border-gray-200 hover:border-gray-200'
@@ -423,6 +479,7 @@ export default function NewCampaignPage() {
                                     </button>
                                 ))}
                             </div>
+                            {errors.pricingPack && <p className="text-xs text-red-500 mt-1">{errors.pricingPack}</p>}
                         </div>
                         {/* Deadline */}
                         <div className="mt-6">
@@ -449,9 +506,19 @@ export default function NewCampaignPage() {
                                     <span className="text-gray-500">Titre</span>
                                     <span className="text-gray-900">{campaign.title || '—'}</span>
                                 </div>
+                                {campaign.productName && (
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Produit</span>
+                                        <span className="text-gray-900">{campaign.productName}</span>
+                                    </div>
+                                )}
                                 <div className="flex justify-between">
                                     <span className="text-gray-500">Catégories</span>
                                     <span className="text-gray-900">{selectedSpecialties.map(id => SPECIALTIES.find(s => s.id === id)?.label || id).join(', ') || '—'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">Format</span>
+                                    <span className="text-gray-900">{CONTENT_TYPES.find(t => t.id === campaign.contentType)?.label || '—'}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-gray-500">Pack</span>
@@ -467,6 +534,26 @@ export default function NewCampaignPage() {
                                     <span className="text-gray-500">Date souhaitée</span>
                                     <span className="text-gray-900">{campaign.deadline || '—'}</span>
                                 </div>
+                                {campaign.dos.filter(d => d.trim()).length > 0 && (
+                                    <div className="pt-2 border-t border-gray-100">
+                                        <span className="text-gray-500 text-xs font-medium">✅ À faire</span>
+                                        <ul className="mt-1 space-y-0.5">
+                                            {campaign.dos.filter(d => d.trim()).map((d, i) => (
+                                                <li key={i} className="text-gray-900 text-xs">• {d}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                                {campaign.donts.filter(d => d.trim()).length > 0 && (
+                                    <div className="pt-2 border-t border-gray-100">
+                                        <span className="text-gray-500 text-xs font-medium">❌ À éviter</span>
+                                        <ul className="mt-1 space-y-0.5">
+                                            {campaign.donts.filter(d => d.trim()).map((d, i) => (
+                                                <li key={i} className="text-gray-900 text-xs">• {d}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -489,14 +576,14 @@ export default function NewCampaignPage() {
                     {step < 3 ? (
                         <Button
                             className="btn-primary"
-                            onClick={() => setStep(step + 1)}
+                            onClick={handleNextStep}
                         >
                             Continuer
                         </Button>
                     ) : (
                         <Button
                             className="btn-primary"
-                            onClick={handleSubmit}
+                            onClick={() => { if (validateStep(3)) handleSubmit() }}
                             disabled={isSubmitting}
                         >
                             {isSubmitting ? (

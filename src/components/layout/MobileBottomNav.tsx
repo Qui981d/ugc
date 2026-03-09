@@ -13,6 +13,9 @@ import {
     MoreHorizontal,
     X,
     Wallet,
+    ClipboardList,
+    Users,
+    Building2,
 } from "lucide-react"
 import { useNotifications } from "@/contexts/NotificationContext"
 import { useAuth } from "@/contexts/AuthContext"
@@ -44,6 +47,14 @@ const creatorMoreItems: NavItem[] = [
     { icon: Settings, label: "Paramètres", href: "/creator/settings" },
 ]
 
+// T4: Admin mobile nav items
+const adminItems: NavItem[] = [
+    { icon: LayoutDashboard, label: "Dashboard", href: "/mosh-cockpit" },
+    { icon: ClipboardList, label: "Missions", href: "/mosh-cockpit/missions" },
+    { icon: Building2, label: "Marques", href: "/mosh-cockpit/brands" },
+    { icon: Users, label: "Créateurs", href: "/mosh-cockpit/creators" },
+]
+
 export function MobileBottomNav() {
     const pathname = usePathname()
     const { user } = useAuth()
@@ -66,6 +77,7 @@ export function MobileBottomNav() {
     if (!mounted || !role) return null
 
     const isBrand = role === 'brand'
+    const isAdmin = role === 'admin'
 
     // Check if any "more" item is active
     const isMoreItemActive = !isBrand && creatorMoreItems.some(
@@ -157,7 +169,9 @@ export function MobileBottomNav() {
                 style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
             >
                 <div className="flex items-center justify-around h-16">
-                    {isBrand ? (
+                    {isAdmin ? (
+                        adminItems.map(renderNavItem)
+                    ) : isBrand ? (
                         brandItems.map(renderNavItem)
                     ) : (
                         <>

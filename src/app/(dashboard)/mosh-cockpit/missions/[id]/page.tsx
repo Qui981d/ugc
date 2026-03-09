@@ -44,6 +44,7 @@ import {
 } from '@/lib/services/adminService'
 import type { MissionStep, MissionStepType } from '@/types/database'
 import { WORKFLOW_STEPS as CENTRAL_STEPS } from '@/lib/constants/workflowSteps'
+import { createClient } from '@/lib/supabase/client'
 
 const WORKFLOW_STEPS = CENTRAL_STEPS.map(s => ({
     type: s.type as MissionStepType,
@@ -82,6 +83,9 @@ export default function AdminMissionDetailPage() {
     // AI
     const [aiLoading, setAiLoading] = useState<'brief' | 'script' | null>(null)
     const [aiBriefReview, setAiBriefReview] = useState<string | null>(null)
+    // A8: Admin internal notes
+    const [adminNotes, setAdminNotes] = useState('')
+    const [savingNotes, setSavingNotes] = useState(false)
 
     const handleAIBriefReview = async () => {
         if (!campaign || aiLoading) return
@@ -163,6 +167,7 @@ export default function AdminMissionDetailPage() {
         setCreators(allCreators)
         setSteps(missionSteps)
         if (found?.script_content) setScriptDraft(found.script_content)
+        if (found?.admin_notes) setAdminNotes(found.admin_notes)
         setIsLoading(false)
     }, [campaignId])
 
@@ -179,6 +184,16 @@ export default function AdminMissionDetailPage() {
             if (isStepCompleted(ws.type)) lastCompleted = i
         })
         return lastCompleted
+    }
+
+    // A8: Save admin notes
+    const handleSaveAdminNotes = async () => {
+        setSavingNotes(true)
+        const supabase = createClient()
+        await (supabase as any).from('campaigns')
+            .update({ admin_notes: adminNotes || null })
+            .eq('id', campaignId)
+        setSavingNotes(false)
     }
 
     const handleValidateBrief = async () => {
@@ -309,10 +324,15 @@ export default function AdminMissionDetailPage() {
         const amount = parseFloat(creatorAmount)
         if (!amount || amount <= 0) return
         setActionLoading(true)
+        setActionError(null)
         const result = await createMoshContract(campaignId, amount)
         if (result.success) {
+            setActionSuccess('Contrat généré avec succès !')
+            setTimeout(() => setActionSuccess(null), 3000)
             setShowContractForm(false)
             await loadData()
+        } else {
+            setActionError('Erreur lors de la génération du contrat')
         }
         setActionLoading(false)
     }
@@ -325,7 +345,14 @@ export default function AdminMissionDetailPage() {
 
     const handleGenerateInvoice = async () => {
         setActionLoading(true)
-        await generateInvoice(campaignId)
+        setActionError(null)
+        try {
+            await generateInvoice(campaignId)
+            setActionSuccess('Facture générée avec succès !')
+            setTimeout(() => setActionSuccess(null), 3000)
+        } catch {
+            setActionError('Erreur lors de la génération de la facture')
+        }
         await loadData()
         setActionLoading(false)
     }
@@ -1031,6 +1058,36 @@ export default function AdminMissionDetailPage() {
                     </div>
                 )
             }
-        </div >
+
+            {/* A8: Admin Internal Notes */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[24px] p-5"
+            >
+                <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-bold text-[#18181B] flex items-center gap-2">
+                        <Pencil className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} />
+                        Notes internes (admin)
+                    </h3>
+                    <button
+                        onClick={handleSaveAdminNotes}
+                        disabled={savingNotes}
+                        className="text-xs font-medium text-[#71717A] hover:text-[#18181B] transition-colors disabled:opacity-50"
+                    >
+                        {savingNotes ? 'Sauvegarde...' : 'Sauvegarder'}
+                    </button>
+                </div>
+                <textarea
+                    value={adminNotes}
+                    onChange={(e) => setAdminNotes(e.target.value)}
+                    onBlur={handleSaveAdminNotes}
+                    placeholder="Notes privées sur cette mission (visibles uniquement par l'admin)..."
+                    rows={3}
+                    className="w-full bg-[#F4F3EF] border border-[#D9D7D0] rounded-xl px-4 py-3 text-sm text-[#18181B] placeholder:text-[#A1A1AA] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 focus:border-[#C4F042]/50 resize-none"
+                />
+            </motion.div>
+        </div>
     )
 }

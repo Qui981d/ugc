@@ -73,6 +73,47 @@ export default function CreatorStudioPage() {
     const [videoUploading, setVideoUploading] = useState(false)
     const [uploadProgress, setUploadProgress] = useState(0)
     const [dragOver, setDragOver] = useState(false)
+    const [fileError, setFileError] = useState<string | null>(null)
+    const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null)
+    const [videoDuration, setVideoDuration] = useState<number | null>(null)
+    const [showEditor, setShowEditor] = useState(false)
+
+    const MAX_FILE_SIZE = 500 * 1024 * 1024 // 500 MB
+    const ACCEPTED_FORMATS = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm', 'video/mov']
+
+    const validateAndSetVideo = (file: File) => {
+        setFileError(null)
+        setShowEditor(false)
+
+        // Check format
+        const isVideoExt = /\.(mp4|mov|avi|webm)$/i.test(file.name)
+        if (!file.type.startsWith('video/') && !isVideoExt) {
+            setFileError('Format non supporté. Utilisez MP4, MOV, AVI ou WebM.')
+            return
+        }
+
+        // Check size
+        if (file.size > MAX_FILE_SIZE) {
+            setFileError(`Fichier trop volumineux (${(file.size / (1024 * 1024)).toFixed(0)} MB). Maximum : 500 MB.`)
+            return
+        }
+
+        // Create preview URL
+        if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl)
+        const previewUrl = URL.createObjectURL(file)
+        setVideoPreviewUrl(previewUrl)
+
+        // Get duration via a hidden video element
+        const tempVideo = document.createElement('video')
+        tempVideo.preload = 'metadata'
+        tempVideo.onloadedmetadata = () => {
+            setVideoDuration(tempVideo.duration)
+            URL.revokeObjectURL(tempVideo.src)
+        }
+        tempVideo.src = previewUrl
+
+        setVideoFile(file)
+    }
 
     // UI
     const [scriptExpanded, setScriptExpanded] = useState(false)
@@ -351,42 +392,72 @@ export default function CreatorStudioPage() {
                         ) : isStepCompleted('creator_shooting') ? (
                             /* Editor or Drop zone */
                             <>
-                                {videoFile ? (
+                                {videoFile && showEditor ? (
                                     /* ===== VIDEO EDITOR ===== */
                                     <VideoEditor
                                         file={videoFile}
                                         onExport={handleEditorExport}
-                                        onCancel={() => setVideoFile(null)}
+                                        onCancel={() => { setShowEditor(false); setVideoFile(null); if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl); setVideoPreviewUrl(null); setVideoDuration(null) }}
                                     />
+                                ) : videoFile && videoPreviewUrl ? (
+                                    /* ===== VIDEO PREVIEW (before editor) ===== */
+                                    <div className="space-y-4">
+                                        <video src={videoPreviewUrl} controls className="w-full rounded-xl bg-black max-h-[350px]" />
+                                        <div className="flex flex-wrap items-center gap-3 text-xs text-[#71717A]">
+                                            <span className="bg-[#F4F3EF] px-2 py-1 rounded">{videoFile.name}</span>
+                                            <span className="bg-[#F4F3EF] px-2 py-1 rounded">{(videoFile.size / (1024 * 1024)).toFixed(1)} MB</span>
+                                            {videoDuration && <span className="bg-[#F4F3EF] px-2 py-1 rounded">{Math.floor(videoDuration / 60)}:{(Math.floor(videoDuration % 60)).toString().padStart(2, '0')}</span>}
+                                        </div>
+                                        <div className="flex gap-3">
+                                            <button
+                                                onClick={() => setShowEditor(true)}
+                                                className="flex-1 py-2.5 bg-[#18181B] text-[#C4F042] rounded-xl text-sm font-medium hover:bg-[#18181B]/90 transition-colors flex items-center justify-center gap-2"
+                                            >
+                                                <Film className="w-4 h-4" />
+                                                Ouvrir l&apos;éditeur
+                                            </button>
+                                            <button
+                                                onClick={() => { setVideoFile(null); if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl); setVideoPreviewUrl(null); setVideoDuration(null) }}
+                                                className="px-4 py-2.5 bg-[#F4F3EF] text-[#18181B] rounded-xl text-sm hover:bg-[#E5E7EB] transition-colors"
+                                            >
+                                                Changer
+                                            </button>
+                                        </div>
+                                    </div>
                                 ) : (
                                     /* Drop zone to load video into editor */
-                                    <div
-                                        onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
-                                        onDragLeave={() => setDragOver(false)}
-                                        onDrop={(e) => {
-                                            e.preventDefault()
-                                            setDragOver(false)
-                                            const file = e.dataTransfer.files[0]
-                                            if (file && (file.type.startsWith('video/') || file.name.match(/\.(mp4|mov|avi|webm)$/i))) {
-                                                setVideoFile(file)
-                                            }
-                                        }}
-                                        className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all ${dragOver ? 'border-[#C4F042] bg-[#C4F042]/10' : 'border-gray-200 bg-gray-50/50 hover:bg-gray-50 hover:border-gray-300'
-                                            }`}
-                                        onClick={() => {
-                                            const input = document.createElement('input')
-                                            input.type = 'file'
-                                            input.accept = 'video/*,.mp4,.mov,.avi,.webm'
-                                            input.onchange = (e) => {
-                                                const file = (e.target as HTMLInputElement).files?.[0]
-                                                if (file) setVideoFile(file)
-                                            }
-                                            input.click()
-                                        }}
-                                    >
-                                        <Upload className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-                                        <p className="text-sm font-medium text-[#18181B]">Glissez votre vidéo ici</p>
-                                        <p className="text-xs text-[#71717A] mt-1">Elle s&apos;ouvrira dans l&apos;éditeur — trim, sous-titres, export</p>
+                                    <div>
+                                        <div
+                                            onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+                                            onDragLeave={() => setDragOver(false)}
+                                            onDrop={(e) => {
+                                                e.preventDefault()
+                                                setDragOver(false)
+                                                const file = e.dataTransfer.files[0]
+                                                if (file) validateAndSetVideo(file)
+                                            }}
+                                            className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all ${dragOver ? 'border-[#C4F042] bg-[#C4F042]/10' : 'border-gray-200 bg-gray-50/50 hover:bg-gray-50 hover:border-gray-300'
+                                                }`}
+                                            onClick={() => {
+                                                const input = document.createElement('input')
+                                                input.type = 'file'
+                                                input.accept = 'video/*,.mp4,.mov,.avi,.webm'
+                                                input.onchange = (e) => {
+                                                    const file = (e.target as HTMLInputElement).files?.[0]
+                                                    if (file) validateAndSetVideo(file)
+                                                }
+                                                input.click()
+                                            }}
+                                        >
+                                            <Upload className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                                            <p className="text-sm font-medium text-[#18181B]">Glissez votre vidéo ici</p>
+                                            <p className="text-xs text-[#71717A] mt-1">MP4, MOV, AVI, WebM • Max 500 MB</p>
+                                        </div>
+                                        {fileError && (
+                                            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2">
+                                                <span className="text-red-600 text-sm">⚠️ {fileError}</span>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </>

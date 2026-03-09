@@ -1,12 +1,29 @@
 'use client'
 
-import { ReactNode, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
+import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
 import { NotificationProvider } from '@/contexts/NotificationContext'
+import { useAuth } from '@/contexts/AuthContext'
+import { DashboardErrorBoundary } from '@/components/ui/error-boundary'
 
 export default function AdminDashboardLayout({ children }: { children: ReactNode }) {
+    const { user, isLoading } = useAuth()
+    const router = useRouter()
     const [sidebarExpanded, setSidebarExpanded] = useState(false)
+
+    useEffect(() => {
+        if (!isLoading && user && user.role !== 'admin') {
+            router.replace(user.role === 'brand' ? '/brand' : user.role === 'creator' ? '/creator' : '/login')
+        }
+    }, [user, isLoading, router])
+
+    // Don't render the admin dashboard while redirecting
+    if (!isLoading && user && user.role !== 'admin') {
+        return null
+    }
 
     return (
         <NotificationProvider>
@@ -19,9 +36,12 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
                 >
                     <Header />
                     <main className="p-8 pt-20">
-                        {children}
+                        <DashboardErrorBoundary>
+                            {children}
+                        </DashboardErrorBoundary>
                     </main>
                 </div>
+                <MobileBottomNav />
             </div>
             <style>{`
                 @media (min-width: 768px) {

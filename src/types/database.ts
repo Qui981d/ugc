@@ -77,6 +77,8 @@ export interface ProfileBrand {
     description: string | null
     logo_url: string | null
     address: string | null
+    company_size: string | null
+    notification_prefs: Record<string, boolean> | null
     created_at: string
     updated_at: string
 }
@@ -151,6 +153,8 @@ export interface Campaign {
     // Creator studio
     creator_notes: string | null
     creator_checklist: string[] | null
+    thumbnail_url: string | null
+    admin_notes: string | null
     created_at: string
     updated_at: string
 }

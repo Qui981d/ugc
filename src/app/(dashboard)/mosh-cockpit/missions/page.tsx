@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { getAllCampaigns, type CampaignWithDetails } from '@/lib/services/adminService'
 import type { CampaignStatus } from '@/types/database'
+import { ArrowUpDown } from 'lucide-react'
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: typeof Clock }> = {
     draft: { label: 'Brief reçu', color: 'text-[#71717A]', bg: 'bg-[#F4F3EF]', icon: FileText },
@@ -38,6 +39,7 @@ export default function AdminMissionsPage() {
     const [isLoading, setIsLoading] = useState(true)
     const [activeFilter, setActiveFilter] = useState('all')
     const [searchQuery, setSearchQuery] = useState('')
+    const [sortBy, setSortBy] = useState<'date_desc' | 'date_asc' | 'budget' | 'brand'>('date_desc')
 
     const loadCampaigns = useCallback(async () => {
         setIsLoading(true)
@@ -51,9 +53,24 @@ export default function AdminMissionsPage() {
         loadCampaigns()
     }, [loadCampaigns])
 
-    const filteredCampaigns = campaigns.filter(c =>
-        !searchQuery || c.title.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    // A4: Enhanced search + sort
+    const filteredCampaigns = campaigns
+        .filter(c => {
+            if (!searchQuery) return true
+            const q = searchQuery.toLowerCase()
+            return c.title.toLowerCase().includes(q)
+                || (c.brand?.full_name || '').toLowerCase().includes(q)
+                || (c.brand?.profiles_brand?.company_name || '').toLowerCase().includes(q)
+                || (c.selected_creator?.full_name || '').toLowerCase().includes(q)
+        })
+        .sort((a, b) => {
+            switch (sortBy) {
+                case 'date_asc': return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                case 'budget': return (b.budget_chf || 0) - (a.budget_chf || 0)
+                case 'brand': return (a.brand?.full_name || '').localeCompare(b.brand?.full_name || '')
+                default: return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            }
+        })
 
     return (
         <div className="max-w-7xl mx-auto space-y-6">
@@ -79,16 +96,28 @@ export default function AdminMissionsPage() {
                 ))}
             </div>
 
-            {/* Search */}
-            <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A1A099]" strokeWidth={1.5} />
-                <input
-                    type="text"
-                    placeholder="Rechercher une mission..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 bg-[#D9D7D0]/50 border border-[#C8C6BF]/40 rounded-2xl text-sm text-[#18181B] placeholder:text-[#A1A099] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 focus:border-[#C4F042]/60 focus:bg-white/60 transition-all"
-                />
+            {/* Search + Sort */}
+            <div className="flex gap-3">
+                <div className="relative flex-1">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A1A099]" strokeWidth={1.5} />
+                    <input
+                        type="text"
+                        placeholder="Rechercher par mission, marque ou créateur..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-11 pr-4 py-3 bg-[#D9D7D0]/50 border border-[#C8C6BF]/40 rounded-2xl text-sm text-[#18181B] placeholder:text-[#A1A099] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 focus:border-[#C4F042]/60 focus:bg-white/60 transition-all"
+                    />
+                </div>
+                <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                    className="px-4 py-3 bg-white/90 border border-black/[0.06] rounded-2xl text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 appearance-none cursor-pointer min-w-[160px]"
+                >
+                    <option value="date_desc">Plus récentes</option>
+                    <option value="date_asc">Plus anciennes</option>
+                    <option value="budget">Budget (décroissant)</option>
+                    <option value="brand">Marque (A-Z)</option>
+                </select>
             </div>
 
             {/* Missions List */}

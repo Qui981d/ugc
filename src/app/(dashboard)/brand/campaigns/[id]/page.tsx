@@ -40,6 +40,7 @@ import {
 import { formatCHF } from '@/lib/validations/swiss'
 import { getStatusConfig } from '@/lib/constants/statusConfig'
 import type { Campaign, MissionStep, MissionStepType, ProfileCreator } from '@/types/database'
+import { WatermarkedPlayer } from '@/components/video/WatermarkedPlayer'
 import { createClient } from '@/lib/supabase/client'
 
 // ================================================
@@ -133,6 +134,8 @@ export default function BrandCampaignDetailPage() {
     const [showVideoModal, setShowVideoModal] = useState(false)
     const [rejectReason, setRejectReason] = useState('')
     const [showRejectModal, setShowRejectModal] = useState(false)
+    const [downloadLoading, setDownloadLoading] = useState(false)
+    const [confirmCreatorId, setConfirmCreatorId] = useState<string | null>(null)
 
     const loadData = useCallback(async () => {
         const [campaignData, missionSteps] = await Promise.all([
@@ -171,11 +174,12 @@ export default function BrandCampaignDetailPage() {
 
     // ---- Action handlers ----
     const handleSelectCreator = async (creatorId: string) => {
-        const confirmed = window.confirm('Êtes-vous sûr de vouloir sélectionner ce créateur ? Ce choix est définitif.')
-        if (!confirmed) return
         setActionLoading(true)
         const result = await brandSelectCreator(campaignId, creatorId)
-        if (result.success) await loadData()
+        if (result.success) {
+            setConfirmCreatorId(null)
+            await loadData()
+        }
         setActionLoading(false)
     }
 
@@ -234,6 +238,36 @@ export default function BrandCampaignDetailPage() {
             alert(result.error)
         }
         setActionLoading(false)
+    }
+
+    const handleDownloadVideo = async () => {
+        if (!campaign?.video_url) return
+        setDownloadLoading(true)
+        try {
+            // Fetch original binary — zero re-encoding, zero quality loss
+            const response = await fetch(campaign.video_url)
+            const blob = await response.blob()
+            const blobUrl = URL.createObjectURL(blob)
+
+            const link = document.createElement('a')
+            link.href = blobUrl
+            // Derive filename from campaign title
+            const safeName = (campaign.title || 'video-ugc').replace(/[^a-zA-Z0-9À-ÿ\s-]/g, '').replace(/\s+/g, '-')
+            const ext = campaign.video_url.split('.').pop()?.split('?')[0] || 'mp4'
+            link.download = `${safeName}.${ext}`
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+
+            // Cleanup blob URL
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 1000)
+        } catch (err) {
+            console.error('Download failed:', err)
+            // Fallback: open in new tab
+            window.open(campaign.video_url, '_blank')
+        } finally {
+            setDownloadLoading(false)
+        }
     }
 
     if (isLoading) {
@@ -326,7 +360,7 @@ export default function BrandCampaignDetailPage() {
                     </p>
                     <div className="grid gap-4 md:grid-cols-2">
                         {proposedCreators.map(c => (
-                            <CreatorCard key={c.id} creator={c} onSelect={handleSelectCreator} />
+                            <CreatorCard key={c.id} creator={c} onSelect={(id) => setConfirmCreatorId(id)} />
                         ))}
                     </div>
                     <button
@@ -512,8 +546,17 @@ export default function BrandCampaignDetailPage() {
                         )}
                     </h2>
 
-                    {/* Video player */}
-                    <video src={campaign.video_url} controls className="w-full rounded-xl bg-black max-h-[450px] mb-4" />
+                    {/* B5: Watermarked player for pre-approval, raw player after approval */}
+                    {isStepCompleted('brand_final_approved') ? (
+                        <video src={campaign.video_url} controls className="w-full rounded-xl bg-black max-h-[450px] mb-4" />
+                    ) : (
+                        <div className="mb-4 flex justify-center">
+                            <WatermarkedPlayer
+                                videoUrl={campaign.video_url}
+                                isWatermarked={true}
+                            />
+                        </div>
+                    )}
 
                     {/* Actions — only if not yet approved */}
                     {!isStepCompleted('brand_final_approved') && (
@@ -545,11 +588,33 @@ export default function BrandCampaignDetailPage() {
                         </div>
                     )}
 
-                    {/* Approved celebrations */}
+                    {/* Approved — download section */}
                     {isStepCompleted('brand_final_approved') && (
-                        <div className="text-center bg-emerald-50 rounded-xl p-4 mt-2">
-                            <p className="text-emerald-700 font-medium">🎉 Vidéo approuvée — Mission terminée !</p>
-                            <p className="text-emerald-600 text-sm mt-1">Merci pour votre confiance. Votre contenu UGC est prêt.</p>
+                        <div className="space-y-3 mt-2">
+                            <div className="text-center bg-emerald-50 rounded-xl p-4">
+                                <p className="text-emerald-700 font-medium">🎉 Vidéo approuvée — Mission terminée !</p>
+                                <p className="text-emerald-600 text-sm mt-1">Merci pour votre confiance. Votre contenu UGC est prêt à être téléchargé.</p>
+                            </div>
+                            <button
+                                onClick={handleDownloadVideo}
+                                disabled={downloadLoading}
+                                className="w-full py-3 px-4 bg-[#18181B] text-white rounded-xl text-sm font-semibold hover:bg-[#27272A] transition-colors flex items-center justify-center gap-2.5 disabled:opacity-60"
+                            >
+                                {downloadLoading ? (
+                                    <>
+                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        Téléchargement en cours…
+                                    </>
+                                ) : (
+                                    <>
+                                        <Download className="w-5 h-5" />
+                                        Télécharger la vidéo (qualité originale)
+                                    </>
+                                )}
+                            </button>
+                            <p className="text-center text-xs text-gray-400">
+                                Fichier original sans compression — qualité identique à la source
+                            </p>
                         </div>
                     )}
                 </motion.div>
@@ -734,6 +799,60 @@ export default function BrandCampaignDetailPage() {
                                     className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2">
                                     <ThumbsDown className="w-4 h-4" />
                                     Refuser ces profils
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Creator selection confirmation modal */}
+            <AnimatePresence>
+                {confirmCreatorId && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+                        onClick={() => setConfirmCreatorId(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div className="text-center mb-6">
+                                <div className="w-14 h-14 rounded-2xl bg-[#18181B]/10 flex items-center justify-center mx-auto mb-4">
+                                    <CheckCircle2 className="w-7 h-7 text-[#18181B]" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-900">Confirmer la sélection</h3>
+                                <p className="text-sm text-gray-500 mt-2">
+                                    Êtes-vous sûr de vouloir sélectionner ce créateur ?<br />
+                                    <span className="text-amber-600 font-medium">Ce choix est définitif.</span>
+                                </p>
+                            </div>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setConfirmCreatorId(null)}
+                                    className="flex-1 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                    onClick={() => handleSelectCreator(confirmCreatorId)}
+                                    disabled={actionLoading}
+                                    className="flex-1 py-2.5 bg-[#18181B] text-white rounded-lg text-sm font-medium hover:bg-[#27272A] disabled:opacity-50 flex items-center justify-center gap-2 transition-colors"
+                                >
+                                    {actionLoading ? (
+                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    ) : (
+                                        <>
+                                            <CheckCircle2 className="w-4 h-4" />
+                                            Confirmer
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </motion.div>

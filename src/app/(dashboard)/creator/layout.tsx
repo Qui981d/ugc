@@ -7,6 +7,7 @@ import { Header } from '@/components/layout/Header'
 import { NotificationProvider } from '@/contexts/NotificationContext'
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
 import { useAuth } from '@/contexts/AuthContext'
+import { DashboardErrorBoundary } from '@/components/ui/error-boundary'
 
 export default function CreatorDashboardLayout({ children }: { children: ReactNode }) {
     const { user, isLoading } = useAuth()
@@ -34,7 +35,9 @@ export default function CreatorDashboardLayout({ children }: { children: ReactNo
                 >
                     <Header />
                     <main className="p-4 md:p-8 pt-20 pb-24 md:pb-8">
-                        {children}
+                        <DashboardErrorBoundary>
+                            {children}
+                        </DashboardErrorBoundary>
                     </main>
                 </div>
                 <MobileBottomNav />
