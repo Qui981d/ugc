@@ -38,10 +38,10 @@ export default function BrandDashboardPage() {
     }, [userId])
 
     const stats = [
-        { label: "Briefs actifs", value: String(campaigns.filter(c => c.status === 'open' || c.status === 'in_progress' || c.status === 'draft').length), change: "En cours de traitement" },
+        { label: "Campagnes actives", value: String(campaigns.filter(c => c.status === 'open' || c.status === 'in_progress' || c.status === 'draft').length), change: "En cours de traitement" },
         { label: "En production", value: String(campaigns.filter(c => c.status === 'in_progress').length), change: "Vidéos en cours" },
         { label: "Vidéos livrées", value: String(campaigns.filter(c => c.status === 'completed').length), change: "Terminées" },
-        { label: "Budget total", value: formatCHF(campaigns.reduce((sum, c) => sum + c.budget_chf, 0)), change: "Tous briefs" },
+        { label: "Budget total", value: formatCHF(campaigns.reduce((sum, c) => sum + c.budget_chf, 0)), change: "Toutes campagnes" },
     ]
 
     if (!mounted || (!user && isLoading)) {
@@ -71,7 +71,7 @@ export default function BrandDashboardPage() {
                 <Link href="/brand/campaigns/new">
                     <Button className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full px-6 w-full sm:w-auto">
                         <Plus className="h-4 w-4 mr-2" strokeWidth={1.5} />
-                        Nouveau brief
+                        Nouvelle campagne
                     </Button>
                 </Link>
             </motion.div>
@@ -91,7 +91,7 @@ export default function BrandDashboardPage() {
                         </div>
                         <div className="flex-1">
                             <p className="text-sm font-medium text-[#18181B]">
-                                {actionCampaigns.length} brief{actionCampaigns.length > 1 ? 's' : ''} nécessite{actionCampaigns.length > 1 ? 'nt' : ''} votre attention
+                                {actionCampaigns.length} campagne{actionCampaigns.length > 1 ? 's' : ''} nécessite{actionCampaigns.length > 1 ? 'nt' : ''} votre attention
                             </p>
                             <p className="text-xs text-[#71717A]">
                                 Sélection de créateur en attente
@@ -132,7 +132,7 @@ export default function BrandDashboardPage() {
                 className="bg-white/90 backdrop-blur-sm rounded-[24px] border border-black/[0.03] overflow-hidden"
             >
                 <div className="flex items-center justify-between p-6 pb-4">
-                    <h2 className="text-lg font-semibold text-[#18181B]">Mes briefs récents</h2>
+                    <h2 className="text-lg font-semibold text-[#18181B]">Mes campagnes récentes</h2>
                     <Link href="/brand/campaigns">
                         <Button variant="ghost" className="text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F3EF] rounded-full">
                             Voir tout
@@ -144,12 +144,12 @@ export default function BrandDashboardPage() {
                     {campaigns.length === 0 ? (
                         <div className="text-center py-12 text-[#A1A1AA]">
                             <Plus className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                            <p>Aucun brief pour le moment</p>
-                            <p className="text-sm mt-2">Envoyez votre premier brief</p>
+                            <p>Aucune campagne pour le moment</p>
+                            <p className="text-sm mt-2">Créez votre première campagne</p>
                             <Link href="/brand/campaigns/new">
                                 <Button className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full px-6 mt-4">
                                     <Plus className="w-4 h-4 mr-2" strokeWidth={1.5} />
-                                    Envoyer un brief
+                                    Créer une campagne
                                 </Button>
                             </Link>
                         </div>
@@ -209,7 +209,7 @@ export default function BrandDashboardPage() {
                                 <Plus className="h-6 w-6 text-[#18181B]" strokeWidth={1.5} />
                             </div>
                             <div>
-                                <p className="font-medium text-[#18181B]">Envoyer un brief</p>
+                                <p className="font-medium text-[#18181B]">Créer une campagne</p>
                                 <p className="text-sm text-[#71717A]">Décrivez votre besoin en vidéo UGC</p>
                             </div>
                         </div>
@@ -220,7 +220,7 @@ export default function BrandDashboardPage() {
                                 <Eye className="h-6 w-6 text-blue-700" strokeWidth={1.5} />
                             </div>
                             <div>
-                                <p className="font-medium text-[#18181B]">Suivre mes briefs</p>
+                                <p className="font-medium text-[#18181B]">Suivre mes campagnes</p>
                                 <p className="text-sm text-[#71717A]">Voyez l&apos;avancement de vos projets</p>
                             </div>
                         </div>

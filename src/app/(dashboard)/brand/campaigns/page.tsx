@@ -74,13 +74,13 @@ export default function BrandCampaignsPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-[28px] md:text-[34px] font-semibold text-[#18181B] tracking-[-0.02em]">Mes Briefs</h1>
+                    <h1 className="text-[28px] md:text-[34px] font-semibold text-[#18181B] tracking-[-0.02em]">Mes Campagnes</h1>
                     <p className="text-[#71717A] mt-1">Suivez l&apos;avancement de vos projets vidéo</p>
                 </div>
                 <Link href="/brand/campaigns/new">
                     <Button className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full px-6 w-full sm:w-auto">
                         <Plus className="h-4 w-4 mr-2" strokeWidth={1.5} />
-                        Nouveau brief
+                        Nouvelle campagne
                     </Button>
                 </Link>
             </div>
@@ -104,7 +104,7 @@ export default function BrandCampaignsPage() {
                 ))}
             </div>
 
-            {/* Briefs List */}
+            {/* Campaigns List */}
             <AnimatePresence mode="wait">
                 <motion.div
                     key={activeTab}
@@ -116,11 +116,11 @@ export default function BrandCampaignsPage() {
                     {filteredCampaigns.length === 0 ? (
                         <div className="text-center py-16 text-[#A1A1AA]">
                             <Megaphone className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                            <p>Aucun brief pour le moment</p>
+                            <p>Aucune campagne pour le moment</p>
                             <Link href="/brand/campaigns/new">
                                 <Button className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full px-6 mt-4">
                                     <Plus className="w-4 h-4 mr-2" strokeWidth={1.5} />
-                                    Envoyer un brief
+                                    Créer une campagne
                                 </Button>
                             </Link>
                         </div>

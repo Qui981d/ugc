@@ -48,6 +48,8 @@ interface ContentBlock {
     format: string
     scriptType: string
     description: string
+    dos: string[]
+    donts: string[]
 }
 
 function createEmptyBlock(): ContentBlock {
@@ -57,6 +59,8 @@ function createEmptyBlock(): ContentBlock {
         format: '9_16',
         scriptType: '',
         description: '',
+        dos: [''],
+        donts: [''],
     }
 }
 
@@ -71,9 +75,6 @@ export default function NewCampaignPage() {
         productName: '',
         description: '',
         deadline: '',
-        requirements: '',
-        dos: [''],
-        donts: [''],
     })
     const [briefImages, setBriefImages] = useState<File[]>([])
     const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([])
@@ -111,14 +112,6 @@ export default function NewCampaignPage() {
         )
     }
 
-    // ── Do's / Don'ts ───────────────────────────────
-    const addDo = () => setCampaign(prev => ({ ...prev, dos: [...prev.dos, ''] }))
-    const addDont = () => setCampaign(prev => ({ ...prev, donts: [...prev.donts, ''] }))
-    const updateDo = (i: number, v: string) => setCampaign(prev => ({ ...prev, dos: prev.dos.map((d, idx) => idx === i ? v : d) }))
-    const updateDont = (i: number, v: string) => setCampaign(prev => ({ ...prev, donts: prev.donts.map((d, idx) => idx === i ? v : d) }))
-    const removeDo = (i: number) => setCampaign(prev => ({ ...prev, dos: prev.dos.filter((_, idx) => idx !== i) }))
-    const removeDont = (i: number) => setCampaign(prev => ({ ...prev, donts: prev.donts.filter((_, idx) => idx !== i) }))
-
     // ── Brief images ────────────────────────────────
     const handleBriefImageAdd = (files: FileList | null) => {
         if (!files) return
@@ -136,6 +129,26 @@ export default function NewCampaignPage() {
     }
     const updateBlock = (id: string, updates: Partial<ContentBlock>) => {
         setContentBlocks(prev => prev.map(b => b.id === id ? { ...b, ...updates } : b))
+    }
+
+    // ── Block Do's / Don'ts ─────────────────────────
+    const addBlockDo = (blockId: string) => {
+        setContentBlocks(prev => prev.map(b => b.id === blockId ? { ...b, dos: [...b.dos, ''] } : b))
+    }
+    const addBlockDont = (blockId: string) => {
+        setContentBlocks(prev => prev.map(b => b.id === blockId ? { ...b, donts: [...b.donts, ''] } : b))
+    }
+    const updateBlockDo = (blockId: string, i: number, v: string) => {
+        setContentBlocks(prev => prev.map(b => b.id === blockId ? { ...b, dos: b.dos.map((d, idx) => idx === i ? v : d) } : b))
+    }
+    const updateBlockDont = (blockId: string, i: number, v: string) => {
+        setContentBlocks(prev => prev.map(b => b.id === blockId ? { ...b, donts: b.donts.map((d, idx) => idx === i ? v : d) } : b))
+    }
+    const removeBlockDo = (blockId: string, i: number) => {
+        setContentBlocks(prev => prev.map(b => b.id === blockId ? { ...b, dos: b.dos.filter((_, idx) => idx !== i) } : b))
+    }
+    const removeBlockDont = (blockId: string, i: number) => {
+        setContentBlocks(prev => prev.map(b => b.id === blockId ? { ...b, donts: b.donts.filter((_, idx) => idx !== i) } : b))
     }
 
     // ── Submit ───────────────────────────────────────
@@ -169,14 +182,13 @@ export default function NewCampaignPage() {
                 budget_chf: 0,
                 deadline: campaign.deadline || undefined,
                 status: 'draft' as const,
-                script_notes: campaign.requirements || undefined,
                 brief_image_urls: briefImageUrls,
                 creator_preference: creatorPreference,
             }
 
             const result = await createCampaign(campaignPayload)
             if (result.error || !result.campaign) {
-                toast.error('Erreur lors de la création du brief', { description: result.error })
+                toast.error('Erreur lors de la création de la campagne', { description: result.error })
                 setIsSubmitting(false)
                 return
             }
@@ -197,8 +209,8 @@ export default function NewCampaignPage() {
                 return
             }
 
-            toast.success('Brief envoyé avec succès ! 🎉', {
-                description: `${contentBlocks.length} contenu${contentBlocks.length > 1 ? 's' : ''} ajouté${contentBlocks.length > 1 ? 's' : ''}.`,
+            toast.success('Campagne créée avec succès ! 🎉', {
+                description: `${contentBlocks.length} contenu${contentBlocks.length > 1 ? 's' : ''} ajouté${contentBlocks.length > 1 ? 's' : ''}. MOSH va analyser votre demande.`,
             })
             setIsSubmitting(false)
             router.push('/brand/campaigns')
@@ -267,7 +279,7 @@ export default function NewCampaignPage() {
                                 type="text"
                                 value={campaign.title}
                                 onChange={(e) => { setCampaign({ ...campaign, title: e.target.value }); setErrors(prev => ({ ...prev, title: '' })) }}
-                                placeholder="Ex: Témoignage pour notre nouvelle collection"
+                                placeholder="Ex: Lancement collection été 2026"
                                 className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#18181B]/20 ${errors.title ? 'border-red-400' : 'border-gray-200'}`}
                             />
                             {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title}</p>}
@@ -275,7 +287,7 @@ export default function NewCampaignPage() {
 
                         {/* Description */}
                         <div>
-                            <label className="block text-sm text-gray-500 mb-2">Description *</label>
+                            <label className="block text-sm text-gray-500 mb-2">Description de la campagne *</label>
                             <textarea
                                 value={campaign.description}
                                 onChange={(e) => { setCampaign({ ...campaign, description: e.target.value }); setErrors(prev => ({ ...prev, description: '' })) }}
@@ -298,7 +310,7 @@ export default function NewCampaignPage() {
                             />
                         </div>
 
-                        {/* Category (kept at campaign level for overall tagging) */}
+                        {/* Category */}
                         <div>
                             <label className="block text-sm text-gray-500 mb-2">Tags de la campagne</label>
                             <div className="flex flex-wrap gap-2">
@@ -320,7 +332,7 @@ export default function NewCampaignPage() {
                         {/* Brief Images */}
                         <div>
                             <label className="block text-sm text-gray-500 mb-2">
-                                Images d&apos;illustration du brief
+                                Images d&apos;illustration
                                 <span className="text-gray-400 ml-1">(optionnel)</span>
                             </label>
                             <input
@@ -337,7 +349,7 @@ export default function NewCampaignPage() {
                                         <div key={i} className="relative group">
                                             <img
                                                 src={URL.createObjectURL(file)}
-                                                alt={`Brief ${i + 1}`}
+                                                alt={`Image ${i + 1}`}
                                                 className="w-full h-24 object-cover rounded-lg border border-gray-200"
                                             />
                                             <button
@@ -456,7 +468,7 @@ export default function NewCampaignPage() {
                                     </div>
 
                                     {/* Description */}
-                                    <div>
+                                    <div className="mb-4">
                                         <label className="block text-xs text-gray-500 mb-2">Description détaillée</label>
                                         <textarea
                                             value={block.description}
@@ -465,6 +477,64 @@ export default function NewCampaignPage() {
                                             placeholder="Décrivez ce que vous attendez pour ce contenu..."
                                             className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#18181B]/20 resize-none"
                                         />
+                                    </div>
+
+                                    {/* Per-block Do's */}
+                                    <div className="mb-3">
+                                        <label className="block text-xs text-gray-500 mb-1.5 flex items-center gap-1.5">
+                                            <CheckCircle2 className="w-3 h-3 text-emerald-700" />
+                                            À faire
+                                        </label>
+                                        <div className="space-y-1.5">
+                                            {block.dos.map((d, i) => (
+                                                <div key={i} className="flex gap-1.5">
+                                                    <input
+                                                        type="text"
+                                                        value={d}
+                                                        onChange={(e) => updateBlockDo(block.id, i, e.target.value)}
+                                                        placeholder="Ex: Montrer le produit en utilisation"
+                                                        className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#18181B]/20"
+                                                    />
+                                                    {block.dos.length > 1 && (
+                                                        <button onClick={() => removeBlockDo(block.id, i)} className="text-gray-400 hover:text-red-500 px-1">
+                                                            <X className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            ))}
+                                            <button onClick={() => addBlockDo(block.id)} className="text-xs text-gray-500 hover:text-gray-900 flex items-center gap-1 mt-1">
+                                                <Plus className="w-3 h-3" /> Ajouter
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Per-block Don'ts */}
+                                    <div>
+                                        <label className="block text-xs text-gray-500 mb-1.5 flex items-center gap-1.5">
+                                            <X className="w-3 h-3 text-red-700" />
+                                            À éviter
+                                        </label>
+                                        <div className="space-y-1.5">
+                                            {block.donts.map((d, i) => (
+                                                <div key={i} className="flex gap-1.5">
+                                                    <input
+                                                        type="text"
+                                                        value={d}
+                                                        onChange={(e) => updateBlockDont(block.id, i, e.target.value)}
+                                                        placeholder="Ex: Ne pas mentionner les concurrents"
+                                                        className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#18181B]/20"
+                                                    />
+                                                    {block.donts.length > 1 && (
+                                                        <button onClick={() => removeBlockDont(block.id, i)} className="text-gray-400 hover:text-red-500 px-1">
+                                                            <X className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            ))}
+                                            <button onClick={() => addBlockDont(block.id)} className="text-xs text-gray-500 hover:text-gray-900 flex items-center gap-1 mt-1">
+                                                <Plus className="w-3 h-3" /> Ajouter
+                                            </button>
+                                        </div>
                                     </div>
                                 </motion.div>
                             ))}
@@ -480,64 +550,6 @@ export default function NewCampaignPage() {
                             <Plus className="w-4 h-4" />
                             Ajouter un contenu
                         </button>
-
-                        {/* Do's */}
-                        <div>
-                            <label className="block text-sm text-gray-500 mb-2 flex items-center gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-emerald-700" />
-                                À faire
-                            </label>
-                            <div className="space-y-2">
-                                {campaign.dos.map((d, i) => (
-                                    <div key={i} className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            value={d}
-                                            onChange={(e) => updateDo(i, e.target.value)}
-                                            placeholder="Ex: Montrer le produit en utilisation"
-                                            className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-white/25"
-                                        />
-                                        {campaign.dos.length > 1 && (
-                                            <Button variant="ghost" size="sm" onClick={() => removeDo(i)} className="text-gray-400 hover:text-red-700">
-                                                <X className="w-4 h-4" />
-                                            </Button>
-                                        )}
-                                    </div>
-                                ))}
-                                <Button variant="ghost" size="sm" onClick={addDo} className="text-gray-500 hover:text-gray-900">
-                                    <Plus className="w-4 h-4 mr-1" /> Ajouter
-                                </Button>
-                            </div>
-                        </div>
-
-                        {/* Don'ts */}
-                        <div>
-                            <label className="block text-sm text-gray-500 mb-2 flex items-center gap-2">
-                                <X className="w-4 h-4 text-red-700" />
-                                À éviter
-                            </label>
-                            <div className="space-y-2">
-                                {campaign.donts.map((d, i) => (
-                                    <div key={i} className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            value={d}
-                                            onChange={(e) => updateDont(i, e.target.value)}
-                                            placeholder="Ex: Ne pas mentionner les concurrents"
-                                            className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-white/25"
-                                        />
-                                        {campaign.donts.length > 1 && (
-                                            <Button variant="ghost" size="sm" onClick={() => removeDont(i)} className="text-gray-400 hover:text-red-700">
-                                                <X className="w-4 h-4" />
-                                            </Button>
-                                        )}
-                                    </div>
-                                ))}
-                                <Button variant="ghost" size="sm" onClick={addDont} className="text-gray-500 hover:text-gray-900">
-                                    <Plus className="w-4 h-4 mr-1" /> Ajouter
-                                </Button>
-                            </div>
-                        </div>
                     </div>
                 )}
 
@@ -656,27 +668,6 @@ export default function NewCampaignPage() {
                                         <span className="text-gray-500 text-xs font-medium">🖼️ {briefImages.length} image{briefImages.length > 1 ? 's' : ''} d&apos;illustration</span>
                                     </div>
                                 )}
-
-                                {campaign.dos.filter(d => d.trim()).length > 0 && (
-                                    <div className="pt-2 border-t border-gray-100">
-                                        <span className="text-gray-500 text-xs font-medium">✅ À faire</span>
-                                        <ul className="mt-1 space-y-0.5">
-                                            {campaign.dos.filter(d => d.trim()).map((d, i) => (
-                                                <li key={i} className="text-gray-900 text-xs">• {d}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-                                {campaign.donts.filter(d => d.trim()).length > 0 && (
-                                    <div className="pt-2 border-t border-gray-100">
-                                        <span className="text-gray-500 text-xs font-medium">❌ À éviter</span>
-                                        <ul className="mt-1 space-y-0.5">
-                                            {campaign.donts.filter(d => d.trim()).map((d, i) => (
-                                                <li key={i} className="text-gray-900 text-xs">• {d}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
                             </div>
                         </div>
                     </div>
@@ -717,7 +708,7 @@ export default function NewCampaignPage() {
                             ) : (
                                 <>
                                     <CheckCircle2 className="w-4 h-4 mr-2" />
-                                    Envoyer le brief
+                                    Envoyer la campagne
                                 </>
                             )}
                         </Button>
