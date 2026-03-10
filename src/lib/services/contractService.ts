@@ -103,8 +103,8 @@ const TYPE_MAP: Record<string, string> = {
 function buildDeliverablesText(campaign: Campaign): string {
     const pricingPack = campaign.pricing_pack
     let videoCount = '1'
-    if (pricingPack === '3_videos') videoCount = '3'
-    if (pricingPack === 'custom') videoCount = 'À définir selon le brief'
+    if (pricingPack === 'premium') videoCount = 'Pack Premium'
+    if (pricingPack === 'platinum') videoCount = 'Pack Platinum'
 
     return `• ${videoCount} vidéo(s) ${TYPE_MAP[campaign.script_type] || campaign.script_type}
 • Format : ${FORMAT_MAP[campaign.format] || campaign.format}

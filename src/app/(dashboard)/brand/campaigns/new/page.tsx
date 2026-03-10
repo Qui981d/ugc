@@ -16,7 +16,11 @@ import {
     Trash2,
     Users,
     User,
-    ImageIcon
+    ImageIcon,
+    Check,
+    Star,
+    Crown,
+    Gem
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -40,6 +44,53 @@ const FORMAT_OPTIONS = [
 const CONTENT_TYPES = [
     { id: 'video', label: 'Vidéo' },
     { id: 'photo', label: 'Photo' },
+]
+
+// ── Pricing constants (placeholder – easy to update later) ──
+const PRICE_PER_VIDEO = 490
+const ACCOMPANIMENT_FEE = 300
+const REPORTING_FEE = 200
+
+const PRICING_TIERS = [
+    {
+        id: 'essentiel' as const,
+        name: 'Essentiel',
+        subtitle: 'L\'essentiel pour démarrer',
+        icon: Star,
+        features: [
+            'Vidéos UGC haute qualité',
+            'Sélection de créateurs',
+            'Cession de droits 1 an',
+        ],
+        getPrice: (n: number) => n * PRICE_PER_VIDEO,
+    },
+    {
+        id: 'premium' as const,
+        name: 'Premium',
+        subtitle: 'Le plus populaire',
+        icon: Crown,
+        popular: true,
+        features: [
+            'Tout de Essentiel',
+            'Accompagnement dédié',
+            'Validation à chaque étape',
+            'Révisions incluses',
+        ],
+        getPrice: (n: number) => n * PRICE_PER_VIDEO + ACCOMPANIMENT_FEE,
+    },
+    {
+        id: 'platinum' as const,
+        name: 'Platinum',
+        subtitle: 'Pour maximiser vos performances',
+        icon: Gem,
+        features: [
+            'Tout de Premium',
+            'Reporting détaillé',
+            'Analyse de performance',
+            'Recommandations stratégiques',
+        ],
+        getPrice: (n: number) => n * PRICE_PER_VIDEO + ACCOMPANIMENT_FEE + REPORTING_FEE,
+    },
 ]
 
 interface ContentBlock {
@@ -85,6 +136,9 @@ export default function NewCampaignPage() {
     // Form state – Step 3: Creator preference
     const [creatorPreference, setCreatorPreference] = useState<'single' | 'per_video'>('single')
 
+    // Form state – Step 4: Pricing
+    const [selectedPlan, setSelectedPlan] = useState<'essentiel' | 'premium' | 'platinum'>('premium')
+
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     // ── Validation ──────────────────────────────────
@@ -96,6 +150,8 @@ export default function NewCampaignPage() {
         } else if (s === 2) {
             const hasEmpty = contentBlocks.some(b => !b.scriptType)
             if (hasEmpty) errs.contentBlocks = 'Chaque contenu doit avoir une catégorie'
+        } else if (s === 4) {
+            if (!selectedPlan) errs.plan = 'Choisissez une offre'
         }
         setErrors(errs)
         return Object.keys(errs).length === 0
@@ -179,9 +235,10 @@ export default function NewCampaignPage() {
                 description: campaign.description || undefined,
                 product_name: campaign.productName || campaign.title,
                 script_type: (contentBlocks[0]?.scriptType || 'testimonial') as any,
-                budget_chf: 0,
+                budget_chf: PRICING_TIERS.find(t => t.id === selectedPlan)?.getPrice(contentBlocks.length) || 0,
                 deadline: campaign.deadline || undefined,
                 status: 'draft' as const,
+                pricing_pack: selectedPlan,
                 brief_image_urls: briefImageUrls,
                 creator_preference: creatorPreference,
             }
@@ -242,19 +299,19 @@ export default function NewCampaignPage() {
             </div>
 
             {/* Progress Steps */}
-            <div className="flex items-center gap-3">
-                {[1, 2, 3].map(s => (
-                    <div key={s} className="flex items-center gap-3 flex-1">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${step >= s
+            <div className="flex items-center gap-2">
+                {[1, 2, 3, 4].map(s => (
+                    <div key={s} className="flex items-center gap-2 flex-1">
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium transition-all flex-shrink-0 ${step >= s
                             ? 'bg-[#18181B] text-white'
                             : 'bg-gray-100 text-gray-400'
                             }`}>
-                            {step > s ? <CheckCircle2 className="w-4 h-4" /> : s}
+                            {step > s ? <CheckCircle2 className="w-3.5 h-3.5" /> : s}
                         </div>
-                        <span className={`text-sm ${step >= s ? 'text-gray-900' : 'text-gray-400'}`}>
-                            {s === 1 ? 'Détails' : s === 2 ? 'Contenus' : 'Créateurs'}
+                        <span className={`text-xs whitespace-nowrap ${step >= s ? 'text-gray-900' : 'text-gray-400'}`}>
+                            {s === 1 ? 'Détails' : s === 2 ? 'Contenus' : s === 3 ? 'Créateurs' : 'Offre'}
                         </span>
-                        {s < 3 && <div className={`flex-1 h-px ${step > s ? 'bg-[#18181B]' : 'bg-gray-100'}`} />}
+                        {s < 4 && <div className={`flex-1 h-px ${step > s ? 'bg-[#18181B]' : 'bg-gray-100'}`} />}
                     </div>
                 ))}
             </div>
@@ -613,9 +670,91 @@ export default function NewCampaignPage() {
                                 />
                             </div>
                         </div>
+                    </div>
+                )}
+
+                {/* ═══════════ STEP 4: CHOISISSEZ VOTRE OFFRE ═══════════ */}
+                {step === 4 && (
+                    <div className="space-y-6">
+                        <div className="text-center">
+                            <h2 className="text-xl font-semibold text-gray-900">Choisissez votre offre</h2>
+                            <p className="text-sm text-gray-500 mt-1">
+                                {contentBlocks.length} contenu{contentBlocks.length > 1 ? 's' : ''} × {PRICE_PER_VIDEO} CHF par contenu
+                            </p>
+                        </div>
+
+                        {/* Pricing Cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {PRICING_TIERS.map(tier => {
+                                const TierIcon = tier.icon
+                                const price = tier.getPrice(contentBlocks.length)
+                                const isSelected = selectedPlan === tier.id
+                                const isPopular = 'popular' in tier && tier.popular
+
+                                return (
+                                    <button
+                                        key={tier.id}
+                                        onClick={() => setSelectedPlan(tier.id)}
+                                        className={`relative text-left p-5 rounded-2xl transition-all ${
+                                            isSelected
+                                                ? 'bg-[#18181B] text-white ring-2 ring-[#18181B] scale-[1.02]'
+                                                : 'bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                                        }`}
+                                    >
+                                        {/* Popular badge */}
+                                        {isPopular && (
+                                            <div className={`absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-medium ${
+                                                isSelected ? 'bg-[#C4F042] text-[#18181B]' : 'bg-[#C4F042] text-[#18181B]'
+                                            }`}>
+                                                Le plus populaire
+                                            </div>
+                                        )}
+
+                                        {/* Header */}
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <TierIcon className={`w-4 h-4 ${isSelected ? 'text-[#C4F042]' : 'text-[#18181B]'}`} />
+                                            <span className={`font-bold text-sm uppercase tracking-wide ${isSelected ? 'text-white' : 'text-[#18181B]'}`}>
+                                                {tier.name}
+                                            </span>
+                                        </div>
+                                        <p className={`text-xs mb-4 ${isSelected ? 'text-gray-400' : 'text-gray-500'}`}>
+                                            {tier.subtitle}
+                                        </p>
+
+                                        {/* Price */}
+                                        <div className="mb-4">
+                                            <span className={`text-2xl font-bold ${isSelected ? 'text-white' : 'text-[#18181B]'}`}>
+                                                {price.toLocaleString('fr-CH')} CHF
+                                            </span>
+                                        </div>
+
+                                        {/* Features */}
+                                        <div className="space-y-2">
+                                            {tier.features.map((feature, fi) => (
+                                                <div key={fi} className="flex items-start gap-2">
+                                                    <Check className={`w-3.5 h-3.5 mt-0.5 flex-shrink-0 ${isSelected ? 'text-[#C4F042]' : 'text-emerald-600'}`} />
+                                                    <span className={`text-xs ${isSelected ? 'text-gray-300' : 'text-gray-600'}`}>
+                                                        {feature}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Select indicator */}
+                                        <div className={`mt-4 py-2 rounded-xl text-center text-sm font-medium transition-all ${
+                                            isSelected
+                                                ? 'bg-[#C4F042] text-[#18181B]'
+                                                : 'bg-gray-100 text-gray-600'
+                                        }`}>
+                                            {isSelected ? 'Sélectionné' : `Choisir ${tier.name}`}
+                                        </div>
+                                    </button>
+                                )
+                            })}
+                        </div>
 
                         {/* Summary Card */}
-                        <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 mt-8">
+                        <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 mt-4">
                             <div className="flex items-center gap-2 mb-4">
                                 <Sparkles className="w-4 h-4 text-[#18181B]" />
                                 <span className="text-gray-900 font-medium">Résumé de la campagne</span>
@@ -632,7 +771,7 @@ export default function NewCampaignPage() {
                                     </div>
                                 )}
                                 <div className="flex justify-between">
-                                    <span className="text-gray-500">Nombre de contenus</span>
+                                    <span className="text-gray-500">Contenus</span>
                                     <span className="text-gray-900 font-medium">{contentBlocks.length}</span>
                                 </div>
                                 <div className="flex justify-between">
@@ -642,32 +781,15 @@ export default function NewCampaignPage() {
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-gray-500">Date souhaitée</span>
-                                    <span className="text-gray-900">{campaign.deadline || '—'}</span>
+                                    <span className="text-gray-500">Offre</span>
+                                    <span className="text-gray-900 font-medium">{PRICING_TIERS.find(t => t.id === selectedPlan)?.name}</span>
                                 </div>
-
-                                {/* Content blocks summary */}
-                                <div className="pt-3 border-t border-gray-100">
-                                    <span className="text-gray-500 text-xs font-medium">📋 Contenus demandés</span>
-                                    <div className="mt-2 space-y-1.5">
-                                        {contentBlocks.map((block, i) => (
-                                            <div key={block.id} className="flex items-center gap-2 text-xs">
-                                                <span className="text-gray-400">{i + 1}.</span>
-                                                <span className="text-gray-700 font-medium capitalize">{block.contentType}</span>
-                                                <span className="text-gray-400">•</span>
-                                                <span className="text-gray-600">{FORMAT_OPTIONS.find(f => f.id === block.format)?.label || block.format}</span>
-                                                <span className="text-gray-400">•</span>
-                                                <span className="text-gray-600">{SPECIALTIES.find(s => s.id === block.scriptType)?.label || '—'}</span>
-                                            </div>
-                                        ))}
-                                    </div>
+                                <div className="flex justify-between pt-2 border-t border-gray-100">
+                                    <span className="text-gray-900 font-semibold">Total</span>
+                                    <span className="text-gray-900 font-bold text-lg">
+                                        {(PRICING_TIERS.find(t => t.id === selectedPlan)?.getPrice(contentBlocks.length) || 0).toLocaleString('fr-CH')} CHF
+                                    </span>
                                 </div>
-
-                                {briefImages.length > 0 && (
-                                    <div className="pt-2 border-t border-gray-100">
-                                        <span className="text-gray-500 text-xs font-medium">🖼️ {briefImages.length} image{briefImages.length > 1 ? 's' : ''} d&apos;illustration</span>
-                                    </div>
-                                )}
                             </div>
                         </div>
                     </div>
@@ -687,7 +809,7 @@ export default function NewCampaignPage() {
                         <div />
                     )}
 
-                    {step < 3 ? (
+                    {step < 4 ? (
                         <Button
                             className="btn-primary"
                             onClick={handleNextStep}
@@ -697,7 +819,7 @@ export default function NewCampaignPage() {
                     ) : (
                         <Button
                             className="btn-primary"
-                            onClick={() => { if (validateStep(3)) handleSubmit() }}
+                            onClick={() => { if (validateStep(4)) handleSubmit() }}
                             disabled={isSubmitting}
                         >
                             {isSubmitting ? (
@@ -708,7 +830,7 @@ export default function NewCampaignPage() {
                             ) : (
                                 <>
                                     <CheckCircle2 className="w-4 h-4 mr-2" />
-                                    Envoyer la campagne
+                                    Envoyer le brief
                                 </>
                             )}
                         </Button>

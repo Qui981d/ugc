@@ -144,9 +144,10 @@ export async function generateInvoice(
 
     // Build deliverables summary
     const pricingPack = campaign.pricing_pack
-    let videoCount = '1 vidéo'
-    if (pricingPack === '3_videos') videoCount = '3 vidéos'
-    if (pricingPack === 'custom') videoCount = 'Contenu sur mesure'
+    let videoCount = 'Vidéo(s) UGC'
+    if (pricingPack === 'essentiel') videoCount = 'Pack Essentiel'
+    if (pricingPack === 'premium') videoCount = 'Pack Premium'
+    if (pricingPack === 'platinum') videoCount = 'Pack Platinum'
 
     const deliverablesSummary = `Prestation : ${videoCount} UGC
 Type : ${TYPE_MAP[campaign.script_type] || campaign.script_type}
@@ -282,9 +283,10 @@ export async function getInvoiceText(campaignId: string): Promise<string | null>
     dueDate.setDate(dueDate.getDate() + 30)
 
     const pricingPack = campaign.pricing_pack
-    let videoCount = '1 vidéo'
-    if (pricingPack === '3_videos') videoCount = '3 vidéos'
-    if (pricingPack === 'custom') videoCount = 'Contenu sur mesure'
+    let videoCount = 'Vidéo(s) UGC'
+    if (pricingPack === 'essentiel') videoCount = 'Pack Essentiel'
+    if (pricingPack === 'premium') videoCount = 'Pack Premium'
+    if (pricingPack === 'platinum') videoCount = 'Pack Platinum'
 
     const deliverablesSummary = `Prestation : ${videoCount} UGC
 Type : ${TYPE_MAP[campaign.script_type] || campaign.script_type}

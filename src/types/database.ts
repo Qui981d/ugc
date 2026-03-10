@@ -30,7 +30,7 @@ export type MissionStepType =
     | 'video_sent_to_brand'
     | 'brand_final_review'       // Brand is reviewing final video
     | 'brand_final_approved'     // Brand approved final video = mission done
-export type PricingPack = '1_video' | '3_videos' | 'custom'
+export type PricingPack = 'essentiel' | 'premium' | 'platinum'
 export type NotificationType =
     | 'new_application'
     | 'message_received'
