@@ -136,6 +136,8 @@ export async function createCampaign(campaignData: {
     deadline?: string
     status?: CampaignStatus
     pricing_pack?: PricingPack
+    brief_image_urls?: string[]
+    creator_preference?: 'single' | 'per_video'
 }): Promise<{ campaign: Campaign | null; error?: string }> {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -223,4 +225,32 @@ export async function getAssignedCampaigns(): Promise<CampaignWithBrand[]> {
     if (error || !data) return []
 
     return data as unknown as CampaignWithBrand[]
+}
+
+/**
+ * Create content blocks for a campaign
+ */
+export async function createCampaignContents(campaignId: string, contents: {
+    content_type: 'video' | 'photo'
+    format: string
+    script_type: string
+    description?: string
+    position: number
+}[]): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+    const rows = contents.map(c => ({
+        campaign_id: campaignId,
+        content_type: c.content_type,
+        format: c.format,
+        script_type: c.script_type,
+        description: c.description || null,
+        position: c.position,
+    }))
+
+    const { error } = await (supabase
+        .from('campaign_contents') as ReturnType<typeof supabase.from>)
+        .insert(rows)
+
+    if (error) return { success: false, error: error.message }
+    return { success: true }
 }

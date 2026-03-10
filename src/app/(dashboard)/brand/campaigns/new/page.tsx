@@ -3,21 +3,20 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { toast } from 'sonner'
 import {
     ArrowLeft,
     Upload,
-    Image as ImageIcon,
     Calendar,
-    DollarSign,
-    Users,
     CheckCircle2,
     X,
     Plus,
-    HelpCircle,
     Sparkles,
-    Loader2
+    Loader2,
+    Trash2,
+    Users,
+    User,
+    ImageIcon
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -31,162 +30,187 @@ const SPECIALTIES = [
     { id: 'asmr', label: 'ASMR' },
 ]
 
-const CONTENT_TYPES = [
-    { id: 'video', label: 'Vidéo UGC', desc: 'Format classique portrait ou paysage' },
-    { id: 'reel', label: 'Reel / Short', desc: 'Format court vertical <60s' },
-    { id: 'story', label: 'Story', desc: 'Format éphémère 24h' },
-    { id: 'photo', label: 'Photo', desc: 'Image haute qualité' },
+const FORMAT_OPTIONS = [
+    { id: '9_16', label: 'Vertical', desc: '9:16' },
+    { id: '1_1', label: 'Carré', desc: '1:1' },
+    { id: '16_9', label: 'Horizontal', desc: '16:9' },
+    { id: '4_5', label: 'Portrait', desc: '4:5' },
 ]
+
+const CONTENT_TYPES = [
+    { id: 'video', label: 'Vidéo' },
+    { id: 'photo', label: 'Photo' },
+]
+
+interface ContentBlock {
+    id: string
+    contentType: 'video' | 'photo'
+    format: string
+    scriptType: string
+    description: string
+}
+
+function createEmptyBlock(): ContentBlock {
+    return {
+        id: crypto.randomUUID(),
+        contentType: 'video',
+        format: '9_16',
+        scriptType: '',
+        description: '',
+    }
+}
 
 export default function NewCampaignPage() {
     const router = useRouter()
     const [step, setStep] = useState(1)
     const [errors, setErrors] = useState<Record<string, string>>({})
 
-    // Form state
+    // Form state – Step 1
     const [campaign, setCampaign] = useState({
         title: '',
         productName: '',
         description: '',
-        category: '',
-        contentType: '',
-        pricingPack: '' as '' | '1_video' | '3_videos' | 'custom',
         deadline: '',
         requirements: '',
         dos: [''],
         donts: [''],
-        thumbnail: null as File | null
     })
-
+    const [briefImages, setBriefImages] = useState<File[]>([])
     const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([])
 
+    // Form state – Step 2: Content blocks
+    const [contentBlocks, setContentBlocks] = useState<ContentBlock[]>([createEmptyBlock()])
+
+    // Form state – Step 3: Creator preference
+    const [creatorPreference, setCreatorPreference] = useState<'single' | 'per_video'>('single')
+
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
+    // ── Validation ──────────────────────────────────
     const validateStep = (s: number): boolean => {
         const errs: Record<string, string> = {}
         if (s === 1) {
             if (!campaign.title.trim()) errs.title = 'Le titre est requis'
             if (!campaign.description.trim()) errs.description = 'La description est requise'
-            if (selectedSpecialties.length === 0) errs.category = 'Sélectionnez au moins une catégorie'
         } else if (s === 2) {
-            if (!campaign.contentType) errs.contentType = 'Choisissez un format de contenu'
-        } else if (s === 3) {
-            if (!campaign.pricingPack) errs.pricingPack = 'Choisissez un pack tarifaire'
+            const hasEmpty = contentBlocks.some(b => !b.scriptType)
+            if (hasEmpty) errs.contentBlocks = 'Chaque contenu doit avoir une catégorie'
         }
         setErrors(errs)
         return Object.keys(errs).length === 0
     }
 
     const handleNextStep = () => {
-        if (validateStep(step)) {
-            setStep(step + 1)
-        }
+        if (validateStep(step)) setStep(step + 1)
     }
 
+    // ── Specialties ─────────────────────────────────
     const toggleSpecialty = (specialty: string) => {
         setSelectedSpecialties(prev =>
-            prev.includes(specialty)
-                ? prev.filter(s => s !== specialty)
-                : [...prev, specialty]
+            prev.includes(specialty) ? prev.filter(s => s !== specialty) : [...prev, specialty]
         )
     }
 
-    const addDo = () => {
-        setCampaign(prev => ({ ...prev, dos: [...prev.dos, ''] }))
+    // ── Do's / Don'ts ───────────────────────────────
+    const addDo = () => setCampaign(prev => ({ ...prev, dos: [...prev.dos, ''] }))
+    const addDont = () => setCampaign(prev => ({ ...prev, donts: [...prev.donts, ''] }))
+    const updateDo = (i: number, v: string) => setCampaign(prev => ({ ...prev, dos: prev.dos.map((d, idx) => idx === i ? v : d) }))
+    const updateDont = (i: number, v: string) => setCampaign(prev => ({ ...prev, donts: prev.donts.map((d, idx) => idx === i ? v : d) }))
+    const removeDo = (i: number) => setCampaign(prev => ({ ...prev, dos: prev.dos.filter((_, idx) => idx !== i) }))
+    const removeDont = (i: number) => setCampaign(prev => ({ ...prev, donts: prev.donts.filter((_, idx) => idx !== i) }))
+
+    // ── Brief images ────────────────────────────────
+    const handleBriefImageAdd = (files: FileList | null) => {
+        if (!files) return
+        setBriefImages(prev => [...prev, ...Array.from(files)])
+    }
+    const removeBriefImage = (i: number) => {
+        setBriefImages(prev => prev.filter((_, idx) => idx !== i))
     }
 
-    const addDont = () => {
-        setCampaign(prev => ({ ...prev, donts: [...prev.donts, ''] }))
+    // ── Content blocks ──────────────────────────────
+    const addContentBlock = () => setContentBlocks(prev => [...prev, createEmptyBlock()])
+    const removeContentBlock = (id: string) => {
+        if (contentBlocks.length <= 1) return
+        setContentBlocks(prev => prev.filter(b => b.id !== id))
+    }
+    const updateBlock = (id: string, updates: Partial<ContentBlock>) => {
+        setContentBlocks(prev => prev.map(b => b.id === id ? { ...b, ...updates } : b))
     }
 
-    const updateDo = (index: number, value: string) => {
-        setCampaign(prev => ({
-            ...prev,
-            dos: prev.dos.map((d, i) => i === index ? value : d)
-        }))
-    }
-
-    const updateDont = (index: number, value: string) => {
-        setCampaign(prev => ({
-            ...prev,
-            donts: prev.donts.map((d, i) => i === index ? value : d)
-        }))
-    }
-
-    const removeDo = (index: number) => {
-        setCampaign(prev => ({
-            ...prev,
-            dos: prev.dos.filter((_, i) => i !== index)
-        }))
-    }
-
-    const removeDont = (index: number) => {
-        setCampaign(prev => ({
-            ...prev,
-            donts: prev.donts.filter((_, i) => i !== index)
-        }))
-    }
-
-    const [isSubmitting, setIsSubmitting] = useState(false)
-
+    // ── Submit ───────────────────────────────────────
     const handleSubmit = async () => {
         setIsSubmitting(true)
-
         try {
-            const { createCampaign } = await import('@/lib/services/campaignService')
-            const formData = campaign
+            const { createCampaign, createCampaignContents } = await import('@/lib/services/campaignService')
+            const { createClient } = await import('@/lib/supabase/client')
+            const supabase = createClient()
 
-            // B3: Upload thumbnail if provided
-            let thumbnailUrl: string | undefined
-            if (formData.thumbnail) {
-                const { createClient } = await import('@/lib/supabase/client')
-                const supabase = createClient()
-                const ext = formData.thumbnail.name.split('.').pop()
-                const filePath = `thumbnails/${Date.now()}.${ext}`
+            // 1. Upload brief images
+            const briefImageUrls: string[] = []
+            for (const file of briefImages) {
+                const ext = file.name.split('.').pop()
+                const filePath = `brief-images/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
                 const { error: uploadError } = await supabase.storage
                     .from('thumbnails')
-                    .upload(filePath, formData.thumbnail, { cacheControl: '3600', upsert: true })
+                    .upload(filePath, file, { cacheControl: '3600', upsert: true })
                 if (!uploadError) {
                     const { data: urlData } = supabase.storage.from('thumbnails').getPublicUrl(filePath)
-                    thumbnailUrl = urlData?.publicUrl
+                    if (urlData?.publicUrl) briefImageUrls.push(urlData.publicUrl)
                 }
             }
 
+            // 2. Create campaign
             const campaignPayload = {
-                title: formData.title,
-                description: formData.description || undefined,
-                product_name: formData.productName || formData.title,
-                script_type: (selectedSpecialties[0] || 'testimonial') as any,
-                budget_chf: formData.pricingPack === '1_video' ? 490
-                    : formData.pricingPack === '3_videos' ? 1290
-                        : 0,
-                deadline: formData.deadline ? formData.deadline : undefined,
+                title: campaign.title,
+                description: campaign.description || undefined,
+                product_name: campaign.productName || campaign.title,
+                script_type: (contentBlocks[0]?.scriptType || 'testimonial') as any,
+                budget_chf: 0,
+                deadline: campaign.deadline || undefined,
                 status: 'draft' as const,
-                script_notes: formData.requirements || undefined,
-                pricing_pack: (formData.pricingPack || undefined) as any,
-                thumbnail_url: thumbnailUrl || undefined,
+                script_notes: campaign.requirements || undefined,
+                brief_image_urls: briefImageUrls,
+                creator_preference: creatorPreference,
             }
 
             const result = await createCampaign(campaignPayload)
+            if (result.error || !result.campaign) {
+                toast.error('Erreur lors de la création du brief', { description: result.error })
+                setIsSubmitting(false)
+                return
+            }
 
-            if (result.error) {
-                toast.error('Erreur lors de la création du brief', {
-                    description: result.error,
-                })
+            // 3. Create content blocks
+            const contentsPayload = contentBlocks.map((b, i) => ({
+                content_type: b.contentType as 'video' | 'photo',
+                format: b.format,
+                script_type: b.scriptType,
+                description: b.description || undefined,
+                position: i,
+            }))
+
+            const contentsResult = await createCampaignContents(result.campaign.id, contentsPayload)
+            if (contentsResult.error) {
+                toast.error('Erreur lors de la création des contenus', { description: contentsResult.error })
                 setIsSubmitting(false)
                 return
             }
 
             toast.success('Brief envoyé avec succès ! 🎉', {
-                description: 'MOSH va analyser votre brief et vous proposer des créateurs.',
+                description: `${contentBlocks.length} contenu${contentBlocks.length > 1 ? 's' : ''} ajouté${contentBlocks.length > 1 ? 's' : ''}.`,
             })
             setIsSubmitting(false)
             router.push('/brand/campaigns')
         } catch (err) {
-            toast.error('Erreur inattendue', {
-                description: err instanceof Error ? err.message : String(err),
-            })
+            toast.error('Erreur inattendue', { description: err instanceof Error ? err.message : String(err) })
             setIsSubmitting(false)
         }
     }
+
+    // ══════════════════════════════════════════════════
+    // RENDER
+    // ══════════════════════════════════════════════════
 
     return (
         <div className="max-w-3xl mx-auto space-y-8">
@@ -200,7 +224,7 @@ export default function NewCampaignPage() {
                 </Link>
                 <div className="h-6 w-px bg-gray-100" />
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Nouveau brief UGC</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">Nouvelle campagne UGC</h1>
                     <p className="text-gray-500 text-sm">Décrivez votre besoin, MOSH s&apos;occupe du reste</p>
                 </div>
             </div>
@@ -216,7 +240,7 @@ export default function NewCampaignPage() {
                             {step > s ? <CheckCircle2 className="w-4 h-4" /> : s}
                         </div>
                         <span className={`text-sm ${step >= s ? 'text-gray-900' : 'text-gray-400'}`}>
-                            {s === 1 ? 'Détails' : s === 2 ? 'Contenu' : 'Budget'}
+                            {s === 1 ? 'Détails' : s === 2 ? 'Contenus' : 'Créateurs'}
                         </span>
                         {s < 3 && <div className={`flex-1 h-px ${step > s ? 'bg-[#18181B]' : 'bg-gray-100'}`} />}
                     </div>
@@ -231,6 +255,7 @@ export default function NewCampaignPage() {
                 exit={{ opacity: 0, x: -20 }}
                 className="bg-white border border-white/[0.15] rounded-2xl p-8"
             >
+                {/* ═══════════ STEP 1: DÉTAILS ═══════════ */}
                 {step === 1 && (
                     <div className="space-y-6">
                         <h2 className="text-xl font-semibold text-gray-900 mb-6">Informations de base</h2>
@@ -273,14 +298,14 @@ export default function NewCampaignPage() {
                             />
                         </div>
 
-                        {/* Category */}
+                        {/* Category (kept at campaign level for overall tagging) */}
                         <div>
-                            <label className="block text-sm text-gray-500 mb-2">Catégorie de contenu *</label>
+                            <label className="block text-sm text-gray-500 mb-2">Tags de la campagne</label>
                             <div className="flex flex-wrap gap-2">
                                 {SPECIALTIES.map(specialty => (
                                     <button
                                         key={specialty.id}
-                                        onClick={() => { toggleSpecialty(specialty.id); setErrors(prev => ({ ...prev, category: '' })) }}
+                                        onClick={() => toggleSpecialty(specialty.id)}
                                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedSpecialties.includes(specialty.id)
                                             ? 'bg-[#18181B] text-white'
                                             : 'bg-gray-50 text-gray-500 hover:bg-gray-100 border border-gray-200'
@@ -290,88 +315,171 @@ export default function NewCampaignPage() {
                                     </button>
                                 ))}
                             </div>
-                            {errors.category && <p className="text-xs text-red-500 mt-1">{errors.category}</p>}
                         </div>
 
-                        {/* Thumbnail */}
+                        {/* Brief Images */}
                         <div>
-                            <label className="block text-sm text-gray-500 mb-2">Image de couverture</label>
+                            <label className="block text-sm text-gray-500 mb-2">
+                                Images d&apos;illustration du brief
+                                <span className="text-gray-400 ml-1">(optionnel)</span>
+                            </label>
                             <input
                                 type="file"
-                                id="thumbnail-upload"
+                                id="brief-images-upload"
                                 accept="image/jpeg,image/png,image/webp"
+                                multiple
                                 className="hidden"
-                                onChange={(e) => {
-                                    const file = e.target.files?.[0]
-                                    if (file) {
-                                        setCampaign({ ...campaign, thumbnail: file })
-                                    }
-                                }}
+                                onChange={(e) => handleBriefImageAdd(e.target.files)}
                             />
+                            {briefImages.length > 0 && (
+                                <div className="grid grid-cols-4 gap-3 mb-3">
+                                    {briefImages.map((file, i) => (
+                                        <div key={i} className="relative group">
+                                            <img
+                                                src={URL.createObjectURL(file)}
+                                                alt={`Brief ${i + 1}`}
+                                                className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                                            />
+                                            <button
+                                                onClick={() => removeBriefImage(i)}
+                                                className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <X className="w-3 h-3" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                             <label
-                                htmlFor="thumbnail-upload"
-                                className="block border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:border-white/30 transition-colors cursor-pointer"
+                                htmlFor="brief-images-upload"
+                                className="block border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:border-gray-300 transition-colors cursor-pointer"
                             >
-                                {campaign.thumbnail ? (
-                                    <div className="flex flex-col items-center gap-3">
-                                        <img
-                                            src={URL.createObjectURL(campaign.thumbnail)}
-                                            alt="Preview"
-                                            className="w-32 h-32 object-cover rounded-lg"
-                                        />
-                                        <p className="text-sm text-gray-500">{campaign.thumbnail.name}</p>
-                                        <p className="text-xs text-[#18181B]">Cliquez pour changer</p>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <Upload className="w-8 h-8 text-gray-400 mx-auto mb-3" />
-                                        <p className="text-sm text-gray-500">Glissez une image ou cliquez pour parcourir</p>
-                                        <p className="text-xs text-gray-400 mt-1">JPG, PNG • Max 5MB</p>
-                                    </>
-                                )}
+                                <Upload className="w-6 h-6 text-gray-400 mx-auto mb-2" />
+                                <p className="text-sm text-gray-500">
+                                    {briefImages.length > 0 ? 'Ajouter d\'autres images' : 'Glissez des images ou cliquez pour parcourir'}
+                                </p>
+                                <p className="text-xs text-gray-400 mt-1">JPG, PNG, WebP • Max 5MB par image</p>
                             </label>
                         </div>
                     </div>
                 )}
 
+                {/* ═══════════ STEP 2: CONTENUS ═══════════ */}
                 {step === 2 && (
                     <div className="space-y-6">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-6">Type de contenu & Brief</h2>
-
-                        {/* Content Type */}
                         <div>
-                            <label className="block text-sm text-gray-500 mb-3">Format de contenu *</label>
-                            <div className="grid grid-cols-2 gap-3">
-                                {CONTENT_TYPES.map(type => (
-                                    <button
-                                        key={type.id}
-                                        onClick={() => { setCampaign({ ...campaign, contentType: type.id }); setErrors(prev => ({ ...prev, contentType: '' })) }}
-                                        className={`p-4 rounded-xl text-left transition-all ${campaign.contentType === type.id
-                                            ? 'bg-[#18181B]/20 border-[#18181B]/50 border'
-                                            : 'bg-gray-50 border border-gray-200 hover:border-gray-200'
-                                            }`}
-                                    >
-                                        <p className={`font-medium ${campaign.contentType === type.id ? 'text-gray-900' : 'text-gray-700'}`}>
-                                            {type.label}
-                                        </p>
-                                        <p className="text-xs text-gray-400 mt-1">{type.desc}</p>
-                                    </button>
-                                ))}
-                            </div>
-                            {errors.contentType && <p className="text-xs text-red-500 mt-1">{errors.contentType}</p>}
+                            <h2 className="text-xl font-semibold text-gray-900">Description des contenus</h2>
+                            <p className="text-sm text-gray-500 mt-1">Décrivez chaque contenu que vous souhaitez. Vous pouvez en ajouter autant que nécessaire.</p>
                         </div>
 
-                        {/* Requirements */}
-                        <div>
-                            <label className="block text-sm text-gray-500 mb-2">Brief créatif</label>
-                            <textarea
-                                value={campaign.requirements}
-                                onChange={(e) => setCampaign({ ...campaign, requirements: e.target.value })}
-                                rows={4}
-                                placeholder="Décrivez le ton souhaité, les éléments à inclure, le message clé..."
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-white/25 resize-none"
-                            />
+                        {/* Content Blocks */}
+                        <div className="space-y-4">
+                            {contentBlocks.map((block, index) => (
+                                <motion.div
+                                    key={block.id}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    className="bg-gray-50 border border-gray-200 rounded-xl p-5 relative"
+                                >
+                                    {/* Block header */}
+                                    <div className="flex items-center justify-between mb-4">
+                                        <span className="text-sm font-medium text-gray-700">
+                                            Contenu {index + 1}
+                                        </span>
+                                        {contentBlocks.length > 1 && (
+                                            <button
+                                                onClick={() => removeContentBlock(block.id)}
+                                                className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Content Type: Video / Photo */}
+                                    <div className="mb-4">
+                                        <label className="block text-xs text-gray-500 mb-2">Type de contenu</label>
+                                        <div className="flex gap-2">
+                                            {CONTENT_TYPES.map(type => (
+                                                <button
+                                                    key={type.id}
+                                                    onClick={() => updateBlock(block.id, { contentType: type.id as 'video' | 'photo' })}
+                                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${block.contentType === type.id
+                                                        ? 'bg-[#18181B] text-white'
+                                                        : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300'
+                                                        }`}
+                                                >
+                                                    {type.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Format */}
+                                    <div className="mb-4">
+                                        <label className="block text-xs text-gray-500 mb-2">Format</label>
+                                        <div className="flex gap-2 flex-wrap">
+                                            {FORMAT_OPTIONS.map(fmt => (
+                                                <button
+                                                    key={fmt.id}
+                                                    onClick={() => updateBlock(block.id, { format: fmt.id })}
+                                                    className={`px-3 py-1.5 rounded-lg text-sm transition-all ${block.format === fmt.id
+                                                        ? 'bg-[#18181B] text-white'
+                                                        : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300'
+                                                        }`}
+                                                >
+                                                    {fmt.label}
+                                                    <span className="text-xs ml-1 opacity-60">{fmt.desc}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Script Type / Category */}
+                                    <div className="mb-4">
+                                        <label className="block text-xs text-gray-500 mb-2">Catégorie *</label>
+                                        <div className="flex gap-2 flex-wrap">
+                                            {SPECIALTIES.map(spec => (
+                                                <button
+                                                    key={spec.id}
+                                                    onClick={() => updateBlock(block.id, { scriptType: spec.id })}
+                                                    className={`px-3 py-1.5 rounded-lg text-sm transition-all ${block.scriptType === spec.id
+                                                        ? 'bg-[#18181B] text-white'
+                                                        : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300'
+                                                        }`}
+                                                >
+                                                    {spec.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Description */}
+                                    <div>
+                                        <label className="block text-xs text-gray-500 mb-2">Description détaillée</label>
+                                        <textarea
+                                            value={block.description}
+                                            onChange={(e) => updateBlock(block.id, { description: e.target.value })}
+                                            rows={3}
+                                            placeholder="Décrivez ce que vous attendez pour ce contenu..."
+                                            className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#18181B]/20 resize-none"
+                                        />
+                                    </div>
+                                </motion.div>
+                            ))}
                         </div>
+
+                        {errors.contentBlocks && <p className="text-xs text-red-500">{errors.contentBlocks}</p>}
+
+                        {/* Add content button */}
+                        <button
+                            onClick={addContentBlock}
+                            className="w-full border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-all flex items-center justify-center gap-2"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Ajouter un contenu
+                        </button>
 
                         {/* Do's */}
                         <div>
@@ -390,20 +498,14 @@ export default function NewCampaignPage() {
                                             className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-white/25"
                                         />
                                         {campaign.dos.length > 1 && (
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => removeDo(i)}
-                                                className="text-gray-400 hover:text-red-700"
-                                            >
+                                            <Button variant="ghost" size="sm" onClick={() => removeDo(i)} className="text-gray-400 hover:text-red-700">
                                                 <X className="w-4 h-4" />
                                             </Button>
                                         )}
                                     </div>
                                 ))}
                                 <Button variant="ghost" size="sm" onClick={addDo} className="text-gray-500 hover:text-gray-900">
-                                    <Plus className="w-4 h-4 mr-1" />
-                                    Ajouter
+                                    <Plus className="w-4 h-4 mr-1" /> Ajouter
                                 </Button>
                             </div>
                         </div>
@@ -425,62 +527,67 @@ export default function NewCampaignPage() {
                                             className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-white/25"
                                         />
                                         {campaign.donts.length > 1 && (
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => removeDont(i)}
-                                                className="text-gray-400 hover:text-red-700"
-                                            >
+                                            <Button variant="ghost" size="sm" onClick={() => removeDont(i)} className="text-gray-400 hover:text-red-700">
                                                 <X className="w-4 h-4" />
                                             </Button>
                                         )}
                                     </div>
                                 ))}
                                 <Button variant="ghost" size="sm" onClick={addDont} className="text-gray-500 hover:text-gray-900">
-                                    <Plus className="w-4 h-4 mr-1" />
-                                    Ajouter
+                                    <Plus className="w-4 h-4 mr-1" /> Ajouter
                                 </Button>
                             </div>
                         </div>
                     </div>
                 )}
 
-
+                {/* ═══════════ STEP 3: CRÉATEURS & DÉLAI ═══════════ */}
                 {step === 3 && (
                     <div className="space-y-6">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-6">Tarif & Délai</h2>
+                        <h2 className="text-xl font-semibold text-gray-900 mb-6">Créateurs & Délai</h2>
 
-                        {/* Pricing Packs */}
+                        {/* Creator Preference */}
                         <div>
-                            <label className="block text-sm text-gray-500 mb-3">Choisissez votre pack *</label>
+                            <label className="block text-sm text-gray-500 mb-3">Combien de créateurs souhaitez-vous ?</label>
                             <div className="space-y-3">
-                                {[
-                                    { id: '1_video' as const, label: '1 vidéo UGC', price: 'CHF 490', desc: 'Idéal pour un premier test' },
-                                    { id: '3_videos' as const, label: 'Pack 3 vidéos', price: 'CHF 1\'290', desc: 'Le plus populaire — créez du contenu varié' },
-                                    { id: 'custom' as const, label: 'Sur mesure', price: 'Sur devis', desc: 'Pour les campagnes complexes ou à fort volume' },
-                                ].map(pack => (
-                                    <button
-                                        key={pack.id}
-                                        onClick={() => { setCampaign({ ...campaign, pricingPack: pack.id }); setErrors(prev => ({ ...prev, pricingPack: '' })) }}
-                                        className={`w-full p-4 rounded-xl text-left transition-all flex items-center justify-between ${campaign.pricingPack === pack.id
-                                            ? 'bg-[#18181B]/20 border-[#18181B]/50 border-2'
-                                            : 'bg-gray-50 border border-gray-200 hover:border-gray-200'
-                                            }`}
-                                    >
-                                        <div>
-                                            <p className={`font-medium ${campaign.pricingPack === pack.id ? 'text-gray-900' : 'text-gray-700'}`}>
-                                                {pack.label}
-                                            </p>
-                                            <p className="text-xs text-gray-400 mt-0.5">{pack.desc}</p>
-                                        </div>
-                                        <span className={`text-lg font-bold ${campaign.pricingPack === pack.id ? 'text-[#18181B]' : 'text-gray-500'}`}>
-                                            {pack.price}
-                                        </span>
-                                    </button>
-                                ))}
+                                <button
+                                    onClick={() => setCreatorPreference('single')}
+                                    className={`w-full p-4 rounded-xl text-left transition-all flex items-center gap-4 ${creatorPreference === 'single'
+                                        ? 'bg-[#18181B]/10 border-[#18181B]/50 border-2'
+                                        : 'bg-gray-50 border border-gray-200 hover:border-gray-300'
+                                        }`}
+                                >
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${creatorPreference === 'single' ? 'bg-[#18181B] text-white' : 'bg-gray-200 text-gray-500'}`}>
+                                        <User className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <p className={`font-medium ${creatorPreference === 'single' ? 'text-gray-900' : 'text-gray-700'}`}>
+                                            Un seul créateur pour toutes les vidéos
+                                        </p>
+                                        <p className="text-xs text-gray-400 mt-0.5">MOSH trouvera un créateur polyvalent pour l&apos;ensemble de votre campagne</p>
+                                    </div>
+                                </button>
+
+                                <button
+                                    onClick={() => setCreatorPreference('per_video')}
+                                    className={`w-full p-4 rounded-xl text-left transition-all flex items-center gap-4 ${creatorPreference === 'per_video'
+                                        ? 'bg-[#18181B]/10 border-[#18181B]/50 border-2'
+                                        : 'bg-gray-50 border border-gray-200 hover:border-gray-300'
+                                        }`}
+                                >
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${creatorPreference === 'per_video' ? 'bg-[#18181B] text-white' : 'bg-gray-200 text-gray-500'}`}>
+                                        <Users className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <p className={`font-medium ${creatorPreference === 'per_video' ? 'text-gray-900' : 'text-gray-700'}`}>
+                                            Un créateur différent par vidéo
+                                        </p>
+                                        <p className="text-xs text-gray-400 mt-0.5">Chaque vidéo sera réalisée par un créateur spécialisé</p>
+                                    </div>
+                                </button>
                             </div>
-                            {errors.pricingPack && <p className="text-xs text-red-500 mt-1">{errors.pricingPack}</p>}
                         </div>
+
                         {/* Deadline */}
                         <div className="mt-6">
                             <label className="block text-sm text-gray-500 mb-2">Date souhaitée de livraison</label>
@@ -490,7 +597,7 @@ export default function NewCampaignPage() {
                                     type="date"
                                     value={campaign.deadline}
                                     onChange={(e) => setCampaign({ ...campaign, deadline: e.target.value })}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-gray-900 focus:outline-none focus:border-white/25 [color-scheme:dark]"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#18181B]/20 [color-scheme:dark]"
                                 />
                             </div>
                         </div>
@@ -513,27 +620,43 @@ export default function NewCampaignPage() {
                                     </div>
                                 )}
                                 <div className="flex justify-between">
-                                    <span className="text-gray-500">Catégories</span>
-                                    <span className="text-gray-900">{selectedSpecialties.map(id => SPECIALTIES.find(s => s.id === id)?.label || id).join(', ') || '—'}</span>
+                                    <span className="text-gray-500">Nombre de contenus</span>
+                                    <span className="text-gray-900 font-medium">{contentBlocks.length}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-gray-500">Format</span>
-                                    <span className="text-gray-900">{CONTENT_TYPES.find(t => t.id === campaign.contentType)?.label || '—'}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-500">Pack</span>
+                                    <span className="text-gray-500">Créateurs</span>
                                     <span className="text-gray-900">
-                                        {campaign.pricingPack === '1_video' ? '1 vidéo — CHF 490'
-                                            : campaign.pricingPack === '3_videos' ? 'Pack 3 vidéos — CHF 1\'290'
-                                                : campaign.pricingPack === 'custom' ? 'Sur mesure'
-                                                    : '—'
-                                        }
+                                        {creatorPreference === 'single' ? 'Un seul pour tout' : 'Un par vidéo'}
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-gray-500">Date souhaitée</span>
                                     <span className="text-gray-900">{campaign.deadline || '—'}</span>
                                 </div>
+
+                                {/* Content blocks summary */}
+                                <div className="pt-3 border-t border-gray-100">
+                                    <span className="text-gray-500 text-xs font-medium">📋 Contenus demandés</span>
+                                    <div className="mt-2 space-y-1.5">
+                                        {contentBlocks.map((block, i) => (
+                                            <div key={block.id} className="flex items-center gap-2 text-xs">
+                                                <span className="text-gray-400">{i + 1}.</span>
+                                                <span className="text-gray-700 font-medium capitalize">{block.contentType}</span>
+                                                <span className="text-gray-400">•</span>
+                                                <span className="text-gray-600">{FORMAT_OPTIONS.find(f => f.id === block.format)?.label || block.format}</span>
+                                                <span className="text-gray-400">•</span>
+                                                <span className="text-gray-600">{SPECIALTIES.find(s => s.id === block.scriptType)?.label || '—'}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {briefImages.length > 0 && (
+                                    <div className="pt-2 border-t border-gray-100">
+                                        <span className="text-gray-500 text-xs font-medium">🖼️ {briefImages.length} image{briefImages.length > 1 ? 's' : ''} d&apos;illustration</span>
+                                    </div>
+                                )}
+
                                 {campaign.dos.filter(d => d.trim()).length > 0 && (
                                     <div className="pt-2 border-t border-gray-100">
                                         <span className="text-gray-500 text-xs font-medium">✅ À faire</span>

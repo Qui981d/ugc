@@ -153,7 +153,9 @@ export interface Campaign {
     // Creator studio
     creator_notes: string | null
     creator_checklist: string[] | null
-    thumbnail_url: string | null
+    // Brief images & creator preference
+    brief_image_urls: string[]
+    creator_preference: 'single' | 'per_video'
     admin_notes: string | null
     created_at: string
     updated_at: string
@@ -213,6 +215,17 @@ export interface Notification {
     reference_id: string | null
     reference_type: string | null
     is_read: boolean
+    created_at: string
+}
+
+export interface CampaignContent {
+    id: string
+    campaign_id: string
+    content_type: 'video' | 'photo'
+    format: string
+    script_type: string
+    description: string | null
+    position: number
     created_at: string
 }
 
@@ -306,6 +319,11 @@ export interface Database {
                 Row: NotificationPreferences
                 Insert: Omit<NotificationPreferences, 'id' | 'created_at' | 'updated_at'>
                 Update: Partial<Omit<NotificationPreferences, 'id' | 'user_id' | 'created_at'>>
+            }
+            campaign_contents: {
+                Row: CampaignContent
+                Insert: Omit<CampaignContent, 'id' | 'created_at'>
+                Update: Partial<Omit<CampaignContent, 'id' | 'campaign_id' | 'created_at'>>
             }
             mission_steps: {
                 Row: MissionStep
