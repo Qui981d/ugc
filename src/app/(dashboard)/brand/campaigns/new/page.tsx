@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { toast } from 'sonner'
 import {
@@ -20,7 +20,9 @@ import {
     Check,
     Star,
     Crown,
-    Gem
+    Gem,
+    FileSignature,
+    ShieldCheck
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -139,7 +141,18 @@ export default function NewCampaignPage() {
     // Form state – Step 4: Pricing
     const [selectedPlan, setSelectedPlan] = useState<'essentiel' | 'premium' | 'platinum'>('premium')
 
+    // Quote signing modal
+    const [showQuoteModal, setShowQuoteModal] = useState(false)
+    const [acceptedTerms, setAcceptedTerms] = useState(false)
+
     const [isSubmitting, setIsSubmitting] = useState(false)
+
+    // Generate quote number
+    const generateQuoteNumber = useCallback(() => {
+        const year = new Date().getFullYear()
+        const rand = Date.now().toString(36).toUpperCase().slice(-4)
+        return `MOSH-DEVIS-${year}-${rand}`
+    }, [])
 
     // ── Validation ──────────────────────────────────
     const validateStep = (s: number): boolean => {
@@ -229,7 +242,15 @@ export default function NewCampaignPage() {
                 }
             }
 
-            // 2. Create campaign
+            // 2. Create campaign (with quote data)
+            const quoteNumber = generateQuoteNumber()
+            let signerIp = 'unknown'
+            try {
+                const ipRes = await fetch('https://api.ipify.org?format=json')
+                const ipData = await ipRes.json()
+                signerIp = ipData.ip || 'unknown'
+            } catch { /* best-effort */ }
+
             const campaignPayload = {
                 title: campaign.title,
                 description: campaign.description || undefined,
@@ -241,6 +262,9 @@ export default function NewCampaignPage() {
                 pricing_pack: selectedPlan,
                 brief_image_urls: briefImageUrls,
                 creator_preference: creatorPreference,
+                quote_number: quoteNumber,
+                quote_signed_at: new Date().toISOString(),
+                quote_signer_ip: signerIp,
             }
 
             const result = await createCampaign(campaignPayload)
@@ -819,24 +843,142 @@ export default function NewCampaignPage() {
                     ) : (
                         <Button
                             className="btn-primary"
-                            onClick={() => { if (validateStep(4)) handleSubmit() }}
+                            onClick={() => { if (validateStep(4)) setShowQuoteModal(true) }}
                             disabled={isSubmitting}
                         >
-                            {isSubmitting ? (
-                                <>
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Envoi en cours...
-                                </>
-                            ) : (
-                                <>
-                                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                                    Envoyer le brief
-                                </>
-                            )}
+                            <FileSignature className="w-4 h-4 mr-2" />
+                            Signer et envoyer
                         </Button>
                     )}
                 </div>
             </motion.div>
+
+            {/* ═══════════ QUOTE SIGNING MODAL ═══════════ */}
+            <AnimatePresence>
+                {showQuoteModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+                        onClick={() => { if (!isSubmitting) setShowQuoteModal(false) }}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+                        >
+                            {/* Header */}
+                            <div className="p-6 pb-0">
+                                <div className="flex items-center gap-3 mb-1">
+                                    <div className="w-10 h-10 rounded-xl bg-[#18181B] flex items-center justify-center">
+                                        <FileSignature className="w-5 h-5 text-[#C4F042]" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-900">Signature du devis</h3>
+                                        <p className="text-xs text-gray-500">Validez votre offre pour envoyer le brief</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Devis content */}
+                            <div className="p-6 space-y-4">
+                                {/* Summary */}
+                                <div className="bg-gray-50 rounded-2xl p-4 space-y-2.5 text-sm">
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Campagne</span>
+                                        <span className="text-gray-900 font-medium">{campaign.title || '—'}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Offre</span>
+                                        <span className="text-gray-900 font-medium">{PRICING_TIERS.find(t => t.id === selectedPlan)?.name}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Contenus</span>
+                                        <span className="text-gray-900">{contentBlocks.length} × {PRICE_PER_VIDEO} CHF</span>
+                                    </div>
+                                    {selectedPlan !== 'essentiel' && (
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Accompagnement</span>
+                                            <span className="text-gray-900">+ {ACCOMPANIMENT_FEE} CHF</span>
+                                        </div>
+                                    )}
+                                    {selectedPlan === 'platinum' && (
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Reporting</span>
+                                            <span className="text-gray-900">+ {REPORTING_FEE} CHF</span>
+                                        </div>
+                                    )}
+                                    <div className="flex justify-between pt-2 border-t border-gray-200">
+                                        <span className="text-gray-900 font-bold">Total TTC</span>
+                                        <span className="text-gray-900 font-bold text-lg">
+                                            {(PRICING_TIERS.find(t => t.id === selectedPlan)?.getPrice(contentBlocks.length) || 0).toLocaleString('fr-CH')} CHF
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Legal text */}
+                                <div className="bg-gray-50 rounded-2xl p-4">
+                                    <p className="text-xs text-gray-500 leading-relaxed">
+                                        En signant ce devis, vous confirmez avoir pris connaissance de l&apos;offre sélectionnée 
+                                        et acceptez les conditions générales de MOSH. Ce devis fait foi comme engagement 
+                                        de commande pour la prestation décrite ci-dessus. Le paiement sera exigible selon 
+                                        les conditions convenues avec l&apos;équipe MOSH.
+                                    </p>
+                                </div>
+
+                                {/* Checkbox */}
+                                <label className="flex items-start gap-3 cursor-pointer group">
+                                    <div
+                                        className={`w-5 h-5 mt-0.5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                                            acceptedTerms
+                                                ? 'bg-[#18181B] border-[#18181B]'
+                                                : 'border-gray-300 group-hover:border-gray-400'
+                                        }`}
+                                        onClick={() => setAcceptedTerms(!acceptedTerms)}
+                                    >
+                                        {acceptedTerms && <Check className="w-3.5 h-3.5 text-[#C4F042]" />}
+                                    </div>
+                                    <span className="text-sm text-gray-700">
+                                        J&apos;accepte les conditions générales et je confirme cette commande
+                                    </span>
+                                </label>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="p-6 pt-2 flex gap-3">
+                                <Button
+                                    variant="outline"
+                                    className="flex-1"
+                                    onClick={() => { setShowQuoteModal(false); setAcceptedTerms(false) }}
+                                    disabled={isSubmitting}
+                                >
+                                    Annuler
+                                </Button>
+                                <Button
+                                    className="flex-1 btn-primary"
+                                    onClick={() => { handleSubmit(); setShowQuoteModal(false) }}
+                                    disabled={!acceptedTerms || isSubmitting}
+                                >
+                                    {isSubmitting ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                            Envoi...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ShieldCheck className="w-4 h-4 mr-2" />
+                                            Signer le devis
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     )
 }

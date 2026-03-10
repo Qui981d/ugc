@@ -156,6 +156,10 @@ export interface Campaign {
     // Brief images & creator preference
     brief_image_urls: string[]
     creator_preference: 'single' | 'per_video'
+    // Quote/Devis signing
+    quote_number: string | null
+    quote_signed_at: string | null
+    quote_signer_ip: string | null
     admin_notes: string | null
     created_at: string
     updated_at: string

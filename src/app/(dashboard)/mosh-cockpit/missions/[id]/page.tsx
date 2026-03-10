@@ -1059,6 +1059,38 @@ export default function AdminMissionDetailPage() {
                 )
             }
 
+            {/* Quote/Devis Signed Badge */}
+            {campaign.quote_number && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 }}
+                    className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[24px] p-5"
+                >
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
+                            <CheckCircle2 className="w-4 h-4 text-green-600" strokeWidth={2} />
+                        </div>
+                        <h3 className="text-sm font-bold text-[#18181B]">Devis signé</h3>
+                        <span className="text-xs font-mono text-[#71717A] bg-[#F4F3EF] px-2 py-0.5 rounded-full">{campaign.quote_number}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3 text-xs">
+                        <div>
+                            <p className="text-[#A1A1AA]">Signé le</p>
+                            <p className="text-[#18181B] font-medium">{campaign.quote_signed_at ? new Date(campaign.quote_signed_at).toLocaleDateString('fr-CH', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}</p>
+                        </div>
+                        <div>
+                            <p className="text-[#A1A1AA]">IP signataire</p>
+                            <p className="text-[#18181B] font-mono">{campaign.quote_signer_ip || '—'}</p>
+                        </div>
+                        <div>
+                            <p className="text-[#A1A1AA]">Offre</p>
+                            <p className="text-[#18181B] font-medium capitalize">{campaign.pricing_pack || '—'}</p>
+                        </div>
+                    </div>
+                </motion.div>
+            )}
+
             {/* A8: Admin Internal Notes */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
