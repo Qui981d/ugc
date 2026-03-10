@@ -654,31 +654,51 @@ function CreatorSignupForm() {
 // BRAND CONTACT FORM
 // ================================================
 function BrandContactForm() {
+  const router = useRouter()
+  const { signUp } = useAuth()
+  const [mode, setMode] = useState<'signup' | 'rdv'>('signup')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
-  const [form, setForm] = useState({ company: '', fullName: '', email: '', phone: '', message: '' })
+  const [error, setError] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Signup form
+  const [signupForm, setSignupForm] = useState({ company: '', fullName: '', email: '', password: '' })
+  // RDV form
+  const [rdvForm, setRdvForm] = useState({ company: '', fullName: '', email: '', phone: '', message: '' })
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      const result = await signUp(signupForm.email, signupForm.password, signupForm.fullName, 'brand', {
+        company_name: signupForm.company,
+      })
+      if (result.error) { setError(result.error) }
+      else { router.push('/brand/campaigns') }
+    } catch { setError('Erreur. Réessayez.') }
+    finally { setLoading(false) }
+  }
+
+  const handleRdv = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     try {
       const { createClient } = await import('@/lib/supabase/client')
       const supabase = createClient()
-
       await (supabase.from('brand_requests') as ReturnType<typeof supabase.from>).insert({
-        company_name: form.company,
-        contact_name: form.fullName,
-        email: form.email,
-        phone: form.phone || null,
-        message: form.message || null,
+        company_name: rdvForm.company,
+        contact_name: rdvForm.fullName,
+        email: rdvForm.email,
+        phone: rdvForm.phone || null,
+        message: rdvForm.message || null,
         status: 'new',
       })
-
       const { data: admins } = await supabase.from('users').select('id').eq('role', 'admin')
       if (admins && admins.length > 0) {
         const { createNotification } = await import('@/lib/services/notificationService')
         for (const admin of admins as { id: string }[]) {
-          await createNotification(admin.id, 'new_application', 'Nouvelle demande marque', `${form.company} (${form.fullName}) souhaite prendre RDV`, undefined, 'brand_request')
+          await createNotification(admin.id, 'new_application', 'Nouvelle demande marque', `${rdvForm.company} (${rdvForm.fullName}) souhaite prendre RDV`, undefined, 'brand_request')
         }
       }
       setSent(true)
@@ -700,6 +720,8 @@ function BrandContactForm() {
     )
   }
 
+  const inputClass = "w-full px-5 py-4 rounded-2xl border-2 border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors"
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -707,53 +729,103 @@ function BrandContactForm() {
       viewport={{ once: true }}
       className="bg-white rounded-3xl border-2 border-gray-100 p-8 md:p-12 shadow-xl max-w-lg mx-auto"
     >
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="grid grid-cols-2 gap-4">
+      {/* Mode toggle */}
+      <div className="flex rounded-2xl bg-gray-100 p-1 mb-8">
+        <button
+          onClick={() => setMode('signup')}
+          className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${mode === 'signup' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+        >
+          Créer un compte
+        </button>
+        <button
+          onClick={() => setMode('rdv')}
+          className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${mode === 'rdv' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+        >
+          Prendre un RDV
+        </button>
+      </div>
+
+      {error && <p className="text-sm text-red-500 bg-red-50 px-4 py-2 rounded-xl mb-4">{error}</p>}
+
+      {mode === 'signup' ? (
+        <form onSubmit={handleSignup} className="space-y-5">
           <div>
-            <label className="block text-sm font-bold text-gray-900 mb-2">Entreprise</label>
-            <input type="text" required value={form.company}
-              onChange={(e) => setForm(f => ({ ...f, company: e.target.value }))}
-              className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors"
-              placeholder="Votre entreprise" />
+            <label className="block text-sm font-bold text-gray-900 mb-2">Nom de l&apos;entreprise</label>
+            <input type="text" required value={signupForm.company}
+              onChange={(e) => setSignupForm(f => ({ ...f, company: e.target.value }))}
+              className={inputClass} placeholder="Ma Marque SA" />
           </div>
           <div>
             <label className="block text-sm font-bold text-gray-900 mb-2">Nom complet</label>
-            <input type="text" required value={form.fullName}
-              onChange={(e) => setForm(f => ({ ...f, fullName: e.target.value }))}
-              className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors"
-              placeholder="Votre nom" />
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-bold text-gray-900 mb-2">Email</label>
-            <input type="email" required value={form.email}
-              onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
-              className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors"
-              placeholder="email@entreprise.ch" />
+            <input type="text" required value={signupForm.fullName}
+              onChange={(e) => setSignupForm(f => ({ ...f, fullName: e.target.value }))}
+              className={inputClass} placeholder="Votre nom et prénom" />
           </div>
           <div>
-            <label className="block text-sm font-bold text-gray-900 mb-2">Téléphone</label>
-            <input type="tel" value={form.phone}
-              onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))}
-              className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors"
-              placeholder="+41 79 ..." />
+            <label className="block text-sm font-bold text-gray-900 mb-2">Email professionnel</label>
+            <input type="email" required value={signupForm.email}
+              onChange={(e) => setSignupForm(f => ({ ...f, email: e.target.value }))}
+              className={inputClass} placeholder="email@entreprise.ch" />
           </div>
-        </div>
-        <div>
-          <label className="block text-sm font-bold text-gray-900 mb-2">Votre projet</label>
-          <textarea rows={3} value={form.message}
-            onChange={(e) => setForm(f => ({ ...f, message: e.target.value }))}
-            className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors resize-none"
-            placeholder="Décrivez votre besoin en contenu UGC..." />
-        </div>
-        <button
-          type="submit" disabled={loading}
-          className="w-full py-4 rounded-full text-white font-bold text-lg bg-[#6C3FA0] hover:bg-[#5A2D8C] transition-colors flex items-center justify-center gap-2 shadow-lg"
-        >
-          {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><Send className="w-5 h-5" /> Envoyer ma demande</>}
-        </button>
-      </form>
+          <div>
+            <label className="block text-sm font-bold text-gray-900 mb-2">Mot de passe</label>
+            <input type="password" required minLength={6} value={signupForm.password}
+              onChange={(e) => setSignupForm(f => ({ ...f, password: e.target.value }))}
+              className={inputClass} placeholder="Minimum 6 caractères" />
+          </div>
+          <button type="submit" disabled={loading}
+            className="w-full py-4 rounded-full text-white font-bold text-lg bg-[#6C3FA0] hover:bg-[#5A2D8C] transition-colors flex items-center justify-center gap-2 shadow-lg"
+          >
+            {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Créer mon compte marque <ArrowRight className="w-5 h-5" /></>}
+          </button>
+          <p className="text-center text-sm text-gray-400 mt-4">
+            Déjà inscrit ? <Link href="/login" className="text-[#6C3FA0] font-semibold hover:underline">Se connecter</Link>
+          </p>
+        </form>
+      ) : (
+        <form onSubmit={handleRdv} className="space-y-5">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-900 mb-2">Entreprise</label>
+              <input type="text" required value={rdvForm.company}
+                onChange={(e) => setRdvForm(f => ({ ...f, company: e.target.value }))}
+                className={inputClass} placeholder="Votre entreprise" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-900 mb-2">Nom complet</label>
+              <input type="text" required value={rdvForm.fullName}
+                onChange={(e) => setRdvForm(f => ({ ...f, fullName: e.target.value }))}
+                className={inputClass} placeholder="Votre nom" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-900 mb-2">Email</label>
+              <input type="email" required value={rdvForm.email}
+                onChange={(e) => setRdvForm(f => ({ ...f, email: e.target.value }))}
+                className={inputClass} placeholder="email@entreprise.ch" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-900 mb-2">Téléphone</label>
+              <input type="tel" value={rdvForm.phone}
+                onChange={(e) => setRdvForm(f => ({ ...f, phone: e.target.value }))}
+                className={inputClass} placeholder="+41 79 ..." />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-900 mb-2">Votre projet</label>
+            <textarea rows={3} value={rdvForm.message}
+              onChange={(e) => setRdvForm(f => ({ ...f, message: e.target.value }))}
+              className={`${inputClass} resize-none`}
+              placeholder="Décrivez votre besoin en contenu UGC..." />
+          </div>
+          <button type="submit" disabled={loading}
+            className="w-full py-4 rounded-full text-white font-bold text-lg bg-[#6C3FA0] hover:bg-[#5A2D8C] transition-colors flex items-center justify-center gap-2 shadow-lg"
+          >
+            {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><Send className="w-5 h-5" /> Envoyer ma demande</>}
+          </button>
+        </form>
+      )}
     </motion.div>
   )
 }

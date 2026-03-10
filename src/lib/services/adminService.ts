@@ -180,6 +180,50 @@ export async function getAllBrands(): Promise<BrandWithProfile[]> {
     return data as unknown as BrandWithProfile[]
 }
 
+export interface BrandRequest {
+    id: string
+    company_name: string
+    contact_name: string
+    email: string
+    phone: string | null
+    message: string | null
+    status: 'new' | 'contacted' | 'meeting_scheduled' | 'closed'
+    admin_notes: string | null
+    created_at: string
+    updated_at: string
+}
+
+/**
+ * Get all brand RDV requests
+ */
+export async function getAllBrandRequests(): Promise<BrandRequest[]> {
+    const supabase = createClient()
+    const { data, error } = await supabase
+        .from('brand_requests')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+    if (error || !data) return []
+    return data as unknown as BrandRequest[]
+}
+
+/**
+ * Update a brand request status
+ */
+export async function updateBrandRequestStatus(
+    requestId: string,
+    status: BrandRequest['status']
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+    const { error } = await (supabase
+        .from('brand_requests') as ReturnType<typeof supabase.from>)
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq('id', requestId)
+
+    if (error) return { success: false, error: error.message }
+    return { success: true }
+}
+
 /**
  * Get a single brand by ID with profile + campaign history
  */
