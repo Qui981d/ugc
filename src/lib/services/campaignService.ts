@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/client'
 import type {
     Campaign,
     CampaignStatus,
+    CampaignContent,
     User,
     ProfileBrand,
     ScriptType,
@@ -253,4 +254,61 @@ export async function createCampaignContents(campaignId: string, contents: {
 
     if (error) return { success: false, error: error.message }
     return { success: true }
+}
+
+/**
+ * Get all content blocks for a campaign
+ */
+export async function getCampaignContents(campaignId: string): Promise<CampaignContent[]> {
+    const supabase = createClient()
+    const { data, error } = await (supabase
+        .from('campaign_contents') as ReturnType<typeof supabase.from>)
+        .select('*')
+        .eq('campaign_id', campaignId)
+        .order('position', { ascending: true })
+
+    if (error || !data) return []
+    return data as unknown as CampaignContent[]
+}
+
+/**
+ * Get a single content block by ID
+ */
+export async function getContentById(contentId: string): Promise<CampaignContent | null> {
+    const supabase = createClient()
+    const { data, error } = await (supabase
+        .from('campaign_contents') as ReturnType<typeof supabase.from>)
+        .select('*')
+        .eq('id', contentId)
+        .single()
+
+    if (error || !data) return null
+    return data as unknown as CampaignContent
+}
+
+/**
+ * Update a content block field
+ */
+export async function updateContentField(
+    contentId: string,
+    updates: Partial<Pick<CampaignContent, 'status' | 'script_content' | 'script_status' | 'video_url' | 'video_uploaded_at' | 'mosh_qc_feedback' | 'mosh_qc_approved_at' | 'brand_final_feedback' | 'brand_final_approved_at' | 'brand_revision_count'>>
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+    const { error } = await (supabase
+        .from('campaign_contents') as ReturnType<typeof supabase.from>)
+        .update(updates)
+        .eq('id', contentId)
+
+    if (error) return { success: false, error: error.message }
+    return { success: true }
+}
+
+/**
+ * Update content status
+ */
+export async function updateContentStatus(
+    contentId: string,
+    status: CampaignContent['status']
+): Promise<{ success: boolean; error?: string }> {
+    return updateContentField(contentId, { status })
 }

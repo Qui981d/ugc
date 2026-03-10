@@ -39,9 +39,21 @@ import {
 } from '@/lib/services/adminService'
 import { formatCHF } from '@/lib/validations/swiss'
 import { getStatusConfig } from '@/lib/constants/statusConfig'
-import type { Campaign, MissionStep, MissionStepType, ProfileCreator } from '@/types/database'
+import type { Campaign, MissionStep, MissionStepType, ProfileCreator, CampaignContent, ContentStatus } from '@/types/database'
 import { WatermarkedPlayer } from '@/components/video/WatermarkedPlayer'
 import { createClient } from '@/lib/supabase/client'
+import { getCampaignContents } from '@/lib/services/campaignService'
+
+const CONTENT_STATUS_LABELS: Record<ContentStatus, { label: string; color: string; bg: string }> = {
+    draft: { label: 'En préparation', color: 'text-gray-600', bg: 'bg-gray-100' },
+    script_pending: { label: 'Script en cours', color: 'text-amber-700', bg: 'bg-amber-100' },
+    script_approved: { label: 'Script validé', color: 'text-blue-700', bg: 'bg-blue-100' },
+    shooting: { label: 'En tournage', color: 'text-purple-700', bg: 'bg-purple-100' },
+    uploaded: { label: 'Vidéo livrée', color: 'text-indigo-700', bg: 'bg-indigo-100' },
+    qc_approved: { label: 'Contrôle qualité ✓', color: 'text-teal-700', bg: 'bg-teal-100' },
+    sent_to_brand: { label: 'À valider', color: 'text-orange-700', bg: 'bg-orange-100' },
+    brand_approved: { label: 'Validée ✓', color: 'text-emerald-700', bg: 'bg-emerald-100' },
+}
 
 // ================================================
 // TIMELINE CONFIGURATION — Visible steps for the brand
@@ -136,14 +148,17 @@ export default function BrandCampaignDetailPage() {
     const [showRejectModal, setShowRejectModal] = useState(false)
     const [downloadLoading, setDownloadLoading] = useState(false)
     const [confirmCreatorId, setConfirmCreatorId] = useState<string | null>(null)
+    const [campaignContents, setCampaignContents] = useState<CampaignContent[]>([])
 
     const loadData = useCallback(async () => {
-        const [campaignData, missionSteps] = await Promise.all([
+        const [campaignData, missionSteps, contents] = await Promise.all([
             getCampaignById(campaignId),
             getMissionSteps(campaignId),
+            getCampaignContents(campaignId),
         ])
         setCampaign(campaignData)
         setSteps(missionSteps)
+        setCampaignContents(contents)
         setIsLoading(false)
 
         // Load proposed creators if needed
@@ -326,6 +341,45 @@ export default function BrandCampaignDetailPage() {
                     </Link>
                 </div>
             </div>
+
+            {/* Content blocks overview */}
+            {campaignContents.length > 0 && (
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white border border-gray-200 rounded-2xl p-5"
+                >
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                            <Video className="w-4 h-4 text-gray-500" />
+                            Vos contenus ({campaignContents.filter(c => c.status === 'brand_approved').length}/{campaignContents.length})
+                        </h2>
+                        <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-[#18181B] rounded-full transition-all"
+                                style={{ width: `${(campaignContents.filter(c => c.status === 'brand_approved').length / campaignContents.length) * 100}%` }}
+                            />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        {campaignContents.map((content, idx) => {
+                            const statusCfg = CONTENT_STATUS_LABELS[content.status as ContentStatus] || CONTENT_STATUS_LABELS.draft
+                            return (
+                                <div key={content.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                                    <span className="text-sm">{content.content_type === 'video' ? '📹' : '📷'}</span>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-gray-900 truncate">Contenu {idx + 1} — {content.script_type}</p>
+                                        <p className="text-xs text-gray-500">{content.format}</p>
+                                    </div>
+                                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusCfg.bg} ${statusCfg.color}`}>
+                                        {statusCfg.label}
+                                    </span>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </motion.div>
+            )}
 
             {/* ========== ACTION REQUIRED BANNERS ========== */}
 

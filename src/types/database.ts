@@ -31,6 +31,7 @@ export type MissionStepType =
     | 'brand_final_review'       // Brand is reviewing final video
     | 'brand_final_approved'     // Brand approved final video = mission done
 export type PricingPack = 'essentiel' | 'premium' | 'platinum'
+export type ContentStatus = 'draft' | 'script_pending' | 'script_approved' | 'shooting' | 'uploaded' | 'qc_approved' | 'sent_to_brand' | 'brand_approved'
 export type NotificationType =
     | 'new_application'
     | 'message_received'
@@ -230,6 +231,17 @@ export interface CampaignContent {
     script_type: string
     description: string | null
     position: number
+    // Per-content workflow fields
+    status: ContentStatus
+    script_content: string | null
+    script_status: string | null
+    video_url: string | null
+    video_uploaded_at: string | null
+    mosh_qc_feedback: string | null
+    mosh_qc_approved_at: string | null
+    brand_final_feedback: string | null
+    brand_final_approved_at: string | null
+    brand_revision_count: number
     created_at: string
 }
 

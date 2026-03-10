@@ -31,7 +31,19 @@ import { createClient } from '@/lib/supabase/client'
 import { getMissionSteps, completeMissionStep } from '@/lib/services/adminService'
 import { getMoshContractText, signMoshContract } from '@/lib/services/contractService'
 import ContractViewer from '@/components/contracts/ContractViewer'
-import type { Campaign, MissionStep, MissionStepType } from '@/types/database'
+import type { Campaign, MissionStep, MissionStepType, CampaignContent, ContentStatus } from '@/types/database'
+import { getCampaignContents } from '@/lib/services/campaignService'
+
+const CONTENT_STATUS_LABELS: Record<ContentStatus, { label: string; color: string; bg: string }> = {
+    draft: { label: 'En préparation', color: 'text-gray-600', bg: 'bg-gray-100' },
+    script_pending: { label: 'Script en cours', color: 'text-amber-700', bg: 'bg-amber-100' },
+    script_approved: { label: 'Script validé', color: 'text-blue-700', bg: 'bg-blue-100' },
+    shooting: { label: 'En tournage', color: 'text-purple-700', bg: 'bg-purple-100' },
+    uploaded: { label: 'Vidéo livrée', color: 'text-indigo-700', bg: 'bg-indigo-100' },
+    qc_approved: { label: 'QC validé', color: 'text-teal-700', bg: 'bg-teal-100' },
+    sent_to_brand: { label: 'Chez la marque', color: 'text-orange-700', bg: 'bg-orange-100' },
+    brand_approved: { label: 'Validée ✓', color: 'text-emerald-700', bg: 'bg-emerald-100' },
+}
 
 // ================================================
 // CREATOR TIMELINE — starts at selection
@@ -59,6 +71,7 @@ export default function CreatorMissionDetailPage() {
     const [isLoading, setIsLoading] = useState(true)
     const [actionLoading, setActionLoading] = useState(false)
     const [actionSuccess, setActionSuccess] = useState<string | null>(null)
+    const [campaignContents, setCampaignContents] = useState<CampaignContent[]>([])
 
     // Contract
     const [contractOpen, setContractOpen] = useState(false)
@@ -67,12 +80,14 @@ export default function CreatorMissionDetailPage() {
 
     const loadData = useCallback(async () => {
         const supabase = createClient()
-        const [{ data: campData }, missionSteps] = await Promise.all([
+        const [{ data: campData }, missionSteps, contents] = await Promise.all([
             supabase.from('campaigns').select('*').eq('id', campaignId).single(),
             getMissionSteps(campaignId),
+            getCampaignContents(campaignId),
         ])
         setCampaign(campData as Campaign | null)
         setSteps(missionSteps)
+        setCampaignContents(contents)
         setIsLoading(false)
     }, [campaignId])
 
@@ -191,6 +206,40 @@ export default function CreatorMissionDetailPage() {
                     )}
                 </div>
             </div>
+
+            {/* Content blocks overview */}
+            {campaignContents.length > 0 && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                    className="bg-white border border-black/[0.06] rounded-2xl p-5"
+                >
+                    <div className="flex items-center justify-between mb-3">
+                        <h2 className="text-sm font-semibold text-[#18181B] flex items-center gap-2">
+                            <Film className="w-4 h-4 text-[#71717A]" />
+                            Contenus à produire ({campaignContents.filter(c => c.status === 'brand_approved').length}/{campaignContents.length})
+                        </h2>
+                        <div className="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-[#C4F042] rounded-full transition-all" style={{ width: `${(campaignContents.filter(c => c.status === 'brand_approved').length / campaignContents.length) * 100}%` }} />
+                        </div>
+                    </div>
+                    <div className="space-y-1.5">
+                        {campaignContents.map((content, idx) => {
+                            const statusCfg = CONTENT_STATUS_LABELS[content.status as ContentStatus] || CONTENT_STATUS_LABELS.draft
+                            return (
+                                <div key={content.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-[#F4F3EF]/50">
+                                    <span className="text-sm">{content.content_type === 'video' ? '📹' : '📷'}</span>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-[#18181B] truncate">Contenu {idx + 1} — {content.script_type}</p>
+                                        <p className="text-xs text-[#A1A1AA]">{content.format}</p>
+                                    </div>
+                                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusCfg.bg} ${statusCfg.color}`}>
+                                        {statusCfg.label}
+                                    </span>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </motion.div>
+            )}
 
             {/* Studio Access — visible once accepted, hidden when upload step already shows Studio link */}
             {missionAccepted && nextStep?.type !== 'video_uploaded_by_creator' && (

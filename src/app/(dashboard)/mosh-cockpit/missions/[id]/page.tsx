@@ -17,6 +17,7 @@ import {
     Building2,
     Pencil,
     ChevronRight,
+    ChevronDown,
     ScrollText,
     Receipt,
     Download,
@@ -24,6 +25,8 @@ import {
     Banknote,
     RotateCcw,
     Sparkles,
+    Camera,
+    Image,
 } from 'lucide-react'
 import { createMoshContract, getMoshContractText } from '@/lib/services/contractService'
 import { generateInvoice, getInvoiceText } from '@/lib/services/invoiceService'
@@ -42,9 +45,21 @@ import {
     type CampaignWithDetails,
     type CreatorWithProfile,
 } from '@/lib/services/adminService'
-import type { MissionStep, MissionStepType } from '@/types/database'
+import type { MissionStep, MissionStepType, CampaignContent, ContentStatus } from '@/types/database'
 import { WORKFLOW_STEPS as CENTRAL_STEPS } from '@/lib/constants/workflowSteps'
 import { createClient } from '@/lib/supabase/client'
+import { getCampaignContents, updateContentField } from '@/lib/services/campaignService'
+
+const CONTENT_STATUS_LABELS: Record<ContentStatus, { label: string; color: string; bg: string }> = {
+    draft: { label: 'Brouillon', color: 'text-gray-600', bg: 'bg-gray-100' },
+    script_pending: { label: 'Script en attente', color: 'text-amber-700', bg: 'bg-amber-100' },
+    script_approved: { label: 'Script validé', color: 'text-blue-700', bg: 'bg-blue-100' },
+    shooting: { label: 'En tournage', color: 'text-purple-700', bg: 'bg-purple-100' },
+    uploaded: { label: 'Vidéo livrée', color: 'text-indigo-700', bg: 'bg-indigo-100' },
+    qc_approved: { label: 'QC validé', color: 'text-teal-700', bg: 'bg-teal-100' },
+    sent_to_brand: { label: 'Envoyée à la marque', color: 'text-orange-700', bg: 'bg-orange-100' },
+    brand_approved: { label: 'Validée ✓', color: 'text-emerald-700', bg: 'bg-emerald-100' },
+}
 
 const WORKFLOW_STEPS = CENTRAL_STEPS.map(s => ({
     type: s.type as MissionStepType,
@@ -86,6 +101,10 @@ export default function AdminMissionDetailPage() {
     // A8: Admin internal notes
     const [adminNotes, setAdminNotes] = useState('')
     const [savingNotes, setSavingNotes] = useState(false)
+    // Content blocks
+    const [campaignContents, setCampaignContents] = useState<CampaignContent[]>([])
+    const [expandedContent, setExpandedContent] = useState<string | null>(null)
+    const [contentScriptDrafts, setContentScriptDrafts] = useState<Record<string, string>>({})
 
     const handleAIBriefReview = async () => {
         if (!campaign || aiLoading) return
@@ -168,6 +187,12 @@ export default function AdminMissionDetailPage() {
         setSteps(missionSteps)
         if (found?.script_content) setScriptDraft(found.script_content)
         if (found?.admin_notes) setAdminNotes(found.admin_notes)
+        // Load content blocks
+        const contents = await getCampaignContents(campaignId)
+        setCampaignContents(contents)
+        const drafts: Record<string, string> = {}
+        contents.forEach(c => { if (c.script_content) drafts[c.id] = c.script_content })
+        setContentScriptDrafts(prev => ({ ...prev, ...drafts }))
         setIsLoading(false)
     }, [campaignId])
 
@@ -864,6 +889,140 @@ export default function AdminMissionDetailPage() {
                     </div>
                 )
             }
+
+            {/* ══════ Content Blocks Panel ══════ */}
+            {campaignContents.length > 0 && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }}
+                    className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[24px] p-5"
+                >
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-sm font-semibold text-[#18181B] flex items-center gap-2">
+                            <Video className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} />
+                            Contenus ({campaignContents.filter(c => c.status === 'brand_approved').length}/{campaignContents.length} validés)
+                        </h2>
+                        {/* Progress bar */}
+                        <div className="flex items-center gap-2">
+                            <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-[#C4F042] rounded-full transition-all"
+                                    style={{ width: `${(campaignContents.filter(c => c.status === 'brand_approved').length / campaignContents.length) * 100}%` }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        {campaignContents.map((content, idx) => {
+                            const isExpanded = expandedContent === content.id
+                            const statusCfg = CONTENT_STATUS_LABELS[content.status as ContentStatus] || CONTENT_STATUS_LABELS.draft
+                            const ContentIcon = content.content_type === 'video' ? Video : Image
+
+                            return (
+                                <div key={content.id} className={`border rounded-2xl overflow-hidden transition-all ${isExpanded ? 'border-[#18181B]/20 shadow-sm' : 'border-black/[0.04]'}`}>
+                                    {/* Content header — clickable */}
+                                    <button
+                                        onClick={() => setExpandedContent(isExpanded ? null : content.id)}
+                                        className="w-full flex items-center gap-3 p-4 hover:bg-black/[0.01] transition-colors"
+                                    >
+                                        <div className="w-8 h-8 rounded-lg bg-[#F4F3EF] flex items-center justify-center shrink-0">
+                                            <ContentIcon className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} />
+                                        </div>
+                                        <div className="flex-1 text-left min-w-0">
+                                            <p className="text-sm font-medium text-[#18181B] truncate">
+                                                {content.content_type === 'video' ? '📹' : '📷'} Contenu {idx + 1} — {content.script_type}
+                                            </p>
+                                            <p className="text-xs text-[#A1A1AA]">
+                                                {content.format} · {content.content_type}
+                                            </p>
+                                        </div>
+                                        <span className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${statusCfg.bg} ${statusCfg.color}`}>
+                                            {statusCfg.label}
+                                        </span>
+                                        {isExpanded ? <ChevronDown className="w-4 h-4 text-[#A1A1AA] shrink-0" /> : <ChevronRight className="w-4 h-4 text-[#A1A1AA] shrink-0" />}
+                                    </button>
+
+                                    {/* Expanded panel */}
+                                    {isExpanded && (
+                                        <div className="border-t border-black/[0.04] p-4 space-y-4 bg-[#FAFAF8]">
+                                            {/* Status selector */}
+                                            <div>
+                                                <label className="text-xs text-[#A1A1AA] mb-1.5 block">Statut du contenu</label>
+                                                <select
+                                                    value={content.status}
+                                                    onChange={async (e) => {
+                                                        const newStatus = e.target.value as ContentStatus
+                                                        await updateContentField(content.id, { status: newStatus })
+                                                        setCampaignContents(prev => prev.map(c => c.id === content.id ? { ...c, status: newStatus } : c))
+                                                    }}
+                                                    className="w-full px-3 py-2 bg-white border border-black/[0.08] rounded-xl text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40"
+                                                >
+                                                    <option value="draft">Brouillon</option>
+                                                    <option value="script_pending">Script en attente</option>
+                                                    <option value="script_approved">Script validé</option>
+                                                    <option value="shooting">En tournage</option>
+                                                    <option value="uploaded">Vidéo livrée</option>
+                                                    <option value="qc_approved">QC validé</option>
+                                                    <option value="sent_to_brand">Envoyée à la marque</option>
+                                                    <option value="brand_approved">Validée ✓</option>
+                                                </select>
+                                            </div>
+
+                                            {/* Script editor for this content */}
+                                            <div>
+                                                <label className="text-xs text-[#A1A1AA] mb-1.5 block">Script</label>
+                                                <textarea
+                                                    value={contentScriptDrafts[content.id] || ''}
+                                                    onChange={(e) => setContentScriptDrafts(prev => ({ ...prev, [content.id]: e.target.value }))}
+                                                    placeholder="Rédigez le script pour ce contenu..."
+                                                    rows={4}
+                                                    className="w-full px-3 py-2 bg-white border border-black/[0.08] rounded-xl text-sm placeholder:text-[#A1A1AA] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 resize-none"
+                                                />
+                                                <button
+                                                    onClick={async () => {
+                                                        await updateContentField(content.id, {
+                                                            script_content: contentScriptDrafts[content.id] || null,
+                                                            script_status: 'validated',
+                                                        })
+                                                        setActionSuccess('Script sauvegardé !')
+                                                        setTimeout(() => setActionSuccess(null), 2000)
+                                                    }}
+                                                    className="mt-2 px-3 py-1.5 bg-[#18181B] text-white text-xs rounded-lg hover:bg-[#27272A] transition-colors"
+                                                >
+                                                    Sauvegarder le script
+                                                </button>
+                                            </div>
+
+                                            {/* Video preview if uploaded */}
+                                            {content.video_url && (
+                                                <div>
+                                                    <label className="text-xs text-[#A1A1AA] mb-1.5 block">Vidéo</label>
+                                                    <video src={content.video_url} controls className="w-full rounded-xl bg-black max-h-[300px]" />
+                                                </div>
+                                            )}
+
+                                            {/* Description */}
+                                            {content.description && (
+                                                <div>
+                                                    <label className="text-xs text-[#A1A1AA] mb-1 block">Description</label>
+                                                    <p className="text-sm text-[#18181B]">{content.description}</p>
+                                                </div>
+                                            )}
+
+                                            {/* Brand feedback */}
+                                            {content.brand_final_feedback && (
+                                                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                                                    <p className="text-xs text-amber-800 font-medium mb-1">Retour marque :</p>
+                                                    <p className="text-sm text-amber-700 whitespace-pre-wrap">{content.brand_final_feedback}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )
+                        })}
+                    </div>
+                </motion.div>
+            )}
 
             {/* Video / Deliverables Section */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }}
