@@ -68,7 +68,7 @@ export default function HomePage() {
   return (
     <div ref={containerRef} className="min-h-screen overflow-hidden" style={{ background: 'linear-gradient(180deg, #F0E6F6 0%, #EDE4F3 30%, #F5F0FA 60%, #FFFFFF 100%)' }}>
       {/* Navbar */}
-      <Navbar />
+      <Navbar persona={persona} setPersona={setPersona} />
 
       {/* Hero — Massive typography + floating images */}
       <HeroSection persona={persona} setPersona={setPersona} />
@@ -97,7 +97,7 @@ export default function HomePage() {
 // ================================================
 // NAVBAR — Dark purple like YOO
 // ================================================
-function Navbar() {
+function Navbar({ persona, setPersona }: { persona: Persona; setPersona: (p: Persona) => void }) {
   const { isAuthenticated, user } = useAuth()
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
@@ -117,10 +117,10 @@ function Navbar() {
 
         {/* Center links */}
         <div className="hidden md:flex items-center bg-white/80 backdrop-blur-sm rounded-full border border-gray-200/50 px-1 py-1">
-          <a href="#form-section" className="px-5 py-2.5 rounded-full text-sm font-semibold bg-white text-gray-900 shadow-sm">
+          <a href="#form-section" onClick={() => setPersona('creator')} className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${persona === 'creator' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}>
             Créateur
           </a>
-          <a href="#form-section" className="px-5 py-2.5 rounded-full text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors">
+          <a href="#form-section" onClick={() => setPersona('brand')} className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${persona === 'brand' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}>
             Marque
           </a>
           <Link href="/aide" className="px-5 py-2.5 rounded-full text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors">
