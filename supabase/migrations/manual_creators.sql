@@ -1,28 +1,31 @@
 -- ============================================
--- Creators Directory (CRM interne Mosh)
--- Répertoire de contacts créateurs, indépendant de l'auth
+-- Creator Invitations (liens d'invitation Mosh)
 -- ============================================
 
-CREATE TABLE IF NOT EXISTS creators_directory (
+-- Supprimer l'ancienne table répertoire si elle existe
+DROP TABLE IF EXISTS creators_directory;
+
+-- Table des invitations
+CREATE TABLE IF NOT EXISTS creator_invitations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  full_name TEXT NOT NULL,
-  email TEXT,
-  phone TEXT,
-  nationality TEXT,
-  video_rate_chf NUMERIC,
-  specialties TEXT[] DEFAULT '{}',
-  languages TEXT[] DEFAULT '{}',
-  instagram_url TEXT,
-  tiktok_url TEXT,
-  notes TEXT,
+  code TEXT NOT NULL UNIQUE,
+  created_by UUID REFERENCES users(id),
+  label TEXT,                    -- note interne pour identifier l'invitation
+  used_by UUID REFERENCES users(id),
+  used_at TIMESTAMPTZ,
+  expires_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
--- RLS : uniquement les admins
-ALTER TABLE creators_directory ENABLE ROW LEVEL SECURITY;
+-- RLS : admins full access, public can read their own invite code
+ALTER TABLE creator_invitations ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "admins_full_access" ON creators_directory;
-CREATE POLICY "admins_full_access" ON creators_directory
+DROP POLICY IF EXISTS "admins_manage_invitations" ON creator_invitations;
+CREATE POLICY "admins_manage_invitations" ON creator_invitations
   FOR ALL USING (
     EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
   );
+
+DROP POLICY IF EXISTS "public_validate_invitation" ON creator_invitations;
+CREATE POLICY "public_validate_invitation" ON creator_invitations
+  FOR SELECT USING (true);

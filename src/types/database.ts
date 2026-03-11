@@ -256,18 +256,14 @@ export interface MissionStep {
     created_at: string
 }
 
-export interface CreatorDirectory {
+export interface CreatorInvitation {
     id: string
-    full_name: string
-    email: string | null
-    phone: string | null
-    nationality: string | null
-    video_rate_chf: number | null
-    specialties: string[]
-    languages: string[]
-    instagram_url: string | null
-    tiktok_url: string | null
-    notes: string | null
+    code: string
+    created_by: string | null
+    label: string | null
+    used_by: string | null
+    used_at: string | null
+    expires_at: string | null
     created_at: string
 }
 
@@ -366,10 +362,10 @@ export interface Database {
                 Insert: Omit<BrandRequest, 'id' | 'created_at' | 'updated_at' | 'status'> & { status?: BrandRequestStatus }
                 Update: Partial<Omit<BrandRequest, 'id' | 'created_at'>>
             }
-            creators_directory: {
-                Row: CreatorDirectory
-                Insert: Omit<CreatorDirectory, 'id' | 'created_at'>
-                Update: Partial<Omit<CreatorDirectory, 'id' | 'created_at'>>
+            creator_invitations: {
+                Row: CreatorInvitation
+                Insert: Omit<CreatorInvitation, 'id' | 'created_at'>
+                Update: Partial<Omit<CreatorInvitation, 'id' | 'created_at'>>
             }
         }
         Enums: {

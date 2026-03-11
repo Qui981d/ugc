@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Building2, User, Loader2, AlertCircle, ArrowLeft } from "lucide-react"
+import { Building2, User, Loader2, AlertCircle, ArrowLeft, CheckCircle2 } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
+import { validateInviteCode, markInvitationUsed } from "@/lib/services/adminService"
 
 function SignupForm() {
     const searchParams = useSearchParams()
@@ -17,6 +18,7 @@ function SignupForm() {
     const { signUp } = useAuth()
     const defaultRole = searchParams.get('role') || 'creator'
     const redirectTo = searchParams.get('redirect')
+    const inviteCode = searchParams.get('invite') || ''
 
     const [role, setRole] = useState<'brand' | 'creator'>(defaultRole as 'brand' | 'creator')
     const [isLoading, setIsLoading] = useState(false)
@@ -37,6 +39,7 @@ function SignupForm() {
         email: '',
         password: '',
         canton: '',
+        inviteCode: inviteCode,
     })
 
     const handleBrandSubmit = async (e: React.FormEvent) => {
@@ -68,6 +71,16 @@ function SignupForm() {
         setError(null)
         setIsLoading(true)
 
+        // Validate invite code if provided
+        if (creatorForm.inviteCode) {
+            const validation = await validateInviteCode(creatorForm.inviteCode)
+            if (!validation.valid) {
+                setError(validation.error || 'Code d\'invitation invalide')
+                setIsLoading(false)
+                return
+            }
+        }
+
         const fullName = `${creatorForm.firstName} ${creatorForm.lastName}`
 
         const result = await signUp(
@@ -83,8 +96,14 @@ function SignupForm() {
         if (result.error) {
             setError(result.error)
             setIsLoading(false)
-        } else if (redirectTo) {
-            router.push(redirectTo)
+        } else {
+            // Mark invitation as used
+            if (creatorForm.inviteCode && result.userId) {
+                await markInvitationUsed(creatorForm.inviteCode, result.userId)
+            }
+            if (redirectTo) {
+                router.push(redirectTo)
+            }
         }
     }
 
@@ -255,6 +274,13 @@ function SignupForm() {
                                     className={inputClass}
                                 />
                             </div>
+
+                            {creatorForm.inviteCode && (
+                                <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm">
+                                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                                    <span>Invitation : <strong className="font-mono">{creatorForm.inviteCode.toUpperCase()}</strong></span>
+                                </div>
+                            )}
 
                             <Button className="w-full btn-primary" type="submit" disabled={isLoading}>
                                 {isLoading ? (

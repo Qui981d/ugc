@@ -926,102 +926,139 @@ export async function brandRequestRevision(
 }
 
 // ================================================
-// CREATORS DIRECTORY (CRM interne Mosh)
+// CREATOR INVITATIONS (liens d'invitation Mosh)
 // ================================================
 
-export interface DirectoryCreator {
+export interface InvitationData {
     id: string
-    full_name: string
-    email: string | null
-    phone: string | null
-    nationality: string | null
-    video_rate_chf: number | null
-    specialties: string[]
-    languages: string[]
-    instagram_url: string | null
-    tiktok_url: string | null
-    notes: string | null
+    code: string
+    created_by: string | null
+    label: string | null
+    used_by: string | null
+    used_at: string | null
+    expires_at: string | null
     created_at: string
+    // Joined data
+    used_by_user?: { full_name: string; email: string } | null
 }
 
 /**
- * Get all directory creators (manual CRM entries)
+ * Generate a random 8-char invite code
  */
-export async function getDirectoryCreators(): Promise<DirectoryCreator[]> {
+function generateCode(): string {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+    let code = ''
+    for (let i = 0; i < 8; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    return code
+}
+
+/**
+ * Create a new creator invitation
+ */
+export async function createInvitation(label?: string): Promise<{ success: boolean; code?: string; error?: string }> {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: 'Not authenticated' }
+
+    const code = generateCode()
+    const expiresAt = new Date()
+    expiresAt.setDate(expiresAt.getDate() + 30) // 30 days
+
+    const { error } = await (supabase
+        .from('creator_invitations') as ReturnType<typeof supabase.from>)
+        .insert({
+            code,
+            created_by: user.id,
+            label: label || null,
+            expires_at: expiresAt.toISOString(),
+        })
+
+    if (error) return { success: false, error: error.message }
+    return { success: true, code }
+}
+
+/**
+ * Get all invitations
+ */
+export async function getInvitations(): Promise<InvitationData[]> {
     const supabase = createClient()
     const { data, error } = await supabase
-        .from('creators_directory')
+        .from('creator_invitations')
         .select('*')
         .order('created_at', { ascending: false })
 
     if (error || !data) return []
-    return data as unknown as DirectoryCreator[]
+
+    // Fetch used_by user info for used invitations
+    const usedIds = (data as any[]).filter(d => d.used_by).map(d => d.used_by)
+    let usersMap: Record<string, { full_name: string; email: string }> = {}
+    if (usedIds.length > 0) {
+        const { data: usersData } = await supabase
+            .from('users')
+            .select('id, full_name, email')
+            .in('id', usedIds)
+        if (usersData) {
+            usersMap = Object.fromEntries((usersData as any[]).map(u => [u.id, { full_name: u.full_name, email: u.email }]))
+        }
+    }
+
+    return (data as any[]).map(d => ({
+        ...d,
+        used_by_user: d.used_by ? usersMap[d.used_by] || null : null,
+    })) as InvitationData[]
 }
 
 /**
- * Add a creator to the directory
+ * Delete/revoke an invitation
  */
-export async function addDirectoryCreator(creator: {
-    full_name: string
-    email?: string
-    phone?: string
-    nationality?: string
-    video_rate_chf?: number
-    specialties?: string[]
-    languages?: string[]
-    instagram_url?: string
-    tiktok_url?: string
-    notes?: string
-}): Promise<{ success: boolean; error?: string }> {
+export async function revokeInvitation(id: string): Promise<{ success: boolean; error?: string }> {
     const supabase = createClient()
     const { error } = await (supabase
-        .from('creators_directory') as ReturnType<typeof supabase.from>)
-        .insert({
-            full_name: creator.full_name,
-            email: creator.email || null,
-            phone: creator.phone || null,
-            nationality: creator.nationality || null,
-            video_rate_chf: creator.video_rate_chf || null,
-            specialties: creator.specialties || [],
-            languages: creator.languages || [],
-            instagram_url: creator.instagram_url || null,
-            tiktok_url: creator.tiktok_url || null,
-            notes: creator.notes || null,
-        })
-
-    if (error) return { success: false, error: error.message }
-    return { success: true }
-}
-
-/**
- * Update a directory creator
- */
-export async function updateDirectoryCreator(
-    id: string,
-    updates: Partial<Omit<DirectoryCreator, 'id' | 'created_at'>>
-): Promise<{ success: boolean; error?: string }> {
-    const supabase = createClient()
-    const { error } = await (supabase
-        .from('creators_directory') as ReturnType<typeof supabase.from>)
-        .update(updates)
-        .eq('id', id)
-
-    if (error) return { success: false, error: error.message }
-    return { success: true }
-}
-
-/**
- * Delete a directory creator
- */
-export async function deleteDirectoryCreator(
-    id: string
-): Promise<{ success: boolean; error?: string }> {
-    const supabase = createClient()
-    const { error } = await (supabase
-        .from('creators_directory') as ReturnType<typeof supabase.from>)
+        .from('creator_invitations') as ReturnType<typeof supabase.from>)
         .delete()
         .eq('id', id)
 
     if (error) return { success: false, error: error.message }
     return { success: true }
 }
+
+/**
+ * Validate an invite code (used during signup)
+ */
+export async function validateInviteCode(code: string): Promise<{ valid: boolean; error?: string }> {
+    const supabase = createClient()
+    const { data, error } = await supabase
+        .from('creator_invitations')
+        .select('*')
+        .eq('code', code.toUpperCase())
+        .single()
+
+    if (error || !data) return { valid: false, error: 'Code d\'invitation invalide' }
+
+    const invitation = data as any
+    if (invitation.used_at) return { valid: false, error: 'Cette invitation a déjà été utilisée' }
+    if (invitation.expires_at && new Date(invitation.expires_at) < new Date()) {
+        return { valid: false, error: 'Cette invitation a expiré' }
+    }
+
+    return { valid: true }
+}
+
+/**
+ * Mark an invitation as used (called after successful signup)
+ */
+export async function markInvitationUsed(code: string, userId: string): Promise<{ success: boolean }> {
+    const supabase = createClient()
+    const { error } = await (supabase
+        .from('creator_invitations') as ReturnType<typeof supabase.from>)
+        .update({
+            used_by: userId,
+            used_at: new Date().toISOString(),
+        })
+        .eq('code', code.toUpperCase())
+
+    return { success: !error }
+}
+

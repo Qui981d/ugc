@@ -13,7 +13,7 @@ interface AuthContextType {
     authUser: AuthUser | null
     profile: FullProfile | null
     isLoading: boolean
-    signUp: (email: string, password: string, fullName: string, role: UserRole, extendedProfile?: Record<string, unknown>) => Promise<{ error?: string }>
+    signUp: (email: string, password: string, fullName: string, role: UserRole, extendedProfile?: Record<string, unknown>) => Promise<{ error?: string; userId?: string }>
     signIn: (email: string, password: string) => Promise<{ error?: string }>
     signOut: () => Promise<void>
     isAuthenticated: boolean
@@ -141,7 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         fullName: string,
         role: UserRole,
         extendedProfile?: Record<string, unknown>
-    ): Promise<{ error?: string }> => {
+    ): Promise<{ error?: string; userId?: string }> => {
         try {
             const { data, error: authError } = await supabase.auth.signUp({
                 email,
@@ -181,7 +181,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // Redirect based on role
             router.push(role === 'brand' ? '/brand' : '/creator')
 
-            return {}
+            return { userId: data.user.id }
         } catch (error) {
             console.error('[Auth] Signup unexpected error:', error)
             return { error: 'An unexpected error occurred' }
