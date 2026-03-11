@@ -18,7 +18,7 @@ export default function BrandDashboardPage() {
     const { user, isLoading } = useAuth()
     const userId = user?.id
     const [campaigns, setCampaigns] = useState<Campaign[]>([])
-    const [isDataLoading, setIsDataLoading] = useState(false)
+    const [isDataLoading, setIsDataLoading] = useState(true)
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => { setMounted(true) }, [])
@@ -44,7 +44,7 @@ export default function BrandDashboardPage() {
         { label: "Budget total", value: formatCHF(campaigns.reduce((sum, c) => sum + c.budget_chf, 0)), change: "Toutes campagnes" },
     ]
 
-    if (!mounted || (!user && isLoading)) {
+    if (!mounted || (!user && isLoading) || isDataLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
                 <Loader2 className="w-8 h-8 animate-spin text-[#A1A1AA]" />

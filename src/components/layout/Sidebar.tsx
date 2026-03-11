@@ -203,7 +203,7 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
                         flex items-center justify-center
                         ${expanded ? 'w-8 h-8' : 'w-9 h-9'}
                     `}>
-                        <span className="text-[#1A1A1D] text-xs font-bold">
+                        <span className="text-[#1A1A1D] text-xs font-bold" suppressHydrationWarning>
                             {userName?.charAt(0)?.toUpperCase() || (role === 'admin' ? 'A' : role === 'brand' ? 'B' : 'C')}
                         </span>
                     </div>

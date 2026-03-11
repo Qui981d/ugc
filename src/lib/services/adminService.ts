@@ -924,3 +924,104 @@ export async function brandRequestRevision(
 
     return { success: true }
 }
+
+// ================================================
+// CREATORS DIRECTORY (CRM interne Mosh)
+// ================================================
+
+export interface DirectoryCreator {
+    id: string
+    full_name: string
+    email: string | null
+    phone: string | null
+    nationality: string | null
+    video_rate_chf: number | null
+    specialties: string[]
+    languages: string[]
+    instagram_url: string | null
+    tiktok_url: string | null
+    notes: string | null
+    created_at: string
+}
+
+/**
+ * Get all directory creators (manual CRM entries)
+ */
+export async function getDirectoryCreators(): Promise<DirectoryCreator[]> {
+    const supabase = createClient()
+    const { data, error } = await supabase
+        .from('creators_directory')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+    if (error || !data) return []
+    return data as unknown as DirectoryCreator[]
+}
+
+/**
+ * Add a creator to the directory
+ */
+export async function addDirectoryCreator(creator: {
+    full_name: string
+    email?: string
+    phone?: string
+    nationality?: string
+    video_rate_chf?: number
+    specialties?: string[]
+    languages?: string[]
+    instagram_url?: string
+    tiktok_url?: string
+    notes?: string
+}): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+    const { error } = await (supabase
+        .from('creators_directory') as ReturnType<typeof supabase.from>)
+        .insert({
+            full_name: creator.full_name,
+            email: creator.email || null,
+            phone: creator.phone || null,
+            nationality: creator.nationality || null,
+            video_rate_chf: creator.video_rate_chf || null,
+            specialties: creator.specialties || [],
+            languages: creator.languages || [],
+            instagram_url: creator.instagram_url || null,
+            tiktok_url: creator.tiktok_url || null,
+            notes: creator.notes || null,
+        })
+
+    if (error) return { success: false, error: error.message }
+    return { success: true }
+}
+
+/**
+ * Update a directory creator
+ */
+export async function updateDirectoryCreator(
+    id: string,
+    updates: Partial<Omit<DirectoryCreator, 'id' | 'created_at'>>
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+    const { error } = await (supabase
+        .from('creators_directory') as ReturnType<typeof supabase.from>)
+        .update(updates)
+        .eq('id', id)
+
+    if (error) return { success: false, error: error.message }
+    return { success: true }
+}
+
+/**
+ * Delete a directory creator
+ */
+export async function deleteDirectoryCreator(
+    id: string
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+    const { error } = await (supabase
+        .from('creators_directory') as ReturnType<typeof supabase.from>)
+        .delete()
+        .eq('id', id)
+
+    if (error) return { success: false, error: error.message }
+    return { success: true }
+}

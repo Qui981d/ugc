@@ -256,6 +256,21 @@ export interface MissionStep {
     created_at: string
 }
 
+export interface CreatorDirectory {
+    id: string
+    full_name: string
+    email: string | null
+    phone: string | null
+    nationality: string | null
+    video_rate_chf: number | null
+    specialties: string[]
+    languages: string[]
+    instagram_url: string | null
+    tiktok_url: string | null
+    notes: string | null
+    created_at: string
+}
+
 export interface Conversation {
     id: string
     campaign_id: string
@@ -350,6 +365,11 @@ export interface Database {
                 Row: BrandRequest
                 Insert: Omit<BrandRequest, 'id' | 'created_at' | 'updated_at' | 'status'> & { status?: BrandRequestStatus }
                 Update: Partial<Omit<BrandRequest, 'id' | 'created_at'>>
+            }
+            creators_directory: {
+                Row: CreatorDirectory
+                Insert: Omit<CreatorDirectory, 'id' | 'created_at'>
+                Update: Partial<Omit<CreatorDirectory, 'id' | 'created_at'>>
             }
         }
         Enums: {

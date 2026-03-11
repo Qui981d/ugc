@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from "react"
-import { User, Bell, Search, LogOut, Settings, CreditCard, UserCircle, Check, CheckCheck } from "lucide-react"
+import { User, Bell, Search, LogOut, Settings, Check, CheckCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -217,9 +217,9 @@ export function Header() {
                                         <User className="h-4 w-4 text-gray-500" />
                                     )}
                                 </div>
-                                <div className="hidden md:block text-left">
-                                    <p className="text-sm font-medium text-[#3A3A38]">
-                                        {mounted ? (user?.email || 'Mon Compte') : 'Mon Compte'}
+                                <div className="hidden md:block text-left" suppressHydrationWarning>
+                                    <p className="text-sm font-medium text-[#3A3A38]" suppressHydrationWarning>
+                                        {mounted ? (user?.role === 'admin' ? 'Mosh' : user?.full_name || 'Mon Compte') : 'Mon Compte'}
                                     </p>
                                 </div>
                             </Button>
@@ -228,29 +228,23 @@ export function Header() {
                             align="end"
                             className="w-56 bg-white border-gray-200 shadow-lg"
                         >
-                            <DropdownMenuLabel className="text-gray-500">
-                                {mounted ? (user?.email || 'Mon compte') : 'Mon compte'}
-                            </DropdownMenuLabel>
+                            <div className="px-2 py-2">
+                                <p className="text-sm font-medium text-gray-900" suppressHydrationWarning>
+                                    {mounted ? (user?.role === 'admin' ? 'Mosh' : user?.full_name || 'Mon compte') : 'Mon compte'}
+                                </p>
+                                <p className="text-xs text-gray-500 mt-0.5" suppressHydrationWarning>
+                                    {mounted ? (user?.email || '') : ''}
+                                </p>
+                                <span className="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-full bg-[#18181B]/5 text-[#71717A]" suppressHydrationWarning>
+                                    {mounted ? (user?.role === 'admin' ? 'Admin' : user?.role === 'brand' ? 'Marque' : 'Créateur') : ''}
+                                </span>
+                            </div>
                             <DropdownMenuSeparator className="bg-gray-200" />
-
-                            <DropdownMenuItem asChild className="text-gray-700 focus:bg-gray-100 focus:text-gray-900 cursor-pointer">
-                                <Link href={`${basePath}/settings`} className="flex items-center gap-2">
-                                    <UserCircle className="h-4 w-4" />
-                                    Profil
-                                </Link>
-                            </DropdownMenuItem>
 
                             <DropdownMenuItem asChild className="text-gray-700 focus:bg-gray-100 focus:text-gray-900 cursor-pointer">
                                 <Link href={`${basePath}/settings`} className="flex items-center gap-2">
                                     <Settings className="h-4 w-4" />
                                     Paramètres
-                                </Link>
-                            </DropdownMenuItem>
-
-                            <DropdownMenuItem asChild className="text-gray-700 focus:bg-gray-100 focus:text-gray-900 cursor-pointer">
-                                <Link href={`${basePath}/settings`} className="flex items-center gap-2">
-                                    <CreditCard className="h-4 w-4" />
-                                    Facturation
                                 </Link>
                             </DropdownMenuItem>
 

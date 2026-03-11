@@ -530,19 +530,19 @@ export default function AdminMissionDetailPage() {
                     <button
                         onClick={handleAIBriefReview}
                         disabled={aiLoading === 'brief'}
-                        className="px-3 py-1.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-xs font-medium rounded-lg hover:from-violet-600 hover:to-purple-700 transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
+                        className="px-3 py-1.5 bg-[#18181B] text-white text-xs font-medium rounded-lg hover:bg-[#18181B]/80 transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
                     >
                         {aiLoading === 'brief' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
                         Relecture IA
                     </button>
                 </h2>
                 {aiBriefReview && (
-                    <div className="mb-4 p-4 bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-200/50 rounded-xl">
+                    <div className="mb-4 p-4 bg-[#F4F3EF] border border-black/[0.06] rounded-xl">
                         <div className="flex items-center gap-2 mb-2">
-                            <Sparkles className="w-4 h-4 text-violet-500" />
-                            <p className="text-xs font-semibold text-violet-700">Analyse IA du brief</p>
+                            <Sparkles className="w-4 h-4 text-[#18181B]" />
+                            <p className="text-xs font-semibold text-[#18181B]">Analyse IA du brief</p>
                             <div className="flex-1" />
-                            <button onClick={() => setAiBriefReview(null)} className="text-violet-400 hover:text-violet-600 text-xs">
+                            <button onClick={() => setAiBriefReview(null)} className="text-[#A1A1AA] hover:text-[#18181B] text-xs">
                                 Fermer
                             </button>
                         </div>
@@ -703,7 +703,7 @@ export default function AdminMissionDetailPage() {
                 ) : (
                     <button
                         onClick={() => setShowCreatorSelector(true)}
-                        className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors"
+                        className="px-4 py-2 bg-[#C4F042] text-[#18181B] font-medium rounded-xl hover:bg-[#C4F042]/80 transition-colors"
                     >
                         + Sélectionner des créateurs
                     </button>
@@ -760,7 +760,7 @@ export default function AdminMissionDetailPage() {
                             <button
                                 onClick={handleAIScriptGenerate}
                                 disabled={aiLoading === 'script'}
-                                className="px-4 py-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-medium rounded-xl hover:from-violet-600 hover:to-purple-700 transition-all disabled:opacity-50 flex items-center gap-2 shadow-sm"
+                                className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-all disabled:opacity-50 flex items-center gap-2"
                             >
                                 {aiLoading === 'script' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                                 Proposer script IA
@@ -778,7 +778,7 @@ export default function AdminMissionDetailPage() {
                                     await handleSendScriptToBrand()
                                 }}
                                 disabled={actionLoading || !scriptDraft}
-                                className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors disabled:opacity-50 flex items-center gap-2"
+                                className="px-4 py-2 bg-[#C4F042] text-[#18181B] font-medium rounded-xl hover:bg-[#C4F042]/80 transition-colors disabled:opacity-50 flex items-center gap-2"
                             >
                                 <Send className="w-4 h-4" strokeWidth={1.5} />
                                 Envoyer à la marque pour validation

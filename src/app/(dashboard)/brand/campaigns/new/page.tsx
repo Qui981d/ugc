@@ -461,8 +461,12 @@ export default function NewCampaignPage() {
                 {step === 2 && (
                     <div className="space-y-6">
                         <div>
-                            <h2 className="text-xl font-semibold text-gray-900">Description des contenus</h2>
-                            <p className="text-sm text-gray-500 mt-1">Décrivez chaque contenu que vous souhaitez. Vous pouvez en ajouter autant que nécessaire.</p>
+                            <h2 className="text-xl font-semibold text-gray-900">Quelles vidéos souhaitez-vous ?</h2>
+                            <p className="text-sm text-gray-500 mt-1">Chaque bloc ci-dessous correspond à une vidéo qui sera produite par un créateur. Ajoutez autant de vidéos que nécessaire.</p>
+                            <div className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-[#18181B]/5 rounded-full">
+                                <span className="text-base">🎬</span>
+                                <span className="text-sm font-medium text-gray-700">{contentBlocks.length} vidéo{contentBlocks.length > 1 ? 's' : ''} dans cette campagne</span>
+                            </div>
                         </div>
 
                         {/* Content Blocks */}
@@ -478,7 +482,7 @@ export default function NewCampaignPage() {
                                     {/* Block header */}
                                     <div className="flex items-center justify-between mb-4">
                                         <span className="text-sm font-medium text-gray-700">
-                                            Contenu {index + 1}
+                                            {block.contentType === 'photo' ? 'Photo' : 'Vidéo'} {index + 1}
                                         </span>
                                         {contentBlocks.length > 1 && (
                                             <button
@@ -629,7 +633,7 @@ export default function NewCampaignPage() {
                             className="w-full border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-all flex items-center justify-center gap-2"
                         >
                             <Plus className="w-4 h-4" />
-                            Ajouter un contenu
+                            Ajouter une vidéo
                         </button>
                     </div>
                 )}
