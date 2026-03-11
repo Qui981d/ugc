@@ -84,9 +84,9 @@ export default function BrandDashboardPage() {
                     <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-[#C4F042]/15 border border-[#C4F042]/30 rounded-2xl p-4 flex items-center gap-3"
+                        className="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 flex items-center gap-3"
                     >
-                        <div className="w-10 h-10 rounded-xl bg-[#C4F042]/25 flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
                             <span className="text-lg">⚡</span>
                         </div>
                         <div className="flex-1">

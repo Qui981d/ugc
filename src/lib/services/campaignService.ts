@@ -291,7 +291,7 @@ export async function getContentById(contentId: string): Promise<CampaignContent
  */
 export async function updateContentField(
     contentId: string,
-    updates: Partial<Pick<CampaignContent, 'status' | 'script_content' | 'script_status' | 'video_url' | 'video_uploaded_at' | 'mosh_qc_feedback' | 'mosh_qc_approved_at' | 'brand_final_feedback' | 'brand_final_approved_at' | 'brand_revision_count'>>
+    updates: Partial<Pick<CampaignContent, 'status' | 'script_content' | 'script_status' | 'video_url' | 'video_uploaded_at' | 'mosh_qc_feedback' | 'mosh_qc_approved_at' | 'brand_final_feedback' | 'brand_final_approved_at' | 'brand_revision_count' | 'assigned_creator_id' | 'creator_status'>>
 ): Promise<{ success: boolean; error?: string }> {
     const supabase = createClient()
     const { error } = await (supabase

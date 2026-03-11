@@ -956,23 +956,35 @@ export default function AdminMissionDetailPage() {
                                                         Créateur assigné
                                                     </label>
                                                     {assignedCreator ? (
-                                                        <div className="flex items-center gap-3 p-3 bg-[#C4F042]/10 border border-[#C4F042]/30 rounded-xl">
-                                                            <div className="w-8 h-8 rounded-lg bg-[#C4F042]/20 flex items-center justify-center text-[#18181B] font-bold text-xs">
-                                                                {assignedCreator.full_name?.[0] || '?'}
+                                                        <div className={`p-3 rounded-xl border ${content.creator_status === 'brand_approved'
+                                                            ? 'bg-[#C4F042]/10 border-[#C4F042]/30'
+                                                            : 'bg-amber-50 border-amber-200'
+                                                        }`}>
+                                                            <div className="flex items-center gap-3">
+                                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs ${content.creator_status === 'brand_approved'
+                                                                    ? 'bg-[#C4F042]/20 text-[#18181B]'
+                                                                    : 'bg-amber-100 text-amber-800'
+                                                                }`}>
+                                                                    {assignedCreator.full_name?.[0] || '?'}
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <p className="text-sm font-medium text-[#18181B]">{assignedCreator.full_name}</p>
+                                                                    {content.creator_status === 'brand_approved' ? (
+                                                                        <p className="text-xs text-emerald-600 font-medium">Validé par la marque ✓</p>
+                                                                    ) : (
+                                                                        <p className="text-xs text-amber-600">Proposé — en attente validation marque</p>
+                                                                    )}
+                                                                </div>
+                                                                <button
+                                                                    onClick={async () => {
+                                                                        await updateContentField(content.id, { assigned_creator_id: null, creator_status: null } as any)
+                                                                        setCampaignContents(prev => prev.map(c => c.id === content.id ? { ...c, assigned_creator_id: null, creator_status: null } : c))
+                                                                    }}
+                                                                    className="text-xs text-[#A1A1AA] hover:text-red-500 transition-colors"
+                                                                >
+                                                                    Changer
+                                                                </button>
                                                             </div>
-                                                            <div className="flex-1">
-                                                                <p className="text-sm font-medium text-[#18181B]">{assignedCreator.full_name}</p>
-                                                                <p className="text-xs text-[#71717A]">{assignedCreator.profiles_creator?.location_canton || 'Suisse'}</p>
-                                                            </div>
-                                                            <button
-                                                                onClick={async () => {
-                                                                    await updateContentField(content.id, { assigned_creator_id: null, creator_status: null } as any)
-                                                                    setCampaignContents(prev => prev.map(c => c.id === content.id ? { ...c, assigned_creator_id: null, creator_status: null } : c))
-                                                                }}
-                                                                className="text-xs text-[#A1A1AA] hover:text-red-500 transition-colors"
-                                                            >
-                                                                Changer
-                                                            </button>
                                                         </div>
                                                     ) : (
                                                         <select

@@ -443,9 +443,107 @@ export default function BrandCampaignDetailPage() {
                 </motion.div>
             )}
 
+            {/* ========== PER-CONTENT CREATOR VALIDATION ========== */}
+            {campaignContents.some(c => c.assigned_creator_id) && (
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white border-2 border-[#18181B]/20 rounded-2xl p-6"
+                >
+                    <div className="flex items-center gap-2 mb-1">
+                        <Users className="w-5 h-5 text-[#18181B]" />
+                        <h2 className="text-lg font-semibold text-gray-900">Validation des créateurs</h2>
+                        {campaignContents.some(c => c.creator_status === 'proposed') && (
+                            <span className="ml-auto px-2.5 py-0.5 text-xs rounded-full bg-amber-100 text-amber-700 font-medium">
+                                Action requise
+                            </span>
+                        )}
+                    </div>
+                    <p className="text-sm text-gray-500 mb-4">
+                        Validez le créateur proposé pour chaque contenu afin de lancer la rédaction des scripts.
+                    </p>
+                    <div className="space-y-3">
+                        {campaignContents
+                            .filter(c => c.assigned_creator_id)
+                            .map((content) => {
+                                const creator = proposedCreators.find((cr: any) => cr.id === content.assigned_creator_id)
+                                const contentIdx = campaignContents.indexOf(content)
+                                const isPending = content.creator_status === 'proposed'
+                                const isApproved = content.creator_status === 'brand_approved'
+                                const profile = (creator as any)?.profiles_creator
+
+                                return (
+                                    <div key={content.id} className={`rounded-xl border p-4 ${isPending ? 'border-amber-300 bg-amber-50/50' : isApproved ? 'border-emerald-200 bg-emerald-50/30' : 'border-gray-200 bg-gray-50'}`}>
+                                        <div className="flex items-start gap-3">
+                                            {/* Content info */}
+                                            <div className="flex items-center gap-2 shrink-0">
+                                                <span className="text-sm">{content.content_type === 'video' ? '📹' : '📷'}</span>
+                                                <span className="text-sm font-medium text-gray-700">Contenu {contentIdx + 1}</span>
+                                            </div>
+
+                                            {/* Creator info */}
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 ${isPending ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}`}>
+                                                        {(creator as any)?.full_name?.[0] || '?'}
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-semibold text-gray-900">{(creator as any)?.full_name || 'Créateur'}</p>
+                                                        {profile?.bio && (
+                                                            <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">{profile.bio}</p>
+                                                        )}
+                                                        <div className="flex flex-wrap gap-1.5 mt-1">
+                                                            {profile?.specialties?.slice(0, 2).map((s: string) => (
+                                                                <span key={s} className="px-2 py-0.5 text-[10px] rounded-full bg-gray-100 text-gray-500">{s}</span>
+                                                            ))}
+                                                            {profile?.location_canton && (
+                                                                <span className="px-2 py-0.5 text-[10px] rounded-full bg-gray-100 text-gray-500">{profile.location_canton}</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Action / Status */}
+                                            <div className="shrink-0">
+                                                {isPending ? (
+                                                    <button
+                                                        onClick={async () => {
+                                                            setActionLoading(true)
+                                                            const supabase = createClient()
+                                                            await (supabase.from('campaign_contents') as any)
+                                                                .update({ creator_status: 'brand_approved' })
+                                                                .eq('id', content.id)
+                                                            setCampaignContents(prev => prev.map(c =>
+                                                                c.id === content.id ? { ...c, creator_status: 'brand_approved' } : c
+                                                            ))
+                                                            setActionLoading(false)
+                                                        }}
+                                                        disabled={actionLoading}
+                                                        className="px-4 py-2 bg-[#18181B] text-white rounded-lg text-sm font-medium hover:bg-[#27272A] transition-colors flex items-center gap-2 disabled:opacity-50"
+                                                    >
+                                                        <ThumbsUp className="w-4 h-4" />
+                                                        Valider
+                                                    </button>
+                                                ) : isApproved ? (
+                                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-100 rounded-full">
+                                                        <CheckCircle2 className="w-3.5 h-3.5" />
+                                                        Validé ✓
+                                                    </span>
+                                                ) : null}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                    </div>
+                </motion.div>
+            )}
+
             {/* ========== ACTION REQUIRED BANNERS ========== */}
 
-            {/* Brief feedback alert */}
+            {/* Per-content creator validation action */}
+
             {needsBriefUpdate && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
                     className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3"
