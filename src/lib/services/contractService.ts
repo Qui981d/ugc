@@ -33,7 +33,19 @@ export async function getContractData(campaignId: string): Promise<MoshContractD
 
     const typedCampaign = campaign as unknown as Campaign
 
-    if (!typedCampaign.selected_creator_id) {
+    // Resolve creator ID: campaign-level OR first content-level assignment
+    let creatorId = typedCampaign.selected_creator_id
+    if (!creatorId) {
+        const { data: contents } = await (supabase as any)
+            .from('campaign_contents')
+            .select('assigned_creator_id')
+            .eq('campaign_id', campaignId)
+            .not('assigned_creator_id', 'is', null)
+            .limit(1)
+        creatorId = contents?.[0]?.assigned_creator_id || null
+    }
+
+    if (!creatorId) {
         console.error('[Contract] No creator assigned to campaign')
         return null
     }
@@ -55,13 +67,13 @@ export async function getContractData(campaignId: string): Promise<MoshContractD
     const { data: creatorUser } = await supabase
         .from('users')
         .select('*')
-        .eq('id', typedCampaign.selected_creator_id)
+        .eq('id', creatorId)
         .single()
 
     const { data: creatorProfile } = await supabase
         .from('profiles_creator')
         .select('*')
-        .eq('user_id', typedCampaign.selected_creator_id)
+        .eq('user_id', creatorId)
         .single()
 
     if (!brandUser || !brandProfile || !creatorUser || !creatorProfile) {
@@ -263,12 +275,26 @@ export async function signMoshContract(
         .from('campaigns')
         .select('*')
         .eq('id', campaignId)
-        .eq('selected_creator_id', user.id)
         .single()
 
     if (!campaignRaw) return { success: false, error: 'Mission introuvable' }
 
     const campaign = campaignRaw as unknown as Campaign
+
+    // Verify creator is assigned (campaign-level OR content-level)
+    const isAssigned = campaign.selected_creator_id === user.id
+    if (!isAssigned) {
+        const { data: contentMatch } = await (supabase as any)
+            .from('campaign_contents')
+            .select('id')
+            .eq('campaign_id', campaignId)
+            .eq('assigned_creator_id', user.id)
+            .limit(1)
+        if (!contentMatch || contentMatch.length === 0) {
+            return { success: false, error: 'Mission introuvable' }
+        }
+    }
+
     if (campaign.contract_mosh_status !== 'pending_creator') {
         return { success: false, error: 'Ce contrat n\'est pas en attente de votre signature' }
     }
@@ -285,8 +311,11 @@ export async function signMoshContract(
 
     if (error) return { success: false, error: error.message }
 
-    // Record contract_signed step in workflow
+    // Record contract_signed + auto-complete acceptance & shooting start
+    // (signing the contract implicitly means the creator accepts and is ready to shoot)
     await completeMissionStep(campaignId, 'contract_signed')
+    await completeMissionStep(campaignId, 'creator_accepted')
+    await completeMissionStep(campaignId, 'creator_shooting')
 
     // Re-generate contract with signature info
     const data = await getContractData(campaignId)

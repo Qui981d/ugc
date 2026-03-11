@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import {
     ArrowLeft,
@@ -52,9 +52,12 @@ const DEFAULT_CHECKLIST = [
 
 export default function CreatorStudioPage() {
     const params = useParams()
+    const searchParams = useSearchParams()
     const campaignId = params.id as string
+    const contentId = searchParams.get('content')
 
     const [campaign, setCampaign] = useState<Campaign | null>(null)
+    const [contentData, setContentData] = useState<any>(null)
     const [steps, setSteps] = useState<MissionStep[]>([])
     const [isLoading, setIsLoading] = useState(true)
 
@@ -116,7 +119,7 @@ export default function CreatorStudioPage() {
     }
 
     // UI
-    const [scriptExpanded, setScriptExpanded] = useState(false)
+    const [scriptExpanded, setScriptExpanded] = useState(true)
     const [briefExpanded, setBriefExpanded] = useState(false)
     const [actionSuccess, setActionSuccess] = useState<string | null>(null)
 
@@ -129,6 +132,26 @@ export default function CreatorStudioPage() {
         const camp = campData as unknown as Campaign
         setCampaign(camp)
         setSteps(missionSteps)
+
+        // Load specific content if content ID provided
+        if (contentId) {
+            const { data: cData } = await supabase
+                .from('campaign_contents')
+                .select('*')
+                .eq('id', contentId)
+                .single()
+            setContentData(cData)
+        } else {
+            // If no content param, load first content
+            const { data: contents } = await supabase
+                .from('campaign_contents')
+                .select('*')
+                .eq('campaign_id', campaignId)
+                .order('order_index', { ascending: true })
+                .limit(1)
+            if (contents && contents.length > 0) setContentData(contents[0])
+        }
+
         setIsLoading(false)
 
         // Load notes
@@ -149,7 +172,7 @@ export default function CreatorStudioPage() {
         } else {
             setChecklist(DEFAULT_CHECKLIST.map(t => ({ text: t, done: false })))
         }
-    }, [campaignId])
+    }, [campaignId, contentId])
 
     useEffect(() => { loadData() }, [loadData])
 
@@ -331,23 +354,7 @@ export default function CreatorStudioPage() {
                 {/* ===== LEFT COLUMN — Main workspace ===== */}
                 <div className="lg:col-span-2 space-y-6">
 
-                    {/* Current step banner */}
-                    {!isStepCompleted('creator_shooting') && isStepCompleted('creator_accepted') && (
-                        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                            className="bg-[#C4F042]/10 border-2 border-[#C4F042]/30 rounded-xl p-5">
-                            <div className="flex items-center gap-3 mb-3">
-                                <Camera className="w-5 h-5 text-[#C4F042]" />
-                                <div>
-                                    <h3 className="font-semibold text-[#18181B]">Prêt à tourner ?</h3>
-                                    <p className="text-sm text-[#71717A]">Signalez le début de votre tournage</p>
-                                </div>
-                            </div>
-                            <button onClick={() => handleStepAction('creator_shooting', 'Tournage en cours !')}
-                                className="w-full py-2.5 bg-[#18181B] text-[#C4F042] rounded-xl text-sm font-medium hover:bg-[#18181B]/90 transition-colors flex items-center justify-center gap-2">
-                                <Camera className="w-4 h-4" /> Commencer le tournage
-                            </button>
-                        </motion.div>
-                    )}
+
 
                     {/* ===== VIDEO ZONE ===== */}
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
@@ -389,7 +396,7 @@ export default function CreatorStudioPage() {
                                     )}
                                 </div>
                             </div>
-                        ) : isStepCompleted('creator_shooting') ? (
+                        ) : isStepCompleted('contract_signed') ? (
                             /* Editor or Drop zone */
                             <>
                                 {videoFile && showEditor ? (
@@ -542,21 +549,23 @@ export default function CreatorStudioPage() {
                         </div>
                     </motion.div>
 
-                    {/* Script reference */}
-                    {campaign.script_content && missionReceived && (
+                    {/* Script — per-content (priority) or campaign-level fallback */}
+                    {(contentData?.script_content || campaign.script_content) && missionReceived && (
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
                             className="bg-white border border-gray-200 rounded-2xl p-5">
                             <button onClick={() => setScriptExpanded(!scriptExpanded)}
                                 className="w-full flex items-center justify-between">
                                 <h2 className="text-sm font-semibold text-[#18181B] flex items-center gap-2">
                                     <Pen className="w-4 h-4 text-[#C4F042]" />
-                                    Script
+                                    Script {contentData ? `— ${contentData.script_type}` : ''}
                                 </h2>
                                 {scriptExpanded ? <ChevronUp className="w-4 h-4 text-[#71717A]" /> : <ChevronDown className="w-4 h-4 text-[#71717A]" />}
                             </button>
                             {scriptExpanded && (
                                 <div className="mt-3 bg-[#C4F042]/10 rounded-xl p-3 border border-[#C4F042]/20">
-                                    <p className="text-xs text-[#18181B] whitespace-pre-wrap leading-relaxed">{campaign.script_content}</p>
+                                    <p className="text-xs text-[#18181B] whitespace-pre-wrap leading-relaxed">
+                                        {contentData?.script_content || campaign.script_content}
+                                    </p>
                                 </div>
                             )}
                         </motion.div>

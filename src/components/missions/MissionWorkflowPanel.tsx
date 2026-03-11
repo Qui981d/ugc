@@ -27,7 +27,7 @@ import { createClient } from '@/lib/supabase/client'
 import { getMyCampaigns } from '@/lib/services/campaignService'
 import { getMissionSteps } from '@/lib/services/adminService'
 import type { Campaign, MissionStep, MissionStepType } from '@/types/database'
-import { WORKFLOW_STEPS, getStepsByOwner, type StepOwner, type WorkflowStepDef } from '@/lib/constants/workflowSteps'
+import { WORKFLOW_STEPS, getStepsByOwner, isStepCompletedOrPassed, type StepOwner, type WorkflowStepDef } from '@/lib/constants/workflowSteps'
 
 // ================================================
 // MESSAGE INTERFACE
@@ -79,15 +79,45 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                 setCampaigns(campaigns)
                 if (campaigns.length > 0) setSelectedCampaignId(campaigns[0].id)
             } else if (userRole === 'creator') {
-                // Creator: campaigns where they are the selected creator
-                const { data } = await supabase
+                // Creator: campaigns where they are assigned (campaign-level OR content-level)
+                const { data: directData } = await supabase
                     .from('campaigns')
                     .select('*')
                     .eq('selected_creator_id', user.id)
                     .order('created_at', { ascending: false })
-                const campaigns = (data || []) as Campaign[]
-                setCampaigns(campaigns)
-                if (campaigns.length > 0) setSelectedCampaignId(campaigns[0].id)
+
+                // Also check content-level assignments
+                const { data: contentAssignments } = await (supabase as any)
+                    .from('campaign_contents')
+                    .select('campaign_id')
+                    .eq('assigned_creator_id', user.id)
+
+                const directIds = (directData || []).map((c: any) => c.id)
+                const contentIds = [...new Set((contentAssignments || []).map((ca: any) => ca.campaign_id))] as string[]
+                const missingIds = contentIds.filter(id => !directIds.includes(id))
+
+                let extraCampaigns: Campaign[] = []
+                if (missingIds.length > 0) {
+                    const { data } = await supabase
+                        .from('campaigns')
+                        .select('*')
+                        .in('id', missingIds)
+                        .order('created_at', { ascending: false })
+                    extraCampaigns = (data || []) as Campaign[]
+                }
+
+                const allCampaigns = [...(directData || []) as Campaign[], ...extraCampaigns]
+
+                // Only show campaigns where Mosh has explicitly sent the mission
+                const sentCampaigns: Campaign[] = []
+                for (const camp of allCampaigns) {
+                    const steps = await getMissionSteps(camp.id)
+                    if (steps.some((s: any) => s.step_type === 'mission_sent_to_creator')) {
+                        sentCampaigns.push(camp)
+                    }
+                }
+                setCampaigns(sentCampaigns)
+                if (sentCampaigns.length > 0) setSelectedCampaignId(sentCampaigns[0].id)
             } else {
                 // Brand
                 const data = await getMyCampaigns()
@@ -172,8 +202,10 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
     }
 
     // Helpers
-    const isStepCompleted = (stepType: MissionStepType) =>
-        steps.some(s => s.step_type === stepType)
+    const isStepCompleted = (stepType: MissionStepType) => {
+        const completedTypes = steps.map(s => s.step_type)
+        return isStepCompletedOrPassed(stepType, completedTypes)
+    }
 
     const getActiveStep = (): WorkflowStepDef | null => {
         for (let i = WORKFLOW_STEPS.length - 1; i >= 0; i--) {
@@ -312,6 +344,18 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
     const brandSteps = WORKFLOW_STEPS.filter(s => s.owner === 'brand')
     const creatorSteps = WORKFLOW_STEPS.filter(s => s.owner === 'creator')
 
+    // Creator-centric pipeline steps (simplified view)
+    const CREATOR_PIPELINE: WorkflowStepDef[] = [
+        { type: 'contract_signed', label: 'Contrat', owner: 'creator', icon: WORKFLOW_STEPS[0].icon },
+        { type: 'creator_accepted', label: 'Acceptation', owner: 'creator', icon: WORKFLOW_STEPS[0].icon },
+        { type: 'creator_shooting', label: 'Tournage', owner: 'creator', icon: WORKFLOW_STEPS[0].icon },
+        { type: 'video_uploaded_by_creator', label: 'Livraison', owner: 'creator', icon: WORKFLOW_STEPS[0].icon },
+        { type: 'video_validated', label: 'Contrôle qualité', owner: 'mosh', icon: WORKFLOW_STEPS[0].icon },
+        { type: 'video_sent_to_brand', label: 'Envoi marque', owner: 'mosh', icon: WORKFLOW_STEPS[0].icon },
+        { type: 'brand_final_approved', label: 'Terminée ✅', owner: 'brand', icon: WORKFLOW_STEPS[0].icon },
+    ]
+    const creatorCompletedCount = CREATOR_PIPELINE.filter(s => isStepCompleted(s.type as MissionStepType)).length
+
     // ============================================================
     // MAIN 3-BLOCK LAYOUT
     // ============================================================
@@ -379,12 +423,12 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                             {statusBadge.text}
                         </span>
                         <div className="hidden md:flex items-center gap-[3px]">
-                            {WORKFLOW_STEPS.map((step, i) => (
+                            {(userRole === 'creator' ? CREATOR_PIPELINE : WORKFLOW_STEPS).map((step, i) => (
                                 <div
                                     key={step.type}
-                                    className={`w-2 h-2 rounded-full transition-all ${i < completedCount
+                                    className={`w-2 h-2 rounded-full transition-all ${i < (userRole === 'creator' ? creatorCompletedCount : completedCount)
                                         ? 'bg-[#C4F042]'
-                                        : i === completedCount
+                                        : i === (userRole === 'creator' ? creatorCompletedCount : completedCount)
                                             ? 'bg-[#C4F042]/40 animate-pulse'
                                             : 'bg-black/[0.06]'
                                         }`}
@@ -408,7 +452,7 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                             </div>
                             <div>
                                 <h3 className="text-sm font-semibold text-[#18181B] tracking-tight">Pipeline</h3>
-                                <p className="text-[10px] text-[#A1A1AA]">{completedCount}/{WORKFLOW_STEPS.length} étapes</p>
+                                <p className="text-[10px] text-[#A1A1AA]">{userRole === 'creator' ? creatorCompletedCount : completedCount}/{userRole === 'creator' ? CREATOR_PIPELINE.length : WORKFLOW_STEPS.length} étapes</p>
                             </div>
                         </div>
                         {/* Linear progress */}
@@ -416,20 +460,51 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                             <div className="flex-1 h-1.5 rounded-full bg-black/[0.04] overflow-hidden">
                                 <div
                                     className="h-full bg-[#C4F042] rounded-full transition-all duration-700"
-                                    style={{ width: `${(completedCount / WORKFLOW_STEPS.length) * 100}%` }}
+                                    style={{ width: `${((userRole === 'creator' ? creatorCompletedCount : completedCount) / (userRole === 'creator' ? CREATOR_PIPELINE.length : WORKFLOW_STEPS.length)) * 100}%` }}
                                 />
                             </div>
-                            <span className="text-[10px] text-[#A1A1AA] font-medium">{Math.round((completedCount / WORKFLOW_STEPS.length) * 100)}%</span>
+                            <span className="text-[10px] text-[#A1A1AA] font-medium">{Math.round(((userRole === 'creator' ? creatorCompletedCount : completedCount) / (userRole === 'creator' ? CREATOR_PIPELINE.length : WORKFLOW_STEPS.length)) * 100)}%</span>
                         </div>
                     </div>
 
                     {/* 3 columns */}
                     <div className="p-5">
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            {renderColumn('MOSH', 'M', moshSteps, activeOwner === 'mosh', true, '#C4F042')}
-                            {renderColumn('Marque', 'B', brandSteps, activeOwner === 'brand', false, '#C4F042')}
-                            {renderColumn('Créateur', 'C', creatorSteps, activeOwner === 'creator', false, '#3B82F6')}
-                        </div>
+                        {userRole === 'creator' ? (
+                            /* Creator: single simplified pipeline */
+                            <div className="space-y-1.5">
+                                {CREATOR_PIPELINE.map((step, i) => {
+                                    const completed = isStepCompleted(step.type as MissionStepType)
+                                    const isActiveStep = !completed && (i === 0 || isStepCompleted(CREATOR_PIPELINE[i - 1].type as MissionStepType))
+                                    const isCreatorAction = step.owner === 'creator' && isActiveStep
+                                    return (
+                                        <div key={step.type} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all ${
+                                            completed ? 'bg-[#C4F042]/10 text-[#18181B]'
+                                            : isCreatorAction ? 'bg-[#18181B] text-white font-semibold shadow-sm'
+                                            : isActiveStep ? 'bg-[#F4F3EF] text-[#71717A] font-medium'
+                                            : 'text-[#A1A1AA]'
+                                        }`}>
+                                            {completed ? (
+                                                <CheckCircle2 className="w-4 h-4 text-[#18181B] shrink-0" />
+                                            ) : isActiveStep ? (
+                                                <div className={`w-4 h-4 rounded-full border-2 shrink-0 animate-pulse ${isCreatorAction ? 'border-[#C4F042]' : 'border-[#71717A]'}`} />
+                                            ) : (
+                                                <div className="w-4 h-4 rounded-full border border-black/10 shrink-0" />
+                                            )}
+                                            <span>{step.label}</span>
+                                            {isCreatorAction && <span className="ml-auto text-xs bg-[#C4F042] text-[#18181B] px-2 py-0.5 rounded-full font-medium">⚡ À vous</span>}
+                                            {isActiveStep && !isCreatorAction && step.owner !== 'creator' && <span className="ml-auto text-xs text-[#A1A1AA]">En attente</span>}
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        ) : (
+                            /* Admin/Brand: full 3-column pipeline */
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                {renderColumn('MOSH', 'M', moshSteps, activeOwner === 'mosh', true, '#C4F042')}
+                                {renderColumn('Marque', 'B', brandSteps, activeOwner === 'brand', false, '#C4F042')}
+                                {renderColumn('Créateur', 'C', creatorSteps, activeOwner === 'creator', false, '#3B82F6')}
+                            </div>
+                        )}
                     </div>
                 </div>
 

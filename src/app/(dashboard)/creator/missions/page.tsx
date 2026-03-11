@@ -36,15 +36,10 @@ import type { MissionStep, MissionStepType } from '@/types/database'
 // (starts from selection, not from brief)
 // ================================================
 const PIPELINE_STEPS: { type: MissionStepType; label: string; shortLabel: string; icon: typeof FileText }[] = [
-    { type: 'creator_validated', label: 'Vous avez été sélectionné', shortLabel: 'Sélection', icon: CheckCircle2 },
-    { type: 'script_brand_approved', label: 'Script prêt', shortLabel: 'Script', icon: Pen },
-    { type: 'mission_sent_to_creator', label: 'Mission reçue', shortLabel: 'Reçue', icon: Send },
-    { type: 'contract_signed', label: 'Contrat signé', shortLabel: 'Contrat', icon: ScrollText },
-    { type: 'creator_accepted', label: 'Mission acceptée', shortLabel: 'Accepté', icon: CheckCircle2 },
-    { type: 'creator_shooting', label: 'En tournage', shortLabel: 'Tournage', icon: Camera },
+    { type: 'contract_signed', label: 'Contrat à signer', shortLabel: 'Contrat', icon: ScrollText },
     { type: 'video_uploaded_by_creator', label: 'Vidéo livrée', shortLabel: 'Livré', icon: Upload },
     { type: 'video_validated', label: 'QC MOSH', shortLabel: 'QC', icon: CheckCircle2 },
-    { type: 'video_sent_to_brand', label: 'Envoyée à la marque', shortLabel: 'Envoyée', icon: Package },
+    { type: 'video_sent_to_brand', label: 'Envoi à la marque', shortLabel: 'Envoyée', icon: Package },
     { type: 'brand_final_approved', label: 'Terminée ✅', shortLabel: 'Terminée', icon: Star },
 ]
 
@@ -70,7 +65,7 @@ interface Mission {
 }
 
 const CREATOR_ACTION_STEPS: MissionStepType[] = [
-    'contract_signed', 'creator_accepted', 'creator_shooting', 'video_uploaded_by_creator'
+    'contract_signed', 'video_uploaded_by_creator'
 ]
 
 function getActiveStepInfo(completedSteps: MissionStepType[]): { type: MissionStepType; label: string } | null {
@@ -104,14 +99,36 @@ export default function CreatorMissionsPage() {
             setIsDataLoading(true)
             const supabase = createClient()
 
-            // Fetch campaigns assigned to this creator
-            const { data: campaigns } = await (supabase as any)
+            // 1) Campaigns assigned at campaign level
+            const { data: directCampaigns } = await (supabase as any)
                 .from('campaigns')
                 .select('id, title, budget_chf, deadline, script_type, brand_id, status, contract_mosh_status, creator_amount_chf')
                 .eq('selected_creator_id', userId!)
                 .order('created_at', { ascending: false })
 
-            if (!campaigns || campaigns.length === 0) {
+            // 2) Campaigns assigned at content level (multi-content)
+            const { data: contentAssignments } = await (supabase as any)
+                .from('campaign_contents')
+                .select('campaign_id')
+                .eq('assigned_creator_id', userId!)
+
+            const contentCampaignIds = [...new Set((contentAssignments || []).map((ca: any) => ca.campaign_id))] as string[]
+            const directIds = (directCampaigns || []).map((c: any) => c.id)
+            const missingIds = contentCampaignIds.filter(id => !directIds.includes(id))
+
+            let contentCampaigns: any[] = []
+            if (missingIds.length > 0) {
+                const { data } = await (supabase as any)
+                    .from('campaigns')
+                    .select('id, title, budget_chf, deadline, script_type, brand_id, status, contract_mosh_status, creator_amount_chf')
+                    .in('id', missingIds)
+                    .order('created_at', { ascending: false })
+                contentCampaigns = data || []
+            }
+
+            const campaigns = [...(directCampaigns || []), ...contentCampaigns]
+
+            if (campaigns.length === 0) {
                 setMissions([])
                 setIsDataLoading(false)
                 return
@@ -120,6 +137,13 @@ export default function CreatorMissionsPage() {
             const enrichedMissions: Mission[] = []
 
             for (const camp of campaigns) {
+                // Fetch pipeline steps
+                const missionSteps = await getMissionSteps(camp.id)
+                const completedSteps = missionSteps.map((s: MissionStep) => s.step_type)
+
+                // Only show mission if Mosh has explicitly sent it to the creator
+                if (!completedSteps.includes('mission_sent_to_creator')) continue
+
                 // Fetch brand info
                 const { data: brandData } = await (supabase as any)
                     .from('users')
@@ -127,9 +151,6 @@ export default function CreatorMissionsPage() {
                     .eq('id', camp.brand_id)
                     .single()
 
-                // Fetch pipeline steps
-                const missionSteps = await getMissionSteps(camp.id)
-                const completedSteps = missionSteps.map((s: MissionStep) => s.step_type)
                 const completedCount = PIPELINE_STEPS.filter(ps => completedSteps.includes(ps.type)).length
                 const activeStepInfo = getActiveStepInfo(completedSteps)
                 const isCreatorAction = activeStepInfo ? CREATOR_ACTION_STEPS.includes(activeStepInfo.type) : false

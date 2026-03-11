@@ -9,8 +9,10 @@ import Link from "next/link"
 import { formatCHF } from "@/lib/validations/swiss"
 import { useAuth } from "@/contexts/AuthContext"
 import { getMyCampaigns } from "@/lib/services/campaignService"
+import { getMissionSteps } from "@/lib/services/adminService"
 import { getStatusConfig } from "@/lib/constants/statusConfig"
-import type { Campaign } from "@/types/database"
+import { WORKFLOW_STEPS, isStepCompletedOrPassed } from "@/lib/constants/workflowSteps"
+import type { Campaign, MissionStep, MissionStepType } from "@/types/database"
 
 
 
@@ -18,6 +20,7 @@ export default function BrandDashboardPage() {
     const { user, isLoading } = useAuth()
     const userId = user?.id
     const [campaigns, setCampaigns] = useState<Campaign[]>([])
+    const [campaignSteps, setCampaignSteps] = useState<Record<string, MissionStep[]>>({})
     const [isDataLoading, setIsDataLoading] = useState(true)
     const [mounted, setMounted] = useState(false)
 
@@ -31,11 +34,48 @@ export default function BrandDashboardPage() {
             setIsDataLoading(true)
             const realCampaigns = await getMyCampaigns()
             setCampaigns(realCampaigns)
+            // Load steps for all campaigns
+            const stepsMap: Record<string, MissionStep[]> = {}
+            await Promise.all(realCampaigns.map(async (c) => {
+                const steps = await getMissionSteps(c.id)
+                stepsMap[c.id] = steps
+            }))
+            setCampaignSteps(stepsMap)
             setIsDataLoading(false)
         }
 
         loadData()
     }, [userId])
+
+    // Determine active workflow step for a campaign
+    const getActiveStepForCampaign = (campaignId: string) => {
+        const steps = campaignSteps[campaignId] || []
+        const isStepDone = (type: string) => {
+            const completedTypes = steps.map(s => s.step_type)
+            return isStepCompletedOrPassed(type, completedTypes)
+        }
+        for (let i = WORKFLOW_STEPS.length - 1; i >= 0; i--) {
+            if (isStepDone(WORKFLOW_STEPS[i].type)) {
+                return WORKFLOW_STEPS[i + 1] || null // next step
+            }
+        }
+        return WORKFLOW_STEPS[0] // first step
+    }
+
+    // Get campaigns requiring brand action
+    const brandActionCampaigns = campaigns.filter(c => {
+        const active = getActiveStepForCampaign(c.id)
+        return active && active.owner === 'brand'
+    })
+
+    // Smart status label based on workflow
+    const getWorkflowLabel = (campaignId: string) => {
+        const steps = campaignSteps[campaignId] || []
+        if (steps.length === 0) return null
+        const active = getActiveStepForCampaign(campaignId)
+        if (!active) return { label: 'Mission terminée', color: 'text-emerald-700', bg: 'bg-emerald-100' }
+        return { label: active.label, color: active.owner === 'brand' ? 'text-amber-700' : 'text-blue-700', bg: active.owner === 'brand' ? 'bg-amber-100' : 'bg-blue-100' }
+    }
 
     const stats = [
         { label: "Campagnes actives", value: String(campaigns.filter(c => c.status === 'open' || c.status === 'in_progress' || c.status === 'draft').length), change: "En cours de traitement" },
@@ -76,36 +116,32 @@ export default function BrandDashboardPage() {
                 </Link>
             </motion.div>
 
-            {/* Action Required Banner (B10) */}
-            {(() => {
-                const actionCampaigns = campaigns.filter(c => c.status === 'open')
-                if (actionCampaigns.length === 0) return null
-                return (
-                    <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 flex items-center gap-3"
-                    >
-                        <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-                            <span className="text-lg">⚡</span>
-                        </div>
-                        <div className="flex-1">
-                            <p className="text-sm font-medium text-[#18181B]">
-                                {actionCampaigns.length} campagne{actionCampaigns.length > 1 ? 's' : ''} nécessite{actionCampaigns.length > 1 ? 'nt' : ''} votre attention
-                            </p>
-                            <p className="text-xs text-[#71717A]">
-                                Sélection de créateur en attente
-                            </p>
-                        </div>
-                        <Link href={`/brand/campaigns/${actionCampaigns[0].id}`}>
-                            <Button size="sm" className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full px-4">
-                                Voir
-                                <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
-                            </Button>
-                        </Link>
-                    </motion.div>
-                )
-            })()}
+            {/* Action Required Banner — only shows when brand has active work */}
+            {brandActionCampaigns.length > 0 && (
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 flex items-center gap-3"
+                >
+                    <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                        <span className="text-lg">⚡</span>
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-sm font-medium text-[#18181B]">
+                            {brandActionCampaigns.length} campagne{brandActionCampaigns.length > 1 ? 's' : ''} nécessite{brandActionCampaigns.length > 1 ? 'nt' : ''} votre attention
+                        </p>
+                        <p className="text-xs text-[#71717A]">
+                            {getActiveStepForCampaign(brandActionCampaigns[0].id)?.label || 'Action requise'}
+                        </p>
+                    </div>
+                    <Link href={`/brand/campaigns/${brandActionCampaigns[0].id}`}>
+                        <Button size="sm" className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full px-4">
+                            Voir
+                            <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
+                        </Button>
+                    </Link>
+                </motion.div>
+            )}
 
             {/* Stats Grid — glassmorphism */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
@@ -180,9 +216,14 @@ export default function BrandDashboardPage() {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-4">
-                                                <Badge className={status.badgeClass}>
-                                                    {status.label}
-                                                </Badge>
+                                                {(() => {
+                                                    const wfLabel = getWorkflowLabel(campaign.id)
+                                                    if (wfLabel) {
+                                                        return <Badge className={`${wfLabel.bg} ${wfLabel.color} border-0`}>{wfLabel.label}</Badge>
+                                                    }
+                                                    const status = getStatusConfig(campaign.status)
+                                                    return <Badge className={status.badgeClass}>{status.label}</Badge>
+                                                })()}
                                                 <span className="text-[#18181B] font-semibold">{formatCHF(campaign.budget_chf)}</span>
                                                 <ArrowUpRight className="w-4 h-4 text-[#A1A1AA] group-hover:text-[#C4F042] transition-colors" strokeWidth={1.5} />
                                             </div>

@@ -530,19 +530,30 @@ export async function sendMissionToCreator(
         .single()
     const camp = campData as any
     if (!camp) return { success: false, error: 'Campaign not found' }
-    if (!camp.selected_creator_id) return { success: false, error: 'No creator assigned' }
 
-    // Generate contract only if no contract exists yet
+    // Check for creator assignment: campaign-level OR content-level
+    let creatorIds: string[] = []
+    if (camp.selected_creator_id) {
+        creatorIds = [camp.selected_creator_id]
+    } else {
+        // Multi-content: get unique creator IDs from campaign_contents
+        const { data: contents } = await (supabase as any)
+            .from('campaign_contents')
+            .select('assigned_creator_id')
+            .eq('campaign_id', campaignId)
+            .not('assigned_creator_id', 'is', null)
+        creatorIds = [...new Set((contents || []).map((c: any) => c.assigned_creator_id))] as string[]
+    }
+
+    if (creatorIds.length === 0) return { success: false, error: 'No creator assigned' }
+
+    // Generate contract — BLOCKING: if this fails, do NOT send the mission
     const hasContract = camp.contract_mosh_status && camp.contract_mosh_status !== 'none'
     if (!hasContract && creatorAmountChf && creatorAmountChf > 0) {
-        try {
-            const { createMoshContract } = await import('@/lib/services/contractService')
-            const contractResult = await createMoshContract(campaignId, creatorAmountChf)
-            if (!contractResult.success) {
-                console.warn('[SendMission] Contract generation failed (non-blocking):', contractResult.error)
-            }
-        } catch (err) {
-            console.warn('[SendMission] Contract generation error (non-blocking):', err)
+        const { createMoshContract } = await import('@/lib/services/contractService')
+        const contractResult = await createMoshContract(campaignId, creatorAmountChf)
+        if (!contractResult.success) {
+            return { success: false, error: contractResult.error || 'Échec de la génération du contrat' }
         }
     }
 
@@ -573,8 +584,10 @@ export async function sendMissionToCreator(
         await completeMissionStep(campaignId, 'mission_sent_to_creator')
     }
 
-    // Notify the creator
-    await notifyCreatorAssigned(camp.selected_creator_id, campaignId, camp.title || 'Nouvelle mission')
+    // Notify all assigned creators
+    for (const creatorId of creatorIds) {
+        await notifyCreatorAssigned(creatorId, campaignId, camp.title || 'Nouvelle mission')
+    }
 
     return { success: true }
 }

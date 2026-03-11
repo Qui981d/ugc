@@ -28,7 +28,7 @@ import {
     X,
 } from 'lucide-react'
 import { getCampaignById } from '@/lib/services/campaignService'
-import { getMissionSteps } from '@/lib/services/adminService'
+import { getMissionSteps, completeMissionStep } from '@/lib/services/adminService'
 import {
     brandSelectCreator,
     brandRejectProfiles,
@@ -39,6 +39,7 @@ import {
 } from '@/lib/services/adminService'
 import { formatCHF } from '@/lib/validations/swiss'
 import { getStatusConfig } from '@/lib/constants/statusConfig'
+import { isStepCompletedOrPassed } from '@/lib/constants/workflowSteps'
 import type { Campaign, MissionStep, MissionStepType, ProfileCreator, CampaignContent, ContentStatus } from '@/types/database'
 import { WatermarkedPlayer } from '@/components/video/WatermarkedPlayer'
 import { createClient } from '@/lib/supabase/client'
@@ -60,8 +61,7 @@ const CONTENT_STATUS_LABELS: Record<ContentStatus, { label: string; color: strin
 // ================================================
 const TIMELINE_STEPS: { type: MissionStepType; label: string; description: string; icon: typeof FileText; actionRequired?: boolean }[] = [
     { type: 'brief_received', label: 'Analyse du brief', description: 'Votre brief a été reçu et est en cours d\'analyse.', icon: FileText },
-    { type: 'creators_proposed', label: 'Proposition de profils', description: 'MOSH a sélectionné des créateurs pour vous. Choisissez votre favori !', icon: Users, actionRequired: true },
-    { type: 'creator_validated', label: 'Choix du créateur', description: 'Un créateur a été assigné à votre projet.', icon: CheckCircle2 },
+    { type: 'creators_proposed', label: 'Proposition de profils', description: 'MOSH a sélectionné des créateurs pour vous. Validez-les pour lancer la production !', icon: Users, actionRequired: true },
     { type: 'script_sent', label: 'Rédaction du script', description: 'Le script de votre vidéo est prêt.', icon: FileText },
     { type: 'script_brand_review', label: 'Validation du script', description: 'Relisez le script et validez pour lancer la production.', icon: Pen, actionRequired: true },
     { type: 'mission_sent_to_creator', label: 'Envoi de la mission', description: 'Le créateur a reçu la mission et le script validé.', icon: Send },
@@ -149,6 +149,7 @@ export default function BrandCampaignDetailPage() {
     const [downloadLoading, setDownloadLoading] = useState(false)
     const [confirmCreatorId, setConfirmCreatorId] = useState<string | null>(null)
     const [campaignContents, setCampaignContents] = useState<CampaignContent[]>([])
+    const [profileCreator, setProfileCreator] = useState<any | null>(null)
 
     const loadData = useCallback(async () => {
         const [campaignData, missionSteps, contents] = await Promise.all([
@@ -180,14 +181,34 @@ export default function BrandCampaignDetailPage() {
                 .in('id', allCreatorIds)
             if (data) setProposedCreators(data)
         }
+
+        // Auto-recovery: if all assigned contents are brand_approved but creator_validated step missing, complete it
+        const assignedContents = contents.filter(c => c.assigned_creator_id)
+        const allApproved = assignedContents.length > 0 && assignedContents.every(c => c.creator_status === 'brand_approved')
+        const hasCreatorValidated = missionSteps.some(s => s.step_type === 'creator_validated')
+        if (allApproved && !hasCreatorValidated) {
+            await completeMissionStep(campaignId, 'creator_validated')
+            const updatedSteps = await getMissionSteps(campaignId)
+            setSteps(updatedSteps)
+        }
     }, [campaignId])
 
     useEffect(() => {
         loadData()
     }, [loadData])
 
-    const isStepCompleted = (stepType: MissionStepType) =>
-        steps.some(s => s.step_type === stepType)
+    const isStepCompleted = (stepType: MissionStepType) => {
+        const completedTypes = steps.map(s => s.step_type)
+        return isStepCompletedOrPassed(stepType, completedTypes)
+    }
+
+    const isStepInProgress = (stepType: MissionStepType) => {
+        // creators_proposed is "in progress" when proposed but not yet validated
+        if (stepType === 'creators_proposed') {
+            return steps.some(s => s.step_type === 'creators_proposed') && !steps.some(s => s.step_type === 'creator_validated')
+        }
+        return false
+    }
 
     const getCurrentStepIndex = () => {
         let lastCompleted = -1
@@ -371,71 +392,19 @@ export default function BrandCampaignDetailPage() {
                             />
                         </div>
                     </div>
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                         {campaignContents.map((content, idx) => {
                             const statusCfg = CONTENT_STATUS_LABELS[content.status as ContentStatus] || CONTENT_STATUS_LABELS.draft
-                            const needsCreatorApproval = content.creator_status === 'proposed' && content.assigned_creator_id
                             return (
-                                <div key={content.id} className={`rounded-xl border ${needsCreatorApproval ? 'border-amber-300 bg-amber-50/50' : 'border-gray-100 bg-gray-50'} p-3`}>
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-sm">{content.content_type === 'video' ? '📹' : '📷'}</span>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium text-gray-900 truncate">Contenu {idx + 1} — {content.script_type}</p>
-                                            <p className="text-xs text-gray-500">{content.format}</p>
-                                        </div>
-                                        <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusCfg.bg} ${statusCfg.color}`}>
-                                            {statusCfg.label}
-                                        </span>
+                                <div key={content.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                    <span className="text-sm">{content.content_type === 'video' ? '📹' : '📷'}</span>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-gray-900 truncate">Contenu {idx + 1} — {content.script_type}</p>
+                                        <p className="text-xs text-gray-500">{content.format}</p>
                                     </div>
-
-                                    {/* Per-content creator approval */}
-                                    {needsCreatorApproval && (() => {
-                                        const creator = proposedCreators.find((c: any) => c.id === content.assigned_creator_id)
-                                            || { full_name: 'Créateur', profiles_creator: null }
-                                        return (
-                                            <div className="mt-3 p-3 bg-white border border-amber-200 rounded-lg">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-800 font-bold text-xs">
-                                                        {(creator as any).full_name?.[0] || '?'}
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <p className="text-sm font-medium text-gray-900">{(creator as any).full_name}</p>
-                                                        <p className="text-xs text-amber-600">Créateur proposé — en attente de votre validation</p>
-                                                    </div>
-                                                </div>
-                                                <button
-                                                    onClick={async () => {
-                                                        setActionLoading(true)
-                                                        const supabase = createClient()
-                                                        await (supabase
-                                                            .from('campaign_contents') as any)
-                                                            .update({ creator_status: 'brand_approved' })
-                                                            .eq('id', content.id)
-                                                        setCampaignContents(prev => prev.map(c =>
-                                                            c.id === content.id ? { ...c, creator_status: 'brand_approved' } : c
-                                                        ))
-                                                        setActionLoading(false)
-                                                    }}
-                                                    disabled={actionLoading}
-                                                    className="w-full mt-2 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                                                >
-                                                    <ThumbsUp className="w-4 h-4" />
-                                                    Valider ce créateur
-                                                </button>
-                                            </div>
-                                        )
-                                    })()}
-
-                                    {/* Creator approved badge */}
-                                    {content.creator_status === 'brand_approved' && content.assigned_creator_id && (() => {
-                                        const creator = proposedCreators.find((c: any) => c.id === content.assigned_creator_id)
-                                        return creator ? (
-                                            <div className="mt-2 flex items-center gap-2 text-xs text-emerald-700">
-                                                <CheckCircle2 className="w-3.5 h-3.5" />
-                                                <span>{(creator as any).full_name} — Créateur validé ✓</span>
-                                            </div>
-                                        ) : null
-                                    })()}
+                                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusCfg.bg} ${statusCfg.color}`}>
+                                        {statusCfg.label}
+                                    </span>
                                 </div>
                             )
                         })}
@@ -463,49 +432,52 @@ export default function BrandCampaignDetailPage() {
                         Validez le créateur proposé pour chaque contenu afin de lancer la rédaction des scripts.
                     </p>
                     <div className="space-y-3">
-                        {campaignContents
-                            .filter(c => c.assigned_creator_id)
-                            .map((content) => {
-                                const creator = proposedCreators.find((cr: any) => cr.id === content.assigned_creator_id)
-                                const contentIdx = campaignContents.indexOf(content)
-                                const isPending = content.creator_status === 'proposed'
-                                const isApproved = content.creator_status === 'brand_approved'
-                                const profile = (creator as any)?.profiles_creator
+                        {campaignContents.map((content, idx) => {
+                            const creator = content.assigned_creator_id
+                                ? proposedCreators.find((cr: any) => cr.id === content.assigned_creator_id)
+                                : null
+                            const isPending = content.creator_status === 'proposed'
+                            const isApproved = content.creator_status === 'brand_approved'
+                            const profile = (creator as any)?.profiles_creator
 
-                                return (
-                                    <div key={content.id} className={`rounded-xl border p-4 ${isPending ? 'border-amber-300 bg-amber-50/50' : isApproved ? 'border-emerald-200 bg-emerald-50/30' : 'border-gray-200 bg-gray-50'}`}>
-                                        <div className="flex items-start gap-3">
-                                            {/* Content info */}
-                                            <div className="flex items-center gap-2 shrink-0">
-                                                <span className="text-sm">{content.content_type === 'video' ? '📹' : '📷'}</span>
-                                                <span className="text-sm font-medium text-gray-700">Contenu {contentIdx + 1}</span>
+                            return (
+                                <div key={content.id} className={`rounded-xl border p-4 ${isPending ? 'border-amber-300 bg-amber-50/50' : isApproved ? 'border-emerald-200 bg-emerald-50/30' : 'border-gray-100 bg-gray-50'}`}>
+                                    {/* Content header */}
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <span className="text-sm">{content.content_type === 'video' ? '📹' : '📷'}</span>
+                                        <span className="text-sm font-medium text-gray-900">Contenu {idx + 1} — {content.script_type}</span>
+                                        <span className="text-xs text-gray-400">{content.format}</span>
+                                    </div>
+
+                                    {/* Creator assigned */}
+                                    {creator ? (
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 ${isPending ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}`}>
+                                                {(creator as any)?.full_name?.[0] || '?'}
                                             </div>
-
-                                            {/* Creator info */}
                                             <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 ${isPending ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}`}>
-                                                        {(creator as any)?.full_name?.[0] || '?'}
-                                                    </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="text-sm font-semibold text-gray-900">{(creator as any)?.full_name || 'Créateur'}</p>
-                                                        {profile?.bio && (
-                                                            <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">{profile.bio}</p>
-                                                        )}
-                                                        <div className="flex flex-wrap gap-1.5 mt-1">
-                                                            {profile?.specialties?.slice(0, 2).map((s: string) => (
-                                                                <span key={s} className="px-2 py-0.5 text-[10px] rounded-full bg-gray-100 text-gray-500">{s}</span>
-                                                            ))}
-                                                            {profile?.location_canton && (
-                                                                <span className="px-2 py-0.5 text-[10px] rounded-full bg-gray-100 text-gray-500">{profile.location_canton}</span>
-                                                            )}
-                                                        </div>
-                                                    </div>
+                                                <p className="text-sm font-semibold text-gray-900">{(creator as any)?.full_name || 'Créateur'}</p>
+                                                {profile?.bio && (
+                                                    <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">{profile.bio}</p>
+                                                )}
+                                                <div className="flex flex-wrap gap-1.5 mt-1">
+                                                    {profile?.specialties?.slice(0, 3).map((s: string) => (
+                                                        <span key={s} className="px-2 py-0.5 text-[10px] rounded-full bg-gray-100 text-gray-500">{s}</span>
+                                                    ))}
+                                                    {profile?.location_canton && (
+                                                        <span className="px-2 py-0.5 text-[10px] rounded-full bg-gray-100 text-gray-500">{profile.location_canton}</span>
+                                                    )}
                                                 </div>
                                             </div>
-
-                                            {/* Action / Status */}
-                                            <div className="shrink-0">
+                                            <div className="flex flex-col gap-2 shrink-0">
+                                                {/* View profile button */}
+                                                <button
+                                                    onClick={() => setProfileCreator(creator)}
+                                                    className="px-3 py-1.5 text-xs font-medium text-[#18181B] border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                                                >
+                                                    Voir le profil
+                                                </button>
+                                                {/* Validate / Status */}
                                                 {isPending ? (
                                                     <button
                                                         onClick={async () => {
@@ -514,9 +486,20 @@ export default function BrandCampaignDetailPage() {
                                                             await (supabase.from('campaign_contents') as any)
                                                                 .update({ creator_status: 'brand_approved' })
                                                                 .eq('id', content.id)
-                                                            setCampaignContents(prev => prev.map(c =>
-                                                                c.id === content.id ? { ...c, creator_status: 'brand_approved' } : c
-                                                            ))
+                                                            const updatedContents = campaignContents.map(c =>
+                                                                c.id === content.id ? { ...c, creator_status: 'brand_approved' as const } : c
+                                                            )
+                                                            setCampaignContents(updatedContents)
+                                                            // If all assigned creators are now validated, complete the mission step
+                                                            const allValidated = updatedContents
+                                                                .filter(c => c.assigned_creator_id)
+                                                                .every(c => c.creator_status === 'brand_approved')
+                                                            if (allValidated) {
+                                                                await completeMissionStep(campaignId, 'creator_validated')
+                                                                // Reload steps to update timeline
+                                                                const newSteps = await getMissionSteps(campaignId)
+                                                                setSteps(newSteps)
+                                                            }
                                                             setActionLoading(false)
                                                         }}
                                                         disabled={actionLoading}
@@ -533,9 +516,12 @@ export default function BrandCampaignDetailPage() {
                                                 ) : null}
                                             </div>
                                         </div>
-                                    </div>
-                                )
-                            })}
+                                    ) : (
+                                        <p className="text-xs text-gray-400 italic">Aucun créateur assigné pour le moment</p>
+                                    )}
+                                </div>
+                            )
+                        })}
                     </div>
                 </motion.div>
             )}
@@ -624,6 +610,75 @@ export default function BrandCampaignDetailPage() {
                 </motion.div>
             )}
 
+            {/* ========== PER-CONTENT SCRIPT REVIEW ========== */}
+            {campaignContents.some(c => c.status === 'script_pending' && c.script_content) && (
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+                    className="bg-white border-2 border-[#18181B]/20 rounded-2xl p-6"
+                >
+                    <div className="flex items-center gap-2 mb-1">
+                        <Pen className="w-5 h-5 text-[#18181B]" />
+                        <h2 className="text-lg font-semibold text-gray-900">Scripts à valider</h2>
+                        <span className="ml-auto px-2.5 py-0.5 text-xs rounded-full bg-amber-100 text-amber-700 font-medium">
+                            Action requise
+                        </span>
+                    </div>
+                    <p className="text-sm text-gray-500 mb-4">Relisez les scripts proposés par MOSH et validez-les pour lancer la production.</p>
+                    <div className="space-y-4">
+                        {campaignContents.filter(c => c.status === 'script_pending' && c.script_content).map((content, idx) => (
+                            <div key={content.id} className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <span className="text-sm">📹</span>
+                                    <p className="text-sm font-semibold text-gray-900">
+                                        Contenu {campaignContents.findIndex(c => c.id === content.id) + 1} — {content.script_type}
+                                    </p>
+                                </div>
+                                <div className="bg-white rounded-lg p-4 mb-4 max-h-48 overflow-y-auto border border-gray-100">
+                                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{content.script_content}</p>
+                                </div>
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={async () => {
+                                            setActionLoading(true)
+                                            const supabase = createClient()
+                                            await (supabase.from('campaign_contents') as any)
+                                                .update({ status: 'script_approved' })
+                                                .eq('id', content.id)
+                                            const updatedContents = campaignContents.map(c =>
+                                                c.id === content.id ? { ...c, status: 'script_approved' as const } : c
+                                            )
+                                            setCampaignContents(updatedContents)
+                                            // If all scripts approved, complete mission step
+                                            const allApproved = updatedContents
+                                                .filter(c => c.script_content)
+                                                .every(c => c.status === 'script_approved' || c.status === 'shooting' || c.status === 'uploaded' || c.status === 'qc_approved' || c.status === 'sent_to_brand' || c.status === 'brand_approved')
+                                            if (allApproved) {
+                                                await completeMissionStep(campaignId, 'script_brand_approved')
+                                                const newSteps = await getMissionSteps(campaignId)
+                                                setSteps(newSteps)
+                                            }
+                                            setActionLoading(false)
+                                        }}
+                                        disabled={actionLoading}
+                                        className="flex-1 py-2.5 px-4 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                                    >
+                                        <ThumbsUp className="w-4 h-4" />
+                                        Valider le script
+                                    </button>
+                                    <button
+                                        onClick={() => setShowScriptModal(true)}
+                                        disabled={actionLoading}
+                                        className="flex-1 py-2.5 px-4 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                                    >
+                                        <MessageSquare className="w-4 h-4" />
+                                        Proposer des modifications
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </motion.div>
+            )}
+
             {/* Video review action */}
             {needsVideoReview && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
@@ -678,11 +733,12 @@ export default function BrandCampaignDetailPage() {
                 <div className="space-y-0">
                     {TIMELINE_STEPS.map((step, i) => {
                         const completed = isStepCompleted(step.type)
+                        const inProgress = isStepInProgress(step.type)
                         const isCurrent = i === currentStep + 1
                         const isPast = i <= currentStep
                         const StepIcon = step.icon
                         const completedStep = steps.find(s => s.step_type === step.type)
-                        const isAction = step.actionRequired && isCurrent
+                        const isAction = (step.actionRequired && isCurrent) || inProgress
 
                         return (
                             <div key={step.type} className="relative flex gap-4">
@@ -1067,6 +1123,100 @@ export default function BrandCampaignDetailPage() {
                                             Confirmer
                                         </>
                                     )}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Creator Profile Modal */}
+            <AnimatePresence>
+                {profileCreator && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+                        onClick={() => setProfileCreator(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="bg-white rounded-2xl max-w-lg w-full shadow-xl overflow-hidden"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            {/* Header */}
+                            <div className="p-6 border-b border-gray-100">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-16 h-16 rounded-2xl bg-[#18181B]/10 flex items-center justify-center text-[#18181B] font-bold text-xl">
+                                        {profileCreator.full_name?.[0] || '?'}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-900">{profileCreator.full_name}</h3>
+                                        {profileCreator.profiles_creator?.location_canton && (
+                                            <p className="text-sm text-gray-500">{profileCreator.profiles_creator.location_canton}, Suisse</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            {/* Body */}
+                            <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+                                {profileCreator.profiles_creator?.bio && (
+                                    <div>
+                                        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Bio</h4>
+                                        <p className="text-sm text-gray-700">{profileCreator.profiles_creator.bio}</p>
+                                    </div>
+                                )}
+                                {profileCreator.profiles_creator?.specialties?.length > 0 && (
+                                    <div>
+                                        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Spécialités</h4>
+                                        <div className="flex flex-wrap gap-2">
+                                            {profileCreator.profiles_creator.specialties.map((s: string) => (
+                                                <span key={s} className="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600">{s}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                {profileCreator.profiles_creator?.instagram_url && (
+                                    <div>
+                                        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Instagram</h4>
+                                        <a href={profileCreator.profiles_creator.instagram_url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+                                            {profileCreator.profiles_creator.instagram_url}
+                                        </a>
+                                    </div>
+                                )}
+                                {profileCreator.profiles_creator?.tiktok_url && (
+                                    <div>
+                                        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">TikTok</h4>
+                                        <a href={profileCreator.profiles_creator.tiktok_url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+                                            {profileCreator.profiles_creator.tiktok_url}
+                                        </a>
+                                    </div>
+                                )}
+                                {profileCreator.profiles_creator?.portfolio_url && (
+                                    <div>
+                                        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Portfolio</h4>
+                                        <a href={profileCreator.profiles_creator.portfolio_url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+                                            {profileCreator.profiles_creator.portfolio_url}
+                                        </a>
+                                    </div>
+                                )}
+                                {profileCreator.profiles_creator?.experience_level && (
+                                    <div>
+                                        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Expérience</h4>
+                                        <p className="text-sm text-gray-700 capitalize">{profileCreator.profiles_creator.experience_level}</p>
+                                    </div>
+                                )}
+                            </div>
+                            {/* Footer */}
+                            <div className="p-6 border-t border-gray-100">
+                                <button
+                                    onClick={() => setProfileCreator(null)}
+                                    className="w-full py-2.5 bg-[#18181B] text-white rounded-lg text-sm font-medium hover:bg-[#27272A] transition-colors"
+                                >
+                                    Fermer
                                 </button>
                             </div>
                         </motion.div>

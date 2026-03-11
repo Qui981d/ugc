@@ -46,7 +46,7 @@ import {
     type CreatorWithProfile,
 } from '@/lib/services/adminService'
 import type { MissionStep, MissionStepType, CampaignContent, ContentStatus } from '@/types/database'
-import { WORKFLOW_STEPS as CENTRAL_STEPS } from '@/lib/constants/workflowSteps'
+import { WORKFLOW_STEPS as CENTRAL_STEPS, isStepCompletedOrPassed } from '@/lib/constants/workflowSteps'
 import { createClient } from '@/lib/supabase/client'
 import { getCampaignContents, updateContentField } from '@/lib/services/campaignService'
 
@@ -200,8 +200,10 @@ export default function AdminMissionDetailPage() {
         loadData()
     }, [loadData])
 
-    const isStepCompleted = (stepType: MissionStepType) =>
-        steps.some(s => s.step_type === stepType)
+    const isStepCompleted = (stepType: MissionStepType) => {
+        const completedTypes = steps.map(s => s.step_type)
+        return isStepCompletedOrPassed(stepType, completedTypes)
+    }
 
     const getCurrentStepIndex = () => {
         let lastCompleted = -1
@@ -625,7 +627,8 @@ export default function AdminMissionDetailPage() {
                 )}
             </motion.div>
 
-            {/* Creators Section — campaign-level creator proposal */}
+            {/* Creators Section — only for single-content campaigns */}
+            {campaignContents.length <= 1 && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
                 className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[24px] p-6"
             >
@@ -709,6 +712,7 @@ export default function AdminMissionDetailPage() {
                         </button>
                 )}
             </motion.div>
+            )}
 
             {/* Script Section — only show for single-content campaigns */}
             {campaignContents.length <= 1 && (
@@ -791,7 +795,13 @@ export default function AdminMissionDetailPage() {
             )}
 
             {/* ─── Unified: Contract + Send to Creator ─── */}
-            {isStepCompleted('script_brand_approved') && !isStepCompleted('mission_sent_to_creator') && campaign.selected_creator && (
+            {(() => {
+                const hasCreator = campaign.selected_creator || campaignContents.some(c => c.assigned_creator_id)
+                const missionNotSent = !isStepCompleted('mission_sent_to_creator')
+                const contractMissing = !campaign.contract_mosh_status || (campaign.contract_mosh_status as string) === 'none'
+                // Show when: creator assigned AND (mission not sent OR contract not generated)
+                return hasCreator && (missionNotSent || contractMissing)
+            })() && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.13 }}
                     className="bg-[#C4F042]/10 border-2 border-[#C4F042]/40 rounded-[24px] p-6"
                 >

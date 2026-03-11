@@ -14,8 +14,9 @@ import {
     Users,
     Video,
 } from 'lucide-react'
-import { getAllCampaigns, type CampaignWithDetails } from '@/lib/services/adminService'
-import type { CampaignStatus } from '@/types/database'
+import { getAllCampaigns, getMissionSteps, type CampaignWithDetails } from '@/lib/services/adminService'
+import type { CampaignStatus, MissionStep } from '@/types/database'
+import { WORKFLOW_STEPS as CENTRAL_STEPS, isStepCompletedOrPassed } from '@/lib/constants/workflowSteps'
 import { ArrowUpDown } from 'lucide-react'
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: typeof Clock }> = {
@@ -40,12 +41,20 @@ export default function AdminMissionsPage() {
     const [activeFilter, setActiveFilter] = useState('all')
     const [searchQuery, setSearchQuery] = useState('')
     const [sortBy, setSortBy] = useState<'date_desc' | 'date_asc' | 'budget' | 'brand'>('date_desc')
+    const [campaignSteps, setCampaignSteps] = useState<Record<string, MissionStep[]>>({})
 
     const loadCampaigns = useCallback(async () => {
         setIsLoading(true)
         const statusFilter = activeFilter !== 'all' ? activeFilter as CampaignStatus : undefined
         const data = await getAllCampaigns({ status: statusFilter ? [statusFilter] : undefined })
         setCampaigns(data)
+        // Load steps for all campaigns
+        const stepsMap: Record<string, MissionStep[]> = {}
+        await Promise.all(data.map(async (c) => {
+            const steps = await getMissionSteps(c.id)
+            stepsMap[c.id] = steps
+        }))
+        setCampaignSteps(stepsMap)
         setIsLoading(false)
     }, [activeFilter])
 
@@ -71,6 +80,24 @@ export default function AdminMissionsPage() {
                 default: return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
             }
         })
+
+    // Dynamic workflow label for a campaign
+    const getWorkflowBadge = (campaignId: string) => {
+        const steps = campaignSteps[campaignId] || []
+        if (steps.length === 0) return null
+        const isStepDone = (type: string) => {
+            const completedTypes = steps.map(s => s.step_type)
+            return isStepCompletedOrPassed(type, completedTypes)
+        }
+        for (let i = CENTRAL_STEPS.length - 1; i >= 0; i--) {
+            if (isStepDone(CENTRAL_STEPS[i].type)) {
+                const next = CENTRAL_STEPS[i + 1]
+                if (!next) return { label: 'Terminée', color: 'text-[#18181B]', bg: 'bg-[#C4F042]', icon: CheckCircle2 }
+                return { label: next.label, color: next.owner === 'brand' ? 'text-amber-700' : next.owner === 'creator' ? 'text-blue-700' : 'text-[#3F3F00]', bg: next.owner === 'brand' ? 'bg-amber-100' : next.owner === 'creator' ? 'bg-blue-100' : 'bg-[#C4F042]/20', icon: next.icon }
+            }
+        }
+        return null
+    }
 
     return (
         <div className="max-w-7xl mx-auto space-y-6">
@@ -158,9 +185,18 @@ export default function AdminMissionsPage() {
                                                 <h3 className="text-[#18181B] font-semibold truncate group-hover:text-[#18181B] transition-colors">
                                                     {campaign.title}
                                                 </h3>
-                                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${statusCfg.bg} ${statusCfg.color}`}>
-                                                    <StatusIcon className="w-3 h-3" strokeWidth={1.5} />
-                                                    {statusCfg.label}
+                                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${(() => {
+                                                    const wf = getWorkflowBadge(campaign.id)
+                                                    return wf ? `${wf.bg} ${wf.color}` : `${statusCfg.bg} ${statusCfg.color}`
+                                                })()}`}>
+                                                    {(() => {
+                                                        const wf = getWorkflowBadge(campaign.id)
+                                                        if (wf) {
+                                                            const WfIcon = wf.icon
+                                                            return <><WfIcon className="w-3 h-3" strokeWidth={1.5} />{wf.label}</>
+                                                        }
+                                                        return <><StatusIcon className="w-3 h-3" strokeWidth={1.5} />{statusCfg.label}</>
+                                                    })()}
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-4 text-sm text-[#A1A1AA]">

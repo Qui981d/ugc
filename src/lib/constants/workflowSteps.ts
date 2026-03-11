@@ -32,8 +32,7 @@ export interface WorkflowStepDef {
 export const WORKFLOW_STEPS: WorkflowStepDef[] = [
     { type: 'brief_received', label: 'Analyse du brief', owner: 'mosh', icon: FileText },
     { type: 'creators_proposed', label: 'Proposition de profils', owner: 'mosh', icon: Users },
-    { type: 'brand_reviewing_profiles', label: 'Choix marque', owner: 'brand', icon: Users },
-    { type: 'creator_validated', label: 'Choix du créateur', owner: 'brand', icon: CheckCircle2 },
+    { type: 'creator_validated', label: 'Validation des créateurs', owner: 'brand', icon: CheckCircle2 },
     { type: 'script_sent', label: 'Rédaction du script', owner: 'mosh', icon: Pen },
     { type: 'script_brand_review', label: 'Envoi du script', owner: 'mosh', icon: Send },
     { type: 'script_brand_approved', label: 'Validation du script', owner: 'brand', icon: CheckCircle2 },
@@ -56,3 +55,25 @@ export const STEP_LABEL_MAP: Record<string, string> = Object.fromEntries(
 /** Get all steps for a given owner */
 export const getStepsByOwner = (owner: StepOwner) =>
     WORKFLOW_STEPS.filter(s => s.owner === owner)
+
+/**
+ * Check if a step is completed — either directly in the DB,
+ * or implicitly because a LATER step is already completed.
+ * This handles cases where intermediate steps are skipped.
+ */
+export function isStepCompletedOrPassed(
+    stepType: string,
+    completedStepTypes: string[]
+): boolean {
+    // Direct check
+    if (completedStepTypes.includes(stepType)) return true
+    // creators_proposed is done when creator_validated exists
+    if (stepType === 'creators_proposed' && completedStepTypes.includes('creator_validated')) return true
+    // Check if any LATER step is completed → implies this one is done
+    const stepIndex = WORKFLOW_STEPS.findIndex(s => s.type === stepType)
+    if (stepIndex === -1) return false
+    for (let i = stepIndex + 1; i < WORKFLOW_STEPS.length; i++) {
+        if (completedStepTypes.includes(WORKFLOW_STEPS[i].type)) return true
+    }
+    return false
+}

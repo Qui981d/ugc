@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
     X,
@@ -63,7 +64,9 @@ export default function ContractViewer({
     const StatusIcon = status?.icon || Clock
     const needsCreatorSignature = mode === 'creator' && contractStatus === 'pending_creator'
 
-    return (
+    if (typeof window === 'undefined') return null
+
+    return createPortal(
         <AnimatePresence>
             {isOpen && (
                 <>
@@ -205,6 +208,7 @@ export default function ContractViewer({
                     </motion.div>
                 </>
             )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     )
 }
