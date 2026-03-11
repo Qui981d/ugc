@@ -625,88 +625,88 @@ export default function AdminMissionDetailPage() {
                 )}
             </motion.div>
 
-            {/* Creators Section */}
+            {/* Creators Section — campaign-level creator proposal */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
                 className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[24px] p-6"
             >
-                <h2 className="text-sm font-semibold text-[#18181B] mb-4 flex items-center gap-2">
-                    <Users className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} />
-                    Sélection des créateurs
-                </h2>
+                    <h2 className="text-sm font-semibold text-[#18181B] mb-4 flex items-center gap-2">
+                        <Users className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} />
+                        Sélection des créateurs
+                    </h2>
 
-                {campaign.selected_creator ? (
-                    <div className="flex items-center gap-4 p-4 bg-[#C4F042]/10 border border-[#C4F042]/30 rounded-xl">
-                        <div className="w-12 h-12 rounded-2xl bg-[#C4F042]/20 flex items-center justify-center text-[#18181B] font-bold">
-                            {campaign.selected_creator.full_name?.[0] || '?'}
+                    {campaign.selected_creator ? (
+                        <div className="flex items-center gap-4 p-4 bg-[#C4F042]/10 border border-[#C4F042]/30 rounded-xl">
+                            <div className="w-12 h-12 rounded-2xl bg-[#C4F042]/20 flex items-center justify-center text-[#18181B] font-bold">
+                                {campaign.selected_creator.full_name?.[0] || '?'}
+                            </div>
+                            <div>
+                                <p className="text-[#18181B] font-medium">{campaign.selected_creator.full_name}</p>
+                                <p className="text-[#3F3F00] text-sm">Créateur validé ✓</p>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-[#18181B] font-medium">{campaign.selected_creator.full_name}</p>
-                            <p className="text-[#3F3F00] text-sm">Créateur validé ✓</p>
-                        </div>
-                    </div>
-                ) : showCreatorSelector ? (
-                    <div className="space-y-3">
-                        <p className="text-sm text-[#71717A]">Sélectionnez 2-3 créateurs à proposer à la marque :</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-80 overflow-y-auto">
-                            {creators.map(creator => (
-                                <label
-                                    key={creator.id}
-                                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${selectedCreators.includes(creator.id)
-                                        ? 'border-[#C4F042] bg-[#C4F042]/10'
-                                        : 'border-black/[0.04] bg-white/50 hover:bg-[#F4F3EF]'
-                                        }`}
+                    ) : showCreatorSelector ? (
+                        <div className="space-y-3">
+                            <p className="text-sm text-[#71717A]">Sélectionnez 2-3 créateurs à proposer à la marque :</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-80 overflow-y-auto">
+                                {creators.map(creator => (
+                                    <label
+                                        key={creator.id}
+                                        className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${selectedCreators.includes(creator.id)
+                                            ? 'border-[#C4F042] bg-[#C4F042]/10'
+                                            : 'border-black/[0.04] bg-white/50 hover:bg-[#F4F3EF]'
+                                            }`}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedCreators.includes(creator.id)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setSelectedCreators(prev => [...prev, creator.id])
+                                                } else {
+                                                    setSelectedCreators(prev => prev.filter(id => id !== creator.id))
+                                                }
+                                            }}
+                                            className="sr-only"
+                                        />
+                                        <div className="w-10 h-10 rounded-xl bg-[#F4F3EF] flex items-center justify-center text-[#18181B] font-medium text-sm">
+                                            {creator.full_name?.[0] || '?'}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[#18181B] text-sm font-medium truncate">{creator.full_name}</p>
+                                            <p className="text-[#A1A1AA] text-xs truncate">
+                                                {creator.profiles_creator?.location_canton || 'Suisse'}
+                                                {creator.profiles_creator?.specialties?.length ? ` · ${creator.profiles_creator.specialties[0]}` : ''}
+                                            </p>
+                                        </div>
+                                        {selectedCreators.includes(creator.id) && (
+                                            <CheckCircle2 className="w-5 h-5 text-[#C4F042] shrink-0" strokeWidth={1.5} />
+                                        )}
+                                    </label>
+                                ))}
+                            </div>
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    onClick={handleProposeCreators}
+                                    disabled={selectedCreators.length === 0 || actionLoading}
+                                    className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors disabled:opacity-50"
                                 >
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedCreators.includes(creator.id)}
-                                        onChange={(e) => {
-                                            if (e.target.checked) {
-                                                setSelectedCreators(prev => [...prev, creator.id])
-                                            } else {
-                                                setSelectedCreators(prev => prev.filter(id => id !== creator.id))
-                                            }
-                                        }}
-                                        className="sr-only"
-                                    />
-                                    <div className="w-10 h-10 rounded-xl bg-[#F4F3EF] flex items-center justify-center text-[#18181B] font-medium text-sm">
-                                        {creator.full_name?.[0] || '?'}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-[#18181B] text-sm font-medium truncate">{creator.full_name}</p>
-                                        <p className="text-[#A1A1AA] text-xs truncate">
-                                            {creator.profiles_creator?.location_canton || 'Suisse'}
-                                            {creator.profiles_creator?.specialties?.length ? ` · ${creator.profiles_creator.specialties[0]}` : ''}
-                                        </p>
-                                    </div>
-                                    {selectedCreators.includes(creator.id) && (
-                                        <CheckCircle2 className="w-5 h-5 text-[#C4F042] shrink-0" strokeWidth={1.5} />
-                                    )}
-                                </label>
-                            ))}
+                                    Proposer {selectedCreators.length} créateur{selectedCreators.length > 1 ? 's' : ''}
+                                </button>
+                                <button
+                                    onClick={() => { setShowCreatorSelector(false); setSelectedCreators([]) }}
+                                    className="px-4 py-2 bg-[#F4F3EF] text-[#18181B] rounded-xl hover:bg-[#E8E6DF] transition-colors"
+                                >
+                                    Annuler
+                                </button>
+                            </div>
                         </div>
-                        <div className="flex gap-3 pt-2">
-                            <button
-                                onClick={handleProposeCreators}
-                                disabled={selectedCreators.length === 0 || actionLoading}
-                                className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors disabled:opacity-50"
-                            >
-                                Proposer {selectedCreators.length} créateur{selectedCreators.length > 1 ? 's' : ''}
-                            </button>
-                            <button
-                                onClick={() => { setShowCreatorSelector(false); setSelectedCreators([]) }}
-                                className="px-4 py-2 bg-[#F4F3EF] text-[#18181B] rounded-xl hover:bg-[#E8E6DF] transition-colors"
-                            >
-                                Annuler
-                            </button>
-                        </div>
-                    </div>
-                ) : (
-                    <button
-                        onClick={() => setShowCreatorSelector(true)}
-                        className="px-4 py-2 bg-[#C4F042] text-[#18181B] font-medium rounded-xl hover:bg-[#C4F042]/80 transition-colors"
-                    >
-                        + Sélectionner des créateurs
-                    </button>
+                    ) : (
+                        <button
+                            onClick={() => setShowCreatorSelector(true)}
+                            className="px-4 py-2 bg-[#C4F042] text-[#18181B] font-medium rounded-xl hover:bg-[#C4F042]/80 transition-colors"
+                        >
+                            + Sélectionner des créateurs
+                        </button>
                 )}
             </motion.div>
 
@@ -966,8 +966,8 @@ export default function AdminMissionDetailPage() {
                                                             </div>
                                                             <button
                                                                 onClick={async () => {
-                                                                    await updateContentField(content.id, { assigned_creator_id: null } as any)
-                                                                    setCampaignContents(prev => prev.map(c => c.id === content.id ? { ...c, assigned_creator_id: null } : c))
+                                                                    await updateContentField(content.id, { assigned_creator_id: null, creator_status: null } as any)
+                                                                    setCampaignContents(prev => prev.map(c => c.id === content.id ? { ...c, assigned_creator_id: null, creator_status: null } : c))
                                                                 }}
                                                                 className="text-xs text-[#A1A1AA] hover:text-red-500 transition-colors"
                                                             >
@@ -980,8 +980,8 @@ export default function AdminMissionDetailPage() {
                                                             onChange={async (e) => {
                                                                 const creatorId = e.target.value
                                                                 if (!creatorId) return
-                                                                await updateContentField(content.id, { assigned_creator_id: creatorId } as any)
-                                                                setCampaignContents(prev => prev.map(c => c.id === content.id ? { ...c, assigned_creator_id: creatorId } : c))
+                                                                await updateContentField(content.id, { assigned_creator_id: creatorId, creator_status: 'proposed' } as any)
+                                                                setCampaignContents(prev => prev.map(c => c.id === content.id ? { ...c, assigned_creator_id: creatorId, creator_status: 'proposed' } : c))
                                                             }}
                                                             className="w-full px-3 py-2 bg-white border border-black/[0.08] rounded-xl text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40"
                                                         >
@@ -994,89 +994,104 @@ export default function AdminMissionDetailPage() {
                                                 </div>
                                             )}
 
-                                            {/* Status selector */}
-                                            <div>
-                                                <label className="text-xs text-[#A1A1AA] mb-1.5 block">Statut du contenu</label>
-                                                <select
-                                                    value={content.status}
-                                                    onChange={async (e) => {
-                                                        const newStatus = e.target.value as ContentStatus
-                                                        await updateContentField(content.id, { status: newStatus })
-                                                        setCampaignContents(prev => prev.map(c => c.id === content.id ? { ...c, status: newStatus } : c))
-                                                    }}
-                                                    className="w-full px-3 py-2 bg-white border border-black/[0.08] rounded-xl text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40"
-                                                >
-                                                    <option value="draft">Brouillon</option>
-                                                    <option value="script_pending">Script en attente</option>
-                                                    <option value="script_approved">Script validé</option>
-                                                    <option value="shooting">En tournage</option>
-                                                    <option value="uploaded">Vidéo livrée</option>
-                                                    <option value="qc_approved">QC validé</option>
-                                                    <option value="sent_to_brand">Envoyée à la marque</option>
-                                                    <option value="brand_approved">Validée ✓</option>
-                                                </select>
-                                            </div>
 
-                                            {/* Script editor for this content */}
-                                            <div>
-                                                <label className="text-xs text-[#A1A1AA] mb-1.5 block">Script</label>
-                                                <textarea
-                                                    value={contentScriptDrafts[content.id] || ''}
-                                                    onChange={(e) => setContentScriptDrafts(prev => ({ ...prev, [content.id]: e.target.value }))}
-                                                    placeholder="Rédigez le script pour ce contenu..."
-                                                    rows={5}
-                                                    className="w-full px-3 py-2 bg-white border border-black/[0.08] rounded-xl text-sm placeholder:text-[#A1A1AA] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 resize-none"
-                                                />
-                                                <div className="flex gap-2 mt-2">
-                                                    <button
-                                                        onClick={async () => {
-                                                            await updateContentField(content.id, {
-                                                                script_content: contentScriptDrafts[content.id] || null,
-                                                                script_status: 'validated',
-                                                            })
-                                                            setActionSuccess('Script sauvegardé !')
-                                                            setTimeout(() => setActionSuccess(null), 2000)
-                                                        }}
-                                                        className="px-3 py-1.5 bg-[#C4F042] text-[#18181B] text-xs font-medium rounded-lg hover:bg-[#C4F042]/80 transition-colors"
-                                                    >
-                                                        Sauvegarder le script
-                                                    </button>
-                                                    <button
-                                                        onClick={async () => {
-                                                            if (!campaign || aiLoading) return
-                                                            setAiLoading('script')
-                                                            try {
-                                                                const res = await fetch('/api/ai', {
-                                                                    method: 'POST',
-                                                                    headers: { 'Content-Type': 'application/json' },
-                                                                    body: JSON.stringify({
-                                                                        action: 'generate_script',
-                                                                        briefData: {
-                                                                            title: campaign.title,
-                                                                            product_name: campaign.product_name,
-                                                                            product_description: campaign.product_description,
-                                                                            description: content.description || campaign.description,
-                                                                            format: content.format,
-                                                                            script_type: content.script_type,
-                                                                            script_notes: campaign.script_notes,
-                                                                        },
-                                                                    }),
-                                                                })
-                                                                const data = await res.json()
-                                                                if (!data.error) {
-                                                                    setContentScriptDrafts(prev => ({ ...prev, [content.id]: data.result }))
-                                                                }
-                                                            } catch { /* ignore */ }
-                                                            setAiLoading(null)
-                                                        }}
-                                                        disabled={aiLoading === 'script'}
-                                                        className="px-3 py-1.5 bg-[#18181B] text-white text-xs font-medium rounded-lg hover:bg-[#27272A] transition-colors disabled:opacity-50 flex items-center gap-1.5"
-                                                    >
-                                                        {aiLoading === 'script' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-                                                        Script IA
-                                                    </button>
+
+                                            {/* Script editor — locked until creator is brand_approved */}
+                                            {(isMultiContent && (!assignedCreator || content.creator_status !== 'brand_approved')) ? (
+                                                <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-700">
+                                                    <Clock className="w-5 h-5 shrink-0" />
+                                                    <div>
+                                                        {!assignedCreator ? (
+                                                            <>
+                                                                <p className="font-medium text-sm">En attente du créateur</p>
+                                                                <p className="text-xs text-amber-600 mt-0.5">Assignez un créateur à ce contenu avant de rédiger le script.</p>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <p className="font-medium text-sm">En attente de validation marque</p>
+                                                                <p className="text-xs text-amber-600 mt-0.5">Le créateur {assignedCreator.full_name} a été proposé. La marque doit valider avant la rédaction du script.</p>
+                                                            </>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            ) : (
+                                                <div>
+                                                    <label className="text-xs text-[#A1A1AA] mb-1.5 block">Script</label>
+                                                    <textarea
+                                                        value={contentScriptDrafts[content.id] || ''}
+                                                        onChange={(e) => setContentScriptDrafts(prev => ({ ...prev, [content.id]: e.target.value }))}
+                                                        placeholder="Rédigez le script pour ce contenu..."
+                                                        rows={5}
+                                                        className="w-full px-3 py-2 bg-white border border-black/[0.08] rounded-xl text-sm placeholder:text-[#A1A1AA] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 resize-none"
+                                                    />
+                                                    <div className="flex flex-wrap gap-2 mt-2">
+                                                        <button
+                                                            onClick={async () => {
+                                                                await updateContentField(content.id, {
+                                                                    script_content: contentScriptDrafts[content.id] || null,
+                                                                    script_status: 'draft',
+                                                                })
+                                                                setActionSuccess('Brouillon sauvegardé !')
+                                                                setTimeout(() => setActionSuccess(null), 2000)
+                                                            }}
+                                                            className="px-3 py-1.5 bg-[#F4F3EF] text-[#18181B] text-xs font-medium rounded-lg hover:bg-[#E8E6DF] transition-colors"
+                                                        >
+                                                            Sauvegarder brouillon
+                                                        </button>
+                                                        <button
+                                                            onClick={async () => {
+                                                                await updateContentField(content.id, {
+                                                                    script_content: contentScriptDrafts[content.id] || null,
+                                                                    script_status: 'validated',
+                                                                    status: 'script_pending',
+                                                                })
+                                                                setCampaignContents(prev => prev.map(c => c.id === content.id ? { ...c, status: 'script_pending' as ContentStatus, script_status: 'validated' } : c))
+                                                                setActionSuccess('Script envoyé à la marque !')
+                                                                setTimeout(() => setActionSuccess(null), 2000)
+                                                            }}
+                                                            disabled={!contentScriptDrafts[content.id]}
+                                                            className="px-3 py-1.5 bg-[#C4F042] text-[#18181B] text-xs font-medium rounded-lg hover:bg-[#C4F042]/80 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                                                        >
+                                                            <Send className="w-3 h-3" strokeWidth={1.5} />
+                                                            Envoyer à la marque
+                                                        </button>
+                                                        <button
+                                                            onClick={async () => {
+                                                                if (!campaign || aiLoading) return
+                                                                setAiLoading('script')
+                                                                try {
+                                                                    const res = await fetch('/api/ai', {
+                                                                        method: 'POST',
+                                                                        headers: { 'Content-Type': 'application/json' },
+                                                                        body: JSON.stringify({
+                                                                            action: 'generate_script',
+                                                                            briefData: {
+                                                                                title: campaign.title,
+                                                                                product_name: campaign.product_name,
+                                                                                product_description: campaign.product_description,
+                                                                                description: content.description || campaign.description,
+                                                                                format: content.format,
+                                                                                script_type: content.script_type,
+                                                                                script_notes: campaign.script_notes,
+                                                                            },
+                                                                        }),
+                                                                    })
+                                                                    const data = await res.json()
+                                                                    if (!data.error) {
+                                                                        setContentScriptDrafts(prev => ({ ...prev, [content.id]: data.result }))
+                                                                    }
+                                                                } catch { /* ignore */ }
+                                                                setAiLoading(null)
+                                                            }}
+                                                            disabled={aiLoading === 'script'}
+                                                            className="px-3 py-1.5 bg-[#18181B] text-white text-xs font-medium rounded-lg hover:bg-[#27272A] transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                                                        >
+                                                            {aiLoading === 'script' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                                                            Script IA
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
 
                                             {/* Video preview if uploaded */}
                                             {content.video_url && (

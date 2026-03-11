@@ -14,7 +14,8 @@ ALTER TABLE campaign_contents
   ADD COLUMN IF NOT EXISTS brand_final_feedback TEXT,
   ADD COLUMN IF NOT EXISTS brand_final_approved_at TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS brand_revision_count INTEGER DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS assigned_creator_id UUID REFERENCES users(id);
+  ADD COLUMN IF NOT EXISTS assigned_creator_id UUID REFERENCES users(id),
+  ADD COLUMN IF NOT EXISTS creator_status TEXT DEFAULT NULL;
 
 -- Index for status filtering
 CREATE INDEX IF NOT EXISTS idx_campaign_contents_status ON campaign_contents(status);

@@ -243,6 +243,7 @@ export interface CampaignContent {
     brand_final_approved_at: string | null
     brand_revision_count: number
     assigned_creator_id: string | null
+    creator_status: 'proposed' | 'brand_approved' | null
     created_at: string
 }
 

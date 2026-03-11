@@ -161,13 +161,23 @@ export default function BrandCampaignDetailPage() {
         setCampaignContents(contents)
         setIsLoading(false)
 
-        // Load proposed creators if needed
+        // Load proposed creators + assigned content creators
+        const supabase = createClient()
+        const allCreatorIds: string[] = []
         if (campaignData?.proposed_creator_ids?.length) {
-            const supabase = createClient()
+            allCreatorIds.push(...campaignData.proposed_creator_ids)
+        }
+        // Also load creators assigned to individual contents
+        for (const c of contents) {
+            if (c.assigned_creator_id && !allCreatorIds.includes(c.assigned_creator_id)) {
+                allCreatorIds.push(c.assigned_creator_id)
+            }
+        }
+        if (allCreatorIds.length > 0) {
             const { data } = await supabase
                 .from('users')
                 .select('*, profiles_creator(*)')
-                .in('id', campaignData.proposed_creator_ids)
+                .in('id', allCreatorIds)
             if (data) setProposedCreators(data)
         }
     }, [campaignId])
@@ -361,19 +371,71 @@ export default function BrandCampaignDetailPage() {
                             />
                         </div>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                         {campaignContents.map((content, idx) => {
                             const statusCfg = CONTENT_STATUS_LABELS[content.status as ContentStatus] || CONTENT_STATUS_LABELS.draft
+                            const needsCreatorApproval = content.creator_status === 'proposed' && content.assigned_creator_id
                             return (
-                                <div key={content.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                                    <span className="text-sm">{content.content_type === 'video' ? '📹' : '📷'}</span>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium text-gray-900 truncate">Contenu {idx + 1} — {content.script_type}</p>
-                                        <p className="text-xs text-gray-500">{content.format}</p>
+                                <div key={content.id} className={`rounded-xl border ${needsCreatorApproval ? 'border-amber-300 bg-amber-50/50' : 'border-gray-100 bg-gray-50'} p-3`}>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-sm">{content.content_type === 'video' ? '📹' : '📷'}</span>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-medium text-gray-900 truncate">Contenu {idx + 1} — {content.script_type}</p>
+                                            <p className="text-xs text-gray-500">{content.format}</p>
+                                        </div>
+                                        <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusCfg.bg} ${statusCfg.color}`}>
+                                            {statusCfg.label}
+                                        </span>
                                     </div>
-                                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusCfg.bg} ${statusCfg.color}`}>
-                                        {statusCfg.label}
-                                    </span>
+
+                                    {/* Per-content creator approval */}
+                                    {needsCreatorApproval && (() => {
+                                        const creator = proposedCreators.find((c: any) => c.id === content.assigned_creator_id)
+                                            || { full_name: 'Créateur', profiles_creator: null }
+                                        return (
+                                            <div className="mt-3 p-3 bg-white border border-amber-200 rounded-lg">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-800 font-bold text-xs">
+                                                        {(creator as any).full_name?.[0] || '?'}
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="text-sm font-medium text-gray-900">{(creator as any).full_name}</p>
+                                                        <p className="text-xs text-amber-600">Créateur proposé — en attente de votre validation</p>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={async () => {
+                                                        setActionLoading(true)
+                                                        const supabase = createClient()
+                                                        await (supabase
+                                                            .from('campaign_contents') as any)
+                                                            .update({ creator_status: 'brand_approved' })
+                                                            .eq('id', content.id)
+                                                        setCampaignContents(prev => prev.map(c =>
+                                                            c.id === content.id ? { ...c, creator_status: 'brand_approved' } : c
+                                                        ))
+                                                        setActionLoading(false)
+                                                    }}
+                                                    disabled={actionLoading}
+                                                    className="w-full mt-2 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                                                >
+                                                    <ThumbsUp className="w-4 h-4" />
+                                                    Valider ce créateur
+                                                </button>
+                                            </div>
+                                        )
+                                    })()}
+
+                                    {/* Creator approved badge */}
+                                    {content.creator_status === 'brand_approved' && content.assigned_creator_id && (() => {
+                                        const creator = proposedCreators.find((c: any) => c.id === content.assigned_creator_id)
+                                        return creator ? (
+                                            <div className="mt-2 flex items-center gap-2 text-xs text-emerald-700">
+                                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                                <span>{(creator as any).full_name} — Créateur validé ✓</span>
+                                            </div>
+                                        ) : null
+                                    })()}
                                 </div>
                             )
                         })}
