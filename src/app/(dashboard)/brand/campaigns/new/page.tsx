@@ -462,7 +462,7 @@ export default function NewCampaignPage() {
                     <div className="space-y-6">
                         <div>
                             <h2 className="text-xl font-semibold text-gray-900">Quelles vidéos souhaitez-vous ?</h2>
-                            <p className="text-sm text-gray-500 mt-1">Chaque bloc ci-dessous correspond à une vidéo qui sera produite par un créateur. Ajoutez autant de vidéos que nécessaire.</p>
+                            <p className="text-sm text-gray-500 mt-1">Chaque bloc ci-dessous correspond à une vidéo à produire dans le cadre de cette campagne. Ajoutez autant de vidéos que nécessaire.</p>
                             <div className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-[#18181B]/5 rounded-full">
                                 <span className="text-base">🎬</span>
                                 <span className="text-sm font-medium text-gray-700">{contentBlocks.length} vidéo{contentBlocks.length > 1 ? 's' : ''} dans cette campagne</span>
