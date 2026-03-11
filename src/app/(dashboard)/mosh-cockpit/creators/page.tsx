@@ -16,7 +16,7 @@ export default function AdminCreatorsPage() {
     const [searchQuery, setSearchQuery] = useState('')
     const [activeTab, setActiveTab] = useState<Tab>('registered')
     const [showInviteModal, setShowInviteModal] = useState(false)
-    const [inviteLabel, setInviteLabel] = useState('')
+    const [inviteEmail, setInviteEmail] = useState('')
     const [isCreating, setIsCreating] = useState(false)
     const [copiedCode, setCopiedCode] = useState<string | null>(null)
 
@@ -42,16 +42,26 @@ export default function AdminCreatorsPage() {
 
     const handleCreateInvitation = async () => {
         setIsCreating(true)
-        const result = await createInvitation(inviteLabel.trim() || undefined)
+        const result = await createInvitation(inviteEmail.trim() || undefined)
         if (result.success && result.code) {
             const updated = await getInvitations()
             setInvitations(updated)
             setShowInviteModal(false)
-            setInviteLabel('')
-            // Copy link to clipboard
             const link = `${window.location.origin}/signup?role=creator&invite=${result.code}`
             await navigator.clipboard.writeText(link)
-            toast.success('Lien d\'invitation copié dans le presse-papiers !')
+
+            if (inviteEmail.trim()) {
+                // Open email client with pre-filled invitation
+                const subject = encodeURIComponent('Invitation à rejoindre Mosh')
+                const body = encodeURIComponent(
+                    `Bonjour,\n\nVous êtes invité(e) à rejoindre Mosh en tant que créateur UGC.\n\nCliquez sur ce lien pour créer votre compte :\n${link}\n\nCe lien est valide pendant 30 jours.\n\nÀ bientôt,\nL'équipe Mosh`
+                )
+                window.open(`mailto:${inviteEmail.trim()}?subject=${subject}&body=${body}`, '_blank')
+                toast.success('Lien copié et email ouvert !')
+            } else {
+                toast.success('Lien d\'invitation copié !')
+            }
+            setInviteEmail('')
         } else {
             toast.error(result.error || 'Erreur lors de la création')
         }
@@ -374,12 +384,12 @@ export default function AdminCreatorsPage() {
 
                             <div className="px-6 py-5 space-y-4">
                                 <div>
-                                    <label className="text-xs font-medium text-[#71717A] mb-1.5 block">Note interne (optionnel)</label>
+                                    <label className="text-xs font-medium text-[#71717A] mb-1.5 block">Email du créateur</label>
                                     <input
-                                        type="text"
-                                        value={inviteLabel}
-                                        onChange={(e) => setInviteLabel(e.target.value)}
-                                        placeholder="Ex: Pour Marie (Instagram @marie_ugc)"
+                                        type="email"
+                                        value={inviteEmail}
+                                        onChange={(e) => setInviteEmail(e.target.value)}
+                                        placeholder="createur@email.com"
                                         className="w-full px-4 py-2.5 bg-[#F4F3EF]/50 border border-black/[0.06] rounded-xl text-sm text-[#18181B] placeholder:text-[#A1A1AA] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 focus:border-[#C4F042]/50"
                                     />
                                     <p className="text-xs text-[#A1A1AA] mt-1.5">Le lien sera valide 30 jours et utilisable une seule fois</p>
@@ -399,7 +409,7 @@ export default function AdminCreatorsPage() {
                                     className="px-5 py-2.5 bg-[#C4F042] text-[#18181B] font-medium rounded-xl hover:bg-[#C4F042]/80 transition-colors disabled:opacity-50 flex items-center gap-2 text-sm"
                                 >
                                     {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : <LinkIcon className="w-4 h-4" />}
-                                    Générer et copier le lien
+                                    {inviteEmail.trim() ? 'Générer et envoyer' : 'Générer le lien'}
                                 </button>
                             </div>
                         </motion.div>
