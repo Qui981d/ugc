@@ -29,7 +29,8 @@ import {
     Image,
 } from 'lucide-react'
 import { createMoshContract, getMoshContractText } from '@/lib/services/contractService'
-import { generateInvoice, getInvoiceText } from '@/lib/services/invoiceService'
+import { generateInvoice, generateInvoicesForAllCreators, getInvoiceText, getInvoiceVars } from '@/lib/services/invoiceService'
+import { generateInvoicePDF } from '@/lib/invoices/generateInvoicePDF'
 import {
     getAllCampaigns,
     getAllCreators,
@@ -84,6 +85,7 @@ export default function AdminMissionDetailPage() {
     const [actionSuccess, setActionSuccess] = useState<string | null>(null)
     // Contract & Invoice
     const [creatorAmount, setCreatorAmount] = useState('')
+    const [perCreatorAmounts, setPerCreatorAmounts] = useState<Record<string, string>>({})
     const [showContractForm, setShowContractForm] = useState(false)
     const [contractText, setContractText] = useState<string | null>(null)
     const [showContractPreview, setShowContractPreview] = useState(false)
@@ -269,16 +271,42 @@ export default function AdminMissionDetailPage() {
     }
 
     const handleSendToCreator = async () => {
-        const amount = parseFloat(creatorAmount)
-        if (!amount || amount <= 0) return
-        setActionLoading(true)
-        setActionError(null)
-        const result = await sendMissionToCreator(campaignId, amount)
-        if (!result.success) {
-            setActionError(result.error || 'Erreur')
+        // Detect multi-creator mode
+        const uniqueCreatorIds = [...new Set(campaignContents.filter(c => c.assigned_creator_id).map(c => c.assigned_creator_id!))] as string[]
+        const isMultiCreator = !campaign?.selected_creator_id && uniqueCreatorIds.length > 1 && campaign?.creator_preference === 'per_video'
+
+        if (isMultiCreator) {
+            // Validate all per-creator amounts
+            const amounts: Record<string, number> = {}
+            for (const cId of uniqueCreatorIds) {
+                const val = parseFloat(perCreatorAmounts[cId] || '0')
+                if (!val || val <= 0) {
+                    setActionError('Veuillez définir un montant pour chaque créateur')
+                    return
+                }
+                amounts[cId] = val
+            }
+            setActionLoading(true)
+            setActionError(null)
+            const result = await sendMissionToCreator(campaignId, undefined, amounts)
+            if (!result.success) {
+                setActionError(result.error || 'Erreur')
+            } else {
+                setActionSuccess('Contrats générés et missions envoyées à tous les créateurs !')
+                setTimeout(() => setActionSuccess(null), 3000)
+            }
         } else {
-            setActionSuccess('Contrat généré et mission envoyée au créateur !')
-            setTimeout(() => setActionSuccess(null), 3000)
+            const amount = parseFloat(creatorAmount)
+            if (!amount || amount <= 0) return
+            setActionLoading(true)
+            setActionError(null)
+            const result = await sendMissionToCreator(campaignId, amount)
+            if (!result.success) {
+                setActionError(result.error || 'Erreur')
+            } else {
+                setActionSuccess('Contrat généré et mission envoyée au créateur !')
+                setTimeout(() => setActionSuccess(null), 3000)
+            }
         }
         await loadData()
         setActionLoading(false)
@@ -340,8 +368,7 @@ export default function AdminMissionDetailPage() {
             setTimeout(() => setActionSuccess(null), 3000)
         }
         if (stepType === 'video_sent_to_brand') {
-            await completeMissionStep(campaignId, 'brand_final_review')
-            await generateInvoice(campaignId)
+            await generateInvoicesForAllCreators(campaignId)
         }
         await loadData()
         setActionLoading(false)
@@ -374,9 +401,20 @@ export default function AdminMissionDetailPage() {
         setActionLoading(true)
         setActionError(null)
         try {
-            await generateInvoice(campaignId)
-            setActionSuccess('Facture générée avec succès !')
-            setTimeout(() => setActionSuccess(null), 3000)
+            const result = await generateInvoicesForAllCreators(campaignId)
+            if (!result.success) {
+                setActionError(result.error || 'Erreur lors de la génération')
+            } else {
+                const invoiceNumbers = result.results.map(r => r.invoiceNumber).filter(Boolean).join(', ')
+                setActionSuccess(`Facture(s) ${invoiceNumbers} générée(s) !`)
+                setTimeout(() => setActionSuccess(null), 3000)
+                // Auto-show the invoice preview (first one)
+                const text = await getInvoiceText(campaignId)
+                if (text) {
+                    setInvoiceText(text)
+                    setShowInvoicePreview(true)
+                }
+            }
         } catch {
             setActionError('Erreur lors de la génération de la facture')
         }
@@ -625,6 +663,12 @@ export default function AdminMissionDetailPage() {
                         <p className="text-amber-700 whitespace-pre-wrap">{campaign.brief_feedback_notes}</p>
                     </div>
                 )}
+                {campaign.brief_brand_response && (
+                    <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-sm">
+                        <p className="text-emerald-800 font-medium text-xs mb-1">✅ Réponse de la marque :</p>
+                        <p className="text-emerald-700 whitespace-pre-wrap">{campaign.brief_brand_response}</p>
+                    </div>
+                )}
             </motion.div>
 
             {/* Creators Section — only for single-content campaigns */}
@@ -799,45 +843,119 @@ export default function AdminMissionDetailPage() {
                 const hasCreator = campaign.selected_creator || campaignContents.some(c => c.assigned_creator_id)
                 const missionNotSent = !isStepCompleted('mission_sent_to_creator')
                 const contractMissing = !campaign.contract_mosh_status || (campaign.contract_mosh_status as string) === 'none'
-                // Show when: creator assigned AND (mission not sent OR contract not generated)
-                return hasCreator && (missionNotSent || contractMissing)
+                const scriptApproved = isStepCompleted('script_brand_approved')
+                // Show when: creator assigned AND script approved by brand AND (mission not sent OR contract not generated)
+                return hasCreator && scriptApproved && (missionNotSent || contractMissing)
             })() && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.13 }}
                     className="bg-[#C4F042]/10 border-2 border-[#C4F042]/40 rounded-[24px] p-6"
                 >
                     <h2 className="text-sm font-semibold text-[#18181B] mb-2 flex items-center gap-2">
                         <ScrollText className="w-4 h-4 text-[#18181B]" strokeWidth={1.5} />
-                        Préparer & envoyer au créateur
+                        Préparer & envoyer au{(() => {
+                            const uniqueIds = [...new Set(campaignContents.filter(c => c.assigned_creator_id).map(c => c.assigned_creator_id!))]
+                            return !campaign.selected_creator_id && uniqueIds.length > 1 && campaign.creator_preference === 'per_video' ? 'x créateurs' : ' créateur'
+                        })()}
                     </h2>
                     <p className="text-xs text-[#71717A] mb-4">
-                        Le script a été validé par la marque. Définissez la rémunération du créateur, un contrat sera automatiquement généré et la mission sera envoyée.
+                        Le script a été validé par la marque. Définissez la rémunération, un contrat sera automatiquement généré et la mission sera envoyée.
                     </p>
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="relative flex-1 max-w-xs">
-                            <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A1A1AA]" strokeWidth={1.5} />
-                            <input
-                                type="number"
-                                value={creatorAmount}
-                                onChange={(e) => setCreatorAmount(e.target.value)}
-                                placeholder="Ex: 300"
-                                className="w-full pl-10 pr-16 py-3 bg-white/80 border border-black/[0.06] rounded-xl text-[#18181B] placeholder:text-[#A1A1AA] focus:outline-none focus:border-[#C4F042]/50 focus:ring-2 focus:ring-[#C4F042]/20"
-                            />
-                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#A1A1AA]">CHF</span>
-                        </div>
-                    </div>
+
+                    {/* Per-creator amount inputs OR single amount */}
+                    {(() => {
+                        const uniqueCreatorIds = [...new Set(campaignContents.filter(c => c.assigned_creator_id).map(c => c.assigned_creator_id!))]
+                        const isMulti = !campaign.selected_creator_id && uniqueCreatorIds.length > 1 && campaign.creator_preference === 'per_video'
+
+                        if (isMulti) {
+                            // Group contents by creator
+                            const creatorContents: Record<string, typeof campaignContents> = {}
+                            campaignContents.forEach(c => {
+                                if (c.assigned_creator_id) {
+                                    if (!creatorContents[c.assigned_creator_id]) creatorContents[c.assigned_creator_id] = []
+                                    creatorContents[c.assigned_creator_id].push(c)
+                                }
+                            })
+
+                            return (
+                                <div className="space-y-3 mb-4">
+                                    {Object.entries(creatorContents).map(([cId, contents]) => {
+                                        const creator = creators.find(cr => cr.id === cId)
+                                        return (
+                                            <div key={cId} className="flex items-center gap-3 bg-white/60 rounded-xl p-3">
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium text-[#18181B] truncate">
+                                                        {creator?.full_name || 'Créateur'}
+                                                    </p>
+                                                    <p className="text-xs text-[#71717A]">
+                                                        {contents.length} contenu{contents.length > 1 ? 's' : ''} assigné{contents.length > 1 ? 's' : ''}
+                                                    </p>
+                                                </div>
+                                                <div className="relative w-40">
+                                                    <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A1A1AA]" strokeWidth={1.5} />
+                                                    <input
+                                                        type="number"
+                                                        value={perCreatorAmounts[cId] || ''}
+                                                        onChange={(e) => setPerCreatorAmounts(prev => ({ ...prev, [cId]: e.target.value }))}
+                                                        placeholder="CHF"
+                                                        className="w-full pl-10 pr-12 py-2 bg-white/80 border border-black/[0.06] rounded-xl text-[#18181B] text-sm placeholder:text-[#A1A1AA] focus:outline-none focus:border-[#C4F042]/50 focus:ring-2 focus:ring-[#C4F042]/20"
+                                                    />
+                                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#A1A1AA]">CHF</span>
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                    {Object.keys(perCreatorAmounts).length > 0 && (
+                                        <p className="text-xs text-[#71717A] text-right">
+                                            Total : <strong className="text-[#18181B]">
+                                                CHF {Object.values(perCreatorAmounts).reduce((sum, v) => sum + (parseFloat(v) || 0), 0).toLocaleString('fr-CH')}
+                                            </strong>
+                                        </p>
+                                    )}
+                                </div>
+                            )
+                        }
+
+                        return (
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="relative flex-1 max-w-xs">
+                                    <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A1A1AA]" strokeWidth={1.5} />
+                                    <input
+                                        type="number"
+                                        value={creatorAmount}
+                                        onChange={(e) => setCreatorAmount(e.target.value)}
+                                        placeholder="Ex: 300"
+                                        className="w-full pl-10 pr-16 py-3 bg-white/80 border border-black/[0.06] rounded-xl text-[#18181B] placeholder:text-[#A1A1AA] focus:outline-none focus:border-[#C4F042]/50 focus:ring-2 focus:ring-[#C4F042]/20"
+                                    />
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#A1A1AA]">CHF</span>
+                                </div>
+                            </div>
+                        )
+                    })()}
+
                     <button
                         onClick={handleSendToCreator}
-                        disabled={actionLoading || !creatorAmount || parseFloat(creatorAmount) <= 0}
+                        disabled={actionLoading || (() => {
+                            const uniqueCreatorIds = [...new Set(campaignContents.filter(c => c.assigned_creator_id).map(c => c.assigned_creator_id!))]
+                            const isMulti = !campaign.selected_creator_id && uniqueCreatorIds.length > 1 && campaign.creator_preference === 'per_video'
+                            if (isMulti) {
+                                return uniqueCreatorIds.some(cId => !perCreatorAmounts[cId] || parseFloat(perCreatorAmounts[cId]) <= 0)
+                            }
+                            return !creatorAmount || parseFloat(creatorAmount) <= 0
+                        })()}
                         className="px-5 py-2.5 bg-[#C4F042] text-[#18181B] font-medium rounded-xl hover:bg-[#C4F042]/80 transition-colors disabled:opacity-50 flex items-center gap-2"
                     >
                         {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" strokeWidth={1.5} />}
-                        Générer le contrat & envoyer la mission
+                        {(() => {
+                            const uniqueCreatorIds = [...new Set(campaignContents.filter(c => c.assigned_creator_id).map(c => c.assigned_creator_id!))]
+                            const isMulti = !campaign.selected_creator_id && uniqueCreatorIds.length > 1 && campaign.creator_preference === 'per_video'
+                            return isMulti ? 'Générer les contrats & envoyer les missions' : 'Générer le contrat & envoyer la mission'
+                        })()}
                     </button>
                 </motion.div>
             )}
 
             {/* Contract Section (read-only, after contract exists) */}
-            {campaign.selected_creator && campaign.contract_mosh_status && (
+            {(campaign.selected_creator || campaignContents.some(c => (c as any).contract_status)) && campaign.contract_mosh_status && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }}
                     className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[24px] p-6"
                 >
@@ -1292,17 +1410,25 @@ export default function AdminMissionDetailPage() {
                                         <FileText className="w-4 h-4" strokeWidth={1.5} />
                                         Voir la facture
                                     </button>
-                                    {campaign.invoice_url && (
-                                        <a
-                                            href={campaign.invoice_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="px-4 py-2 bg-[#F4F3EF] text-[#18181B] rounded-xl hover:bg-[#E8E6DF] transition-colors flex items-center gap-2"
-                                        >
-                                            <Download className="w-4 h-4" strokeWidth={1.5} />
-                                            Télécharger
-                                        </a>
-                                    )}
+                                    <button
+                                        onClick={async () => {
+                                            const vars = await getInvoiceVars(campaignId)
+                                            if (!vars) return
+                                            const pdfBlob = generateInvoicePDF(vars)
+                                            const url = URL.createObjectURL(pdfBlob)
+                                            const a = document.createElement('a')
+                                            a.href = url
+                                            a.download = `facture-${campaign.invoice_number || 'MOSH'}.pdf`
+                                            document.body.appendChild(a)
+                                            a.click()
+                                            document.body.removeChild(a)
+                                            URL.revokeObjectURL(url)
+                                        }}
+                                        className="px-4 py-2 bg-[#18181B] text-white font-medium rounded-xl hover:bg-[#18181B]/80 transition-colors flex items-center gap-2"
+                                    >
+                                        <Download className="w-4 h-4" strokeWidth={1.5} />
+                                        Télécharger PDF
+                                    </button>
                                 </div>
                             </div>
                         ) : (
@@ -1329,9 +1455,30 @@ export default function AdminMissionDetailPage() {
                         <div className="bg-[#FAFAF8] border border-black/[0.06] rounded-[24px] w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
                             <div className="flex items-center justify-between p-5 border-b border-black/[0.04]">
                                 <h3 className="text-sm font-bold text-[#18181B] flex items-center gap-2">
-                                    <Receipt className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} /> Facture
+                                    <Receipt className="w-4 h-4 text-[#71717A]" strokeWidth={1.5} /> Facture {campaign?.invoice_number || ''}
                                 </h3>
-                                <button onClick={() => setShowInvoicePreview(false)} className="text-[#A1A1AA] hover:text-[#18181B] transition-colors">✕</button>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={async () => {
+                                            const vars = await getInvoiceVars(campaignId)
+                                            if (!vars) return
+                                            const pdfBlob = generateInvoicePDF(vars)
+                                            const url = URL.createObjectURL(pdfBlob)
+                                            const a = document.createElement('a')
+                                            a.href = url
+                                            a.download = `facture-${campaign?.invoice_number || 'MOSH'}.pdf`
+                                            document.body.appendChild(a)
+                                            a.click()
+                                            document.body.removeChild(a)
+                                            URL.revokeObjectURL(url)
+                                        }}
+                                        className="px-3 py-1.5 bg-[#18181B] text-white text-xs font-medium rounded-lg hover:bg-[#18181B]/80 transition-colors flex items-center gap-1.5"
+                                    >
+                                        <Download className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                        Télécharger
+                                    </button>
+                                    <button onClick={() => setShowInvoicePreview(false)} className="text-[#A1A1AA] hover:text-[#18181B] transition-colors">✕</button>
+                                </div>
                             </div>
                             <div className="flex-1 overflow-y-auto p-5">
                                 <pre className="text-xs text-[#71717A] whitespace-pre-wrap font-mono leading-relaxed">{invoiceText}</pre>

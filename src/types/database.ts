@@ -125,6 +125,7 @@ export interface Campaign {
     // Brief feedback (MOSH → Brand)
     brief_feedback_notes: string | null
     brief_feedback_at: string | null
+    brief_brand_response: string | null
     // Profile selection (Brand reviews proposed creators)
     proposed_creator_ids: string[] | null
     brand_profile_selection_at: string | null
@@ -244,6 +245,12 @@ export interface CampaignContent {
     brand_revision_count: number
     assigned_creator_id: string | null
     creator_status: 'proposed' | 'brand_approved' | null
+    // Per-content contract fields (multi-creator)
+    creator_amount_chf: number | null
+    contract_status: ContractStatus | null
+    contract_generated_at: string | null
+    contract_signed_at: string | null
+    contract_url: string | null
     created_at: string
 }
 

@@ -6,9 +6,12 @@ export async function updateSession(request: NextRequest) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-    // If Supabase is not configured, allow all routes (demo mode)
+    // If Supabase is not configured, block access (production safety)
     if (!supabaseUrl || !supabaseAnonKey) {
-        return NextResponse.next({ request })
+        const url = request.nextUrl.clone()
+        url.pathname = '/login'
+        url.searchParams.set('error', 'configuration')
+        return NextResponse.redirect(url)
     }
 
     let supabaseResponse = NextResponse.next({

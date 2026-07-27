@@ -75,19 +75,30 @@ export default function CreatorMissionDetailPage() {
     const [contractOpen, setContractOpen] = useState(false)
     const [contractText, setContractText] = useState<string | null>(null)
     const [signLoading, setSignLoading] = useState(false)
+    // P3: Per-creator amount from content-level data
+    const [myCreatorAmount, setMyCreatorAmount] = useState<number | null>(null)
 
     const loadData = useCallback(async () => {
         const supabase = createClient()
-        const [{ data: campData }, missionSteps, contents] = await Promise.all([
+        const [{ data: campData }, missionSteps, allContents] = await Promise.all([
             supabase.from('campaigns').select('*').eq('id', campaignId).single(),
             getMissionSteps(campaignId),
             getCampaignContents(campaignId),
         ])
         setCampaign(campData as Campaign | null)
         setSteps(missionSteps)
-        setCampaignContents(contents)
+        // P2: Filter contents to only those assigned to this creator
+        const myContents = user?.id
+            ? allContents.filter(c => c.assigned_creator_id === user.id || !c.assigned_creator_id)
+            : allContents
+        setCampaignContents(myContents)
+        // P3: Compute per-creator amount from content-level data
+        if (user?.id && myContents.length > 0) {
+            const contentAmount = (myContents[0] as any)?.creator_amount_chf
+            if (contentAmount) setMyCreatorAmount(contentAmount)
+        }
         setIsLoading(false)
-    }, [campaignId])
+    }, [campaignId, user?.id])
 
     useEffect(() => {
         loadData()
@@ -120,7 +131,8 @@ export default function CreatorMissionDetailPage() {
     const handleViewContract = async () => {
         setContractText(null)
         setContractOpen(true)
-        const text = await getMoshContractText(campaignId)
+        // Pass creatorId so multi-creator campaigns show the correct contract
+        const text = await getMoshContractText(campaignId, user?.id || undefined)
         setContractText(text)
     }
 
@@ -201,8 +213,8 @@ export default function CreatorMissionDetailPage() {
                             {new Date(campaign.deadline).toLocaleDateString('fr-CH')}
                         </span>
                     )}
-                    {campaign.creator_amount_chf ? (
-                        <span className="font-semibold text-[#18181B]">CHF {campaign.creator_amount_chf?.toLocaleString('fr-CH')}</span>
+                    {(myCreatorAmount || campaign.creator_amount_chf) ? (
+                        <span className="font-semibold text-[#18181B]">CHF {(myCreatorAmount || campaign.creator_amount_chf)?.toLocaleString('fr-CH')}</span>
                     ) : (
                         <span className="font-semibold text-[#18181B]">CHF {campaign.budget_chf?.toLocaleString('fr-CH')}</span>
                     )}
@@ -312,9 +324,9 @@ export default function CreatorMissionDetailPage() {
                             )}
                         </div>
                     </div>
-                    {campaign.creator_amount_chf && (
+                    {(myCreatorAmount || campaign.creator_amount_chf) && (
                         <div className="text-sm text-[#71717A] mb-3 bg-white rounded-lg px-3 py-2">
-                            Rémunération : <strong className="text-[#18181B]">CHF {campaign.creator_amount_chf?.toLocaleString('fr-CH')}</strong>
+                            Rémunération : <strong className="text-[#18181B]">CHF {(myCreatorAmount || campaign.creator_amount_chf)?.toLocaleString('fr-CH')}</strong>
                         </div>
                     )}
                     {campaign.contract_mosh_status === 'pending_creator' && (
@@ -367,7 +379,7 @@ export default function CreatorMissionDetailPage() {
                 >
                     <ScrollText className="w-4 h-4 text-[#71717A]" />
                     <p className="flex-1 text-sm text-[#18181B]">Contrat signé ✓ · <span className="text-[#71717A]">Consulter</span></p>
-                    <span className="text-xs text-[#71717A] font-medium">CHF {campaign.creator_amount_chf?.toLocaleString('fr-CH')}</span>
+                    <span className="text-xs text-[#71717A] font-medium">CHF {(myCreatorAmount || campaign.creator_amount_chf)?.toLocaleString('fr-CH')}</span>
                 </motion.div>
             )}
 

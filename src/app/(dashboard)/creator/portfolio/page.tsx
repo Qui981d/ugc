@@ -1,32 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import {
     Play,
-    Eye,
-    Heart,
-    Calendar,
-    Filter,
-    Grid3X3,
-    List,
     Upload,
-    MoreVertical,
     Video,
-    Loader2
+    Loader2,
+    Trash2,
+    ExternalLink
 } from "lucide-react"
-import Image from "next/image"
 import { useAuth } from "@/contexts/AuthContext"
 import { createClient } from "@/lib/supabase/client"
-
-interface PortfolioVideo {
-    id: string
-    url: string
-    title: string
-    category: string
-}
 
 export default function CreatorPortfolioPage() {
     const { user, profile, isLoading } = useAuth()
@@ -34,21 +20,17 @@ export default function CreatorPortfolioPage() {
     const [videos, setVideos] = useState<string[]>([])
     const [isDataLoading, setIsDataLoading] = useState(false)
     const [mounted, setMounted] = useState(false)
+    const [playingIndex, setPlayingIndex] = useState<number | null>(null)
 
     useEffect(() => { setMounted(true) }, [])
 
     useEffect(() => {
-        // Don't do anything while auth is loading
         if (!userId) return
-
-        // No user = nothing to load
         if (!user) return
 
         async function fetchPortfolio() {
             setIsDataLoading(true)
             const supabase = createClient()
-
-            // Fetch creator profile with portfolio URLs
             const { data, error } = await supabase
                 .from('profiles_creator')
                 .select('portfolio_video_urls')
@@ -66,6 +48,20 @@ export default function CreatorPortfolioPage() {
         fetchPortfolio()
     }, [userId])
 
+    const handleDeleteVideo = async (index: number) => {
+        const updated = videos.filter((_, i) => i !== index)
+        setVideos(updated)
+        const supabase = createClient()
+        await (supabase.from('profiles_creator') as ReturnType<typeof supabase.from>)
+            .update({ portfolio_video_urls: updated })
+            .eq('user_id', userId!)
+    }
+
+    // Check if a URL is a direct video file (from Supabase storage)
+    const isDirectVideo = (url: string) => {
+        return url.includes('supabase') || /\.(mp4|mov|webm|avi)(\?|$)/i.test(url)
+    }
+
     if (!mounted || (!user && isLoading)) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
@@ -80,12 +76,8 @@ export default function CreatorPortfolioPage() {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-[28px] md:text-[34px] font-semibold text-[#18181B] tracking-[-0.02em]">Portfolio</h1>
-                    <p className="text-[#71717A] mt-1">Vos créations et performances</p>
+                    <p className="text-[#71717A] mt-1">Vos créations UGC</p>
                 </div>
-                <Button className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Ajouter une vidéo
-                </Button>
             </div>
 
             {/* Stats Row */}
@@ -104,12 +96,13 @@ export default function CreatorPortfolioPage() {
                     transition={{ delay: 0.05 }}
                     className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[20px] p-5"
                 >
-                    <p className="text-sm text-[#71717A] mb-1">Plateformes</p>
+                    <p className="text-sm text-[#71717A] mb-1">Sources</p>
                     <p className="text-3xl font-bold text-[#18181B]">
                         {new Set(videos.map(v => {
                             if (v.includes('tiktok')) return 'TikTok'
                             if (v.includes('instagram')) return 'Instagram'
                             if (v.includes('youtube')) return 'YouTube'
+                            if (v.includes('supabase')) return 'MOSH'
                             return 'Autre'
                         })).size}
                     </p>
@@ -127,52 +120,93 @@ export default function CreatorPortfolioPage() {
                 </motion.div>
             </div>
 
-            {/* Portfolio Content */}
+            {/* Portfolio Content — Phone Mockup Grid */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
-                className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[24px] p-6"
             >
-                <h2 className="text-lg font-semibold text-[#18181B] mb-6">Mes liens portfolio</h2>
+                <h2 className="text-lg font-semibold text-[#18181B] mb-6">Mes vidéos</h2>
 
                 {videos.length === 0 ? (
-                    <div className="text-center py-12 text-[#A1A1AA]">
-                        <Video className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                        <p>Aucune vidéo dans votre portfolio</p>
-                        <p className="text-sm mt-2">Ajoutez des liens vers vos meilleures créations</p>
-                        <Button className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full mt-6">
-                            <Upload className="w-4 h-4 mr-2" />
-                            Ajouter un lien
-                        </Button>
+                    <div className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[24px] p-6">
+                        <div className="text-center py-12 text-[#A1A1AA]">
+                            <Video className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                            <p>Aucune vidéo dans votre portfolio</p>
+                            <p className="text-sm mt-2">Vos vidéos livrées apparaîtront automatiquement ici</p>
+                        </div>
                     </div>
                 ) : (
-                    <div className="space-y-3">
+                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                         {videos.map((url, index) => (
                             <motion.div
                                 key={index}
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.2 + index * 0.05 }}
-                                className="flex items-center gap-4 p-4 bg-[#F4F3EF]/60 rounded-2xl hover:bg-[#F4F3EF] transition-colors group"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.1 + index * 0.05 }}
+                                className="group relative"
                             >
-                                <div className="w-10 h-10 rounded-xl bg-[#C4F042]/20 flex items-center justify-center">
-                                    <Play className="w-5 h-5 text-[#18181B]" />
+                                {/* Video Container */}
+                                <div className="relative aspect-[9/16] rounded-[20px] overflow-hidden bg-black shadow-lg shadow-black/10">
+                                        {isDirectVideo(url) ? (
+                                            <>
+                                                <video
+                                                    src={url}
+                                                    className="w-full h-full object-cover"
+                                                    muted
+                                                    playsInline
+                                                    loop
+                                                    autoPlay={playingIndex === index}
+                                                    onMouseEnter={(e) => {
+                                                        setPlayingIndex(index)
+                                                        e.currentTarget.play().catch(() => {})
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        setPlayingIndex(null)
+                                                        e.currentTarget.pause()
+                                                        e.currentTarget.currentTime = 0
+                                                    }}
+                                                />
+                                                {/* Play icon overlay when not playing */}
+                                                {playingIndex !== index && (
+                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                                        <div className="w-12 h-12 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
+                                                            <Play className="w-5 h-5 text-white ml-0.5" />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </>
+                                        ) : (
+                                            /* External URL — show placeholder with link */
+                                            <a href={url} target="_blank" rel="noopener noreferrer"
+                                               className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-[#27272A] to-[#18181B] hover:from-[#3F3F46] hover:to-[#27272A] transition-colors">
+                                                <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mb-3">
+                                                    <Play className="w-6 h-6 text-white ml-0.5" />
+                                                </div>
+                                                <span className="text-white/70 text-xs px-3 text-center truncate max-w-full">
+                                                    {url.includes('tiktok') ? '🎵 TikTok' :
+                                                     url.includes('instagram') ? '📸 Instagram' :
+                                                     url.includes('youtube') ? '▶️ YouTube' : '🔗 Lien'}
+                                                </span>
+                                                <ExternalLink className="w-3.5 h-3.5 text-white/40 mt-2" />
+                                            </a>
+                                        )}
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-[#18181B] truncate">{url}</p>
-                                    <p className="text-xs text-[#A1A1AA]">
-                                        {url.includes('tiktok') && 'TikTok'}
-                                        {url.includes('instagram') && 'Instagram'}
-                                        {url.includes('youtube') && 'YouTube'}
-                                        {!url.includes('tiktok') && !url.includes('instagram') && !url.includes('youtube') && 'Lien'}
-                                    </p>
+
+                                {/* Delete button — appears on hover */}
+                                <button
+                                    onClick={() => handleDeleteVideo(index)}
+                                    className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600 z-30"
+                                >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+
+                                {/* Video index badge */}
+                                <div className="absolute top-3 left-3 z-20">
+                                    <span className="text-[10px] font-bold text-white/60 bg-black/40 backdrop-blur-sm px-2 py-0.5 rounded-full">
+                                        #{index + 1}
+                                    </span>
                                 </div>
-                                <Button size="sm" variant="ghost" className="text-[#71717A] hover:text-[#18181B] hover:bg-[#E8E6DF] rounded-full" asChild>
-                                    <a href={url} target="_blank" rel="noopener noreferrer">
-                                        <Eye className="w-4 h-4" />
-                                    </a>
-                                </Button>
                             </motion.div>
                         ))}
                     </div>
@@ -188,8 +222,8 @@ export default function CreatorPortfolioPage() {
             >
                 <h3 className="font-semibold text-[#18181B] mb-2">💡 Conseil</h3>
                 <p className="text-[#52525B] text-sm">
-                    Un portfolio riche augmente vos chances d'être sélectionné. Ajoutez vos meilleures créations
-                    TikTok, Instagram Reels ou YouTube Shorts pour montrer votre style aux marques.
+                    Votre portfolio se remplit automatiquement lorsque vous livrez des vidéos via le Studio.
+                    Plus votre portfolio est riche, plus vos chances d&apos;être sélectionné augmentent.
                 </p>
             </motion.div>
         </div>

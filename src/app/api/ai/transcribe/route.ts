@@ -1,12 +1,48 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
+import { createServerClient } from '@supabase/ssr'
+import { rateLimit } from '@/lib/rateLimit'
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 })
 
+// ── Auth helper ─────────────────────────────────────────────
+async function getAuthUser(request: NextRequest) {
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                getAll() { return request.cookies.getAll() },
+                setAll() { /* read-only for API routes */ },
+            },
+        }
+    )
+    const { data: { user } } = await supabase.auth.getUser()
+    return user
+}
+
 export async function POST(request: NextRequest) {
     try {
+        // Auth check — only authenticated users can transcribe
+        const user = await getAuthUser(request)
+        if (!user) {
+            return NextResponse.json(
+                { error: 'Non autorisé. Veuillez vous connecter.' },
+                { status: 401 }
+            )
+        }
+
+        // Rate limit — 5 requests per minute (transcription is expensive)
+        const { success: withinLimit } = rateLimit(`transcribe:${user.id}`, 5, 60 * 1000)
+        if (!withinLimit) {
+            return NextResponse.json(
+                { error: 'Trop de requêtes de transcription. Veuillez patienter une minute.' },
+                { status: 429 }
+            )
+        }
+
         if (!process.env.OPENAI_API_KEY) {
             return NextResponse.json(
                 { error: 'Clé API OpenAI non configurée.' },

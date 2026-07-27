@@ -243,17 +243,39 @@ export default function CreatorDetailPage() {
                         <h2 className="text-sm font-semibold text-[#18181B]">Portfolio</h2>
                         <span className="text-xs text-[#A1A1AA] ml-auto">{profile.portfolio_video_urls.length} vidéo{profile.portfolio_video_urls.length > 1 ? 's' : ''}</span>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {profile.portfolio_video_urls.map((url, i) => (
-                            <div key={i} className="rounded-xl overflow-hidden bg-black border border-black/[0.06]">
-                                <video
-                                    src={url}
-                                    controls
-                                    preload="metadata"
-                                    className="w-full aspect-video object-contain"
-                                />
-                            </div>
-                        ))}
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {profile.portfolio_video_urls.map((url, i) => {
+                            const isDirect = url.includes('supabase') || /\.(mp4|mov|webm|avi)(\?|$)/i.test(url)
+                            return (
+                                <div key={i} className="group relative">
+                                    <div className="relative aspect-[9/16] rounded-[20px] overflow-hidden bg-black shadow-lg shadow-black/10">
+                                            {isDirect ? (
+                                                <video
+                                                    src={url}
+                                                    className="w-full h-full object-cover"
+                                                    muted
+                                                    playsInline
+                                                    loop
+                                                    onMouseEnter={(e) => e.currentTarget.play().catch(() => {})}
+                                                    onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0 }}
+                                                />
+                                            ) : (
+                                                <a href={url} target="_blank" rel="noopener noreferrer"
+                                                   className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-[#27272A] to-[#18181B] hover:from-[#3F3F46] hover:to-[#27272A] transition-colors">
+                                                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-2">
+                                                        <ExternalLink className="w-4 h-4 text-white/60" />
+                                                    </div>
+                                                    <span className="text-white/50 text-[10px] px-2 text-center truncate max-w-full">
+                                                        {url.includes('tiktok') ? 'TikTok' :
+                                                         url.includes('instagram') ? 'Instagram' :
+                                                         url.includes('youtube') ? 'YouTube' : 'Lien'}
+                                                    </span>
+                                                </a>
+                                            )}
+                                    </div>
+                                </div>
+                            )
+                        })}
                     </div>
                 </motion.div>
             ) : null}

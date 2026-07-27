@@ -89,7 +89,7 @@ export function WatermarkedPlayer({
                                 key={i}
                                 className="text-white/25 text-xl font-bold tracking-wider select-none whitespace-nowrap"
                             >
-                                UGC SUISSE • UGC SUISSE
+                                MOSH • MOSH • MOSH
                             </span>
                         ))}
                     </div>
@@ -97,8 +97,8 @@ export function WatermarkedPlayer({
                     {/* Center watermark */}
                     <div className="absolute inset-0 flex items-center justify-center">
                         <div className="bg-white/15 backdrop-blur-sm px-5 py-2.5 rounded-lg">
-                            <span className="text-white font-bold text-lg tracking-wide">
-                                APERÇU
+                            <span className="text-white font-bold text-sm tracking-wide">
+                                EN ATTENTE DE VALIDATION
                             </span>
                         </div>
                     </div>
@@ -162,7 +162,7 @@ export function WatermarkedPlayer({
             {isWatermarked && (
                 <div className="absolute top-3 right-3">
                     <span className="px-2 py-1 bg-yellow-500 text-yellow-900 text-xs font-medium rounded">
-                        APERÇU
+                        EN ATTENTE DE VALIDATION
                     </span>
                 </div>
             )}

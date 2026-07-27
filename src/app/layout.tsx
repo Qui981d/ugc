@@ -22,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr-CH">
-      <body className={`${inter.variable} font-sans antialiased`}>
+    <html lang="fr-CH" suppressHydrationWarning>
+      <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
         <AuthProvider>
           <NotificationProvider>
             {children}

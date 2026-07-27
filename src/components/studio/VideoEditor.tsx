@@ -266,6 +266,7 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
         <div className="space-y-4">
             {/* ===== VIDEO PREVIEW ===== */}
             <div className="relative bg-black rounded-2xl overflow-hidden group">
+                {videoUrl && (
                 <video
                     ref={videoRef}
                     src={videoUrl}
@@ -274,6 +275,7 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
                     onClick={togglePlay}
                     playsInline
                 />
+                )}
 
                 {/* Subtitle overlay */}
                 {activeSub && (

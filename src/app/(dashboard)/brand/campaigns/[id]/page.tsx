@@ -150,6 +150,7 @@ export default function BrandCampaignDetailPage() {
     const [confirmCreatorId, setConfirmCreatorId] = useState<string | null>(null)
     const [campaignContents, setCampaignContents] = useState<CampaignContent[]>([])
     const [profileCreator, setProfileCreator] = useState<any | null>(null)
+    const [briefResponse, setBriefResponse] = useState('')
 
     const loadData = useCallback(async () => {
         const [campaignData, missionSteps, contents] = await Promise.all([
@@ -192,6 +193,8 @@ export default function BrandCampaignDetailPage() {
             setSteps(updatedSteps)
         }
     }, [campaignId])
+
+    const refreshData = () => loadData()
 
     useEffect(() => {
         loadData()
@@ -328,7 +331,8 @@ export default function BrandCampaignDetailPage() {
     const statusCfg = statusConfig[campaign.status] || statusConfig.draft
 
     // Determine which action sections to show
-    const needsBriefUpdate = !!campaign.brief_feedback_notes && campaign.status === 'draft'
+    const needsBriefUpdate = !!campaign.brief_feedback_notes && campaign.status === 'draft' && !campaign.brief_brand_response
+    const hasBriefResponse = !!campaign.brief_brand_response && !!campaign.brief_feedback_notes
     const needsProfileReview = isStepCompleted('brand_reviewing_profiles') && !isStepCompleted('creator_validated') && proposedCreators.length > 0
     const needsScriptReview = campaign.script_status === 'brand_review' && campaign.script_content
     const needsVideoReview = isStepCompleted('video_sent_to_brand') && !isStepCompleted('brand_final_approved') && campaign.status !== 'completed'
@@ -532,13 +536,65 @@ export default function BrandCampaignDetailPage() {
 
             {needsBriefUpdate && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3"
+                    className="bg-amber-50 border border-amber-200 rounded-xl p-4"
                 >
-                    <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
-                    <div className="flex-1">
-                        <h3 className="text-sm font-semibold text-amber-800">Précisions requises sur votre brief</h3>
-                        <p className="text-sm text-amber-700 mt-1 whitespace-pre-wrap">{campaign.brief_feedback_notes}</p>
-                        <p className="text-xs text-amber-500 mt-2">Mettez à jour votre brief pour continuer.</p>
+                    <div className="flex items-start gap-3">
+                        <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+                        <div className="flex-1">
+                            <h3 className="text-sm font-semibold text-amber-800">Précisions requises sur votre brief</h3>
+                            <p className="text-sm text-amber-700 mt-1 whitespace-pre-wrap">{campaign.brief_feedback_notes}</p>
+                        </div>
+                    </div>
+                    {/* Response form */}
+                    <div className="mt-4 space-y-3">
+                        <textarea
+                            value={briefResponse}
+                            onChange={(e) => setBriefResponse(e.target.value)}
+                            placeholder="Répondez aux demandes de précisions de MOSH..."
+                            rows={3}
+                            className="w-full bg-white border border-amber-200 rounded-xl px-4 py-3 text-sm text-[#18181B] focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/25 resize-none placeholder:text-amber-400"
+                        />
+                        <button
+                            onClick={async () => {
+                                if (!briefResponse.trim() || actionLoading) return
+                                setActionLoading(true)
+                                const { brandRespondToBriefFeedback } = await import('@/lib/services/adminService')
+                                const result = await brandRespondToBriefFeedback(campaign.id, briefResponse)
+                                if (result.success) {
+                                    setBriefResponse('')
+                                    refreshData()
+                                }
+                                setActionLoading(false)
+                            }}
+                            disabled={!briefResponse.trim() || actionLoading}
+                            className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
+                        >
+                            <Send className="w-4 h-4" />
+                            Envoyer mes précisions
+                        </button>
+                    </div>
+                </motion.div>
+            )}
+
+            {/* Brand has already responded to brief feedback */}
+            {hasBriefResponse && (
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+                    className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-3"
+                >
+                    <div className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
+                        <div className="flex-1">
+                            <h3 className="text-sm font-semibold text-emerald-800">Précisions envoyées ✓</h3>
+                            <p className="text-xs text-emerald-600 mt-0.5">MOSH a bien reçu vos précisions et va revoir votre brief.</p>
+                        </div>
+                    </div>
+                    <div className="bg-white/60 rounded-lg p-3 text-sm">
+                        <p className="text-xs text-[#71717A] font-medium mb-1">Question MOSH :</p>
+                        <p className="text-[#18181B] whitespace-pre-wrap text-sm">{campaign.brief_feedback_notes}</p>
+                    </div>
+                    <div className="bg-white/60 rounded-lg p-3 text-sm">
+                        <p className="text-xs text-emerald-700 font-medium mb-1">Votre réponse :</p>
+                        <p className="text-[#18181B] whitespace-pre-wrap text-sm">{campaign.brief_brand_response}</p>
                     </div>
                 </motion.div>
             )}
@@ -679,46 +735,99 @@ export default function BrandCampaignDetailPage() {
                 </motion.div>
             )}
 
-            {/* Video review action */}
-            {needsVideoReview && (
-                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-white border-2 border-[#18181B]/30 rounded-xl p-6"
+
+            {/* ========== VIDEO REVIEW (prominently placed before timeline) ========== */}
+            {isStepCompleted('video_sent_to_brand') && campaign.video_url && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.08 }}
+                    className={`bg-white rounded-2xl p-6 ${
+                        !isStepCompleted('brand_final_approved')
+                            ? 'border-2 border-[#18181B]/20 shadow-lg'
+                            : 'border border-gray-200'
+                    }`}
                 >
-                    <div className="flex items-center gap-2 mb-4">
+                    <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                         <Video className="w-5 h-5 text-[#18181B]" />
-                        <h3 className="text-lg font-semibold text-gray-900">Vidéo à valider</h3>
-                        <span className="ml-auto px-2 py-0.5 text-xs rounded-full bg-[#18181B]/10 text-[#18181B] font-medium">
-                            Action requise
-                        </span>
-                    </div>
-                    <p className="text-sm text-gray-500 mb-4">
-                        Votre vidéo UGC est prête. Visionnez-la et validez pour finaliser la mission.
-                    </p>
-                    {revisionCount > 0 && (
-                        <div className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2 mb-4">
-                            Révisions utilisées : {revisionCount}/2
+                        Vidéo UGC
+                        {isStepCompleted('brand_final_approved') ? (
+                            <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Approuvée ✓</span>
+                        ) : (
+                            <span className="ml-auto px-2.5 py-0.5 text-xs rounded-full bg-amber-100 text-amber-700 font-semibold">
+                                Action requise
+                            </span>
+                        )}
+                    </h2>
+
+                    {isStepCompleted('brand_final_approved') ? (
+                        <video src={campaign.video_url} controls className="w-full rounded-xl bg-black max-h-[450px] mb-4" />
+                    ) : (
+                        <div className="mb-4 flex justify-center">
+                            <WatermarkedPlayer
+                                videoUrl={campaign.video_url}
+                                isWatermarked={true}
+                            />
                         </div>
                     )}
-                    <div className="flex gap-3">
-                        <button
-                            onClick={handleApproveVideo}
-                            disabled={actionLoading}
-                            className="flex-1 py-2.5 px-4 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                        >
-                            <CheckCircle2 className="w-4 h-4" />
-                            Valider la vidéo
-                        </button>
-                        {revisionCount < 2 && (
+
+                    {!isStepCompleted('brand_final_approved') && (
+                        <div className="space-y-3">
+                            {campaign.brand_revision_count > 0 && (
+                                <div className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
+                                    Révisions utilisées : {campaign.brand_revision_count}/2
+                                </div>
+                            )}
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={handleApproveVideo}
+                                    disabled={actionLoading}
+                                    className="flex-1 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    Approuver la vidéo
+                                </button>
+                                {(campaign.brand_revision_count || 0) < 2 && (
+                                    <button
+                                        onClick={() => setShowVideoModal(true)}
+                                        className="flex-1 py-2.5 bg-amber-100 text-amber-800 rounded-xl text-sm font-medium hover:bg-amber-200 flex items-center justify-center gap-2"
+                                    >
+                                        <Send className="w-4 h-4" />
+                                        Demander une révision
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {isStepCompleted('brand_final_approved') && (
+                        <div className="space-y-3 mt-2">
+                            <div className="text-center bg-emerald-50 rounded-xl p-4">
+                                <p className="text-emerald-700 font-medium">🎉 Vidéo approuvée — Mission terminée !</p>
+                                <p className="text-emerald-600 text-sm mt-1">Merci pour votre confiance. Votre contenu UGC est prêt à être téléchargé.</p>
+                            </div>
                             <button
-                                onClick={() => setShowVideoModal(true)}
-                                disabled={actionLoading}
-                                className="flex-1 py-2.5 px-4 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                                onClick={handleDownloadVideo}
+                                disabled={downloadLoading}
+                                className="w-full py-3 px-4 bg-[#18181B] text-white rounded-xl text-sm font-semibold hover:bg-[#27272A] transition-colors flex items-center justify-center gap-2.5 disabled:opacity-60"
                             >
-                                <MessageSquare className="w-4 h-4" />
-                                Demander une révision ({revisionCount}/2)
+                                {downloadLoading ? (
+                                    <>
+                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        Téléchargement en cours…
+                                    </>
+                                ) : (
+                                    <>
+                                        <Download className="w-5 h-5" />
+                                        Télécharger la vidéo (qualité originale)
+                                    </>
+                                )}
                             </button>
-                        )}
-                    </div>
+                            <p className="text-center text-xs text-gray-400">
+                                Fichier original sans compression — qualité identique à la source
+                            </p>
+                        </div>
+                    )}
                 </motion.div>
             )}
 
@@ -800,95 +909,6 @@ export default function BrandCampaignDetailPage() {
                 </div>
             </motion.div>
 
-            {/* ========== VIDEO REVIEW ========== */}
-            {isStepCompleted('video_sent_to_brand') && campaign.video_url && (
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15 }}
-                    className="bg-white border border-gray-200 rounded-2xl p-6"
-                >
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <Video className="w-5 h-5 text-[#18181B]" />
-                        Vidéo UGC
-                        {isStepCompleted('brand_final_approved') && (
-                            <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Approuvée ✓</span>
-                        )}
-                    </h2>
-
-                    {/* B5: Watermarked player for pre-approval, raw player after approval */}
-                    {isStepCompleted('brand_final_approved') ? (
-                        <video src={campaign.video_url} controls className="w-full rounded-xl bg-black max-h-[450px] mb-4" />
-                    ) : (
-                        <div className="mb-4 flex justify-center">
-                            <WatermarkedPlayer
-                                videoUrl={campaign.video_url}
-                                isWatermarked={true}
-                            />
-                        </div>
-                    )}
-
-                    {/* Actions — only if not yet approved */}
-                    {!isStepCompleted('brand_final_approved') && (
-                        <div className="space-y-3">
-                            {campaign.brand_revision_count > 0 && (
-                                <div className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
-                                    Révisions utilisées : {campaign.brand_revision_count}/2
-                                </div>
-                            )}
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={handleApproveVideo}
-                                    disabled={actionLoading}
-                                    className="flex-1 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2"
-                                >
-                                    <CheckCircle2 className="w-4 h-4" />
-                                    Approuver la vidéo
-                                </button>
-                                {(campaign.brand_revision_count || 0) < 2 && (
-                                    <button
-                                        onClick={() => setShowVideoModal(true)}
-                                        className="flex-1 py-2.5 bg-amber-100 text-amber-800 rounded-xl text-sm font-medium hover:bg-amber-200 flex items-center justify-center gap-2"
-                                    >
-                                        <Send className="w-4 h-4" />
-                                        Demander une révision
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Approved — download section */}
-                    {isStepCompleted('brand_final_approved') && (
-                        <div className="space-y-3 mt-2">
-                            <div className="text-center bg-emerald-50 rounded-xl p-4">
-                                <p className="text-emerald-700 font-medium">🎉 Vidéo approuvée — Mission terminée !</p>
-                                <p className="text-emerald-600 text-sm mt-1">Merci pour votre confiance. Votre contenu UGC est prêt à être téléchargé.</p>
-                            </div>
-                            <button
-                                onClick={handleDownloadVideo}
-                                disabled={downloadLoading}
-                                className="w-full py-3 px-4 bg-[#18181B] text-white rounded-xl text-sm font-semibold hover:bg-[#27272A] transition-colors flex items-center justify-center gap-2.5 disabled:opacity-60"
-                            >
-                                {downloadLoading ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        Téléchargement en cours…
-                                    </>
-                                ) : (
-                                    <>
-                                        <Download className="w-5 h-5" />
-                                        Télécharger la vidéo (qualité originale)
-                                    </>
-                                )}
-                            </button>
-                            <p className="text-center text-xs text-gray-400">
-                                Fichier original sans compression — qualité identique à la source
-                            </p>
-                        </div>
-                    )}
-                </motion.div>
-            )}
 
             {/* Brief Details */}
             <motion.div

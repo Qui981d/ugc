@@ -99,10 +99,10 @@ export default function CreatorMissionsPage() {
             setIsDataLoading(true)
             const supabase = createClient()
 
-            // 1) Campaigns assigned at campaign level
+            // 1) Campaigns assigned at campaign level — include brand via join
             const { data: directCampaigns } = await (supabase as any)
                 .from('campaigns')
-                .select('id, title, budget_chf, deadline, script_type, brand_id, status, contract_mosh_status, creator_amount_chf')
+                .select('id, title, budget_chf, deadline, script_type, brand_id, status, contract_mosh_status, creator_amount_chf, brand:users!brand_id(full_name, avatar_url)')
                 .eq('selected_creator_id', userId!)
                 .order('created_at', { ascending: false })
 
@@ -120,7 +120,7 @@ export default function CreatorMissionsPage() {
             if (missingIds.length > 0) {
                 const { data } = await (supabase as any)
                     .from('campaigns')
-                    .select('id, title, budget_chf, deadline, script_type, brand_id, status, contract_mosh_status, creator_amount_chf')
+                    .select('id, title, budget_chf, deadline, script_type, brand_id, status, contract_mosh_status, creator_amount_chf, brand:users!brand_id(full_name, avatar_url)')
                     .in('id', missingIds)
                     .order('created_at', { ascending: false })
                 contentCampaigns = data || []
@@ -134,40 +134,50 @@ export default function CreatorMissionsPage() {
                 return
             }
 
+            // BATCH: Fetch all mission_steps in one query instead of N+1
+            const campaignIds = campaigns.map((c: any) => c.id)
+            const { data: allSteps } = await supabase
+                .from('mission_steps')
+                .select('campaign_id, step_type')
+                .in('campaign_id', campaignIds)
+
+            // Group steps by campaign_id
+            const stepsByCampaign = new Map<string, string[]>()
+            for (const step of (allSteps || []) as any[]) {
+                const existing = stepsByCampaign.get(step.campaign_id) || []
+                existing.push(step.step_type)
+                stepsByCampaign.set(step.campaign_id, existing)
+            }
+
             const enrichedMissions: Mission[] = []
 
             for (const camp of campaigns) {
-                // Fetch pipeline steps
-                const missionSteps = await getMissionSteps(camp.id)
-                const completedSteps = missionSteps.map((s: MissionStep) => s.step_type)
+                const completedSteps = stepsByCampaign.get(camp.id) || []
 
                 // Only show mission if Mosh has explicitly sent it to the creator
                 if (!completedSteps.includes('mission_sent_to_creator')) continue
 
-                // Fetch brand info
-                const { data: brandData } = await (supabase as any)
-                    .from('users')
-                    .select('full_name, avatar_url')
-                    .eq('id', camp.brand_id)
-                    .single()
+                // Brand info comes from the join — no extra query needed
+                const brandName = camp.brand?.full_name || 'Marque'
+                const brandAvatar = camp.brand?.avatar_url || null
 
                 const completedCount = PIPELINE_STEPS.filter(ps => completedSteps.includes(ps.type)).length
-                const activeStepInfo = getActiveStepInfo(completedSteps)
+                const activeStepInfo = getActiveStepInfo(completedSteps as MissionStepType[])
                 const isCreatorAction = activeStepInfo ? CREATOR_ACTION_STEPS.includes(activeStepInfo.type) : false
 
                 enrichedMissions.push({
                     id: camp.id,
                     campaign_id: camp.id,
                     title: camp.title || 'Sans titre',
-                    brand_name: brandData?.full_name || 'Marque',
-                    brand_avatar: brandData?.avatar_url || null,
+                    brand_name: brandName,
+                    brand_avatar: brandAvatar,
                     budget_chf: camp.budget_chf || 0,
                     creator_amount_chf: camp.creator_amount_chf || null,
                     deadline: camp.deadline,
                     script_type: camp.script_type,
                     status: camp.status,
                     contract_mosh_status: camp.contract_mosh_status || null,
-                    completedSteps,
+                    completedSteps: completedSteps as MissionStepType[],
                     completedCount,
                     activeStep: activeStepInfo,
                     isCreatorAction,

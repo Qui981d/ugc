@@ -29,16 +29,6 @@ import {
 import { createClient } from '@/lib/supabase/client'
 import { getMissionSteps, completeMissionStep } from '@/lib/services/adminService'
 import type { Campaign, MissionStep, MissionStepType } from '@/types/database'
-import dynamic from 'next/dynamic'
-
-const VideoEditor = dynamic(() => import('@/components/studio/VideoEditor'), {
-    ssr: false,
-    loading: () => (
-        <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-6 h-6 animate-spin text-[#C4F042]" />
-        </div>
-    ),
-})
 
 // Default checklist items for a new production
 const DEFAULT_CHECKLIST = [
@@ -71,7 +61,6 @@ export default function CreatorStudioPage() {
     const [checklist, setChecklist] = useState<{ text: string; done: boolean }[]>([])
     const [newCheckItem, setNewCheckItem] = useState('')
 
-    // Video upload
     const [videoFile, setVideoFile] = useState<File | null>(null)
     const [videoUploading, setVideoUploading] = useState(false)
     const [uploadProgress, setUploadProgress] = useState(0)
@@ -79,14 +68,12 @@ export default function CreatorStudioPage() {
     const [fileError, setFileError] = useState<string | null>(null)
     const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null)
     const [videoDuration, setVideoDuration] = useState<number | null>(null)
-    const [showEditor, setShowEditor] = useState(false)
 
     const MAX_FILE_SIZE = 500 * 1024 * 1024 // 500 MB
     const ACCEPTED_FORMATS = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm', 'video/mov']
 
     const validateAndSetVideo = (file: File) => {
         setFileError(null)
-        setShowEditor(false)
 
         // Check format
         const isVideoExt = /\.(mp4|mov|avi|webm)$/i.test(file.name)
@@ -226,21 +213,25 @@ export default function CreatorStudioPage() {
         saveChecklist(updated)
     }
 
-    // ---- VIDEO EXPORT FROM EDITOR ----
-    const handleEditorExport = async (blob: Blob) => {
+    // ---- DIRECT VIDEO UPLOAD ----
+    const handleDirectUpload = async () => {
+        if (!videoFile) return
         setVideoUploading(true)
         setUploadProgress(10)
         const supabase = createClient()
-        const filePath = `missions/${campaignId}/${Date.now()}.mp4`
+        const ext = videoFile.name.split('.').pop() || 'mp4'
+        const filePath = `missions/${campaignId}/${Date.now()}.${ext}`
 
         setUploadProgress(30)
         const { error: uploadError } = await supabase.storage
             .from('videos')
-            .upload(filePath, blob, { cacheControl: '3600', upsert: true, contentType: 'video/mp4' })
+            .upload(filePath, videoFile, { cacheControl: '3600', upsert: true, contentType: videoFile.type || 'video/mp4' })
 
         if (uploadError) {
             console.error('Upload error:', uploadError)
+            setFileError('Erreur lors de l\'upload. Réessayez.')
             setVideoUploading(false)
+            setUploadProgress(0)
             return
         }
 
@@ -248,12 +239,33 @@ export default function CreatorStudioPage() {
         const { data: urlData } = supabase.storage.from('videos').getPublicUrl(filePath)
         const videoUrl = urlData?.publicUrl || ''
 
+        // Update the specific content block with the video URL
+        if (contentData?.id) {
+            await (supabase.from('campaign_contents') as ReturnType<typeof supabase.from>)
+                .update({ video_url: videoUrl, status: 'uploaded' })
+                .eq('id', contentData.id)
+        }
+
+        // Also update campaign-level video_url (backward compat for single-video campaigns)
         await (supabase.from('campaigns') as ReturnType<typeof supabase.from>)
             .update({ video_url: videoUrl, video_uploaded_at: new Date().toISOString(), mosh_qc_feedback: null })
             .eq('id', campaignId)
 
         setUploadProgress(90)
-        await completeMissionStep(campaignId, 'video_uploaded_by_creator')
+
+        // Check if ALL content blocks for this campaign have been uploaded
+        const { data: allContents } = await supabase
+            .from('campaign_contents')
+            .select('id, status, video_url')
+            .eq('campaign_id', campaignId)
+
+        const allUploaded = allContents && allContents.length > 0
+            ? allContents.every((c: any) => c.video_url || c.status === 'uploaded' || c.status === 'qc_approved' || c.status === 'sent_to_brand' || c.status === 'brand_approved')
+            : true // If no content blocks exist, treat as single-video campaign
+
+        if (allUploaded) {
+            await completeMissionStep(campaignId, 'video_uploaded_by_creator')
+        }
 
         // Auto-add video to creator's portfolio
         const { data: { user: currentUser } } = await supabase.auth.getUser()
@@ -272,9 +284,12 @@ export default function CreatorStudioPage() {
         }
 
         setUploadProgress(100)
-        setActionSuccess('Vidéo montée et livrée avec succès !')
+        setActionSuccess('Vidéo livrée avec succès !')
         setTimeout(() => setActionSuccess(null), 3000)
         setVideoFile(null)
+        if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl)
+        setVideoPreviewUrl(null)
+        setVideoDuration(null)
         setVideoUploading(false)
         setUploadProgress(0)
         await loadData()
@@ -397,17 +412,9 @@ export default function CreatorStudioPage() {
                                 </div>
                             </div>
                         ) : isStepCompleted('contract_signed') ? (
-                            /* Editor or Drop zone */
+                            /* Video preview + direct upload */
                             <>
-                                {videoFile && showEditor ? (
-                                    /* ===== VIDEO EDITOR ===== */
-                                    <VideoEditor
-                                        file={videoFile}
-                                        onExport={handleEditorExport}
-                                        onCancel={() => { setShowEditor(false); setVideoFile(null); if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl); setVideoPreviewUrl(null); setVideoDuration(null) }}
-                                    />
-                                ) : videoFile && videoPreviewUrl ? (
-                                    /* ===== VIDEO PREVIEW (before editor) ===== */
+                                {videoFile && videoPreviewUrl ? (
                                     <div className="space-y-4">
                                         <video src={videoPreviewUrl} controls className="w-full rounded-xl bg-black max-h-[350px]" />
                                         <div className="flex flex-wrap items-center gap-3 text-xs text-[#71717A]">
@@ -417,22 +424,32 @@ export default function CreatorStudioPage() {
                                         </div>
                                         <div className="flex gap-3">
                                             <button
-                                                onClick={() => setShowEditor(true)}
-                                                className="flex-1 py-2.5 bg-[#18181B] text-[#C4F042] rounded-xl text-sm font-medium hover:bg-[#18181B]/90 transition-colors flex items-center justify-center gap-2"
+                                                onClick={handleDirectUpload}
+                                                disabled={videoUploading}
+                                                className="flex-1 py-2.5 bg-[#18181B] text-[#C4F042] rounded-xl text-sm font-medium hover:bg-[#18181B]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                                             >
-                                                <Film className="w-4 h-4" />
-                                                Ouvrir l&apos;éditeur
+                                                {videoUploading ? (
+                                                    <><Loader2 className="w-4 h-4 animate-spin" /> Upload en cours ({uploadProgress}%)...</>
+                                                ) : (
+                                                    <><Upload className="w-4 h-4" /> Livrer cette vidéo</>
+                                                )}
                                             </button>
                                             <button
                                                 onClick={() => { setVideoFile(null); if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl); setVideoPreviewUrl(null); setVideoDuration(null) }}
-                                                className="px-4 py-2.5 bg-[#F4F3EF] text-[#18181B] rounded-xl text-sm hover:bg-[#E5E7EB] transition-colors"
+                                                disabled={videoUploading}
+                                                className="px-4 py-2.5 bg-[#F4F3EF] text-[#18181B] rounded-xl text-sm hover:bg-[#E5E7EB] transition-colors disabled:opacity-50"
                                             >
                                                 Changer
                                             </button>
                                         </div>
+                                        {videoUploading && (
+                                            <div className="w-full bg-[#F4F3EF] rounded-full h-2">
+                                                <div className="bg-[#C4F042] h-2 rounded-full transition-all" style={{ width: `${uploadProgress}%` }} />
+                                            </div>
+                                        )}
                                     </div>
                                 ) : (
-                                    /* Drop zone to load video into editor */
+                                    /* Drop zone */
                                     <div>
                                         <div
                                             onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}

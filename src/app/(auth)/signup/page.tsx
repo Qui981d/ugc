@@ -161,10 +161,16 @@ function SignupForm() {
                                     value={brandForm.uidNumber}
                                     onChange={(e) => setBrandForm({ ...brandForm, uidNumber: e.target.value })}
                                     placeholder="CHE-123.456.789"
-                                    className={inputClass}
+                                    className={`${inputClass} ${brandForm.uidNumber && !/^CHE-\d{3}\.\d{3}\.\d{3}$/.test(brandForm.uidNumber) ? 'border-red-300 focus:border-red-300 focus:ring-red-200' : brandForm.uidNumber ? 'border-green-300 focus:border-green-300 focus:ring-green-200' : ''}`}
                                 />
-                                <p className="text-xs text-gray-400">
-                                    Format: CHE-xxx.xxx.xxx
+                                <p className={`text-xs flex items-center gap-1 ${brandForm.uidNumber && !/^CHE-\d{3}\.\d{3}\.\d{3}$/.test(brandForm.uidNumber) ? 'text-red-500' : brandForm.uidNumber ? 'text-green-600' : 'text-gray-400'}`}>
+                                    {brandForm.uidNumber && /^CHE-\d{3}\.\d{3}\.\d{3}$/.test(brandForm.uidNumber) ? (
+                                        <><CheckCircle2 className="w-3 h-3" /> Format IDE valide</>
+                                    ) : brandForm.uidNumber ? (
+                                        <><AlertCircle className="w-3 h-3" /> Format attendu : CHE-xxx.xxx.xxx</>
+                                    ) : (
+                                        'Format: CHE-xxx.xxx.xxx'
+                                    )}
                                 </p>
                             </div>
 

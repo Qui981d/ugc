@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { toast } from 'sonner'
@@ -146,6 +146,46 @@ export default function NewCampaignPage() {
     const [acceptedTerms, setAcceptedTerms] = useState(false)
 
     const [isSubmitting, setIsSubmitting] = useState(false)
+
+    // ── Draft persistence (localStorage) ──
+    const DRAFT_KEY = 'mosh_campaign_draft'
+
+    // Restore draft on mount
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem(DRAFT_KEY)
+            if (saved) {
+                const draft = JSON.parse(saved)
+                if (draft.campaign) setCampaign(draft.campaign)
+                if (draft.contentBlocks) setContentBlocks(draft.contentBlocks)
+                if (draft.creatorPreference) setCreatorPreference(draft.creatorPreference)
+                if (draft.selectedPlan) setSelectedPlan(draft.selectedPlan)
+                if (draft.selectedSpecialties) setSelectedSpecialties(draft.selectedSpecialties)
+                if (draft.step) setStep(draft.step)
+            }
+        } catch { /* ignore parse errors */ }
+    }, [])
+
+    // Save draft on changes (skip if submitting or empty)
+    useEffect(() => {
+        if (isSubmitting) return
+        if (!campaign.title && !campaign.productName && !campaign.description) return
+        const draft = { campaign, contentBlocks, creatorPreference, selectedPlan, selectedSpecialties, step }
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
+    }, [campaign, contentBlocks, creatorPreference, selectedPlan, selectedSpecialties, step, isSubmitting])
+
+    // Warn on leave if draft exists
+    useEffect(() => {
+        const handler = (e: BeforeUnloadEvent) => {
+            if (campaign.title || campaign.productName) {
+                e.preventDefault()
+            }
+        }
+        window.addEventListener('beforeunload', handler)
+        return () => window.removeEventListener('beforeunload', handler)
+    }, [campaign.title, campaign.productName])
+
+    const clearDraft = () => localStorage.removeItem(DRAFT_KEY)
 
     // Generate quote number
     const generateQuoteNumber = useCallback(() => {
@@ -293,6 +333,7 @@ export default function NewCampaignPage() {
             toast.success('Campagne créée avec succès ! 🎉', {
                 description: `${contentBlocks.length} contenu${contentBlocks.length > 1 ? 's' : ''} ajouté${contentBlocks.length > 1 ? 's' : ''}. MOSH va analyser votre demande.`,
             })
+            clearDraft()
             setIsSubmitting(false)
             router.push('/brand/campaigns')
         } catch (err) {

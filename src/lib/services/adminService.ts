@@ -519,13 +519,15 @@ export async function completeMissionStep(
  */
 export async function sendMissionToCreator(
     campaignId: string,
-    creatorAmountChf?: number
+    creatorAmountChf?: number,
+    /** Per-creator amounts for multi-creator campaigns: { creatorId: amount } */
+    perCreatorAmounts?: Record<string, number>
 ): Promise<{ success: boolean; error?: string }> {
     const supabase = createClient()
 
     const { data: campData } = await supabase
         .from('campaigns')
-        .select('title, selected_creator_id, contract_mosh_status')
+        .select('title, selected_creator_id, contract_mosh_status, creator_preference')
         .eq('id', campaignId)
         .single()
     const camp = campData as any
@@ -547,32 +549,62 @@ export async function sendMissionToCreator(
 
     if (creatorIds.length === 0) return { success: false, error: 'No creator assigned' }
 
-    // Generate contract — BLOCKING: if this fails, do NOT send the mission
-    const hasContract = camp.contract_mosh_status && camp.contract_mosh_status !== 'none'
-    if (!hasContract && creatorAmountChf && creatorAmountChf > 0) {
-        const { createMoshContract } = await import('@/lib/services/contractService')
-        const contractResult = await createMoshContract(campaignId, creatorAmountChf)
-        if (!contractResult.success) {
-            return { success: false, error: contractResult.error || 'Échec de la génération du contrat' }
+    const isMultiCreator = !camp.selected_creator_id && creatorIds.length >= 1 && camp.creator_preference === 'per_video'
+
+    if (isMultiCreator && perCreatorAmounts) {
+        // ── Multi-creator: generate individual contracts ──
+        const { createMoshContractForCreator } = await import('@/lib/services/contractService')
+        for (const cId of creatorIds) {
+            const amount = perCreatorAmounts[cId]
+            if (!amount || amount <= 0) {
+                return { success: false, error: `Montant manquant pour un créateur` }
+            }
+            const contractResult = await createMoshContractForCreator(campaignId, cId, amount)
+            if (!contractResult.success) {
+                return { success: false, error: contractResult.error || 'Échec du contrat' }
+            }
+        }
+        // Also update campaign-level total
+        const totalAmount = Object.values(perCreatorAmounts).reduce((sum, a) => sum + a, 0)
+        await (supabase.from('campaigns') as ReturnType<typeof supabase.from>)
+            .update({
+                creator_amount_chf: totalAmount,
+                contract_mosh_status: 'pending_creator',
+                contract_mosh_generated_at: new Date().toISOString(),
+            })
+            .eq('id', campaignId)
+    } else {
+        // ── Single creator: campaign-level contract (existing behavior) ──
+        const hasContract = camp.contract_mosh_status && camp.contract_mosh_status !== 'none'
+        if (!hasContract && creatorAmountChf && creatorAmountChf > 0) {
+            const { createMoshContract } = await import('@/lib/services/contractService')
+            const contractResult = await createMoshContract(campaignId, creatorAmountChf)
+            if (!contractResult.success) {
+                return { success: false, error: contractResult.error || 'Échec de la génération du contrat' }
+            }
         }
     }
 
-    // ALWAYS record all prerequisite steps (fill gaps in the pipeline)
+    // ── Guard: script must be approved before sending mission ──
+    // Check existing steps FIRST
+    const { data: existingSteps } = await supabase
+        .from('mission_steps')
+        .select('step_type')
+        .eq('campaign_id', campaignId)
+    const existingTypes = new Set((existingSteps || []).map((s: any) => s.step_type))
+
+    if (!existingTypes.has('script_brand_approved')) {
+        return { success: false, error: 'Le script doit être approuvé par la marque avant d\'envoyer la mission au créateur' }
+    }
+
+    // Record prerequisite steps (fill gaps — but NOT script_brand_approved, it must exist naturally)
     const prerequisiteSteps: MissionStepType[] = [
         'brief_received',
         'creators_proposed',
         'creator_validated',
         'script_sent',
         'script_brand_review',
-        'script_brand_approved',
     ]
-
-    // Check which steps already exist to avoid re-insert RLS errors
-    const { data: existingSteps } = await supabase
-        .from('mission_steps')
-        .select('step_type')
-        .eq('campaign_id', campaignId)
-    const existingTypes = new Set((existingSteps || []).map((s: any) => s.step_type))
 
     for (const step of prerequisiteSteps) {
         if (!existingTypes.has(step)) {
@@ -1075,3 +1107,101 @@ export async function markInvitationUsed(code: string, userId: string): Promise<
     return { success: !error }
 }
 
+/**
+ * Brand responds to brief feedback from MOSH
+ * Updates the campaign with the brand's response and notifies admins
+ */
+export async function brandRespondToBriefFeedback(
+    campaignId: string,
+    response: string
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+
+    const { data: campData } = await supabase
+        .from('campaigns')
+        .select('title, brand_id, assigned_admin_id')
+        .eq('id', campaignId)
+        .single()
+    const camp = campData as any
+    if (!camp) return { success: false, error: 'Campaign not found' }
+
+    // Store the brand's response alongside the original feedback (don't clear it)
+    const { error } = await (supabase
+        .from('campaigns') as ReturnType<typeof supabase.from>)
+        .update({
+            brief_brand_response: response,
+            status: 'draft',
+        })
+        .eq('id', campaignId)
+
+    if (error) return { success: false, error: error.message }
+
+    // Get brand name for notification
+    const { data: brandData } = await supabase
+        .from('users')
+        .select('full_name')
+        .eq('id', camp.brand_id)
+        .single()
+    const brandName = (brandData as any)?.full_name || 'La marque'
+
+    // Notify admin that brand responded
+    if (camp.assigned_admin_id) {
+        const { createNotification } = await import('@/lib/services/notificationService')
+        await createNotification(
+            camp.assigned_admin_id,
+            'new_application',
+            'Réponse brief reçue 📋',
+            `${brandName} a répondu aux demandes de précisions sur "${camp.title}"`,
+            campaignId,
+            'campaign'
+        )
+    }
+
+    return { success: true }
+}
+
+/**
+ * Handle QC revision — migrated from inline Supabase calls in the mission detail component
+ * Resets video status and notifies the creator about revisions needed
+ */
+export async function handleQcRevision(
+    campaignId: string,
+    feedback: string,
+    contentId?: string,
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+
+    if (contentId) {
+        // Content-level QC revision
+        const { error } = await (supabase
+            .from('campaign_contents') as ReturnType<typeof supabase.from>)
+            .update({
+                mosh_qc_feedback: feedback,
+                mosh_qc_approved_at: null,
+                status: 'uploaded',
+            })
+            .eq('id', contentId)
+
+        if (error) return { success: false, error: error.message }
+    } else {
+        // Campaign-level QC revision
+        const { error } = await (supabase
+            .from('campaigns') as ReturnType<typeof supabase.from>)
+            .update({
+                mosh_qc_feedback: feedback,
+                mosh_qc_approved_at: null,
+            })
+            .eq('id', campaignId)
+
+        if (error) return { success: false, error: error.message }
+
+        // Remove video_validated step so creator can re-upload
+        await (supabase
+            .from('mission_steps') as ReturnType<typeof supabase.from>)
+            .delete()
+            .eq('campaign_id', campaignId)
+            .eq('step_type', 'video_validated')
+    }
+
+    return { success: true }
+}

@@ -51,6 +51,7 @@ const creatorMoreItems: NavItem[] = [
 const adminItems: NavItem[] = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/mosh-cockpit" },
     { icon: ClipboardList, label: "Missions", href: "/mosh-cockpit/missions" },
+    { icon: MessageSquare, label: "Messages", href: "/mosh-cockpit/messages", notifKey: 'messages' },
     { icon: Building2, label: "Marques", href: "/mosh-cockpit/brands" },
     { icon: Users, label: "Créateurs", href: "/mosh-cockpit/creators" },
 ]

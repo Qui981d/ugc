@@ -15,6 +15,7 @@ import {
     Megaphone,
     XCircle,
     ArrowRight,
+    Search,
 } from "lucide-react"
 import Link from "next/link"
 import { formatCHF } from "@/lib/validations/swiss"
@@ -31,6 +32,7 @@ export default function BrandCampaignsPage() {
     const [isDataLoading, setIsDataLoading] = useState(true)
     const [activeTab, setActiveTab] = useState('all')
     const [mounted, setMounted] = useState(false)
+    const [searchQuery, setSearchQuery] = useState('')
 
     useEffect(() => { setMounted(true) }, [])
 
@@ -59,7 +61,9 @@ export default function BrandCampaignsPage() {
         if (activeTab === 'active') return campaign.status === 'draft' || campaign.status === 'open' || campaign.status === 'in_progress'
         if (activeTab === 'completed') return campaign.status === 'completed'
         return true
-    })
+    }).filter(campaign =>
+        !searchQuery.trim() || campaign.title.toLowerCase().includes(searchQuery.toLowerCase())
+    )
 
     if (!mounted || (!user && isLoading) || isDataLoading) {
         return (
@@ -102,6 +106,18 @@ export default function BrandCampaignsPage() {
                         </span>
                     </button>
                 ))}
+            </div>
+
+            {/* Search */}
+            <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A1A1AA]" strokeWidth={1.5} />
+                <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Rechercher une campagne..."
+                    className="w-full bg-[#F4F3EF] border border-transparent rounded-full pl-10 pr-4 py-2.5 text-sm text-[#18181B] focus:outline-none focus:border-[#C4F042] focus:ring-1 focus:ring-[#C4F042]/25 placeholder:text-[#A1A1AA]"
+                />
             </div>
 
             {/* Campaigns List */}

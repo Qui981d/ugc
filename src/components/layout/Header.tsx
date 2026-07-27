@@ -114,6 +114,7 @@ export function Header() {
                 {/* Right Side */}
                 <div className="flex items-center gap-3">
                     {/* Notifications */}
+                    {mounted ? (
                     <DropdownMenu onOpenChange={(open) => open && loadNotifications()}>
                         <DropdownMenuTrigger asChild>
                             <Button
@@ -196,8 +197,14 @@ export function Header() {
                             )}
                         </DropdownMenuContent>
                     </DropdownMenu>
+                    ) : (
+                        <div className="w-10 h-10 flex items-center justify-center text-[#8A8A82]">
+                            <Bell className="h-5 w-5" strokeWidth={1.5} />
+                        </div>
+                    )}
 
                     {/* User Menu */}
+                    {mounted ? (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
@@ -205,7 +212,7 @@ export function Header() {
                                 className="flex items-center gap-3 px-3 hover:bg-[#D9D7D0]/50 rounded-xl"
                             >
                                 <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
-                                    {mounted && user?.avatar_url ? (
+                                    {user?.avatar_url ? (
                                         <Image
                                             src={user.avatar_url}
                                             alt="Avatar"
@@ -217,9 +224,9 @@ export function Header() {
                                         <User className="h-4 w-4 text-gray-500" />
                                     )}
                                 </div>
-                                <div className="hidden md:block text-left" suppressHydrationWarning>
-                                    <p className="text-sm font-medium text-[#3A3A38]" suppressHydrationWarning>
-                                        {mounted ? (user?.role === 'admin' ? 'Mosh' : user?.full_name || 'Mon Compte') : 'Mon Compte'}
+                                <div className="hidden md:block text-left">
+                                    <p className="text-sm font-medium text-[#3A3A38]">
+                                        {user?.role === 'admin' ? 'Mosh' : user?.full_name || 'Mon Compte'}
                                     </p>
                                 </div>
                             </Button>
@@ -229,14 +236,14 @@ export function Header() {
                             className="w-56 bg-white border-gray-200 shadow-lg"
                         >
                             <div className="px-2 py-2">
-                                <p className="text-sm font-medium text-gray-900" suppressHydrationWarning>
-                                    {mounted ? (user?.role === 'admin' ? 'Mosh' : user?.full_name || 'Mon compte') : 'Mon compte'}
+                                <p className="text-sm font-medium text-gray-900">
+                                    {user?.role === 'admin' ? 'Mosh' : user?.full_name || 'Mon compte'}
                                 </p>
-                                <p className="text-xs text-gray-500 mt-0.5" suppressHydrationWarning>
-                                    {mounted ? (user?.email || '') : ''}
+                                <p className="text-xs text-gray-500 mt-0.5">
+                                    {user?.email || ''}
                                 </p>
-                                <span className="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-full bg-[#18181B]/5 text-[#71717A]" suppressHydrationWarning>
-                                    {mounted ? (user?.role === 'admin' ? 'Admin' : user?.role === 'brand' ? 'Marque' : 'Créateur') : ''}
+                                <span className="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-full bg-[#18181B]/5 text-[#71717A]">
+                                    {user?.role === 'admin' ? 'Admin' : user?.role === 'brand' ? 'Marque' : 'Créateur'}
                                 </span>
                             </div>
                             <DropdownMenuSeparator className="bg-gray-200" />
@@ -259,6 +266,11 @@ export function Header() {
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
+                    ) : (
+                        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                            <User className="h-4 w-4 text-gray-500" />
+                        </div>
+                    )}
                 </div>
             </div>
         </header>

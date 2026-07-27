@@ -8,8 +8,9 @@ import { Calendar, Clock, CheckCircle2, Upload, ChevronRight, Wallet, Loader2, B
 import Link from "next/link"
 import { formatCHF } from "@/lib/validations/swiss"
 import { useAuth } from "@/contexts/AuthContext"
-import { getAssignedCampaigns } from "@/lib/services/campaignService"
+import { createClient } from "@/lib/supabase/client"
 import { getStatusConfig } from "@/lib/constants/statusConfig"
+import { CreatorOnboarding } from "@/components/onboarding/CreatorOnboarding"
 
 
 
@@ -27,25 +28,104 @@ export default function CreatorDashboardPage() {
     const [missions, setMissions] = useState<MissionDisplay[]>([])
     const [isDataLoading, setIsDataLoading] = useState(false)
     const [mounted, setMounted] = useState(false)
+    const [needsOnboarding, setNeedsOnboarding] = useState<boolean | null>(null)
 
     useEffect(() => { setMounted(true) }, [])
 
     const userId = user?.id
+
+    // Check if profile is complete (onboarding needed?)
+    useEffect(() => {
+        if (!userId) return
+        async function checkProfile() {
+            const supabase = createClient()
+            const { data } = await supabase
+                .from('profiles_creator')
+                .select('bio, specialties')
+                .eq('user_id', userId!)
+                .single()
+            const profile = data as any
+            setNeedsOnboarding(!profile?.bio || !profile?.specialties || profile.specialties.length === 0)
+        }
+        checkProfile()
+    }, [userId])
 
     useEffect(() => {
         if (!userId) return
 
         async function loadData() {
             setIsDataLoading(true)
-            const campaigns = await getAssignedCampaigns()
-            const displayMissions: MissionDisplay[] = campaigns.map((c: any) => ({
-                id: c.id,
-                title: c.title || 'Sans titre',
-                brand: c.brand?.full_name || c.brand?.profiles_brand?.company_name || 'Marque',
-                status: c.status,
-                deadline: c.deadline,
-                budget: c.budget_chf || 0,
-            }))
+            const supabase = createClient()
+
+            // 1) Campaigns assigned at campaign level — include brand name via join
+            const { data: directCampaigns } = await (supabase as any)
+                .from('campaigns')
+                .select('id, title, budget_chf, creator_amount_chf, deadline, status, brand_id, brand:users!brand_id(full_name)')
+                .eq('selected_creator_id', userId!)
+                .order('created_at', { ascending: false })
+
+            // 2) Campaigns assigned at content level (multi-content)
+            const { data: contentAssignments } = await (supabase as any)
+                .from('campaign_contents')
+                .select('campaign_id')
+                .eq('assigned_creator_id', userId!)
+
+            const contentCampaignIds = [...new Set((contentAssignments || []).map((ca: any) => ca.campaign_id))] as string[]
+            const directIds = (directCampaigns || []).map((c: any) => c.id)
+            const missingIds = contentCampaignIds.filter(id => !directIds.includes(id))
+
+            let contentCampaigns: any[] = []
+            if (missingIds.length > 0) {
+                const { data } = await (supabase as any)
+                    .from('campaigns')
+                    .select('id, title, budget_chf, creator_amount_chf, deadline, status, brand_id, brand:users!brand_id(full_name)')
+                    .in('id', missingIds)
+                    .order('created_at', { ascending: false })
+                contentCampaigns = data || []
+            }
+
+            const allCampaigns = [...(directCampaigns || []), ...contentCampaigns]
+
+            if (allCampaigns.length === 0) {
+                setMissions([])
+                setIsDataLoading(false)
+                return
+            }
+
+            // BATCH: Fetch all mission_steps in one query instead of N+1
+            const campaignIds = allCampaigns.map((c: any) => c.id)
+            const { data: allSteps } = await supabase
+                .from('mission_steps')
+                .select('campaign_id, step_type')
+                .in('campaign_id', campaignIds)
+
+            // Group steps by campaign_id
+            const stepsByCampaign = new Map<string, string[]>()
+            for (const step of (allSteps || []) as any[]) {
+                const existing = stepsByCampaign.get(step.campaign_id) || []
+                existing.push(step.step_type)
+                stepsByCampaign.set(step.campaign_id, existing)
+            }
+
+            // Filter: only show missions that Mosh has sent to the creator
+            const displayMissions: MissionDisplay[] = []
+            for (const camp of allCampaigns) {
+                const completedSteps = stepsByCampaign.get(camp.id) || []
+                if (!completedSteps.includes('mission_sent_to_creator')) continue
+
+                // Brand name comes from the join — no extra query needed
+                const brandName = camp.brand?.full_name || 'Marque'
+
+                displayMissions.push({
+                    id: camp.id,
+                    title: camp.title || 'Sans titre',
+                    brand: brandName,
+                    status: camp.status,
+                    deadline: camp.deadline,
+                    budget: camp.creator_amount_chf || camp.budget_chf || 0,
+                })
+            }
+
             setMissions(displayMissions)
             setIsDataLoading(false)
         }
@@ -53,22 +133,38 @@ export default function CreatorDashboardPage() {
         loadData()
     }, [userId])
 
-    const nextDeadline = missions
-        .filter(m => m.status === 'in_progress' && m.deadline)
+    // "Active" = anything not finished/cancelled — mirror the /creator/missions page,
+    // which counts by (status !== 'completed'). Campaign.status often stays 'draft'
+    // while progress is tracked via mission_steps, so filtering on 'in_progress'/'open'
+    // wrongly showed 0 here even when a mission was live.
+    const activeMissions = missions.filter(m => m.status !== 'completed' && m.status !== 'cancelled')
+
+    const nextDeadline = activeMissions
+        .filter(m => m.deadline)
         .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime())[0]
 
     const stats = [
-        { label: "Missions actives", value: String(missions.filter(m => m.status === 'in_progress').length), icon: Clock, change: "En cours" },
+        { label: "Missions actives", value: String(activeMissions.length), icon: Clock, change: "En cours" },
         { label: "Missions terminées", value: String(missions.filter(m => m.status === 'completed').length), icon: CheckCircle2, change: "Total" },
-        { label: "Revenus estimés", value: formatCHF(missions.filter(m => m.status !== 'completed').reduce((sum, m) => sum + m.budget, 0)), icon: Wallet, change: "À venir" },
+        { label: "Revenus estimés", value: formatCHF(activeMissions.reduce((sum, m) => sum + m.budget, 0)), icon: Wallet, change: "À venir" },
         { label: "Prochaine deadline", value: nextDeadline?.deadline ? new Date(nextDeadline.deadline).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short' }) : '—', icon: Calendar, change: nextDeadline?.title || 'Aucune' },
     ]
 
-    if (!mounted || (!user && isLoading)) {
+    if (!mounted || (!user && isLoading) || needsOnboarding === null) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
                 <Loader2 className="w-8 h-8 animate-spin text-[#A1A1AA]" />
             </div>
+        )
+    }
+
+    if (needsOnboarding) {
+        return (
+            <CreatorOnboarding
+                userId={userId!}
+                userName={user?.full_name || 'Créateur'}
+                onComplete={() => setNeedsOnboarding(false)}
+            />
         )
     }
 
