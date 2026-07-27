@@ -571,6 +571,35 @@ export function subscribeToNotifications(
 }
 
 /**
+ * Notify all admin users when a creator delivers a video (ready for QC)
+ */
+export async function notifyAdminVideoDelivered(
+    campaignId: string,
+    campaignTitle: string,
+    creatorName?: string
+): Promise<boolean> {
+    const supabase = createClient()
+    const { data: admins } = await supabase
+        .from('users')
+        .select('id')
+        .eq('role', 'admin')
+
+    if (!admins || admins.length === 0) return false
+
+    for (const admin of admins) {
+        await createNotification(
+            (admin as any).id,
+            'deliverable_submitted',
+            'Vidéo livrée — QC à faire 🎬',
+            `${creatorName ? `${creatorName} a livré` : 'Une vidéo a été livrée'} pour "${campaignTitle}". À vérifier (QC).`,
+            campaignId,
+            'campaign'
+        )
+    }
+    return true
+}
+
+/**
  * Notify all admin users when a new brief is submitted by a brand
  */
 export async function notifyAdminNewBrief(

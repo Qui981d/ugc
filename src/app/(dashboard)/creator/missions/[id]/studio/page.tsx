@@ -134,7 +134,7 @@ export default function CreatorStudioPage() {
                 .from('campaign_contents')
                 .select('*')
                 .eq('campaign_id', campaignId)
-                .order('order_index', { ascending: true })
+                .order('position', { ascending: true })
                 .limit(1)
             if (contents && contents.length > 0) setContentData(contents[0])
         }
@@ -239,17 +239,34 @@ export default function CreatorStudioPage() {
         const { data: urlData } = supabase.storage.from('videos').getPublicUrl(filePath)
         const videoUrl = urlData?.publicUrl || ''
 
-        // Update the specific content block with the video URL
+        // Update the specific content block with the video URL.
+        // Surface RLS/write errors instead of silently "succeeding" (past bug:
+        // creators lacked an UPDATE policy on campaign_contents, so delivery
+        // was rejected in silence and MOSH never saw the video).
         if (contentData?.id) {
-            await (supabase.from('campaign_contents') as ReturnType<typeof supabase.from>)
+            const { error: contentErr } = await (supabase.from('campaign_contents') as ReturnType<typeof supabase.from>)
                 .update({ video_url: videoUrl, status: 'uploaded' })
                 .eq('id', contentData.id)
+            if (contentErr) {
+                console.error('campaign_contents update error:', contentErr)
+                setFileError("La vidéo a été envoyée mais n'a pas pu être enregistrée (droits insuffisants). Contactez MOSH — le fichier n'est pas perdu.")
+                setVideoUploading(false)
+                setUploadProgress(0)
+                return
+            }
         }
 
         // Also update campaign-level video_url (backward compat for single-video campaigns)
-        await (supabase.from('campaigns') as ReturnType<typeof supabase.from>)
+        const { error: campErr } = await (supabase.from('campaigns') as ReturnType<typeof supabase.from>)
             .update({ video_url: videoUrl, video_uploaded_at: new Date().toISOString(), mosh_qc_feedback: null })
             .eq('id', campaignId)
+        if (campErr) {
+            console.error('campaign update error:', campErr)
+            setFileError("La vidéo a été envoyée mais n'a pas pu être enregistrée (droits insuffisants). Contactez MOSH — le fichier n'est pas perdu.")
+            setVideoUploading(false)
+            setUploadProgress(0)
+            return
+        }
 
         setUploadProgress(90)
 
@@ -264,7 +281,15 @@ export default function CreatorStudioPage() {
             : true // If no content blocks exist, treat as single-video campaign
 
         if (allUploaded) {
-            await completeMissionStep(campaignId, 'video_uploaded_by_creator')
+            const stepRes = await completeMissionStep(campaignId, 'video_uploaded_by_creator')
+            if (!stepRes.success) {
+                console.error('completeMissionStep error:', stepRes.error)
+                setFileError("La vidéo est enregistrée mais l'étape n'a pas pu être marquée comme livrée (droits insuffisants). Contactez MOSH.")
+                setVideoUploading(false)
+                setUploadProgress(0)
+                await loadData()
+                return
+            }
         }
 
         // Auto-add video to creator's portfolio

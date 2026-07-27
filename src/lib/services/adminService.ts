@@ -24,6 +24,7 @@ import {
     notifyScriptFeedback,
     notifyBrandFinalApproval,
     notifyBrandRevisionRequest,
+    notifyAdminVideoDelivered,
 } from '@/lib/services/notificationService'
 
 // ================================================
@@ -502,6 +503,21 @@ export async function completeMissionStep(
                 completed_by: user?.id || null,
                 completed_at: new Date().toISOString(),
             }, { onConflict: 'campaign_id,step_type' })
+    }
+
+    // Notify MOSH admins when a creator delivers their video (ready for QC)
+    if (stepType === 'video_uploaded_by_creator') {
+        const { data: campDelivered } = await supabase
+            .from('campaigns')
+            .select('title')
+            .eq('id', campaignId)
+            .single()
+        const creatorName = user?.user_metadata?.full_name as string | undefined
+        await notifyAdminVideoDelivered(
+            campaignId,
+            (campDelivered as any)?.title || 'Une mission',
+            creatorName
+        )
     }
 
     return { success: true }
