@@ -12,7 +12,7 @@ import { DashboardErrorBoundary } from '@/components/ui/error-boundary'
 export default function AdminDashboardLayout({ children }: { children: ReactNode }) {
     const { user, isLoading } = useAuth()
     const router = useRouter()
-    const [sidebarExpanded, setSidebarExpanded] = useState(false)
+    const [sidebarExpanded, setSidebarExpanded] = useState(true)
 
     useEffect(() => {
         if (!isLoading && user && user.role !== 'admin') {
@@ -45,8 +45,8 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
             </div>
             <style>{`
                 @media (min-width: 768px) {
-                    [data-sidebar-expanded="false"] { margin-left: 82px; }
-                    [data-sidebar-expanded="true"] { margin-left: 218px; }
+                    [data-sidebar-expanded="false"] { margin-left: 60px; }
+                    [data-sidebar-expanded="true"] { margin-left: 240px; }
                 }
             `}</style>
         </NotificationProvider>

@@ -2,8 +2,8 @@
 
 
 import { useState, useEffect, useCallback } from 'react'
-import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
     Search,
     Clock,
@@ -14,7 +14,9 @@ import {
     Users,
     Video,
     Plus,
+    ClipboardList as ClipboardListIcon,
 } from 'lucide-react'
+import { PageHeader, Tabs, StatusPill, EmptyState } from '@/components/ui/workspace'
 import { getAllCampaigns, getMissionSteps, type CampaignWithDetails } from '@/lib/services/adminService'
 import type { CampaignStatus, MissionStep } from '@/types/database'
 import { WORKFLOW_STEPS as CENTRAL_STEPS, isStepCompletedOrPassed } from '@/lib/constants/workflowSteps'
@@ -37,6 +39,7 @@ const FILTER_TABS = [
 ]
 
 export default function AdminMissionsPage() {
+    const router = useRouter()
     const [campaigns, setCampaigns] = useState<CampaignWithDetails[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [activeFilter, setActiveFilter] = useState('all')
@@ -101,132 +104,140 @@ export default function AdminMissionsPage() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto space-y-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold text-[#1C1E21] tracking-tight">Missions</h1>
-                    <p className="text-[#65676B] mt-1">Gérez toutes les missions de la plateforme</p>
-                </div>
-                <Link href="/mosh-cockpit/missions/new"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0866FF] text-white rounded-lg text-sm font-medium hover:bg-[#0653CC] transition-colors shrink-0">
-                    <Plus className="w-4 h-4" strokeWidth={2} />
-                    Créer une mission
-                </Link>
-            </div>
+        <div className="max-w-[1400px] mx-auto">
+            <PageHeader
+                title="Missions"
+                description="Toutes les missions en production sur la plateforme"
+                actions={
+                    <Link href="/mosh-cockpit/missions/new"
+                        className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#0866FF] text-white rounded-lg text-[13px] font-medium hover:bg-[#0653CC] transition-colors">
+                        <Plus className="w-4 h-4" strokeWidth={2.2} />
+                        Créer une mission
+                    </Link>
+                }
+            >
+                <Tabs
+                    tabs={FILTER_TABS.map(t => ({
+                        id: t.key,
+                        label: t.label,
+                        count: t.key === 'all' ? campaigns.length : campaigns.filter(c => c.status === t.key).length,
+                    }))}
+                    active={activeFilter}
+                    onChange={setActiveFilter}
+                />
+            </PageHeader>
 
-            {/* Filter Tabs */}
-            <div className="flex flex-wrap gap-2">
-                {FILTER_TABS.map(tab => (
-                    <button
-                        key={tab.key}
-                        onClick={() => setActiveFilter(tab.key)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeFilter === tab.key
-                            ? 'bg-[#1C1E21] text-white shadow-sm'
-                            : 'bg-white/90 text-[#65676B] hover:text-[#1C1E21] hover:bg-[#F0F2F5] border border-[#DADDE1]'
-                            }`}
-                    >
-                        {tab.label}
-                    </button>
-                ))}
-            </div>
-
-            {/* Search + Sort */}
-            <div className="flex gap-3">
-                <div className="relative flex-1">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A8D91]" strokeWidth={1.5} />
+            {/* Toolbar — filters sit above the surface, not in their own card */}
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+                <div className="relative flex-1 min-w-[220px]">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A8D91]" strokeWidth={1.8} />
                     <input
                         type="text"
-                        placeholder="Rechercher par mission, marque ou créateur..."
+                        placeholder="Rechercher une mission, une marque, un créateur…"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3 bg-[#DADDE1]/50 border border-[#DADDE1] rounded-lg text-sm text-[#1C1E21] placeholder:text-[#8A8D91] focus:outline-none focus:ring-2 focus:ring-[#0866FF]/30 focus:border-[#0866FF]/60 focus:bg-white/60 transition-all"
+                        className="w-full h-9 pl-9 pr-3 bg-white border border-[#DADDE1] rounded-lg text-[13px] text-[#1C1E21] placeholder:text-[#8A8D91] focus:outline-none focus:border-[#0866FF] focus:ring-2 focus:ring-[#0866FF]/20 transition-colors"
                     />
                 </div>
                 <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                    className="px-4 py-3 bg-white/90 border border-[#DADDE1] rounded-lg text-sm text-[#1C1E21] focus:outline-none focus:ring-2 focus:ring-[#0866FF]/30 appearance-none cursor-pointer min-w-[160px]"
+                    className="h-9 px-3 bg-white border border-[#DADDE1] rounded-lg text-[13px] text-[#1C1E21] focus:outline-none focus:border-[#0866FF] cursor-pointer"
                 >
                     <option value="date_desc">Plus récentes</option>
                     <option value="date_asc">Plus anciennes</option>
-                    <option value="budget">Budget (décroissant)</option>
-                    <option value="brand">Marque (A-Z)</option>
+                    <option value="budget">Budget décroissant</option>
+                    <option value="brand">Marque A→Z</option>
                 </select>
+                <span className="text-[12px] text-[#8A8D91] tabular-nums ml-auto">
+                    {filteredCampaigns.length} mission{filteredCampaigns.length > 1 ? 's' : ''}
+                </span>
             </div>
 
-            {/* Missions List */}
-            {isLoading ? (
-                <div className="space-y-3">
-                    {[...Array(4)].map((_, i) => (
-                        <div key={i} className="bg-white rounded-xl border border-[#DADDE1] p-5 animate-pulse">
-                            <div className="h-5 bg-[#F0F2F5] rounded w-1/3 mb-2" />
-                            <div className="h-3 bg-[#F0F2F5] rounded w-2/3" />
-                        </div>
-                    ))}
-                </div>
-            ) : filteredCampaigns.length === 0 ? (
-                <div className="bg-white rounded-xl border border-[#DADDE1] p-12 text-center">
-                    <p className="text-[#65676B] font-medium">Aucune mission trouvée</p>
-                    <p className="text-[#8A8D91] text-sm mt-1">Essayez un autre filtre ou terme de recherche</p>
-                </div>
-            ) : (
-                <div className="space-y-3">
-                    {filteredCampaigns.map((campaign, i) => {
-                        const statusCfg = STATUS_CONFIG[campaign.status] || STATUS_CONFIG.draft
-                        const StatusIcon = statusCfg.icon
-
-                        return (
-                            <motion.div
-                                key={campaign.id}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.03 }}
-                            >
-                                <Link
-                                    href={`/mosh-cockpit/missions/${campaign.id}`}
-                                    className="block bg-white hover:shadow-md border border-[#DADDE1] hover:border-[#0866FF]/30 rounded-xl p-5 transition-all group"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <h3 className="text-[#1C1E21] font-semibold truncate group-hover:text-[#1C1E21] transition-colors">
-                                                    {campaign.title}
-                                                </h3>
-                                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${(() => {
-                                                    const wf = getWorkflowBadge(campaign.id)
-                                                    return wf ? `${wf.bg} ${wf.color}` : `${statusCfg.bg} ${statusCfg.color}`
-                                                })()}`}>
-                                                    {(() => {
-                                                        const wf = getWorkflowBadge(campaign.id)
-                                                        if (wf) {
-                                                            const WfIcon = wf.icon
-                                                            return <><WfIcon className="w-3 h-3" strokeWidth={1.5} />{wf.label}</>
-                                                        }
-                                                        return <><StatusIcon className="w-3 h-3" strokeWidth={1.5} />{statusCfg.label}</>
-                                                    })()}
+            {/* One dense surface — rows, not a stack of cards */}
+            <div className="bg-white border border-[#DADDE1] rounded-xl overflow-hidden">
+                {isLoading ? (
+                    <div className="divide-y divide-[#DADDE1]">
+                        {[...Array(6)].map((_, i) => (
+                            <div key={i} className="flex items-center gap-3 px-4 py-3 animate-pulse">
+                                <div className="h-4 bg-[#F0F2F5] rounded w-1/4" />
+                                <div className="h-4 bg-[#F0F2F5] rounded w-1/6 ml-auto" />
+                            </div>
+                        ))}
+                    </div>
+                ) : filteredCampaigns.length === 0 ? (
+                    <EmptyState
+                        icon={ClipboardListIcon}
+                        title="Aucune mission"
+                        description={searchQuery ? 'Aucun résultat pour cette recherche.' : 'Créez une mission pour la voir apparaître ici.'}
+                        action={
+                            <Link href="/mosh-cockpit/missions/new"
+                                className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#0866FF] text-white rounded-lg text-[13px] font-medium hover:bg-[#0653CC] transition-colors">
+                                <Plus className="w-4 h-4" strokeWidth={2.2} />
+                                Créer une mission
+                            </Link>
+                        }
+                    />
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-[13px]">
+                            <thead>
+                                <tr className="border-b border-[#DADDE1]">
+                                    <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5">Mission</th>
+                                    <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5 hidden md:table-cell">Marque</th>
+                                    <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5 hidden lg:table-cell">Créateur</th>
+                                    <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5">Étape</th>
+                                    <th className="text-right font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5 hidden sm:table-cell">Budget</th>
+                                    <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5 hidden xl:table-cell">Échéance</th>
+                                    <th className="w-8" />
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-[#DADDE1]">
+                                {filteredCampaigns.map((campaign) => {
+                                    const statusCfg = STATUS_CONFIG[campaign.status] || STATUS_CONFIG.draft
+                                    const wf = getWorkflowBadge(campaign.id)
+                                    const brandName = campaign.brand?.profiles_brand?.company_name || campaign.brand?.full_name || '—'
+                                    const tone = campaign.status === 'completed' ? 'done'
+                                        : campaign.status === 'cancelled' ? 'idle'
+                                            : wf ? 'progress' : 'idle'
+                                    return (
+                                        <tr
+                                            key={campaign.id}
+                                            onClick={() => router.push(`/mosh-cockpit/missions/${campaign.id}`)}
+                                            className="hover:bg-[#F7F8FA] cursor-pointer transition-colors group"
+                                        >
+                                            <td className="px-4 py-2.5 max-w-[280px]">
+                                                <span className="block font-medium text-[#1C1E21] truncate">{campaign.title}</span>
+                                                <span className="block text-[12px] text-[#8A8D91] truncate md:hidden">{brandName}</span>
+                                            </td>
+                                            <td className="px-4 py-2.5 text-[#65676B] hidden md:table-cell max-w-[180px]">
+                                                <span className="block truncate">{brandName}</span>
+                                            </td>
+                                            <td className="px-4 py-2.5 text-[#65676B] hidden lg:table-cell max-w-[160px]">
+                                                <span className="block truncate">
+                                                    {campaign.selected_creator?.full_name || <span className="text-[#8A8D91]">Non assigné</span>}
                                                 </span>
-                                            </div>
-                                            <div className="flex items-center gap-4 text-sm text-[#8A8D91]">
-                                                <span>🏢 {campaign.brand?.profiles_brand?.company_name || campaign.brand?.full_name || '—'}</span>
-                                                <span>🎬 {campaign.selected_creator?.full_name || 'Non assigné'}</span>
-                                                {campaign.deadline && (
-                                                    <span className="flex items-center gap-1">
-                                                        <Clock className="w-3 h-3" strokeWidth={1.5} />
-                                                        {new Date(campaign.deadline).toLocaleDateString('fr-CH')}
-                                                    </span>
-                                                )}
-                                                <span>CHF {campaign.budget_chf?.toLocaleString('fr-CH')}</span>
-                                            </div>
-                                        </div>
-                                        <ArrowRight className="w-5 h-5 text-[#BCC0C4] group-hover:text-[#0866FF] group-hover:translate-x-1 transition-all" strokeWidth={1.5} />
-                                    </div>
-                                </Link>
-                            </motion.div>
-                        )
-                    })}
-                </div>
-            )}
+                                            </td>
+                                            <td className="px-4 py-2.5">
+                                                <StatusPill tone={tone}>{wf ? wf.label : statusCfg.label}</StatusPill>
+                                            </td>
+                                            <td className="px-4 py-2.5 text-right tabular-nums text-[#1C1E21] hidden sm:table-cell whitespace-nowrap">
+                                                {campaign.budget_chf ? campaign.budget_chf.toLocaleString('fr-CH') : '—'}
+                                            </td>
+                                            <td className="px-4 py-2.5 text-[#65676B] hidden xl:table-cell whitespace-nowrap tabular-nums">
+                                                {campaign.deadline ? new Date(campaign.deadline).toLocaleDateString('fr-CH') : '—'}
+                                            </td>
+                                            <td className="pr-3">
+                                                <ArrowRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors" strokeWidth={2} />
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
         </div>
     )
 }

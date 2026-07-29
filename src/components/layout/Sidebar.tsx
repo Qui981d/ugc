@@ -1,7 +1,7 @@
 'use client'
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useState } from "react"
 import {
     LayoutDashboard,
@@ -13,12 +13,13 @@ import {
     Upload,
     Building2,
     ClipboardList,
-    PanelLeftClose,
     PanelLeft,
-    MoreHorizontal,
-    Wallet
+    Wallet,
+    ChevronsUpDown,
+    ArrowLeftRight,
 } from "lucide-react"
 import { useNotifications } from "@/contexts/NotificationContext"
+import { useActingBrandStore } from "@/stores/useActingBrandStore"
 
 interface SidebarProps {
     role: 'brand' | 'creator' | 'admin'
@@ -26,189 +27,243 @@ interface SidebarProps {
     onExpandChange?: (expanded: boolean) => void
 }
 
-const brandMenuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", href: "/brand", notifKey: null },
-    { icon: Megaphone, label: "Mes briefs", href: "/brand/campaigns", notifKey: null },
-    { icon: MessageSquare, label: "Messages", href: "/brand/messages", notifKey: 'messages' as const },
-    { icon: Settings, label: "Paramètres", href: "/brand/settings", notifKey: null },
-]
+type NotifKey = 'messages' | 'applications' | 'deliverables' | null
+interface NavItem { icon: typeof LayoutDashboard; label: string; href: string; notifKey: NotifKey }
+interface NavGroup { label: string | null; items: NavItem[] }
 
-const creatorMenuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", href: "/creator", notifKey: null },
-    { icon: Briefcase, label: "Missions", href: "/creator/missions", notifKey: 'applications' as const },
-    { icon: Wallet, label: "Revenus", href: "/creator/earnings", notifKey: null },
-    { icon: Upload, label: "Portfolio", href: "/creator/portfolio", notifKey: null },
-    { icon: MessageSquare, label: "Messages", href: "/creator/messages", notifKey: 'messages' as const },
-    { icon: Settings, label: "Paramètres", href: "/creator/settings", notifKey: null },
-]
+// Nav is grouped so the sidebar reads as a structure, not a flat list of links.
+const NAV: Record<SidebarProps['role'], NavGroup[]> = {
+    brand: [
+        { label: null, items: [{ icon: LayoutDashboard, label: "Vue d'ensemble", href: "/brand", notifKey: null }] },
+        {
+            label: 'Travail', items: [
+                { icon: Megaphone, label: "Briefs", href: "/brand/campaigns", notifKey: null },
+                { icon: MessageSquare, label: "Messages", href: "/brand/messages", notifKey: 'messages' },
+            ]
+        },
+        { label: null, items: [{ icon: Settings, label: "Paramètres", href: "/brand/settings", notifKey: null }] },
+    ],
+    creator: [
+        { label: null, items: [{ icon: LayoutDashboard, label: "Vue d'ensemble", href: "/creator", notifKey: null }] },
+        {
+            label: 'Travail', items: [
+                { icon: Briefcase, label: "Missions", href: "/creator/missions", notifKey: 'applications' },
+                { icon: MessageSquare, label: "Messages", href: "/creator/messages", notifKey: 'messages' },
+            ]
+        },
+        {
+            label: 'Profil', items: [
+                { icon: Wallet, label: "Revenus", href: "/creator/earnings", notifKey: null },
+                { icon: Upload, label: "Portfolio", href: "/creator/portfolio", notifKey: null },
+                { icon: Settings, label: "Paramètres", href: "/creator/settings", notifKey: null },
+            ]
+        },
+    ],
+    admin: [
+        { label: null, items: [{ icon: LayoutDashboard, label: "Vue d'ensemble", href: "/mosh-cockpit", notifKey: null }] },
+        {
+            label: 'Production', items: [
+                { icon: ClipboardList, label: "Missions", href: "/mosh-cockpit/missions", notifKey: 'applications' },
+                { icon: MessageSquare, label: "Messages", href: "/mosh-cockpit/messages", notifKey: 'messages' },
+            ]
+        },
+        {
+            label: 'Répertoire', items: [
+                { icon: Building2, label: "Marques", href: "/mosh-cockpit/brands", notifKey: null },
+                { icon: Users, label: "Créateurs", href: "/mosh-cockpit/creators", notifKey: null },
+            ]
+        },
+    ],
+}
 
-const adminMenuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", href: "/mosh-cockpit", notifKey: null },
-    { icon: ClipboardList, label: "Pipeline", href: "/mosh-cockpit/missions", notifKey: 'applications' as const },
-    { icon: MessageSquare, label: "Messages", href: "/mosh-cockpit/messages", notifKey: 'messages' as const },
-    { icon: Users, label: "Créateurs", href: "/mosh-cockpit/creators", notifKey: null },
-    { icon: Building2, label: "Marques", href: "/mosh-cockpit/brands", notifKey: null },
-]
+const ROLE_LABEL: Record<SidebarProps['role'], string> = {
+    admin: 'Espace MOSH',
+    brand: 'Espace marque',
+    creator: 'Espace créateur',
+}
 
-const roleConfig = {
-    admin: { logoText: 'Mosh', logoHref: '/mosh-cockpit', badge: 'Admin' },
-    brand: { logoText: 'Mosh', logoHref: '/brand', badge: 'Marque' },
-    creator: { logoText: 'Mosh', logoHref: '/creator', badge: 'Créateur' },
+const HOME: Record<SidebarProps['role'], string> = {
+    admin: '/mosh-cockpit',
+    brand: '/brand',
+    creator: '/creator',
 }
 
 export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
     const pathname = usePathname()
-    const [expanded, setExpanded] = useState(false)
-    const menuItems = role === 'brand' ? brandMenuItems : role === 'admin' ? adminMenuItems : creatorMenuItems
-    const config = roleConfig[role]
+    const router = useRouter()
+    const [expanded, setExpanded] = useState(true)
+    const groups = NAV[role]
 
-    const toggleExpanded = (value: boolean) => {
-        setExpanded(value)
-        onExpandChange?.(value)
+    const actingBrandName = useActingBrandStore((s) => s.brandName)
+    const clearActing = useActingBrandStore((s) => s.clear)
+    const isActingAsBrand = role === 'brand' && !!actingBrandName
+
+    const toggle = () => {
+        const next = !expanded
+        setExpanded(next)
+        onExpandChange?.(next)
     }
 
     let unreadCounts = { total: 0, messages: 0, applications: 0, deliverables: 0 }
     try {
-        const notifs = useNotifications()
-        unreadCounts = notifs.unreadCounts
+        unreadCounts = useNotifications().unreadCounts
     } catch { }
 
-    const getNotifCount = (key: 'messages' | 'applications' | 'deliverables' | null) => {
-        if (!key) return 0
-        return unreadCounts[key] || 0
-    }
+    const countFor = (key: NotifKey) => (key ? unreadCounts[key] || 0 : 0)
+
+    // A nav item is active on exact match, or on prefix match for sub-routes
+    // (but the section root must not stay active for every child page).
+    const isActive = (href: string) =>
+        pathname === href || (href !== HOME[role] && pathname.startsWith(`${href}/`))
+
+    // The workspace label is the one thing that tells you *where you are*.
+    const workspaceName = isActingAsBrand ? actingBrandName! : (userName || 'MOSH')
+    const workspaceInitial = workspaceName.charAt(0).toUpperCase()
 
     return (
-        <>
-            {/* Backdrop for expanded sidebar on mobile */}
-            {expanded && (
-                <div
-                    className="fixed inset-0 bg-black/20 z-40 md:hidden"
-                    onClick={() => toggleExpanded(false)}
-                />
+        <aside
+            className={`
+                fixed left-0 top-0 bottom-0 z-40
+                hidden md:flex flex-col
+                bg-white border-r border-[#DADDE1]
+                transition-[width] duration-200 ease-out
+                ${expanded ? 'w-[240px]' : 'w-[60px]'}
+            `}
+        >
+            {/* ── Workspace switcher: identity + context, always first ── */}
+            <div className="h-14 flex items-center border-b border-[#DADDE1] px-2 shrink-0">
+                <Link
+                    href={HOME[role]}
+                    title={workspaceName}
+                    className={`
+                        flex items-center gap-2.5 rounded-lg min-w-0
+                        hover:bg-[#F0F2F5] transition-colors
+                        ${expanded ? 'flex-1 px-2 py-1.5' : 'w-11 h-11 justify-center'}
+                    `}
+                >
+                    <span className={`
+                        w-7 h-7 rounded-md shrink-0 grid place-items-center
+                        text-[11px] font-bold text-white
+                        ${isActingAsBrand ? 'bg-[#0866FF]' : 'bg-[#1C1E21]'}
+                    `}>
+                        {workspaceInitial}
+                    </span>
+                    {expanded && (
+                        <span className="min-w-0 flex-1 text-left">
+                            <span className="block text-[13px] font-semibold text-[#1C1E21] truncate leading-tight">
+                                {workspaceName}
+                            </span>
+                            <span className="block text-[11px] text-[#8A8D91] truncate leading-tight">
+                                {isActingAsBrand ? 'Piloté par MOSH' : ROLE_LABEL[role]}
+                            </span>
+                        </span>
+                    )}
+                    {expanded && <ChevronsUpDown className="w-3.5 h-3.5 text-[#8A8D91] shrink-0" strokeWidth={2} />}
+                </Link>
+            </div>
+
+            {/* ── Navigation ── */}
+            <nav className="flex-1 overflow-y-auto py-3 px-2 flex flex-col gap-4">
+                {groups.map((group, gi) => (
+                    <div key={gi} className="flex flex-col gap-0.5">
+                        {expanded && group.label && (
+                            <div className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[#8A8D91]">
+                                {group.label}
+                            </div>
+                        )}
+                        {group.items.map((item) => {
+                            const active = isActive(item.href)
+                            const count = countFor(item.notifKey)
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    title={item.label}
+                                    className={`
+                                        group relative flex items-center gap-2.5 rounded-md h-8
+                                        transition-colors
+                                        ${expanded ? 'px-2' : 'w-11 justify-center mx-auto'}
+                                        ${active
+                                            ? 'bg-[#E7F0FF] text-[#0866FF]'
+                                            : 'text-[#65676B] hover:bg-[#F0F2F5] hover:text-[#1C1E21]'
+                                        }
+                                    `}
+                                >
+                                    <item.icon className="w-4 h-4 shrink-0" strokeWidth={active ? 2.2 : 1.8} />
+                                    {expanded && (
+                                        <span className={`text-[13px] truncate ${active ? 'font-semibold' : 'font-medium'}`}>
+                                            {item.label}
+                                        </span>
+                                    )}
+                                    {count > 0 && (
+                                        expanded ? (
+                                            <span className="ml-auto shrink-0 min-w-[18px] h-[18px] px-1 rounded-full bg-[#0866FF] text-white text-[10px] font-semibold grid place-items-center tabular-nums">
+                                                {count > 99 ? '99+' : count}
+                                            </span>
+                                        ) : (
+                                            <span className="absolute top-1 right-1.5 w-2 h-2 rounded-full bg-[#0866FF] ring-2 ring-white" />
+                                        )
+                                    )}
+                                </Link>
+                            )
+                        })}
+                    </div>
+                ))}
+            </nav>
+
+            {/* ── Exit "acting as" — the way back is where you switched from ── */}
+            {isActingAsBrand && (
+                <div className="px-2 pb-2 shrink-0">
+                    <button
+                        onClick={() => { clearActing(); router.push('/mosh-cockpit/brands') }}
+                        title="Revenir à l'espace MOSH"
+                        className={`
+                            flex items-center gap-2.5 rounded-md h-8 w-full
+                            text-[#0866FF] hover:bg-[#E7F0FF] transition-colors
+                            ${expanded ? 'px-2' : 'justify-center'}
+                        `}
+                    >
+                        <ArrowLeftRight className="w-4 h-4 shrink-0" strokeWidth={1.8} />
+                        {expanded && <span className="text-[13px] font-medium truncate">Revenir à MOSH</span>}
+                    </button>
+                </div>
             )}
 
-            <aside
-                className={`
-                    fixed left-3 top-3 bottom-3 z-40
-                    hidden md:flex flex-col items-center
-                    bg-[#1C1E21] rounded-lg
-                    py-4 gap-1
-                    transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
-                    shadow-xl shadow-black/10
-                    ${expanded ? 'w-[200px]' : 'w-[64px]'}
-                `}
-            >
-                {/* Logo */}
-                <Link
-                    href={config.logoHref}
-                    className={`
-                        flex items-center gap-2.5 rounded-lg
-                        bg-white/[0.07] hover:bg-white/[0.12]
-                        border border-white/[0.08]
-                        transition-all duration-200
-                        ${expanded ? 'w-[calc(100%-24px)] px-3 py-2.5 mb-3' : 'w-11 h-11 justify-center mb-4'}
-                    `}
-                >
-                    <span className="text-white font-black text-sm flex-shrink-0">M</span>
+            {/* ── Footer: who you are + collapse ── */}
+            <div className="border-t border-[#DADDE1] p-2 flex items-center gap-2 shrink-0">
+                <div className={`flex items-center gap-2.5 min-w-0 ${expanded ? 'flex-1' : 'mx-auto'}`}>
+                    <span
+                        className="w-7 h-7 rounded-full bg-[#F0F2F5] border border-[#DADDE1] grid place-items-center text-[11px] font-semibold text-[#65676B] shrink-0"
+                        suppressHydrationWarning
+                    >
+                        {userName?.charAt(0)?.toUpperCase() || role.charAt(0).toUpperCase()}
+                    </span>
                     {expanded && (
-                        <span className="text-white/70 text-sm font-medium truncate">
-                            {config.logoText}
+                        <span className="min-w-0 text-[12px] text-[#65676B] truncate" suppressHydrationWarning>
+                            {userName || 'Mon compte'}
                         </span>
                     )}
-                </Link>
-
-                {/* Role badge */}
+                </div>
                 {expanded && (
-                    <div className="w-[calc(100%-24px)] px-1 mb-3">
-                        <span className="text-[10px] font-semibold uppercase tracking-widest text-[#8A8D91]">
-                            {config.badge}
-                        </span>
-                    </div>
+                    <button
+                        onClick={toggle}
+                        title="Réduire le menu"
+                        className="w-7 h-7 rounded-md grid place-items-center text-[#8A8D91] hover:bg-[#F0F2F5] hover:text-[#1C1E21] transition-colors shrink-0"
+                    >
+                        <PanelLeft className="w-4 h-4" strokeWidth={1.8} />
+                    </button>
                 )}
+            </div>
 
-                {/* Nav items */}
-                <nav className={`flex-1 flex flex-col gap-1.5 w-full ${expanded ? 'px-3' : 'px-2'}`}>
-                    {menuItems.map((item) => {
-                        const isActive = pathname === item.href ||
-                            (item.href !== '/' && item.href !== '/brand' && item.href !== '/creator' && item.href !== '/mosh-cockpit'
-                                && pathname.startsWith(item.href))
-                        const notifCount = getNotifCount(item.notifKey)
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                title={item.label}
-                                className={`
-                                    relative flex items-center gap-3 rounded-lg
-                                    transition-all duration-200
-                                    ${expanded ? 'px-3 py-2.5' : 'w-[44px] h-[44px] justify-center mx-auto'}
-                                    ${isActive
-                                        ? 'bg-[#0866FF] text-white'
-                                        : 'text-[#8A8D91] hover:text-white hover:bg-white/[0.06]'
-                                    }
-                                `}
-                            >
-                                <item.icon
-                                    className="w-[19px] h-[19px] flex-shrink-0"
-                                    strokeWidth={1.5}
-                                />
-                                {expanded && (
-                                    <span className={`text-sm font-medium truncate ${isActive ? 'text-white' : ''}`}>
-                                        {item.label}
-                                    </span>
-                                )}
-                                {notifCount > 0 && (
-                                    <span className={`
-                                        absolute w-2 h-2 bg-red-500 rounded-full
-                                        ${expanded ? 'right-2 top-1/2 -translate-y-1/2' : '-top-0.5 -right-0.5'}
-                                        border-2 border-[#1C1E21]
-                                    `} />
-                                )}
-                            </Link>
-                        )
-                    })}
-                </nav>
-
-                {/* Separator */}
-                <div className={`flex items-center justify-center my-1 ${expanded ? 'px-3' : ''}`}>
-                    <MoreHorizontal className="w-[18px] h-[18px] text-[#65676B]" strokeWidth={1.5} />
-                </div>
-
-                {/* Collapse / Expand toggle */}
+            {!expanded && (
                 <button
-                    onClick={() => toggleExpanded(!expanded)}
-                    className={`
-                        flex items-center gap-2 rounded-lg
-                        text-[#8A8D91] hover:text-white hover:bg-white/[0.06]
-                        transition-all duration-200 mb-2
-                        ${expanded ? 'w-[calc(100%-24px)] px-3 py-2.5' : 'w-[44px] h-[44px] justify-center'}
-                    `}
-                    title={expanded ? 'Réduire' : 'Agrandir'}
+                    onClick={toggle}
+                    title="Agrandir le menu"
+                    className="absolute -right-3 top-16 w-6 h-6 rounded-full bg-white border border-[#DADDE1] grid place-items-center text-[#65676B] hover:text-[#1C1E21] shadow-sm"
                 >
-                    {expanded ? (
-                        <>
-                            <PanelLeftClose className="w-[19px] h-[19px] flex-shrink-0" strokeWidth={1.5} />
-                            <span className="text-sm font-medium">Réduire</span>
-                        </>
-                    ) : (
-                        <PanelLeft className="w-[19px] h-[19px]" strokeWidth={1.5} />
-                    )}
+                    <PanelLeft className="w-3 h-3 rotate-180" strokeWidth={2} />
                 </button>
-
-                {/* Bottom avatar */}
-                <div className={`${expanded ? 'w-[calc(100%-24px)] px-3' : ''}`}>
-                    <div className={`
-                        rounded-full bg-[#0866FF]
-                        flex items-center justify-center
-                        ${expanded ? 'w-8 h-8' : 'w-9 h-9'}
-                    `}>
-                        <span className="text-[#1C1E21] text-xs font-bold" suppressHydrationWarning>
-                            {userName?.charAt(0)?.toUpperCase() || (role === 'admin' ? 'A' : role === 'brand' ? 'B' : 'C')}
-                        </span>
-                    </div>
-                </div>
-            </aside>
-        </>
+            )}
+        </aside>
     )
 }

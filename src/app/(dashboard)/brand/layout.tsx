@@ -15,7 +15,7 @@ export default function BrandDashboardLayout({ children }: { children: ReactNode
     const { user, isLoading } = useAuth()
     const { isActingAsBrand, actingBrandName, brandId, clearActing } = useCurrentBrand()
     const router = useRouter()
-    const [sidebarExpanded, setSidebarExpanded] = useState(false)
+    const [sidebarExpanded, setSidebarExpanded] = useState(true)
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => { setMounted(true) }, [])
@@ -50,16 +50,23 @@ export default function BrandDashboardLayout({ children }: { children: ReactNode
                     data-sidebar-expanded={sidebarExpanded}
                 >
                     <Header />
+                    {/* Impersonation notice: a thin, permanent strip. The sidebar carries
+                        the identity, so this only needs to state the fact and offer the exit. */}
+                    {isActingAsBrand && (
+                        <div className="sticky top-0 z-30 bg-[#E7F0FF] border-b border-[#0866FF]/20 px-4 md:px-8 py-1.5 flex items-center gap-2 text-[12px] text-[#0653CC]">
+                            <Eye className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+                            <span className="min-w-0 truncate">
+                                Vous agissez au nom de <strong className="font-semibold">{actingBrandName || 'cette marque'}</strong>
+                            </span>
+                            <button
+                                onClick={exitActingAs}
+                                className="ml-auto shrink-0 font-medium underline underline-offset-2 hover:text-[#0866FF]"
+                            >
+                                Quitter
+                            </button>
+                        </div>
+                    )}
                     <main className="p-4 md:p-8 pt-20 pb-24 md:pb-8">
-                        {isActingAsBrand && (
-                            <div className="sticky top-16 z-40 mb-4 -mx-1 bg-[#1C1E21] text-white rounded-lg px-4 py-2.5 flex items-center gap-3 text-sm shadow-lg">
-                                <Eye className="w-4 h-4 text-[#0866FF] shrink-0" />
-                                <span className="min-w-0 truncate">Vous agissez en tant que <strong className="text-[#0866FF]">{actingBrandName || 'marque'}</strong></span>
-                                <button onClick={exitActingAs} className="ml-auto shrink-0 px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 transition-colors text-xs font-medium">
-                                    Revenir à l&apos;admin
-                                </button>
-                            </div>
-                        )}
                         <DashboardErrorBoundary>
                             {children}
                         </DashboardErrorBoundary>
@@ -69,8 +76,8 @@ export default function BrandDashboardLayout({ children }: { children: ReactNode
             </div>
             <style>{`
                 @media (min-width: 768px) {
-                    [data-sidebar-expanded="false"] { margin-left: 82px; }
-                    [data-sidebar-expanded="true"] { margin-left: 218px; }
+                    [data-sidebar-expanded="false"] { margin-left: 60px; }
+                    [data-sidebar-expanded="true"] { margin-left: 240px; }
                 }
             `}</style>
         </NotificationProvider>
