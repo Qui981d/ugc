@@ -28,7 +28,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase/client'
-import { getMissionSteps, completeMissionStep } from '@/lib/services/adminService'
+import { getMissionSteps, completeMissionStep, requestPriceChange } from '@/lib/services/adminService'
 import { getMoshContractText, signMoshContract } from '@/lib/services/contractService'
 import ContractViewer from '@/components/contracts/ContractViewer'
 import type { Campaign, MissionStep, MissionStepType, CampaignContent, ContentStatus } from '@/types/database'
@@ -77,6 +77,11 @@ export default function CreatorMissionDetailPage() {
     const [signLoading, setSignLoading] = useState(false)
     // P3: Per-creator amount from content-level data
     const [myCreatorAmount, setMyCreatorAmount] = useState<number | null>(null)
+    // Price negotiation (counter-offer before signing)
+    const [showPriceForm, setShowPriceForm] = useState(false)
+    const [priceInput, setPriceInput] = useState('')
+    const [priceMessage, setPriceMessage] = useState('')
+    const [priceLoading, setPriceLoading] = useState(false)
 
     const loadData = useCallback(async () => {
         const supabase = createClient()
@@ -150,6 +155,22 @@ export default function CreatorMissionDetailPage() {
             await loadData()
         }
         setSignLoading(false)
+    }
+
+    const handleRequestPrice = async () => {
+        const amount = parseFloat(priceInput)
+        if (!amount || amount <= 0) return
+        setPriceLoading(true)
+        const result = await requestPriceChange(campaignId, amount, priceMessage.trim() || undefined)
+        if (result.success) {
+            setActionSuccess('Demande de tarif envoyée à MOSH')
+            setTimeout(() => setActionSuccess(null), 3000)
+            setShowPriceForm(false)
+            setPriceInput('')
+            setPriceMessage('')
+            await loadData()
+        }
+        setPriceLoading(false)
     }
 
     if (isLoading) {
@@ -330,13 +351,63 @@ export default function CreatorMissionDetailPage() {
                         </div>
                     )}
                     {campaign.contract_mosh_status === 'pending_creator' && (
-                        <button
-                            onClick={handleViewContract}
-                            className="w-full py-2.5 bg-amber-500 text-white rounded-xl text-sm font-medium hover:bg-amber-600 transition-colors flex items-center justify-center gap-2"
-                        >
-                            <ScrollText className="w-4 h-4" />
-                            Lire &amp; signer le contrat
-                        </button>
+                        <div className="space-y-2">
+                            {campaign.creator_price_status === 'counter' && (
+                                <div className="bg-white border border-amber-200 rounded-lg px-3 py-2 text-sm text-amber-700">
+                                    💬 Tarif demandé : <strong>CHF {campaign.creator_counter_amount_chf?.toLocaleString('fr-CH')}</strong> — en attente de la réponse de MOSH.
+                                </div>
+                            )}
+                            <button
+                                onClick={handleViewContract}
+                                className="w-full py-2.5 bg-amber-500 text-white rounded-xl text-sm font-medium hover:bg-amber-600 transition-colors flex items-center justify-center gap-2"
+                            >
+                                <ScrollText className="w-4 h-4" />
+                                Lire &amp; signer le contrat
+                            </button>
+
+                            {campaign.creator_price_status !== 'counter' && !showPriceForm && (
+                                <button
+                                    onClick={() => { setPriceInput(String(myCreatorAmount || campaign.creator_amount_chf || '')); setShowPriceForm(true) }}
+                                    className="w-full py-2.5 bg-white border border-[#D9D7D0] text-[#18181B] rounded-xl text-sm font-medium hover:bg-[#F4F3EF] transition-colors"
+                                >
+                                    Demander un autre tarif
+                                </button>
+                            )}
+
+                            {showPriceForm && (
+                                <div className="bg-white border border-[#E5E7EB] rounded-xl p-3 space-y-2">
+                                    <div>
+                                        <label className="block text-xs font-medium text-[#18181B] mb-1">Tarif souhaité (CHF)</label>
+                                        <input
+                                            type="number" min="0" step="10" value={priceInput}
+                                            onChange={e => setPriceInput(e.target.value)}
+                                            placeholder="Ex : 600"
+                                            className="w-full px-3 py-2 bg-[#F4F3EF] border border-[#E5E7EB] rounded-lg text-sm focus:outline-none focus:border-[#C4F042] focus:ring-1 focus:ring-[#C4F042]/25"
+                                        />
+                                    </div>
+                                    <textarea
+                                        value={priceMessage} onChange={e => setPriceMessage(e.target.value)}
+                                        rows={2} placeholder="Message pour MOSH (optionnel)"
+                                        className="w-full px-3 py-2 bg-[#F4F3EF] border border-[#E5E7EB] rounded-lg text-sm resize-none focus:outline-none focus:border-[#C4F042] focus:ring-1 focus:ring-[#C4F042]/25"
+                                    />
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={handleRequestPrice}
+                                            disabled={priceLoading || !parseFloat(priceInput)}
+                                            className="flex-1 py-2 bg-[#18181B] text-[#C4F042] rounded-lg text-sm font-medium hover:bg-[#18181B]/90 transition-colors disabled:opacity-50"
+                                        >
+                                            {priceLoading ? 'Envoi…' : 'Envoyer la demande'}
+                                        </button>
+                                        <button
+                                            onClick={() => setShowPriceForm(false)}
+                                            className="px-3 py-2 text-[#71717A] text-sm hover:bg-[#F4F3EF] rounded-lg transition-colors"
+                                        >
+                                            Annuler
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     )}
                 </motion.div>
             )}

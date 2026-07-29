@@ -571,6 +571,53 @@ export function subscribeToNotifications(
 }
 
 /**
+ * Notify all admin users when a creator counters the proposed price
+ */
+export async function notifyAdminPriceCounter(
+    campaignId: string,
+    campaignTitle: string,
+    creatorName: string,
+    requestedAmount: number,
+    message?: string
+): Promise<boolean> {
+    const supabase = createClient()
+    const { data: admins } = await supabase.from('users').select('id').eq('role', 'admin')
+    if (!admins || admins.length === 0) return false
+
+    const amount = requestedAmount.toLocaleString('fr-CH')
+    for (const admin of admins) {
+        await createNotification(
+            (admin as any).id,
+            'deliverable_revision',
+            'Demande de tarif 💬',
+            `${creatorName} demande CHF ${amount} pour "${campaignTitle}"${message ? ` — « ${message} »` : ''}.`,
+            campaignId,
+            'campaign'
+        )
+    }
+    return true
+}
+
+/**
+ * Notify a creator that MOSH accepted their new price
+ */
+export async function notifyCreatorPriceAccepted(
+    creatorId: string,
+    campaignId: string,
+    campaignTitle: string,
+    newAmount: number
+): Promise<boolean> {
+    return createNotification(
+        creatorId,
+        'application_accepted',
+        'Nouveau tarif accepté ✅',
+        `MOSH a accepté CHF ${newAmount.toLocaleString('fr-CH')} pour "${campaignTitle}". Le contrat a été mis à jour, vous pouvez le signer.`,
+        campaignId,
+        'campaign'
+    )
+}
+
+/**
  * Notify all admin users when a creator delivers a video (ready for QC)
  */
 export async function notifyAdminVideoDelivered(

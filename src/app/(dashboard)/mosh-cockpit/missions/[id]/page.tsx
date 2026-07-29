@@ -43,6 +43,7 @@ import {
     requestBriefFeedback,
     sendScriptToBrand,
     sendMissionToCreator,
+    acceptPriceCounter,
     type CampaignWithDetails,
     type CreatorWithProfile,
 } from '@/lib/services/adminService'
@@ -307,6 +308,20 @@ export default function AdminMissionDetailPage() {
                 setActionSuccess('Contrat généré et mission envoyée au créateur !')
                 setTimeout(() => setActionSuccess(null), 3000)
             }
+        }
+        await loadData()
+        setActionLoading(false)
+    }
+
+    const handleAcceptPrice = async () => {
+        setActionLoading(true)
+        setActionError(null)
+        const result = await acceptPriceCounter(campaignId)
+        if (!result.success) {
+            setActionError(result.error || 'Erreur lors de l\'acceptation du tarif')
+        } else {
+            setActionSuccess('Nouveau tarif accepté — contrat mis à jour')
+            setTimeout(() => setActionSuccess(null), 3000)
         }
         await loadData()
         setActionLoading(false)
@@ -979,6 +994,24 @@ export default function AdminMissionDetailPage() {
                                 <span className="text-[#18181B] font-medium">Signé le {new Date(campaign.contract_mosh_signed_at).toLocaleDateString('fr-CH')}</span>
                             )}
                         </div>
+
+                        {/* Creator price counter-offer */}
+                        {campaign.creator_price_status === 'counter' && campaign.contract_mosh_status === 'pending_creator' && (
+                            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                                <p className="text-sm text-amber-800 font-medium mb-1">💬 Le créateur demande un autre tarif</p>
+                                <p className="text-sm text-amber-700 mb-3">
+                                    Tarif demandé : <strong>CHF {campaign.creator_counter_amount_chf?.toLocaleString('fr-CH')}</strong>
+                                    {' '}(actuel : CHF {campaign.creator_amount_chf?.toLocaleString('fr-CH')})
+                                </p>
+                                <button
+                                    onClick={handleAcceptPrice}
+                                    disabled={actionLoading}
+                                    className="px-4 py-2 bg-[#18181B] text-[#C4F042] rounded-xl text-sm font-medium hover:bg-[#18181B]/90 transition-colors disabled:opacity-50"
+                                >
+                                    Accepter CHF {campaign.creator_counter_amount_chf?.toLocaleString('fr-CH')}
+                                </button>
+                            </div>
+                        )}
                         <button
                             onClick={handleViewContract}
                             className="px-4 py-2 bg-[#F4F3EF] text-[#18181B] rounded-xl hover:bg-[#E8E6DF] transition-colors flex items-center gap-2"

@@ -28,6 +28,8 @@ import {
     notifyBrandFinalApproval,
     notifyBrandRevisionRequest,
     notifyAdminVideoDelivered,
+    notifyAdminPriceCounter,
+    notifyCreatorPriceAccepted,
 } from '@/lib/services/notificationService'
 
 // ================================================
@@ -726,6 +728,91 @@ export async function createInternalMission(input: {
     }
 
     return { success: true, campaignId }
+}
+
+/**
+ * CREATOR action: request a different price before signing the contract.
+ * Stores the counter amount + marks the price status as 'counter' and notifies MOSH.
+ */
+export async function requestPriceChange(
+    campaignId: string,
+    requestedAmountChf: number,
+    message?: string
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: 'Non authentifié' }
+    if (!requestedAmountChf || requestedAmountChf <= 0) return { success: false, error: 'Montant invalide' }
+
+    const { error } = await (supabase.from('campaigns') as ReturnType<typeof supabase.from>)
+        .update({
+            creator_counter_amount_chf: requestedAmountChf,
+            creator_price_status: 'counter',
+        })
+        .eq('id', campaignId)
+
+    if (error) return { success: false, error: error.message }
+
+    const { data: campData } = await supabase
+        .from('campaigns')
+        .select('title')
+        .eq('id', campaignId)
+        .single()
+    const creatorName = (user.user_metadata?.full_name as string) || 'Le créateur'
+    await notifyAdminPriceCounter(
+        campaignId,
+        (campData as any)?.title || 'Une mission',
+        creatorName,
+        requestedAmountChf,
+        message
+    )
+
+    return { success: true }
+}
+
+/**
+ * ADMIN action: accept the creator's counter price.
+ * Sets creator_amount_chf to the counter amount, regenerates the contract with
+ * the new price, and notifies the creator.
+ */
+export async function acceptPriceCounter(
+    campaignId: string
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+
+    const { data: campData } = await supabase
+        .from('campaigns')
+        .select('title, selected_creator_id, creator_counter_amount_chf')
+        .eq('id', campaignId)
+        .single()
+    const camp = campData as any
+    if (!camp) return { success: false, error: 'Mission introuvable' }
+
+    const newAmount = camp.creator_counter_amount_chf
+    if (!newAmount || newAmount <= 0) return { success: false, error: 'Aucune contre-proposition à accepter' }
+
+    // Update the accepted price + status
+    const { error } = await (supabase.from('campaigns') as ReturnType<typeof supabase.from>)
+        .update({
+            creator_amount_chf: newAmount,
+            creator_price_status: 'accepted',
+        })
+        .eq('id', campaignId)
+    if (error) return { success: false, error: error.message }
+
+    // Regenerate the contract with the new amount (best-effort)
+    try {
+        const { createMoshContract } = await import('@/lib/services/contractService')
+        await createMoshContract(campaignId, newAmount)
+    } catch (e) {
+        console.error('Contract regeneration failed after price accept:', e)
+    }
+
+    if (camp.selected_creator_id) {
+        await notifyCreatorPriceAccepted(camp.selected_creator_id, campaignId, camp.title || 'Votre mission', newAmount)
+    }
+
+    return { success: true }
 }
 
 // ================================================
