@@ -17,4 +17,6 @@ ALTER TABLE campaigns
   -- counter with a higher price at proposal time (step 1b).
   ADD COLUMN IF NOT EXISTS creator_counter_amount_chf NUMERIC,
   -- 'proposed' (MOSH offered) | 'counter' (creator asked more) | 'accepted'
-  ADD COLUMN IF NOT EXISTS creator_price_status TEXT;
+  ADD COLUMN IF NOT EXISTS creator_price_status TEXT,
+  -- Optional message the creator attaches to a price counter-offer
+  ADD COLUMN IF NOT EXISTS creator_price_message TEXT;

@@ -171,6 +171,7 @@ export interface Campaign {
     // Creator price negotiation
     creator_counter_amount_chf: number | null
     creator_price_status: 'proposed' | 'counter' | 'accepted' | null
+    creator_price_message: string | null
     created_at: string
     updated_at: string
 }

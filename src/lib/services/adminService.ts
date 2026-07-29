@@ -748,6 +748,7 @@ export async function requestPriceChange(
         .update({
             creator_counter_amount_chf: requestedAmountChf,
             creator_price_status: 'counter',
+            creator_price_message: message?.trim() || null,
         })
         .eq('id', campaignId)
 
@@ -796,6 +797,7 @@ export async function acceptPriceCounter(
         .update({
             creator_amount_chf: newAmount,
             creator_price_status: 'accepted',
+            creator_price_message: null,
         })
         .eq('id', campaignId)
     if (error) return { success: false, error: error.message }
