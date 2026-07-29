@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
-import { Search, MapPin, Sparkles, Star, Plus, LinkIcon, Copy, Check, Trash2, Clock, CheckCircle2, X, Loader2 } from 'lucide-react'
+import { Search, MapPin, Sparkles, Star, Plus, LinkIcon, Copy, Check, Trash2, Clock, CheckCircle2, X, Loader2, MessageCircle, Mail } from 'lucide-react'
 import { getAllCreators, getInvitations, createInvitation, revokeInvitation, type CreatorWithProfile, type InvitationData } from '@/lib/services/adminService'
 import { toast } from 'sonner'
 
@@ -47,20 +47,8 @@ export default function AdminCreatorsPage() {
             const updated = await getInvitations()
             setInvitations(updated)
             setShowInviteModal(false)
-            const link = `${window.location.origin}/signup?role=creator&invite=${result.code}`
-            await navigator.clipboard.writeText(link)
-
-            if (inviteEmail.trim()) {
-                // Open email client with pre-filled invitation
-                const subject = encodeURIComponent('Invitation à rejoindre Mosh')
-                const body = encodeURIComponent(
-                    `Bonjour,\n\nVous êtes invité(e) à rejoindre Mosh en tant que créateur UGC.\n\nCliquez sur ce lien pour créer votre compte :\n${link}\n\nCe lien est valide pendant 30 jours.\n\nÀ bientôt,\nL'équipe Mosh`
-                )
-                window.open(`mailto:${inviteEmail.trim()}?subject=${subject}&body=${body}`, '_blank')
-                toast.success('Lien copié et email ouvert !')
-            } else {
-                toast.success('Lien d\'invitation copié !')
-            }
+            await navigator.clipboard.writeText(inviteLink(result.code))
+            toast.success('Lien copié ! Partage-le via Copier, WhatsApp ou Email.')
             setInviteEmail('')
         } else {
             toast.error(result.error || 'Erreur lors de la création')
@@ -68,12 +56,25 @@ export default function AdminCreatorsPage() {
         setIsCreating(false)
     }
 
+    const inviteLink = (code: string) => `${window.location.origin}/signup?role=creator&invite=${code}`
+
+    const inviteMessage = (code: string) =>
+        `Bonjour,\n\nVous êtes invité(e) à rejoindre MOSH en tant que créateur UGC.\n\nCréez votre compte ici :\n${inviteLink(code)}\n\nCe lien est valable 30 jours.\n\nÀ bientôt,\nL'équipe MOSH`
+
     const handleCopyLink = async (code: string) => {
-        const link = `${window.location.origin}/signup?role=creator&invite=${code}`
-        await navigator.clipboard.writeText(link)
+        await navigator.clipboard.writeText(inviteLink(code))
         setCopiedCode(code)
         toast.success('Lien copié !')
         setTimeout(() => setCopiedCode(null), 2000)
+    }
+
+    const handleShareWhatsApp = (code: string) => {
+        window.open(`https://wa.me/?text=${encodeURIComponent(inviteMessage(code))}`, '_blank')
+    }
+
+    const handleShareEmail = (code: string) => {
+        const subject = encodeURIComponent('Invitation à rejoindre MOSH')
+        window.open(`mailto:?subject=${subject}&body=${encodeURIComponent(inviteMessage(code))}`, '_blank')
     }
 
     const handleRevoke = async (id: string) => {
@@ -276,17 +277,33 @@ export default function AdminCreatorsPage() {
                                         </div>
                                         <div className="flex items-center gap-2 shrink-0">
                                             {!isExpired && (
-                                                <button
-                                                    onClick={() => handleCopyLink(invite.code)}
-                                                    className="w-9 h-9 rounded-lg bg-[#F4F3EF] flex items-center justify-center text-[#71717A] hover:text-[#18181B] hover:bg-[#C4F042]/20 transition-all"
-                                                    title="Copier le lien"
-                                                >
-                                                    {copiedCode === invite.code ? (
-                                                        <Check className="w-4 h-4 text-[#C4F042]" />
-                                                    ) : (
-                                                        <Copy className="w-4 h-4" />
-                                                    )}
-                                                </button>
+                                                <>
+                                                    <button
+                                                        onClick={() => handleCopyLink(invite.code)}
+                                                        className="w-9 h-9 rounded-lg bg-[#F4F3EF] flex items-center justify-center text-[#71717A] hover:text-[#18181B] hover:bg-[#C4F042]/20 transition-all"
+                                                        title="Copier le lien"
+                                                    >
+                                                        {copiedCode === invite.code ? (
+                                                            <Check className="w-4 h-4 text-[#C4F042]" />
+                                                        ) : (
+                                                            <Copy className="w-4 h-4" />
+                                                        )}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleShareWhatsApp(invite.code)}
+                                                        className="w-9 h-9 rounded-lg bg-[#F4F3EF] flex items-center justify-center text-[#71717A] hover:text-[#18181B] hover:bg-[#25D366]/20 transition-all"
+                                                        title="Partager sur WhatsApp"
+                                                    >
+                                                        <MessageCircle className="w-4 h-4" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleShareEmail(invite.code)}
+                                                        className="w-9 h-9 rounded-lg bg-[#F4F3EF] flex items-center justify-center text-[#71717A] hover:text-[#18181B] hover:bg-[#C4F042]/20 transition-all"
+                                                        title="Envoyer par email"
+                                                    >
+                                                        <Mail className="w-4 h-4" />
+                                                    </button>
+                                                </>
                                             )}
                                             <button
                                                 onClick={() => handleRevoke(invite.id)}
@@ -384,15 +401,15 @@ export default function AdminCreatorsPage() {
 
                             <div className="px-6 py-5 space-y-4">
                                 <div>
-                                    <label className="text-xs font-medium text-[#71717A] mb-1.5 block">Email du créateur</label>
+                                    <label className="text-xs font-medium text-[#71717A] mb-1.5 block">Nom ou email (étiquette, optionnel)</label>
                                     <input
-                                        type="email"
+                                        type="text"
                                         value={inviteEmail}
                                         onChange={(e) => setInviteEmail(e.target.value)}
-                                        placeholder="createur@email.com"
+                                        placeholder="Ex : Marie Dupont"
                                         className="w-full px-4 py-2.5 bg-[#F4F3EF]/50 border border-black/[0.06] rounded-xl text-sm text-[#18181B] placeholder:text-[#A1A1AA] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 focus:border-[#C4F042]/50"
                                     />
-                                    <p className="text-xs text-[#A1A1AA] mt-1.5">Le lien sera valide 30 jours et utilisable une seule fois</p>
+                                    <p className="text-xs text-[#A1A1AA] mt-1.5">Sert juste à identifier l&apos;invitation. Le lien (valide 30 jours, à usage unique) sera copié — partage-le via Copier / WhatsApp / Email.</p>
                                 </div>
                             </div>
 
@@ -409,7 +426,7 @@ export default function AdminCreatorsPage() {
                                     className="px-5 py-2.5 bg-[#C4F042] text-[#18181B] font-medium rounded-xl hover:bg-[#C4F042]/80 transition-colors disabled:opacity-50 flex items-center gap-2 text-sm"
                                 >
                                     {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : <LinkIcon className="w-4 h-4" />}
-                                    {inviteEmail.trim() ? 'Générer et envoyer' : 'Générer le lien'}
+                                    Générer le lien
                                 </button>
                             </div>
                         </motion.div>
