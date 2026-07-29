@@ -9,8 +9,10 @@ import type { Campaign, ProfileCreator, ProfileBrand, User } from '@/types/datab
 
 export interface MoshContractData {
     campaign: Campaign
-    brand: User & { profile: ProfileBrand }
-    creator: User & { profile: ProfileCreator }
+    // Profiles are optional: internal MOSH missions have brand_id = MOSH admin
+    // (no profiles_brand row), and a creator may not have completed onboarding.
+    brand: User & { profile: ProfileBrand | null }
+    creator: User & { profile: ProfileCreator | null }
 }
 
 /**
@@ -76,8 +78,11 @@ export async function getContractData(campaignId: string): Promise<MoshContractD
         .eq('user_id', creatorId)
         .single()
 
-    if (!brandUser || !brandProfile || !creatorUser || !creatorProfile) {
-        console.error('[Contract] Missing user/profile data')
+    // Only the user records are strictly required. Profiles are optional
+    // (internal missions: MOSH admin has no brand profile; creator may be
+    // pre-onboarding). Names/address fall back to sensible defaults below.
+    if (!brandUser || !creatorUser) {
+        console.error('[Contract] Missing user data')
         return null
     }
 
@@ -85,11 +90,11 @@ export async function getContractData(campaignId: string): Promise<MoshContractD
         campaign: typedCampaign,
         brand: {
             ...(brandUser as unknown as User),
-            profile: brandProfile as unknown as ProfileBrand,
+            profile: (brandProfile as unknown as ProfileBrand) ?? null,
         },
         creator: {
             ...(creatorUser as unknown as User),
-            profile: creatorProfile as unknown as ProfileCreator,
+            profile: (creatorProfile as unknown as ProfileCreator) ?? null,
         },
     }
 }
@@ -188,12 +193,12 @@ export async function createMoshContract(
         MOSH_EMAIL: MOSH_COMPANY_INFO.email,
 
         CREATOR_FULL_NAME: creator.full_name,
-        CREATOR_ADDRESS: creator.profile.address || 'Non renseignée',
+        CREATOR_ADDRESS: creator.profile?.address || 'Non renseignée',
         CREATOR_EMAIL: creator.email,
 
         MISSION_TITLE: campaign.title,
         MISSION_DESCRIPTION: campaign.description || 'Selon le brief transmis via la plateforme MOSH.',
-        BRAND_NAME: brand.profile.company_name || brand.full_name,
+        BRAND_NAME: campaign.client_name || brand.profile?.company_name || brand.full_name,
         DELIVERABLES: buildDeliverablesText(campaign),
         FORMAT: FORMAT_MAP[campaign.format] || campaign.format,
         SCRIPT_TYPE: TYPE_MAP[campaign.script_type] || campaign.script_type,
@@ -283,12 +288,12 @@ export async function createMoshContractForCreator(
     const { data: creatorUser } = await supabase.from('users').select('*').eq('id', creatorId).single()
     const { data: creatorProfile } = await supabase.from('profiles_creator').select('*').eq('user_id', creatorId).single()
 
-    if (!brandUser || !brandProfile || !creatorUser || !creatorProfile) {
-        return { success: false, error: 'Missing user/profile data' }
+    if (!brandUser || !creatorUser) {
+        return { success: false, error: 'Données du contrat introuvables' }
     }
 
-    const creator = { ...(creatorUser as unknown as User), profile: creatorProfile as unknown as ProfileCreator }
-    const brand = { ...(brandUser as unknown as User), profile: brandProfile as unknown as ProfileBrand }
+    const creator = { ...(creatorUser as unknown as User), profile: (creatorProfile as unknown as ProfileCreator) ?? null }
+    const brand = { ...(brandUser as unknown as User), profile: (brandProfile as unknown as ProfileBrand) ?? null }
 
     // Get contents assigned to this creator for description
     const { data: contents } = await (supabase as any)
@@ -315,11 +320,11 @@ export async function createMoshContractForCreator(
         MOSH_UID: MOSH_COMPANY_INFO.uid,
         MOSH_EMAIL: MOSH_COMPANY_INFO.email,
         CREATOR_FULL_NAME: creator.full_name,
-        CREATOR_ADDRESS: creator.profile.address || 'Non renseignée',
+        CREATOR_ADDRESS: creator.profile?.address || 'Non renseignée',
         CREATOR_EMAIL: creator.email,
         MISSION_TITLE: campaign.title,
         MISSION_DESCRIPTION: campaign.description || 'Selon le brief transmis via la plateforme MOSH.',
-        BRAND_NAME: brand.profile.company_name || brand.full_name,
+        BRAND_NAME: campaign.client_name || brand.profile?.company_name || brand.full_name,
         DELIVERABLES: deliverablesText || buildDeliverablesText(campaign),
         FORMAT: contentList[0]?.format ? FORMAT_MAP[contentList[0].format] || contentList[0].format : FORMAT_MAP[campaign.format] || campaign.format,
         SCRIPT_TYPE: contentList[0]?.script_type ? TYPE_MAP[contentList[0].script_type] || contentList[0].script_type : TYPE_MAP[campaign.script_type] || campaign.script_type,
@@ -509,12 +514,12 @@ export async function signMoshContract(
             MOSH_EMAIL: MOSH_COMPANY_INFO.email,
 
             CREATOR_FULL_NAME: creator.full_name,
-            CREATOR_ADDRESS: creator.profile.address || 'Non renseignée',
+            CREATOR_ADDRESS: creator.profile?.address || 'Non renseignée',
             CREATOR_EMAIL: creator.email,
 
             MISSION_TITLE: camp.title,
             MISSION_DESCRIPTION: camp.description || 'Selon le brief transmis via la plateforme MOSH.',
-            BRAND_NAME: brand.profile.company_name || brand.full_name,
+            BRAND_NAME: camp.client_name || brand.profile?.company_name || brand.full_name,
             DELIVERABLES: buildDeliverablesText(camp),
             FORMAT: FORMAT_MAP[camp.format] || camp.format,
             SCRIPT_TYPE: TYPE_MAP[camp.script_type] || camp.script_type,
@@ -563,12 +568,12 @@ async function getContractDataForCreator(campaignId: string, creatorId: string):
     const { data: creatorUser } = await supabase.from('users').select('*').eq('id', creatorId).single()
     const { data: creatorProfile } = await supabase.from('profiles_creator').select('*').eq('user_id', creatorId).single()
 
-    if (!brandUser || !brandProfile || !creatorUser || !creatorProfile) return null
+    if (!brandUser || !creatorUser) return null
 
     return {
         campaign: typedCampaign,
-        brand: { ...(brandUser as unknown as User), profile: brandProfile as unknown as ProfileBrand },
-        creator: { ...(creatorUser as unknown as User), profile: creatorProfile as unknown as ProfileCreator },
+        brand: { ...(brandUser as unknown as User), profile: (brandProfile as unknown as ProfileBrand) ?? null },
+        creator: { ...(creatorUser as unknown as User), profile: (creatorProfile as unknown as ProfileCreator) ?? null },
     }
 }
 
@@ -626,12 +631,12 @@ export async function getMoshContractText(campaignId: string, creatorId?: string
         MOSH_EMAIL: MOSH_COMPANY_INFO.email,
 
         CREATOR_FULL_NAME: creator.full_name,
-        CREATOR_ADDRESS: creator.profile.address || 'Non renseignée',
+        CREATOR_ADDRESS: creator.profile?.address || 'Non renseignée',
         CREATOR_EMAIL: creator.email,
 
         MISSION_TITLE: campaign.title,
         MISSION_DESCRIPTION: campaign.description || 'Selon le brief transmis via la plateforme MOSH.',
-        BRAND_NAME: brand.profile.company_name || brand.full_name,
+        BRAND_NAME: campaign.client_name || brand.profile?.company_name || brand.full_name,
         DELIVERABLES: buildDeliverablesText(campaign),
         FORMAT: FORMAT_MAP[campaign.format] || campaign.format,
         SCRIPT_TYPE: TYPE_MAP[campaign.script_type] || campaign.script_type,
