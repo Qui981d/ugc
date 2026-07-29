@@ -9,6 +9,7 @@ import Link from "next/link"
 import { formatCHF } from "@/lib/validations/swiss"
 import { useAuth } from "@/contexts/AuthContext"
 import { getMyCampaigns } from "@/lib/services/campaignService"
+import { useCurrentBrand } from "@/hooks/useCurrentBrand"
 import { getMissionSteps } from "@/lib/services/adminService"
 import { getStatusConfig } from "@/lib/constants/statusConfig"
 import { WORKFLOW_STEPS, isStepCompletedOrPassed } from "@/lib/constants/workflowSteps"
@@ -18,7 +19,8 @@ import type { Campaign, MissionStep, MissionStepType } from "@/types/database"
 
 export default function BrandDashboardPage() {
     const { user, isLoading } = useAuth()
-    const userId = user?.id
+    const { brandId } = useCurrentBrand()
+    const userId = brandId
     const [campaigns, setCampaigns] = useState<Campaign[]>([])
     const [campaignSteps, setCampaignSteps] = useState<Record<string, MissionStep[]>>({})
     const [isDataLoading, setIsDataLoading] = useState(true)
@@ -32,7 +34,7 @@ export default function BrandDashboardPage() {
 
         async function loadData() {
             setIsDataLoading(true)
-            const realCampaigns = await getMyCampaigns()
+            const realCampaigns = await getMyCampaigns(undefined, brandId || undefined)
             setCampaigns(realCampaigns)
             // Load steps for all campaigns
             const stepsMap: Record<string, MissionStep[]> = {}

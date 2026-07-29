@@ -73,15 +73,20 @@ export async function getCampaigns(options?: {
 /**
  * Get campaigns for the current brand user
  */
-export async function getMyCampaigns(status?: CampaignStatus | CampaignStatus[]): Promise<Campaign[]> {
+export async function getMyCampaigns(
+    status?: CampaignStatus | CampaignStatus[],
+    /** When a MOSH admin acts as a brand, scope to that brand instead of the auth user. */
+    brandId?: string
+): Promise<Campaign[]> {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return []
+    const effectiveBrandId = brandId || user?.id
+    if (!effectiveBrandId) return []
 
     let query = supabase
         .from('campaigns')
         .select('*')
-        .eq('brand_id', user.id)
+        .eq('brand_id', effectiveBrandId)
         .order('created_at', { ascending: false })
 
     if (status) {
@@ -139,7 +144,7 @@ export async function createCampaign(campaignData: {
     pricing_pack?: PricingPack
     brief_image_urls?: string[]
     creator_preference?: 'single' | 'per_video'
-}): Promise<{ campaign: Campaign | null; error?: string }> {
+}, /** MOSH admin acting as a brand: attribute the campaign to that brand. */ brandId?: string): Promise<{ campaign: Campaign | null; error?: string }> {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { campaign: null, error: 'Not authenticated' }
@@ -148,7 +153,7 @@ export async function createCampaign(campaignData: {
         .from('campaigns') as ReturnType<typeof supabase.from>)
         .insert({
             ...campaignData,
-            brand_id: user.id,
+            brand_id: brandId || user.id,
         })
         .select()
         .single()

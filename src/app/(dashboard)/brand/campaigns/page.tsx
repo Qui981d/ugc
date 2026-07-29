@@ -22,12 +22,14 @@ import { formatCHF } from "@/lib/validations/swiss"
 import { useAuth } from "@/contexts/AuthContext"
 import { getMyCampaigns } from "@/lib/services/campaignService"
 import { getStatusConfig } from "@/lib/constants/statusConfig"
+import { useCurrentBrand } from "@/hooks/useCurrentBrand"
 import type { Campaign } from "@/types/database"
 
 
 export default function BrandCampaignsPage() {
     const { user, isLoading } = useAuth()
-    const userId = user?.id
+    const { brandId } = useCurrentBrand()
+    const userId = brandId
     const [campaigns, setCampaigns] = useState<Campaign[]>([])
     const [isDataLoading, setIsDataLoading] = useState(true)
     const [activeTab, setActiveTab] = useState('all')
@@ -42,7 +44,7 @@ export default function BrandCampaignsPage() {
 
         async function loadData() {
             setIsDataLoading(true)
-            const realCampaigns = await getMyCampaigns()
+            const realCampaigns = await getMyCampaigns(undefined, brandId || undefined)
             setCampaigns(realCampaigns)
             setIsDataLoading(false)
         }

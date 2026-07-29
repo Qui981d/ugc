@@ -22,6 +22,7 @@ import {
     Loader2
 } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
+import { useCurrentBrand } from "@/hooks/useCurrentBrand"
 import { createClient } from "@/lib/supabase/client"
 
 const tabs = [
@@ -36,6 +37,7 @@ const INPUT_CLASS = 'w-full bg-[#F4F3EF] border border-[#D9D7D0] rounded-xl px-4
 
 export default function BrandSettingsPage() {
     const { user } = useAuth()
+    const { brandId } = useCurrentBrand()
     const [activeTab, setActiveTab] = useState('company')
     const [isLoading, setIsLoading] = useState(true)
     const [saving, setSaving] = useState(false)
@@ -62,13 +64,13 @@ export default function BrandSettingsPage() {
 
     // B1: Load real data from Supabase
     const loadProfile = useCallback(async () => {
-        if (!user) return
+        if (!brandId) return
         setIsLoading(true)
         const supabase = createClient()
         const { data } = await supabase
             .from('profiles_brand')
             .select('*')
-            .eq('user_id', user.id)
+            .eq('user_id', brandId)
             .single()
 
         if (data) {
@@ -86,7 +88,7 @@ export default function BrandSettingsPage() {
             }
         }
         setIsLoading(false)
-    }, [user])
+    }, [brandId])
 
     useEffect(() => { loadProfile() }, [loadProfile])
 
@@ -104,7 +106,7 @@ export default function BrandSettingsPage() {
                 company_size: company.company_size || null,
                 address: company.address || null,
             })
-            .eq('user_id', user.id)
+            .eq('user_id', brandId)
         setSaving(false)
         setSaveSuccess(true)
         setTimeout(() => setSaveSuccess(false), 3000)
@@ -118,7 +120,7 @@ export default function BrandSettingsPage() {
         const supabase = createClient()
         await (supabase as any).from('profiles_brand')
             .update({ notification_prefs: updated })
-            .eq('user_id', user.id)
+            .eq('user_id', brandId)
     }
 
     if (isLoading) {

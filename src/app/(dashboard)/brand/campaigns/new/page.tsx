@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { toast } from 'sonner'
+import { useCurrentBrand } from "@/hooks/useCurrentBrand"
 import {
     ArrowLeft,
     Upload,
@@ -119,6 +120,7 @@ function createEmptyBlock(): ContentBlock {
 
 export default function NewCampaignPage() {
     const router = useRouter()
+    const { brandId } = useCurrentBrand()
     const [step, setStep] = useState(1)
     const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -307,7 +309,7 @@ export default function NewCampaignPage() {
                 quote_signer_ip: signerIp,
             }
 
-            const result = await createCampaign(campaignPayload)
+            const result = await createCampaign(campaignPayload, brandId || undefined)
             if (result.error || !result.campaign) {
                 toast.error('Erreur lors de la création de la campagne', { description: result.error })
                 setIsSubmitting(false)

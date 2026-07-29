@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
     ArrowLeft,
@@ -17,8 +17,10 @@ import {
     Receipt,
     Users,
     CheckCircle2,
+    LogIn,
 } from 'lucide-react'
 import { getBrandById, type BrandWithProfile, type CampaignWithDetails } from '@/lib/services/adminService'
+import { useActingBrandStore } from '@/stores/useActingBrandStore'
 
 const STATUS_LABELS: Record<string, { label: string; class: string }> = {
     draft: { label: 'Brief reçu', class: 'bg-[#F4F3EF] text-[#71717A]' },
@@ -30,7 +32,9 @@ const STATUS_LABELS: Record<string, { label: string; class: string }> = {
 
 export default function BrandDetailPage() {
     const params = useParams()
+    const router = useRouter()
     const brandId = params.id as string
+    const setActingBrand = useActingBrandStore((s) => s.setActingBrand)
 
     const [brand, setBrand] = useState<BrandWithProfile | null>(null)
     const [campaigns, setCampaigns] = useState<CampaignWithDetails[]>([])
@@ -91,13 +95,25 @@ export default function BrandDetailPage() {
                     <ChevronRight className="w-3 h-3" />
                     <span className="text-[#18181B]">{profile?.company_name || brand.full_name}</span>
                 </div>
-                <Link
-                    href={`/mosh-cockpit/missions/new?brand=${brand.id}`}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#18181B] text-[#C4F042] rounded-xl text-sm font-medium hover:bg-[#18181B]/90 transition-colors shrink-0"
-                >
-                    <Megaphone className="w-4 h-4" strokeWidth={1.8} />
-                    Créer une mission pour cette marque
-                </Link>
+                <div className="flex items-center gap-2 shrink-0">
+                    <button
+                        onClick={() => {
+                            setActingBrand(brand.id, profile?.company_name || brand.full_name)
+                            router.push('/brand')
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-[#D9D7D0] text-[#18181B] rounded-xl text-sm font-medium hover:bg-[#F4F3EF] transition-colors"
+                    >
+                        <LogIn className="w-4 h-4" strokeWidth={1.8} />
+                        Ouvrir l&apos;espace de la marque
+                    </button>
+                    <Link
+                        href={`/mosh-cockpit/missions/new?brand=${brand.id}`}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#18181B] text-[#C4F042] rounded-xl text-sm font-medium hover:bg-[#18181B]/90 transition-colors"
+                    >
+                        <Megaphone className="w-4 h-4" strokeWidth={1.8} />
+                        Créer une mission
+                    </Link>
+                </div>
             </div>
 
             {/* Profile Header */}
