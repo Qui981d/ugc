@@ -13,6 +13,7 @@ import {
     FileText,
     Users,
     Video,
+    Plus,
 } from 'lucide-react'
 import { getAllCampaigns, getMissionSteps, type CampaignWithDetails } from '@/lib/services/adminService'
 import type { CampaignStatus, MissionStep } from '@/types/database'
@@ -102,9 +103,16 @@ export default function AdminMissionsPage() {
     return (
         <div className="max-w-7xl mx-auto space-y-6">
             {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-[#18181B] tracking-tight">Missions</h1>
-                <p className="text-[#71717A] mt-1">Gérez toutes les missions de la plateforme</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold text-[#18181B] tracking-tight">Missions</h1>
+                    <p className="text-[#71717A] mt-1">Gérez toutes les missions de la plateforme</p>
+                </div>
+                <Link href="/mosh-cockpit/missions/new"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#18181B] text-[#C4F042] rounded-xl text-sm font-medium hover:bg-[#18181B]/90 transition-colors shrink-0">
+                    <Plus className="w-4 h-4" strokeWidth={2} />
+                    Créer une mission
+                </Link>
             </div>
 
             {/* Filter Tabs */}

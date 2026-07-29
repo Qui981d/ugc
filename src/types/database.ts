@@ -163,6 +163,14 @@ export interface Campaign {
     quote_signed_at: string | null
     quote_signer_ip: string | null
     admin_notes: string | null
+    // Internal MOSH missions (created directly by MOSH, brand_id = MOSH admin)
+    client_name: string | null
+    shooting_date: string | null
+    shooting_date_fixed: boolean
+    delivery_date_fixed: boolean
+    // Creator price negotiation
+    creator_counter_amount_chf: number | null
+    creator_price_status: 'proposed' | 'counter' | 'accepted' | null
     created_at: string
     updated_at: string
 }

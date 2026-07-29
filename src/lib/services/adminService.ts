@@ -7,7 +7,10 @@ import type {
     ProfileCreator,
     MissionStep,
     MissionStepType,
-    ScriptStatus
+    ScriptStatus,
+    VideoFormat,
+    ScriptType,
+    RightsUsageType
 } from '@/types/database'
 import {
     notifyCreatorAssigned,
@@ -638,6 +641,91 @@ export async function sendMissionToCreator(
     }
 
     return { success: true }
+}
+
+/**
+ * Create an INTERNAL MOSH mission (no external brand).
+ * brand_id is set to the MOSH admin, `client_name` holds the client label.
+ * The script is written directly by MOSH (pre-approved), and the mission is
+ * immediately assigned + sent to the chosen creator (generates the contract,
+ * notifies the creator). The creator can later counter the proposed price.
+ */
+export async function createInternalMission(input: {
+    clientName: string
+    title: string
+    scriptContent: string
+    creatorAmountChf: number
+    isAds: boolean            // false = organic
+    format: VideoFormat
+    scriptType: ScriptType
+    shootingDate?: string | null
+    shootingDateFixed?: boolean
+    deliveryDate?: string | null
+    deliveryDateFixed?: boolean
+    creatorId: string
+}): Promise<{ success: boolean; campaignId?: string; error?: string }> {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: 'Non authentifié' }
+
+    const rightsUsage: RightsUsageType = input.isAds ? 'paid_12m' : 'organic'
+
+    // 1. Create the campaign (brand_id = MOSH admin; script pre-approved by MOSH)
+    const { data: campData, error: campErr } = await (supabase.from('campaigns') as ReturnType<typeof supabase.from>)
+        .insert({
+            brand_id: user.id,
+            title: input.title,
+            product_name: input.title,
+            client_name: input.clientName,
+            script_content: input.scriptContent,
+            script_status: 'brand_approved' as ScriptStatus,
+            format: input.format,
+            script_type: input.scriptType,
+            rights_usage: rightsUsage,
+            budget_chf: input.creatorAmountChf,
+            creator_amount_chf: input.creatorAmountChf,
+            creator_price_status: 'proposed',
+            deadline: input.deliveryDate || null,
+            delivery_date_fixed: input.deliveryDateFixed ?? false,
+            shooting_date: input.shootingDate || null,
+            shooting_date_fixed: input.shootingDateFixed ?? false,
+            selected_creator_id: input.creatorId,
+            creator_preference: 'single',
+            status: 'in_progress' as CampaignStatus,
+        })
+        .select()
+        .single()
+
+    if (campErr || !campData) return { success: false, error: campErr?.message || 'Création de la mission échouée' }
+    const campaignId = (campData as any).id as string
+
+    // 2. Create a single content block (used by the creator studio / delivery)
+    await (supabase.from('campaign_contents') as ReturnType<typeof supabase.from>)
+        .insert({
+            campaign_id: campaignId,
+            content_type: 'video',
+            format: input.format,
+            script_type: input.scriptType,
+            script_content: input.scriptContent,
+            script_status: 'brand_approved',
+            status: 'script_approved',
+            assigned_creator_id: input.creatorId,
+            creator_status: 'brand_approved',
+            position: 0,
+        })
+
+    // 3. Mark the script as approved (MOSH is the brand here) so the
+    //    send-mission guard passes.
+    await completeMissionStep(campaignId, 'script_brand_approved')
+
+    // 4. Assign + send the mission (generates the MOSH contract, notifies creator)
+    const sendRes = await sendMissionToCreator(campaignId, input.creatorAmountChf)
+    if (!sendRes.success) {
+        // Mission created but sending/contract failed — surface it (campaign exists)
+        return { success: false, campaignId, error: sendRes.error }
+    }
+
+    return { success: true, campaignId }
 }
 
 // ================================================
