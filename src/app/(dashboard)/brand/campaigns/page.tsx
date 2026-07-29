@@ -1,34 +1,29 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import {
-    Plus,
-    Clock,
-    CheckCircle2,
-    Calendar,
-    Eye,
-    Target,
-    Loader2,
-    Megaphone,
-    XCircle,
-    ArrowRight,
-    Search,
-} from "lucide-react"
+import { useRouter } from 'next/navigation'
+import { Plus, Loader2, Megaphone, ArrowRight, Search } from "lucide-react"
 import Link from "next/link"
 import { formatCHF } from "@/lib/validations/swiss"
 import { useAuth } from "@/contexts/AuthContext"
 import { getMyCampaigns } from "@/lib/services/campaignService"
 import { getStatusConfig } from "@/lib/constants/statusConfig"
 import { useCurrentBrand } from "@/hooks/useCurrentBrand"
+import { PageHeader, Tabs, StatusPill, EmptyState } from "@/components/ui/workspace"
 import type { Campaign } from "@/types/database"
 
+const STATUS_TONE: Record<string, 'progress' | 'waiting' | 'done' | 'idle' | 'alert'> = {
+    completed: 'done',
+    in_progress: 'progress',
+    open: 'progress',
+    draft: 'idle',
+    cancelled: 'idle',
+}
 
 export default function BrandCampaignsPage() {
     const { user, isLoading } = useAuth()
     const { brandId } = useCurrentBrand()
+    const router = useRouter()
     const userId = brandId
     const [campaigns, setCampaigns] = useState<Campaign[]>([])
     const [isDataLoading, setIsDataLoading] = useState(true)
@@ -76,125 +71,104 @@ export default function BrandCampaignsPage() {
     }
 
     return (
-        <div className="space-y-8">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-[28px] md:text-[34px] font-semibold text-[#1C1E21] tracking-[-0.02em]">Mes Campagnes</h1>
-                    <p className="text-[#65676B] mt-1">Suivez l&apos;avancement de vos projets vidéo</p>
-                </div>
-                <Link href="/brand/campaigns/new">
-                    <Button className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-full px-6 w-full sm:w-auto">
-                        <Plus className="h-4 w-4 mr-2" strokeWidth={1.5} />
+        <div className="max-w-[1400px] mx-auto">
+            <PageHeader
+                title="Mes campagnes"
+                description="Suivez l'avancement de vos projets vidéo"
+                actions={
+                    <Link href="/brand/campaigns/new"
+                        className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#0866FF] text-white rounded-lg text-[13px] font-medium hover:bg-[#0653CC] transition-colors">
+                        <Plus className="w-4 h-4" strokeWidth={2.2} />
                         Nouvelle campagne
-                    </Button>
-                </Link>
+                    </Link>
+                }
+            >
+                <Tabs tabs={tabs} active={activeTab} onChange={setActiveTab} />
+            </PageHeader>
+
+            {/* Toolbar — bare controls above the surface */}
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+                <div className="relative flex-1 min-w-[220px]">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A8D91]" strokeWidth={1.8} />
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Rechercher une campagne…"
+                        className="w-full h-9 pl-9 pr-3 bg-white border border-[#DADDE1] rounded-lg text-[13px] text-[#1C1E21] placeholder:text-[#8A8D91] focus:outline-none focus:border-[#0866FF] focus:ring-2 focus:ring-[#0866FF]/20 transition-colors"
+                    />
+                </div>
+                <span className="text-[12px] text-[#8A8D91] tabular-nums ml-auto">
+                    {filteredCampaigns.length} campagne{filteredCampaigns.length > 1 ? 's' : ''}
+                </span>
             </div>
 
-            {/* Tabs — dark active, warm inactive */}
-            <div className="flex gap-2">
-                {tabs.map(tab => (
-                    <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${activeTab === tab.id
-                            ? 'bg-[#1C1E21] text-white shadow-sm'
-                            : 'bg-[#F0F2F5] text-[#65676B] hover:text-[#1C1E21] hover:bg-[#EBEDF0] border border-[#DADDE1]'
-                            }`}
-                    >
-                        {tab.label}
-                        <span className="ml-2 text-xs opacity-70">
-                            {tab.count}
-                        </span>
-                    </button>
-                ))}
-            </div>
-
-            {/* Search */}
-            <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A8D91]" strokeWidth={1.5} />
-                <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Rechercher une campagne..."
-                    className="w-full bg-[#F0F2F5] border border-transparent rounded-full pl-10 pr-4 py-2.5 text-sm text-[#1C1E21] focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30 placeholder:text-[#8A8D91]"
-                />
-            </div>
-
-            {/* Campaigns List */}
-            <AnimatePresence mode="wait">
-                <motion.div
-                    key={activeTab}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="space-y-3"
-                >
-                    {filteredCampaigns.length === 0 ? (
-                        <div className="text-center py-16 text-[#8A8D91]">
-                            <Megaphone className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                            <p>Aucune campagne pour le moment</p>
-                            <Link href="/brand/campaigns/new">
-                                <Button className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-full px-6 mt-4">
-                                    <Plus className="w-4 h-4 mr-2" strokeWidth={1.5} />
-                                    Créer une campagne
-                                </Button>
+            {/* One dense surface */}
+            <div className="bg-white border border-[#DADDE1] rounded-xl overflow-hidden">
+                {filteredCampaigns.length === 0 ? (
+                    <EmptyState
+                        icon={Megaphone}
+                        title="Aucune campagne"
+                        description={searchQuery ? 'Aucun résultat pour cette recherche.' : 'Créez votre première campagne pour la voir apparaître ici.'}
+                        action={
+                            <Link href="/brand/campaigns/new"
+                                className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#0866FF] text-white rounded-lg text-[13px] font-medium hover:bg-[#0653CC] transition-colors">
+                                <Plus className="w-4 h-4" strokeWidth={2.2} />
+                                Créer une campagne
                             </Link>
-                        </div>
-                    ) : (
-                        filteredCampaigns.map((campaign, index) => {
-                            const status = getStatusConfig(campaign.status)
-                            const StatusIcon = status.icon
-
-                            return (
-                                <motion.div
-                                    key={campaign.id}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.03 }}
-                                >
-                                    <Link
-                                        href={`/brand/campaigns/${campaign.id}`}
-                                        className="block bg-white border border-[#DADDE1] hover:bg-white rounded-xl p-5 transition-all group hover:shadow-sm"
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-3 mb-2">
-                                                    <h3 className="text-[#1C1E21] font-semibold truncate group-hover:text-[#1C1E21] transition-colors">
-                                                        {campaign.title}
-                                                    </h3>
-                                                    <Badge className={status.badgeClass}>
-                                                        <StatusIcon className="w-3 h-3 mr-1" strokeWidth={1.5} />
-                                                        {status.label}
-                                                    </Badge>
-                                                </div>
+                        }
+                    />
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-[13px]">
+                            <thead>
+                                <tr className="border-b border-[#DADDE1]">
+                                    <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5">Campagne</th>
+                                    <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5 hidden md:table-cell">Format</th>
+                                    <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5">Statut</th>
+                                    <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5 hidden lg:table-cell">Échéance</th>
+                                    <th className="text-right font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5 hidden sm:table-cell">Budget</th>
+                                    <th className="w-8" />
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-[#DADDE1]">
+                                {filteredCampaigns.map((campaign) => {
+                                    const status = getStatusConfig(campaign.status)
+                                    return (
+                                        <tr
+                                            key={campaign.id}
+                                            onClick={() => router.push(`/brand/campaigns/${campaign.id}`)}
+                                            className="hover:bg-[#F7F8FA] cursor-pointer transition-colors group"
+                                        >
+                                            <td className="px-4 py-2.5 max-w-[320px]">
+                                                <span className="block font-medium text-[#1C1E21] truncate">{campaign.title}</span>
                                                 {campaign.description && (
-                                                    <p className="text-sm text-[#65676B] mb-3 line-clamp-1">{campaign.description}</p>
+                                                    <span className="block text-[12px] text-[#8A8D91] truncate">{campaign.description}</span>
                                                 )}
-                                                <div className="flex items-center gap-4 text-sm text-[#8A8D91]">
-                                                    <span className="flex items-center gap-1">
-                                                        <Target className="w-3.5 h-3.5" strokeWidth={1.5} />
-                                                        {campaign.script_type}
-                                                    </span>
-                                                    {campaign.deadline && (
-                                                        <span className="flex items-center gap-1">
-                                                            <Calendar className="w-3.5 h-3.5" strokeWidth={1.5} />
-                                                            {new Date(campaign.deadline).toLocaleDateString('fr-CH')}
-                                                        </span>
-                                                    )}
-                                                    <span className="font-semibold text-[#1C1E21]">{formatCHF(campaign.budget_chf)}</span>
-                                                </div>
-                                            </div>
-                                            <ArrowRight className="w-5 h-5 text-[#8A8D91] group-hover:text-[#0866FF] group-hover:translate-x-1 transition-all ml-4" strokeWidth={1.5} />
-                                        </div>
-                                    </Link>
-                                </motion.div>
-                            )
-                        })
-                    )}
-                </motion.div>
-            </AnimatePresence>
+                                            </td>
+                                            <td className="px-4 py-2.5 text-[#65676B] hidden md:table-cell max-w-[180px]">
+                                                <span className="block truncate">{campaign.script_type}</span>
+                                            </td>
+                                            <td className="px-4 py-2.5">
+                                                <StatusPill tone={STATUS_TONE[campaign.status] || 'idle'}>{status.label}</StatusPill>
+                                            </td>
+                                            <td className="px-4 py-2.5 text-[#65676B] hidden lg:table-cell whitespace-nowrap tabular-nums">
+                                                {campaign.deadline ? new Date(campaign.deadline).toLocaleDateString('fr-CH') : '—'}
+                                            </td>
+                                            <td className="px-4 py-2.5 text-right tabular-nums text-[#1C1E21] hidden sm:table-cell whitespace-nowrap">
+                                                {formatCHF(campaign.budget_chf)}
+                                            </td>
+                                            <td className="pr-3">
+                                                <ArrowRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors" strokeWidth={2} />
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
         </div>
     )
 }

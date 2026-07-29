@@ -1,10 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Plus, Eye, Clock, CheckCircle2, XCircle, ArrowUpRight, Loader2, Settings } from "lucide-react"
+import { useRouter } from 'next/navigation'
+import { Plus, Eye, ArrowRight, Loader2, Settings, Megaphone } from "lucide-react"
 import Link from "next/link"
 import { formatCHF } from "@/lib/validations/swiss"
 import { useAuth } from "@/contexts/AuthContext"
@@ -13,13 +11,21 @@ import { useCurrentBrand } from "@/hooks/useCurrentBrand"
 import { getMissionSteps } from "@/lib/services/adminService"
 import { getStatusConfig } from "@/lib/constants/statusConfig"
 import { WORKFLOW_STEPS, isStepCompletedOrPassed } from "@/lib/constants/workflowSteps"
-import type { Campaign, MissionStep, MissionStepType } from "@/types/database"
+import { PageHeader, MetricStrip, Panel, PanelList, PanelRow, StatusPill, EmptyState } from "@/components/ui/workspace"
+import type { Campaign, MissionStep } from "@/types/database"
 
-
+const STATUS_TONE: Record<string, 'progress' | 'waiting' | 'done' | 'idle' | 'alert'> = {
+    completed: 'done',
+    in_progress: 'progress',
+    open: 'progress',
+    draft: 'idle',
+    cancelled: 'idle',
+}
 
 export default function BrandDashboardPage() {
     const { user, isLoading } = useAuth()
     const { brandId } = useCurrentBrand()
+    const router = useRouter()
     const userId = brandId
     const [campaigns, setCampaigns] = useState<Campaign[]>([])
     const [campaignSteps, setCampaignSteps] = useState<Record<string, MissionStep[]>>({})
@@ -71,19 +77,19 @@ export default function BrandDashboardPage() {
     })
 
     // Smart status label based on workflow
-    const getWorkflowLabel = (campaignId: string) => {
+    const getWorkflowLabel = (campaignId: string): { label: string; tone: 'progress' | 'waiting' | 'done' } | null => {
         const steps = campaignSteps[campaignId] || []
         if (steps.length === 0) return null
         const active = getActiveStepForCampaign(campaignId)
-        if (!active) return { label: 'Mission terminée', color: 'text-emerald-700', bg: 'bg-emerald-100' }
-        return { label: active.label, color: active.owner === 'brand' ? 'text-amber-700' : 'text-blue-700', bg: active.owner === 'brand' ? 'bg-amber-100' : 'bg-blue-100' }
+        if (!active) return { label: 'Mission terminée', tone: 'done' }
+        return { label: active.label, tone: active.owner === 'brand' ? 'waiting' : 'progress' }
     }
 
-    const stats = [
-        { label: "Campagnes actives", value: String(campaigns.filter(c => c.status === 'open' || c.status === 'in_progress' || c.status === 'draft').length), change: "En cours de traitement" },
-        { label: "En production", value: String(campaigns.filter(c => c.status === 'in_progress').length), change: "Vidéos en cours" },
-        { label: "Vidéos livrées", value: String(campaigns.filter(c => c.status === 'completed').length), change: "Terminées" },
-        { label: "Budget total", value: formatCHF(campaigns.reduce((sum, c) => sum + c.budget_chf, 0)), change: "Toutes campagnes" },
+    const metrics = [
+        { label: "Campagnes actives", value: String(campaigns.filter(c => c.status === 'open' || c.status === 'in_progress' || c.status === 'draft').length), hint: "En cours de traitement" },
+        { label: "En production", value: String(campaigns.filter(c => c.status === 'in_progress').length), hint: "Vidéos en cours" },
+        { label: "Vidéos livrées", value: String(campaigns.filter(c => c.status === 'completed').length), hint: "Terminées" },
+        { label: "Budget total", value: formatCHF(campaigns.reduce((sum, c) => sum + c.budget_chf, 0)), hint: "Toutes campagnes" },
     ]
 
     if (!mounted || (!user && isLoading) || isDataLoading) {
@@ -94,193 +100,158 @@ export default function BrandDashboardPage() {
         )
     }
 
-    return (
-        <div className="space-y-8">
-            {/* Welcome Section */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-            >
-                <div>
-                    <h1 className="text-[28px] md:text-[34px] font-semibold text-[#1C1E21] tracking-[-0.02em]">
-                        Bienvenue, {user?.full_name?.split(' ')[0] || 'Marque'} 👋
-                    </h1>
-                    <p className="text-[#65676B] mt-1">
-                        Voici un aperçu de votre activité
-                    </p>
-                </div>
-                <Link href="/brand/campaigns/new">
-                    <Button className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-full px-6 w-full sm:w-auto">
-                        <Plus className="h-4 w-4 mr-2" strokeWidth={1.5} />
-                        Nouvelle campagne
-                    </Button>
-                </Link>
-            </motion.div>
+    const recentCampaigns = campaigns.slice(0, 5)
 
-            {/* Action Required Banner — only shows when brand has active work */}
+    return (
+        <div className="max-w-[1400px] mx-auto">
+            <PageHeader
+                title={`Bienvenue, ${user?.full_name?.split(' ')[0] || 'Marque'} 👋`}
+                description="Voici un aperçu de votre activité"
+                actions={
+                    <Link href="/brand/campaigns/new"
+                        className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#0866FF] text-white rounded-lg text-[13px] font-medium hover:bg-[#0653CC] transition-colors">
+                        <Plus className="w-4 h-4" strokeWidth={2.2} />
+                        Nouvelle campagne
+                    </Link>
+                }
+            />
+
+            {/* Action required — a single bordered row, not a floating card */}
             {brandActionCampaigns.length > 0 && (
-                <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-amber-50/80 border border-amber-200 rounded-lg p-4 flex items-center gap-3"
-                >
-                    <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                        <span className="text-lg">⚡</span>
-                    </div>
-                    <div className="flex-1">
-                        <p className="text-sm font-medium text-[#1C1E21]">
+                <div className="flex items-center gap-3 px-4 py-3 bg-white border border-[#DADDE1] rounded-xl mb-3">
+                    <StatusPill tone="waiting">Action requise</StatusPill>
+                    <div className="min-w-0">
+                        <p className="text-[13px] font-medium text-[#1C1E21] truncate">
                             {brandActionCampaigns.length} campagne{brandActionCampaigns.length > 1 ? 's' : ''} nécessite{brandActionCampaigns.length > 1 ? 'nt' : ''} votre attention
                         </p>
-                        <p className="text-xs text-[#65676B]">
+                        <p className="text-[12px] text-[#8A8D91] truncate">
                             {getActiveStepForCampaign(brandActionCampaigns[0].id)?.label || 'Action requise'}
                         </p>
                     </div>
-                    <Link href={`/brand/campaigns/${brandActionCampaigns[0].id}`}>
-                        <Button size="sm" className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-full px-4">
-                            Voir
-                            <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
-                        </Button>
+                    <Link
+                        href={`/brand/campaigns/${brandActionCampaigns[0].id}`}
+                        className="ml-auto shrink-0 inline-flex items-center gap-1.5 px-3 h-9 bg-[#0866FF] text-white rounded-lg text-[13px] font-medium hover:bg-[#0653CC] transition-colors"
+                    >
+                        Voir
+                        <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.2} />
                     </Link>
-                </motion.div>
+                </div>
             )}
 
-            {/* Stats Grid — glassmorphism */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-                {stats.map((stat, index) => (
-                    <motion.div
-                        key={stat.label}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="bg-white rounded-xl border border-[#DADDE1] p-5"
-                    >
-                        <p className="text-sm text-[#65676B]">{stat.label}</p>
-                        <p className="text-2xl font-bold text-[#1C1E21] mt-1">{stat.value}</p>
-                        <p className="text-xs text-[#8A8D91] mt-1">{stat.change}</p>
-                    </motion.div>
-                ))}
+            {/* Stats — one strip, not four cards */}
+            <div className="mb-3">
+                <MetricStrip metrics={metrics} />
             </div>
 
-            {/* Recent Campaigns */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="bg-white rounded-xl border border-[#DADDE1] overflow-hidden"
-            >
-                <div className="flex items-center justify-between p-6 pb-4">
-                    <h2 className="text-lg font-semibold text-[#1C1E21]">Mes campagnes récentes</h2>
-                    <Link href="/brand/campaigns">
-                        <Button variant="ghost" className="text-[#65676B] hover:text-[#1C1E21] hover:bg-[#F0F2F5] rounded-full">
+            {/* Recent campaigns — one dense surface */}
+            <div className="mb-3">
+                <Panel
+                    title="Mes campagnes récentes"
+                    actions={
+                        <Link href="/brand/campaigns"
+                            className="inline-flex items-center gap-1 text-[13px] font-medium text-[#0866FF] hover:text-[#0653CC] transition-colors">
                             Voir tout
-                            <ArrowUpRight className="h-4 w-4 ml-1" strokeWidth={1.5} />
-                        </Button>
-                    </Link>
-                </div>
-                <div className="px-6 pb-6">
-                    {campaigns.length === 0 ? (
-                        <div className="text-center py-12 text-[#8A8D91]">
-                            <Plus className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                            <p>Aucune campagne pour le moment</p>
-                            <p className="text-sm mt-2">Créez votre première campagne</p>
-                            <Link href="/brand/campaigns/new">
-                                <Button className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-full px-6 mt-4">
-                                    <Plus className="w-4 h-4 mr-2" strokeWidth={1.5} />
+                            <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.2} />
+                        </Link>
+                    }
+                >
+                    {recentCampaigns.length === 0 ? (
+                        <EmptyState
+                            icon={Megaphone}
+                            title="Aucune campagne pour le moment"
+                            description="Créez votre première campagne pour la voir apparaître ici."
+                            action={
+                                <Link href="/brand/campaigns/new"
+                                    className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#0866FF] text-white rounded-lg text-[13px] font-medium hover:bg-[#0653CC] transition-colors">
+                                    <Plus className="w-4 h-4" strokeWidth={2.2} />
                                     Créer une campagne
-                                </Button>
-                            </Link>
-                        </div>
+                                </Link>
+                            }
+                        />
                     ) : (
-                        <div className="space-y-2">
-                            {campaigns.slice(0, 5).map((campaign, index) => {
-                                const status = getStatusConfig(campaign.status)
-                                const StatusIcon = status.icon
-
-                                return (
-                                    <motion.div
-                                        key={campaign.id}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.3 + index * 0.05 }}
-                                    >
-                                        <Link
-                                            href={`/brand/campaigns/${campaign.id}`}
-                                            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg bg-[#F0F2F5]/60 hover:bg-[#F0F2F5] transition-all cursor-pointer group"
-                                        >
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-lg bg-[#E7F0FF] flex items-center justify-center">
-                                                    <StatusIcon className="h-5 w-5 text-[#1C1E21]" strokeWidth={1.5} />
-                                                </div>
-                                                <div>
-                                                    <p className="font-medium text-[#1C1E21] group-hover:text-[#1C1E21]">{campaign.title}</p>
-                                                    <p className="text-sm text-[#65676B]">{campaign.script_type}</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-4">
-                                                {(() => {
-                                                    const wfLabel = getWorkflowLabel(campaign.id)
-                                                    if (wfLabel) {
-                                                        return <Badge className={`${wfLabel.bg} ${wfLabel.color} border-0`}>{wfLabel.label}</Badge>
-                                                    }
-                                                    const status = getStatusConfig(campaign.status)
-                                                    return <Badge className={status.badgeClass}>{status.label}</Badge>
-                                                })()}
-                                                <span className="text-[#1C1E21] font-semibold">{formatCHF(campaign.budget_chf)}</span>
-                                                <ArrowUpRight className="w-4 h-4 text-[#8A8D91] group-hover:text-[#0866FF] transition-colors" strokeWidth={1.5} />
-                                            </div>
-                                        </Link>
-                                    </motion.div>
-                                )
-                            })}
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-[13px]">
+                                <thead>
+                                    <tr className="border-b border-[#DADDE1]">
+                                        <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5">Campagne</th>
+                                        <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5 hidden md:table-cell">Format</th>
+                                        <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5">Étape</th>
+                                        <th className="text-right font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5 hidden sm:table-cell">Budget</th>
+                                        <th className="w-8" />
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-[#DADDE1]">
+                                    {recentCampaigns.map((campaign) => {
+                                        const wf = getWorkflowLabel(campaign.id)
+                                        const status = getStatusConfig(campaign.status)
+                                        const tone = wf ? wf.tone : (STATUS_TONE[campaign.status] || 'idle')
+                                        return (
+                                            <tr
+                                                key={campaign.id}
+                                                onClick={() => router.push(`/brand/campaigns/${campaign.id}`)}
+                                                className="hover:bg-[#F7F8FA] cursor-pointer transition-colors group"
+                                            >
+                                                <td className="px-4 py-2.5 max-w-[320px]">
+                                                    <span className="block font-medium text-[#1C1E21] truncate">{campaign.title}</span>
+                                                    <span className="block text-[12px] text-[#8A8D91] truncate md:hidden">{campaign.script_type}</span>
+                                                </td>
+                                                <td className="px-4 py-2.5 text-[#65676B] hidden md:table-cell max-w-[180px]">
+                                                    <span className="block truncate">{campaign.script_type}</span>
+                                                </td>
+                                                <td className="px-4 py-2.5">
+                                                    <StatusPill tone={tone}>{wf ? wf.label : status.label}</StatusPill>
+                                                </td>
+                                                <td className="px-4 py-2.5 text-right tabular-nums text-[#1C1E21] hidden sm:table-cell whitespace-nowrap">
+                                                    {formatCHF(campaign.budget_chf)}
+                                                </td>
+                                                <td className="pr-3">
+                                                    <ArrowRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors" strokeWidth={2} />
+                                                </td>
+                                            </tr>
+                                        )
+                                    })}
+                                </tbody>
+                            </table>
                         </div>
                     )}
-                </div>
-            </motion.div>
+                </Panel>
+            </div>
 
-            {/* Quick Actions */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-            >
-                <h2 className="text-lg font-semibold text-[#1C1E21] mb-4">Actions rapides</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Link href="/brand/campaigns/new">
-                        <div className="bg-white rounded-xl border border-[#DADDE1] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-lg bg-[#E7F0FF] flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Plus className="h-6 w-6 text-[#1C1E21]" strokeWidth={1.5} />
-                            </div>
-                            <div>
-                                <p className="font-medium text-[#1C1E21]">Créer une campagne</p>
-                                <p className="text-sm text-[#65676B]">Décrivez votre besoin en vidéo UGC</p>
-                            </div>
+            {/* Quick actions — divided rows in one surface */}
+            <Panel title="Actions rapides">
+                <PanelList>
+                    <PanelRow href="/brand/campaigns/new">
+                        <div className="w-8 h-8 rounded-lg bg-[#E7F0FF] grid place-items-center shrink-0">
+                            <Plus className="w-4 h-4 text-[#0866FF]" strokeWidth={2} />
                         </div>
-                    </Link>
-                    <Link href="/brand/campaigns">
-                        <div className="bg-white rounded-xl border border-[#DADDE1] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-lg bg-blue-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Eye className="h-6 w-6 text-blue-700" strokeWidth={1.5} />
-                            </div>
-                            <div>
-                                <p className="font-medium text-[#1C1E21]">Suivre mes campagnes</p>
-                                <p className="text-sm text-[#65676B]">Voyez l&apos;avancement de vos projets</p>
-                            </div>
+                        <div className="min-w-0">
+                            <p className="text-[13px] font-medium text-[#1C1E21] truncate">Créer une campagne</p>
+                            <p className="text-[12px] text-[#8A8D91] truncate">Décrivez votre besoin en vidéo UGC</p>
                         </div>
-                    </Link>
-                    <Link href="/brand/settings">
-                        <div className="bg-white rounded-xl border border-[#DADDE1] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-lg bg-[#F0F2F5] flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Settings className="h-6 w-6 text-[#1C1E21]" strokeWidth={1.5} />
-                            </div>
-                            <div>
-                                <p className="font-medium text-[#1C1E21]">Compléter le profil</p>
-                                <p className="text-sm text-[#65676B]">Finalisez votre profil marque</p>
-                            </div>
+                        <ArrowRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors ml-auto shrink-0" strokeWidth={2} />
+                    </PanelRow>
+                    <PanelRow href="/brand/campaigns">
+                        <div className="w-8 h-8 rounded-lg bg-[#F0F2F5] grid place-items-center shrink-0">
+                            <Eye className="w-4 h-4 text-[#65676B]" strokeWidth={2} />
                         </div>
-                    </Link>
-                </div>
-            </motion.div>
+                        <div className="min-w-0">
+                            <p className="text-[13px] font-medium text-[#1C1E21] truncate">Suivre mes campagnes</p>
+                            <p className="text-[12px] text-[#8A8D91] truncate">Voyez l&apos;avancement de vos projets</p>
+                        </div>
+                        <ArrowRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors ml-auto shrink-0" strokeWidth={2} />
+                    </PanelRow>
+                    <PanelRow href="/brand/settings">
+                        <div className="w-8 h-8 rounded-lg bg-[#F0F2F5] grid place-items-center shrink-0">
+                            <Settings className="w-4 h-4 text-[#65676B]" strokeWidth={2} />
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-[13px] font-medium text-[#1C1E21] truncate">Compléter le profil</p>
+                            <p className="text-[12px] text-[#8A8D91] truncate">Finalisez votre profil marque</p>
+                        </div>
+                        <ArrowRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors ml-auto shrink-0" strokeWidth={2} />
+                    </PanelRow>
+                </PanelList>
+            </Panel>
         </div>
     )
 }

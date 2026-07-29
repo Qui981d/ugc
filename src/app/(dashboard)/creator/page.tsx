@@ -1,18 +1,16 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, CheckCircle2, Upload, ChevronRight, Wallet, Loader2, Briefcase, Star } from "lucide-react"
+import { ChevronRight, Loader2, Briefcase, Star, Upload, ClipboardList } from "lucide-react"
 import Link from "next/link"
 import { formatCHF } from "@/lib/validations/swiss"
 import { useAuth } from "@/contexts/AuthContext"
 import { createClient } from "@/lib/supabase/client"
 import { getStatusConfig } from "@/lib/constants/statusConfig"
 import { CreatorOnboarding } from "@/components/onboarding/CreatorOnboarding"
+import { PageHeader, MetricStrip, Panel, PanelList, PanelRow, StatusPill, EmptyState } from '@/components/ui/workspace'
 
-
+const QUICK_ACTION_CLS = 'inline-flex items-center gap-1.5 h-9 px-3 bg-white border border-[#DADDE1] rounded-lg text-[13px] text-[#1C1E21] hover:bg-[#F0F2F5] transition-colors'
 
 interface MissionDisplay {
     id: string
@@ -21,6 +19,12 @@ interface MissionDisplay {
     status: string
     deadline: string | null
     budget: number
+}
+
+function statusTone(status: string): 'progress' | 'waiting' | 'done' | 'idle' | 'alert' {
+    if (status === 'completed') return 'done'
+    if (status === 'in_progress' || status === 'open') return 'progress'
+    return 'idle'
 }
 
 export default function CreatorDashboardPage() {
@@ -143,11 +147,11 @@ export default function CreatorDashboardPage() {
         .filter(m => m.deadline)
         .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime())[0]
 
-    const stats = [
-        { label: "Missions actives", value: String(activeMissions.length), icon: Clock, change: "En cours" },
-        { label: "Missions terminées", value: String(missions.filter(m => m.status === 'completed').length), icon: CheckCircle2, change: "Total" },
-        { label: "Revenus estimés", value: formatCHF(activeMissions.reduce((sum, m) => sum + m.budget, 0)), icon: Wallet, change: "À venir" },
-        { label: "Prochaine deadline", value: nextDeadline?.deadline ? new Date(nextDeadline.deadline).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short' }) : '—', icon: Calendar, change: nextDeadline?.title || 'Aucune' },
+    const metrics = [
+        { label: "Missions actives", value: String(activeMissions.length), hint: "En cours" },
+        { label: "Missions terminées", value: String(missions.filter(m => m.status === 'completed').length), hint: "Total" },
+        { label: "Revenus estimés", value: formatCHF(activeMissions.reduce((sum, m) => sum + m.budget, 0)), hint: "À venir", tone: 'accent' as const },
+        { label: "Prochaine deadline", value: nextDeadline?.deadline ? new Date(nextDeadline.deadline).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short' }) : '—', hint: nextDeadline?.title || 'Aucune' },
     ]
 
     if (!mounted || (!user && isLoading) || needsOnboarding === null) {
@@ -169,149 +173,79 @@ export default function CreatorDashboardPage() {
     }
 
     return (
-        <div className="space-y-8">
-            {/* Welcome Section */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-            >
-                <div>
-                    <h1 className="text-[28px] md:text-[34px] font-semibold text-[#1C1E21] tracking-[-0.02em]">
-                        Bienvenue, {user?.full_name?.split(' ')[0] || 'Créateur'} 👋
-                    </h1>
-                    <p className="text-[#65676B] mt-1">
-                        Voici un aperçu de votre activité
-                    </p>
-                </div>
-            </motion.div>
+        <div className="max-w-[1400px] mx-auto">
+            <PageHeader
+                title="Vue d'ensemble"
+                description={`Bienvenue, ${user?.full_name?.split(' ')[0] || 'Créateur'} — voici un aperçu de votre activité`}
+                actions={
+                    <>
+                        <Link href="/creator/missions" className={QUICK_ACTION_CLS}>
+                            <Briefcase className="w-4 h-4 text-[#65676B]" strokeWidth={1.8} />
+                            Mes missions
+                        </Link>
+                        <Link href="/creator/portfolio" className={QUICK_ACTION_CLS}>
+                            <Upload className="w-4 h-4 text-[#65676B]" strokeWidth={1.8} />
+                            Portfolio
+                        </Link>
+                        <Link href="/creator/settings" className={QUICK_ACTION_CLS}>
+                            <Star className="w-4 h-4 text-[#65676B]" strokeWidth={1.8} />
+                            Profil
+                        </Link>
+                    </>
+                }
+            />
 
-            {/* Stats Grid — glassmorphism */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-                {stats.map((stat, index) => (
-                    <motion.div
-                        key={stat.label}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="bg-white rounded-xl border border-[#DADDE1] p-5"
-                    >
-                        <div className="flex items-center justify-between gap-2">
-                            <div className="min-w-0">
-                                <p className="text-sm text-[#65676B]">{stat.label}</p>
-                                <p className="text-lg md:text-2xl font-bold text-[#1C1E21] mt-1 truncate">{stat.value}</p>
-                                <p className="text-xs text-[#8A8D91] mt-1">{stat.change}</p>
-                            </div>
-                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[#E7F0FF] flex items-center justify-center flex-shrink-0">
-                                <stat.icon className="h-5 w-5 md:h-6 md:w-6 text-[#1C1E21]" strokeWidth={1.5} />
-                            </div>
-                        </div>
-                    </motion.div>
-                ))}
+            <div className="mb-3">
+                <MetricStrip metrics={metrics} />
             </div>
 
-            {/* Recent Missions */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="bg-white rounded-xl border border-[#DADDE1] overflow-hidden"
+            <Panel
+                title="Missions récentes"
+                actions={
+                    <Link
+                        href="/creator/missions"
+                        className="inline-flex items-center gap-1 text-[13px] font-medium text-[#0866FF] hover:text-[#0653CC] transition-colors"
+                    >
+                        Voir tout
+                        <ChevronRight className="w-3.5 h-3.5" strokeWidth={2} />
+                    </Link>
+                }
             >
-                <div className="flex items-center justify-between p-6 pb-4">
-                    <h2 className="text-lg font-semibold text-[#1C1E21]">Missions récentes</h2>
-                    <Link href="/creator/missions">
-                        <Button variant="ghost" className="text-[#65676B] hover:text-[#1C1E21] hover:bg-[#F0F2F5] rounded-full">
-                            Voir tout
-                            <ChevronRight className="h-4 w-4 ml-1" strokeWidth={1.5} />
-                        </Button>
-                    </Link>
-                </div>
-                <div className="px-6 pb-6">
-                    {missions.length === 0 ? (
-                        <div className="text-center py-12 text-[#8A8D91]">
-                            <Clock className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                            <p>Aucune mission pour le moment</p>
-                            <p className="text-sm mt-2">MOSH vous contactera dès qu&apos;une mission correspond à votre profil</p>
-                        </div>
-                    ) : (
-                        <div className="space-y-2">
-                            {missions.map((mission, index) => (
-                                <motion.div
-                                    key={mission.id}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.3 + index * 0.05 }}
-                                >
-                                    <Link href={`/creator/missions/${mission.id}`}>
-                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg bg-[#F0F2F5]/60 hover:bg-[#F0F2F5] transition-all group cursor-pointer">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-lg bg-[#E7F0FF] flex items-center justify-center text-[#1C1E21] font-bold text-sm">
-                                                    {mission.brand.charAt(0)}
-                                                </div>
-                                                <div>
-                                                    <p className="font-medium text-[#1C1E21] group-hover:text-[#1C1E21] transition-colors">{mission.title}</p>
-                                                    <p className="text-sm text-[#65676B]">{mission.brand}</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-4">
-                                                <Badge className={getStatusConfig(mission.status)?.badgeClass || 'bg-[#F0F2F5] text-[#65676B]'}>
-                                                    {getStatusConfig(mission.status)?.label || mission.status}
-                                                </Badge>
-                                                <span className="text-[#1C1E21] font-semibold">{formatCHF(mission.budget)}</span>
-                                                <ChevronRight className="w-4 h-4 text-[#8A8D91] group-hover:text-[#0866FF] transition-colors" strokeWidth={1.5} />
-                                            </div>
-                                        </div>
-                                    </Link>
-                                </motion.div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </motion.div>
-
-            {/* Quick Actions */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-            >
-                <h2 className="text-lg font-semibold text-[#1C1E21] mb-4">Actions rapides</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Link href="/creator/portfolio">
-                        <div className="bg-white rounded-xl border border-[#DADDE1] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-lg bg-[#E7F0FF] flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Upload className="h-6 w-6 text-[#1C1E21]" strokeWidth={1.5} />
+                {isDataLoading ? (
+                    <div className="divide-y divide-[#DADDE1]">
+                        {[...Array(4)].map((_, i) => (
+                            <div key={i} className="flex items-center gap-3 px-4 py-3 animate-pulse">
+                                <div className="h-4 bg-[#F0F2F5] rounded w-1/3" />
+                                <div className="h-4 bg-[#F0F2F5] rounded w-16 ml-auto" />
                             </div>
-                            <div>
-                                <p className="font-medium text-[#1C1E21]">Mettre à jour le portfolio</p>
-                                <p className="text-sm text-[#65676B]">Ajoutez vos dernières créations</p>
-                            </div>
-                        </div>
-                    </Link>
-                    <Link href="/creator/missions">
-                        <div className="bg-white rounded-xl border border-[#DADDE1] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-lg bg-[#E7F0FF] flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Briefcase className="h-6 w-6 text-[#1C1E21]" strokeWidth={1.5} />
-                            </div>
-                            <div>
-                                <p className="font-medium text-[#1C1E21]">Mes missions</p>
-                                <p className="text-sm text-[#65676B]">Suivre vos missions en cours</p>
-                            </div>
-                        </div>
-                    </Link>
-                    <Link href="/creator/settings">
-                        <div className="bg-white rounded-xl border border-[#DADDE1] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-lg bg-[#E7F0FF] flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Star className="h-6 w-6 text-[#1C1E21]" strokeWidth={1.5} />
-                            </div>
-                            <div>
-                                <p className="font-medium text-[#1C1E21]">Compléter le profil</p>
-                                <p className="text-sm text-[#65676B]">Augmentez votre visibilité</p>
-                            </div>
-                        </div>
-                    </Link>
-                </div>
-            </motion.div>
+                        ))}
+                    </div>
+                ) : missions.length === 0 ? (
+                    <EmptyState
+                        icon={ClipboardList}
+                        title="Aucune mission pour le moment"
+                        description="MOSH vous contactera dès qu'une mission correspond à votre profil."
+                    />
+                ) : (
+                    <PanelList>
+                        {missions.map((mission) => (
+                            <PanelRow key={mission.id} href={`/creator/missions/${mission.id}`}>
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-[13px] font-medium text-[#1C1E21] truncate">{mission.title}</p>
+                                    <p className="text-[12px] text-[#8A8D91] truncate">{mission.brand}</p>
+                                </div>
+                                <StatusPill tone={statusTone(mission.status)}>
+                                    {getStatusConfig(mission.status)?.label || mission.status}
+                                </StatusPill>
+                                <span className="text-[13px] font-medium text-[#1C1E21] tabular-nums whitespace-nowrap">
+                                    {formatCHF(mission.budget)}
+                                </span>
+                                <ChevronRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors shrink-0" strokeWidth={2} />
+                            </PanelRow>
+                        ))}
+                    </PanelList>
+                )}
+            </Panel>
         </div>
     )
 }

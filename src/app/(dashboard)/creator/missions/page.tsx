@@ -1,35 +1,22 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Badge } from "@/components/ui/badge"
 import {
-    Clock,
     CheckCircle2,
-    AlertCircle,
-    Calendar,
     ChevronRight,
-    MessageSquare,
     Briefcase,
     Loader2,
     FileText,
-    Send,
-    Users,
-    Pen,
-    Video,
     Package,
     Star,
-    Camera,
     ScrollText,
     Upload,
 } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
 import { formatCHF } from "@/lib/validations/swiss"
 import { useAuth } from "@/contexts/AuthContext"
 import { createClient } from "@/lib/supabase/client"
-import { getMissionSteps } from '@/lib/services/adminService'
-import type { MissionStep, MissionStepType } from '@/types/database'
+import type { MissionStepType } from '@/types/database'
+import { PageHeader, MetricStrip, Panel, PanelList, PanelRow, Tabs, StatusPill, EmptyState } from '@/components/ui/workspace'
 
 // ================================================
 // PIPELINE STEPS — creator-centric view
@@ -219,166 +206,90 @@ export default function CreatorMissionsPage() {
     }
 
     return (
-        <div className="space-y-8">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-[28px] md:text-[34px] font-semibold text-[#1C1E21] tracking-[-0.02em]">Mes Missions</h1>
-                    <p className="text-[#65676B] mt-1">Suivez l&apos;avancement de vos collaborations</p>
-                </div>
+        <div className="max-w-[1400px] mx-auto">
+            <PageHeader
+                title="Mes missions"
+                description="Suivez l'avancement de vos collaborations"
+            >
+                <Tabs tabs={tabs} active={activeTab} onChange={setActiveTab} />
+            </PageHeader>
+
+            <div className="mb-3">
+                <MetricStrip
+                    metrics={[
+                        { label: 'Total missions', value: String(stats.total) },
+                        { label: 'En cours', value: String(stats.active) },
+                        { label: 'Terminées', value: String(stats.completed) },
+                        { label: 'Revenus en attente', value: formatCHF(stats.pendingRevenue), tone: 'accent' },
+                    ]}
+                />
             </div>
 
-            {/* Stats Row */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-                {[
-                    { label: 'Total missions', value: String(stats.total), color: 'text-[#1C1E21]' },
-                    { label: 'En cours', value: String(stats.active), color: 'text-[#1C1E21]' },
-                    { label: 'Terminées', value: String(stats.completed), color: 'text-[#1C1E21]' },
-                    { label: 'Revenus en attente', value: formatCHF(stats.pendingRevenue), color: 'text-[#1C1E21]' },
-                ].map((stat, i) => (
-                    <motion.div key={stat.label}
-                        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                        className="bg-white border border-[#DADDE1] rounded-xl p-5"
-                    >
-                        <p className="text-sm text-[#65676B] mb-1">{stat.label}</p>
-                        <p className={`text-xl md:text-3xl font-bold ${stat.color}`}>{stat.value}</p>
-                    </motion.div>
-                ))}
-            </div>
-
-            {/* Tabs */}
-            <div className="flex gap-2">
-                {tabs.map(tab => (
-                    <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${activeTab === tab.id
-                            ? 'bg-[#1C1E21] text-white shadow-sm'
-                            : 'bg-[#F0F2F5] text-[#65676B] hover:text-[#1C1E21] hover:bg-[#EBEDF0] border border-[#DADDE1]'
-                            }`}
-                    >
-                        {tab.label}
-                        <span className="ml-2 text-xs opacity-70">{tab.count}</span>
-                    </button>
-                ))}
-            </div>
-
-            {/* Missions List */}
-            <AnimatePresence mode="wait">
-                <motion.div key={activeTab}
-                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                    className="space-y-4"
-                >
-                    {isDataLoading ? (
-                        <div className="flex items-center justify-center py-16">
-                            <Loader2 className="w-8 h-8 animate-spin text-[#8A8D91]" />
-                        </div>
-                    ) : filteredMissions.length === 0 ? (
-                        <div className="text-center py-16 text-[#8A8D91]">
-                            <Briefcase className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                            <p>{activeTab === 'active' ? 'Aucune mission en cours' : 'Aucune mission terminée'}</p>
-                        </div>
-                    ) : (
-                        filteredMissions.map((mission, index) => {
+            <Panel>
+                {isDataLoading ? (
+                    <div className="divide-y divide-[#DADDE1]">
+                        {[...Array(4)].map((_, i) => (
+                            <div key={i} className="flex items-center gap-3 px-4 py-3 animate-pulse">
+                                <div className="h-4 bg-[#F0F2F5] rounded w-1/3" />
+                                <div className="h-4 bg-[#F0F2F5] rounded w-16 ml-auto" />
+                            </div>
+                        ))}
+                    </div>
+                ) : filteredMissions.length === 0 ? (
+                    <EmptyState
+                        icon={Briefcase}
+                        title={activeTab === 'active' ? 'Aucune mission en cours' : 'Aucune mission terminée'}
+                        description={activeTab === 'active'
+                            ? 'Vos missions apparaîtront ici dès que MOSH vous en assigne une.'
+                            : 'Les missions livrées et approuvées apparaîtront ici.'}
+                    />
+                ) : (
+                    <PanelList>
+                        {filteredMissions.map((mission) => {
                             const progress = (mission.completedCount / PIPELINE_STEPS.length) * 100
-                            const ActiveIcon = mission.activeStep
-                                ? (PIPELINE_STEPS.find(p => p.type === mission.activeStep?.type)?.icon || Clock)
-                                : CheckCircle2
+                            const tone = !mission.activeStep || mission.status === 'completed'
+                                ? 'done'
+                                : mission.isCreatorAction
+                                    ? 'waiting'
+                                    : 'progress'
+                            const label = mission.activeStep?.label ?? 'Terminée'
+                            const meta = [
+                                mission.brand_name,
+                                mission.script_type,
+                                mission.deadline ? new Date(mission.deadline).toLocaleDateString('fr-CH') : null,
+                                mission.contract_mosh_status === 'pending_creator' ? 'Contrat à signer' : null,
+                            ].filter(Boolean).join(' · ')
 
                             return (
-                                <motion.div key={mission.id}
-                                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.05 }}
-                                >
-                                    <Link href={`/creator/missions/${mission.campaign_id}`}>
-                                        <div className={`bg-white border rounded-xl p-6 transition-all duration-300 hover:bg-white hover:shadow-md cursor-pointer group ${mission.isCreatorAction
-                                            ? 'border-[#0866FF]/30 hover:border-[#0866FF]/40'
-                                            : 'border-[#DADDE1]'
-                                            }`}>
-                                            <div className="flex items-start gap-5">
-                                                {/* Brand Logo */}
-                                                <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-[#F0F2F5] border border-[#DADDE1] flex-shrink-0">
-                                                    {mission.brand_avatar ? (
-                                                        <Image src={mission.brand_avatar} alt={mission.brand_name} fill className="object-cover" />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-[#65676B] text-lg font-bold">
-                                                            {mission.brand_name.charAt(0)}
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                {/* Content */}
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-start justify-between gap-4">
-                                                        <div>
-                                                            <h3 className="text-lg font-semibold text-[#1C1E21] mb-0.5 group-hover:text-[#1C1E21] transition-colors">{mission.title}</h3>
-                                                            <p className="text-sm text-[#65676B]">{mission.brand_name}</p>
-                                                        </div>
-                                                        <div className="flex items-center gap-2 flex-shrink-0">
-                                                            {/* Active step badge */}
-                                                            {mission.activeStep ? (
-                                                                <Badge className={`border flex-shrink-0 ${mission.isCreatorAction
-                                                                    ? 'bg-[#E7F0FF] text-[#1C1E21] border-[#0866FF]/30'
-                                                                    : 'bg-[#F0F2F5] text-[#65676B] border-[#DADDE1]'
-                                                                    }`}>
-                                                                    <ActiveIcon className="w-3 h-3 mr-1" />
-                                                                    {mission.isCreatorAction ? '⚡ ' : ''}
-                                                                    {mission.activeStep.label}
-                                                                </Badge>
-                                                            ) : (
-                                                                <Badge className="bg-[#E7F0FF] text-[#1C1E21] border-[#0866FF]/30">
-                                                                    <CheckCircle2 className="w-3 h-3 mr-1" />
-                                                                    Terminée
-                                                                </Badge>
-                                                            )}
-                                                            <ChevronRight className="w-4 h-4 text-[#8A8D91] group-hover:text-[#0866FF] transition-colors" />
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Pipeline Progress Bar */}
-                                                    <div className="mt-3 flex items-center gap-2">
-                                                        <div className="flex-1 h-1.5 rounded-full bg-black/[0.04] overflow-hidden">
-                                                            <div
-                                                                className={`h-full rounded-full transition-all duration-700 ${mission.isCreatorAction ? 'bg-[#0866FF]' : 'bg-[#0866FF]'}`}
-                                                                style={{ width: `${progress}%` }}
-                                                            />
-                                                        </div>
-                                                        <span className="text-[10px] text-[#8A8D91] font-medium w-8 text-right">
-                                                            {mission.completedCount}/{PIPELINE_STEPS.length}
-                                                        </span>
-                                                    </div>
-
-                                                    {/* Meta Row */}
-                                                    <div className="flex flex-wrap items-center gap-3 md:gap-5 mt-3 text-sm">
-                                                        {mission.deadline && (
-                                                            <span className="text-[#65676B] flex items-center gap-1.5">
-                                                                <Calendar className="w-3.5 h-3.5" strokeWidth={1.5} />
-                                                                {new Date(mission.deadline).toLocaleDateString('fr-CH')}
-                                                            </span>
-                                                        )}
-                                                        <span className="text-[#65676B]">{mission.script_type}</span>
-                                                        <span className="text-[#1C1E21] font-semibold">
-                                                            {mission.creator_amount_chf
-                                                                ? formatCHF(mission.creator_amount_chf)
-                                                                : formatCHF(mission.budget_chf)}
-                                                        </span>
-                                                        {mission.contract_mosh_status === 'pending_creator' && (
-                                                            <span className="text-amber-600 text-xs font-medium flex items-center gap-1">
-                                                                <ScrollText className="w-3 h-3" />
-                                                                Contrat à signer
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
+                                <PanelRow key={mission.id} href={`/creator/missions/${mission.campaign_id}`}>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-[13px] font-medium text-[#1C1E21] truncate">{mission.title}</p>
+                                        <p className="text-[12px] text-[#8A8D91] truncate">{meta}</p>
+                                        <div className="flex items-center gap-2 mt-1.5 max-w-[260px]">
+                                            <div className="flex-1 h-1 rounded-full bg-[#F0F2F5] overflow-hidden">
+                                                <div
+                                                    className="h-full rounded-full bg-[#0866FF]"
+                                                    style={{ width: `${progress}%` }}
+                                                />
                                             </div>
+                                            <span className="text-[11px] text-[#8A8D91] tabular-nums w-7 text-right">
+                                                {mission.completedCount}/{PIPELINE_STEPS.length}
+                                            </span>
                                         </div>
-                                    </Link>
-                                </motion.div>
+                                    </div>
+                                    <StatusPill tone={tone}>{label}</StatusPill>
+                                    <span className="text-[13px] font-medium text-[#1C1E21] tabular-nums whitespace-nowrap">
+                                        {mission.creator_amount_chf
+                                            ? formatCHF(mission.creator_amount_chf)
+                                            : formatCHF(mission.budget_chf)}
+                                    </span>
+                                    <ChevronRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors shrink-0" strokeWidth={2} />
+                                </PanelRow>
                             )
-                        })
-                    )}
-                </motion.div>
-            </AnimatePresence>
+                        })}
+                    </PanelList>
+                )}
+            </Panel>
         </div>
     )
 }

@@ -1,38 +1,39 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
     ClipboardList,
     Users,
     Building2,
     Video,
-    ArrowUpRight,
+    ArrowRight,
+    ChevronRight,
     FileText,
     TrendingUp,
-    Settings,
 } from 'lucide-react'
 import { getAdminStats, getAllCampaigns, type CampaignWithDetails } from '@/lib/services/adminService'
+import { PageHeader, MetricStrip, Panel, PanelList, PanelRow, StatusPill, EmptyState } from '@/components/ui/workspace'
+import { getStatusConfig } from '@/lib/constants/statusConfig'
 
-import { STATUS_CONFIG, getStatusConfig } from '@/lib/constants/statusConfig'
+const SHORTCUTS = [
+    { icon: ClipboardList, title: 'Pipeline', desc: 'Toutes les missions', href: '/mosh-cockpit/missions' },
+    { icon: FileText, title: 'Briefs entrants', desc: 'Nouveaux briefs à traiter', href: '/mosh-cockpit/missions?filter=draft' },
+    { icon: TrendingUp, title: 'En production', desc: 'Missions en cours', href: '/mosh-cockpit/missions?filter=in_progress' },
+    { icon: Video, title: 'Vidéos', desc: 'À valider et livrer', href: '/mosh-cockpit/missions?filter=completed' },
+    { icon: Users, title: 'Créateurs', desc: 'Répertoire créateurs', href: '/mosh-cockpit/creators' },
+    { icon: Building2, title: 'Marques', desc: 'Marques et demandes', href: '/mosh-cockpit/brands' },
+]
 
-/* ── Capsule progress indicators (like Make.com) ── */
-function CapsuleBar({ filled, total, dark = false }: { filled: number; total: number; dark?: boolean }) {
-    const pct = total > 0 ? Math.round((filled / total) * 100) : 0
-    return (
-        <div className="mt-5">
-            <div className={`h-2 w-full rounded-full ${dark ? 'bg-white/[0.1]' : 'bg-black/[0.06]'}`}>
-                <div
-                    className={`h-2 rounded-full transition-all duration-500 ${dark ? 'bg-[#0866FF]' : 'bg-[#1C1E21]'}`}
-                    style={{ width: `${pct}%` }}
-                />
-            </div>
-        </div>
-    )
-}
+const toneFor = (status: string): 'progress' | 'waiting' | 'done' | 'idle' =>
+    status === 'completed' ? 'done'
+        : status === 'cancelled' ? 'idle'
+            : status === 'draft' ? 'waiting'
+                : 'progress'
 
 export default function AdminDashboardPage() {
+    const router = useRouter()
     const [stats, setStats] = useState({ pendingBriefs: 0, activeMissions: 0, pendingVideos: 0, totalCreators: 0 })
     const [recentCampaigns, setRecentCampaigns] = useState<CampaignWithDetails[]>([])
     const [isLoading, setIsLoading] = useState(true)
@@ -51,224 +52,129 @@ export default function AdminDashboardPage() {
     }, [])
 
     const totalMissions = stats.pendingBriefs + stats.activeMissions
+    const dash = (n: number) => (isLoading ? '—' : String(n))
 
     return (
-        <div className="flex gap-6 max-w-[1400px] mx-auto">
-            {/* ═══════════ MAIN CONTENT ═══════════ */}
-            <div className="flex-1 min-w-0 space-y-8">
-
-                {/* ── Title ── */}
-                <motion.div
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="flex items-start justify-between"
-                >
-                    <div>
-                        <h1 className="text-[40px] leading-[1.15] font-medium text-[#1C1E21] tracking-[-0.02em]">
-                            Pilotage <span className="inline-flex items-center align-middle"><Settings className="w-6 h-6 text-gray-400 mx-1" /></span> Missions
-                            <br />
-                            et <span className="inline-flex items-center align-middle"><span className="text-[#0866FF] text-2xl mx-1">✦</span></span> Production
-                        </h1>
-                    </div>
+        <div className="max-w-[1400px] mx-auto">
+            <PageHeader
+                title="Pilotage"
+                description="Vue d'ensemble des missions et de la production"
+                actions={
                     <Link
                         href="/mosh-cockpit/missions?filter=draft"
-                        className="flex items-center gap-2 px-5 py-2.5 bg-[#1C1E21] text-white text-sm font-medium rounded-full hover:bg-[#2A2A2E] transition-colors shadow-sm"
+                        className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#0866FF] text-white rounded-lg text-[13px] font-medium hover:bg-[#0653CC] transition-colors"
                     >
-                        <FileText className="w-4 h-4" />
+                        <FileText className="w-4 h-4" strokeWidth={2.2} />
                         Briefs en attente
                     </Link>
-                </motion.div>
+                }
+            />
 
-                {/* ── Stat Cards Row — 3 cards ── */}
-                <div className="grid grid-cols-3 gap-5">
-                    {/* Card 1: Briefs — white bg */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="bg-white rounded-xl p-6 shadow-sm border border-[#DADDE1]"
-                    >
-                        <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-2">
-                                <div className="w-7 h-7 rounded-lg bg-[#F0F2F5] flex items-center justify-center">
-                                    <FileText className="w-3.5 h-3.5 text-[#65676B]" strokeWidth={1.5} />
-                                </div>
-                                <span className="text-sm font-medium text-[#65676B]">Briefs</span>
-                            </div>
-                            <span />
-                        </div>
-                        <div className="flex items-baseline gap-2 mt-4">
-                            <span className="text-[52px] leading-none font-bold text-[#1C1E21] tracking-[-0.03em]">
-                                {isLoading ? '—' : stats.pendingBriefs}
-                            </span>
-                            <span className="text-sm text-[#8A8D91] font-normal">en attente</span>
-                        </div>
-                        <CapsuleBar filled={isLoading ? 0 : stats.pendingBriefs} total={totalMissions || 1} />
-                    </motion.div>
-
-                    {/* Card 2: Missions — accent lime/green bg */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.15 }}
-                        className="bg-[#E2F57A] rounded-xl p-6 shadow-sm border border-[#D4E542]/40"
-                    >
-                        <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-2">
-                                <div className="w-7 h-7 rounded-lg bg-black/[0.06] flex items-center justify-center">
-                                    <ClipboardList className="w-3.5 h-3.5 text-[#0653CC]" strokeWidth={1.5} />
-                                </div>
-                                <span className="text-sm font-medium text-[#0653CC]/70">Missions actives</span>
-                            </div>
-                            <span />
-                        </div>
-                        <div className="flex items-baseline gap-2 mt-4">
-                            <span className="text-[52px] leading-none font-bold text-[#1C1E21] tracking-[-0.03em]">
-                                {isLoading ? '—' : stats.activeMissions}
-                            </span>
-                            <span className="text-sm text-[#0653CC]/50 font-normal">/ {totalMissions || '—'}</span>
-                        </div>
-                        <CapsuleBar filled={isLoading ? 0 : stats.activeMissions} total={totalMissions || 1} />
-                    </motion.div>
-
-                    {/* Card 3: CTA promo card — dark bg */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="bg-[#1C1E21] rounded-xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden"
-                    >
-                        {/* Decorative gradient */}
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#0866FF]/20 to-transparent rounded-bl-full" />
-                        <div>
-                            <p className="text-white/90 text-lg font-medium leading-snug relative z-10">
-                                Gérez vos missions<br />
-                                <span className="text-[#0866FF]">UGC en direct ↗</span>
-                            </p>
-                        </div>
-                        <Link
-                            href="/mosh-cockpit/missions"
-                            className="mt-5 inline-flex items-center gap-2 px-4 py-2 bg-white text-[#1C1E21] text-sm font-medium rounded-full hover:bg-gray-100 transition-colors w-fit"
-                        >
-                            Pipeline <ArrowUpRight className="w-3.5 h-3.5" />
-                        </Link>
-                    </motion.div>
-                </div>
-
-                {/* ── Missions récentes ── */}
-                <div>
-                    <div className="flex items-center gap-3 mb-5">
-                        <div className="w-7 h-7 rounded-lg bg-white flex items-center justify-center shadow-sm border border-[#DADDE1]">
-                            <ClipboardList className="w-3.5 h-3.5 text-[#65676B]" strokeWidth={1.5} />
-                        </div>
-                        <h2 className="text-lg font-semibold text-[#1C1E21] tracking-tight">Missions récentes</h2>
-                        <div className="flex-1" />
-                        <Link
-                            href="/mosh-cockpit/missions"
-                            className="text-sm text-[#65676B] hover:text-[#1C1E21] transition-colors flex items-center gap-1"
-                        >
-                            Voir tout <ArrowUpRight className="w-3.5 h-3.5" />
-                        </Link>
-                    </div>
-
-                    {isLoading ? (
-                        <div className="bg-white rounded-xl border border-[#DADDE1] divide-y divide-gray-100">
-                            {[...Array(3)].map((_, i) => (
-                                <div key={i} className="p-5 animate-pulse">
-                                    <div className="h-4 bg-gray-100 rounded w-1/3 mb-2" />
-                                    <div className="h-3 bg-gray-50 rounded w-1/5" />
-                                </div>
-                            ))}
-                        </div>
-                    ) : recentCampaigns.length === 0 ? (
-                        <div className="bg-white rounded-xl border border-[#DADDE1] p-10 text-center">
-                            <p className="text-[#8A8D91] font-medium">Aucune mission</p>
-                            <p className="text-[#BCC0C4] text-sm mt-1">Les briefs apparaîtront ici</p>
-                        </div>
-                    ) : (
-                        <div className="bg-white rounded-xl border border-[#DADDE1] divide-y divide-gray-100 overflow-hidden">
-                            {recentCampaigns.map((campaign, i) => (
-                                <motion.div
-                                    key={campaign.id}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.3 + i * 0.04 }}
-                                >
-                                    <Link
-                                        href={`/mosh-cockpit/missions/${campaign.id}`}
-                                        className="group flex items-center gap-4 p-5 hover:bg-[#FAFAF9] transition-colors"
-                                    >
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-semibold text-[#1C1E21] text-[15px] group-hover:text-[#1C1E21] transition-colors truncate">
-                                                {campaign.title}
-                                            </p>
-                                            <p className="text-sm text-[#8A8D91] mt-0.5">
-                                                {campaign.brand?.profiles_brand?.company_name || campaign.brand?.full_name || '—'}
-                                            </p>
-                                        </div>
-                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#F0F2F5] text-[#65676B]">
-                                            <span className={`w-[6px] h-[6px] rounded-full ${getStatusConfig(campaign.status).dotColor}`} />
-                                            {getStatusConfig(campaign.status).label}
-                                        </span>
-                                        <span className="text-xs text-[#BCC0C4] font-medium tabular-nums">
-                                            {new Date(campaign.created_at).toLocaleDateString('fr-CH')}
-                                        </span>
-                                        <ArrowUpRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-all flex-shrink-0" />
-                                    </Link>
-                                </motion.div>
-                            ))}
-                        </div>
-                    )}
-                </div>
+            <div className="mb-6">
+                <MetricStrip
+                    metrics={[
+                        { label: 'Briefs en attente', value: dash(stats.pendingBriefs), hint: 'À qualifier' },
+                        { label: 'Missions actives', value: dash(stats.activeMissions), hint: `sur ${isLoading ? '—' : totalMissions} au total`, tone: 'accent' },
+                        { label: 'Vidéos à valider', value: dash(stats.pendingVideos), hint: 'En attente de revue' },
+                        { label: 'Créateurs', value: dash(stats.totalCreators), hint: 'Inscrits sur la plateforme' },
+                    ]}
+                />
             </div>
 
-            {/* ═══════════ RIGHT SIDEBAR ═══════════ */}
-            <motion.aside
-                initial={{ opacity: 0, x: 16 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-                className="hidden lg:flex flex-col gap-3 w-[240px] flex-shrink-0 pt-2"
-            >
-                {/* Top row: 2 icon cards */}
-                <div className="grid grid-cols-2 gap-3">
-                    <Link href="/mosh-cockpit/creators" className="bg-white rounded-lg p-4 border border-[#DADDE1] text-center hover:shadow-sm transition-all group">
-                        <div className="w-9 h-9 rounded-lg border border-[#DADDE1] flex items-center justify-center mx-auto mb-2 group-hover:border-[#0866FF]/40 transition-colors">
-                            <Users className="w-4 h-4 text-[#65676B] group-hover:text-[#1C1E21] transition-colors" strokeWidth={1.5} />
-                        </div>
-                        <p className="text-xs font-semibold text-[#1C1E21]">Créateurs</p>
-                    </Link>
-                    <Link href="/mosh-cockpit/brands" className="bg-white rounded-lg p-4 border border-[#DADDE1] text-center hover:shadow-sm transition-all group">
-                        <div className="w-9 h-9 rounded-lg border border-[#DADDE1] flex items-center justify-center mx-auto mb-2 group-hover:border-[#0866FF]/40 transition-colors">
-                            <Building2 className="w-4 h-4 text-[#65676B] group-hover:text-[#1C1E21] transition-colors" strokeWidth={1.5} />
-                        </div>
-                        <p className="text-xs font-semibold text-[#1C1E21]">Marques</p>
-                    </Link>
+            <div className="flex flex-col lg:flex-row gap-6 items-start">
+                <div className="flex-1 min-w-0 w-full">
+                    <Panel
+                        title="Missions récentes"
+                        actions={
+                            <Link
+                                href="/mosh-cockpit/missions"
+                                className="inline-flex items-center gap-1 text-[13px] text-[#65676B] hover:text-[#1C1E21] transition-colors"
+                            >
+                                Voir tout <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
+                            </Link>
+                        }
+                    >
+                        {isLoading ? (
+                            <div className="divide-y divide-[#DADDE1]">
+                                {[...Array(5)].map((_, i) => (
+                                    <div key={i} className="flex items-center gap-3 px-4 py-3 animate-pulse">
+                                        <div className="h-4 bg-[#F0F2F5] rounded w-1/3" />
+                                        <div className="h-4 bg-[#F0F2F5] rounded w-1/6 ml-auto" />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : recentCampaigns.length === 0 ? (
+                            <EmptyState
+                                icon={ClipboardList}
+                                title="Aucune mission"
+                                description="Les briefs reçus apparaîtront ici."
+                            />
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-[13px]">
+                                    <thead>
+                                        <tr className="border-b border-[#DADDE1]">
+                                            <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5">Mission</th>
+                                            <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5 hidden md:table-cell">Marque</th>
+                                            <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5">Statut</th>
+                                            <th className="text-right font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5 hidden sm:table-cell">Créée</th>
+                                            <th className="w-8" />
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-[#DADDE1]">
+                                        {recentCampaigns.map((campaign) => {
+                                            const brandName = campaign.brand?.profiles_brand?.company_name || campaign.brand?.full_name || '—'
+                                            return (
+                                                <tr
+                                                    key={campaign.id}
+                                                    onClick={() => router.push(`/mosh-cockpit/missions/${campaign.id}`)}
+                                                    className="hover:bg-[#F7F8FA] cursor-pointer transition-colors group"
+                                                >
+                                                    <td className="px-4 py-2.5 max-w-[280px]">
+                                                        <span className="block font-medium text-[#1C1E21] truncate">{campaign.title}</span>
+                                                        <span className="block text-[12px] text-[#8A8D91] truncate md:hidden">{brandName}</span>
+                                                    </td>
+                                                    <td className="px-4 py-2.5 text-[#65676B] hidden md:table-cell max-w-[200px]">
+                                                        <span className="block truncate">{brandName}</span>
+                                                    </td>
+                                                    <td className="px-4 py-2.5">
+                                                        <StatusPill tone={toneFor(campaign.status)}>
+                                                            {getStatusConfig(campaign.status).label}
+                                                        </StatusPill>
+                                                    </td>
+                                                    <td className="px-4 py-2.5 text-right text-[#65676B] tabular-nums hidden sm:table-cell whitespace-nowrap">
+                                                        {new Date(campaign.created_at).toLocaleDateString('fr-CH')}
+                                                    </td>
+                                                    <td className="pr-3">
+                                                        <ArrowRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors" strokeWidth={2} />
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </Panel>
                 </div>
 
-                {/* Link cards */}
-                {[
-                    { icon: ClipboardList, title: 'Pipeline', desc: 'Gérer toutes les missions…', href: '/mosh-cockpit/missions' },
-                    { icon: FileText, title: 'Briefs entrants', desc: 'Nouveaux briefs à traiter…', href: '/mosh-cockpit/missions?filter=draft' },
-                    { icon: TrendingUp, title: 'En production', desc: 'Missions en cours…', href: '/mosh-cockpit/missions?filter=in_progress' },
-                    { icon: Video, title: 'Vidéos', desc: 'À valider et livrer…', href: '/mosh-cockpit/missions?filter=completed' },
-                ].map((item) => (
-                    <Link
-                        key={item.title}
-                        href={item.href}
-                        className="group flex items-start gap-3 bg-white rounded-lg p-4 border border-[#DADDE1] hover:shadow-sm transition-all"
-                    >
-                        <div className="w-9 h-9 rounded-lg border border-[#DADDE1] flex items-center justify-center flex-shrink-0 group-hover:border-[#0866FF]/40 transition-colors">
-                            <item.icon className="w-4 h-4 text-[#65676B] group-hover:text-[#1C1E21] transition-colors" strokeWidth={1.5} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-[#1C1E21]">{item.title}</p>
-                            <p className="text-xs text-[#8A8D91] mt-0.5 truncate">{item.desc}</p>
-                        </div>
-                        <ArrowUpRight className="w-3.5 h-3.5 text-[#BCC0C4] group-hover:text-[#1C1E21] transition-all flex-shrink-0 mt-0.5" strokeWidth={1.5} />
-                    </Link>
-                ))}
-            </motion.aside>
+                <aside className="w-full lg:w-[260px] shrink-0">
+                    <Panel title="Raccourcis">
+                        <PanelList>
+                            {SHORTCUTS.map((item) => (
+                                <PanelRow key={item.title} href={item.href}>
+                                    <item.icon className="w-4 h-4 text-[#8A8D91] shrink-0" strokeWidth={1.8} />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-[13px] font-medium text-[#1C1E21] truncate">{item.title}</p>
+                                        <p className="text-[12px] text-[#8A8D91] truncate">{item.desc}</p>
+                                    </div>
+                                    <ChevronRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors shrink-0" strokeWidth={2} />
+                                </PanelRow>
+                            ))}
+                        </PanelList>
+                    </Panel>
+                </aside>
+            </div>
         </div>
     )
 }

@@ -2,14 +2,19 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import Link from 'next/link'
-import { Search, MapPin, Sparkles, Star, Plus, LinkIcon, Copy, Check, Trash2, Clock, CheckCircle2, X, Loader2, MessageCircle, Mail } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Search, Users, Star, Plus, LinkIcon, Copy, Check, Trash2, ArrowRight, X, Loader2, MessageCircle, Mail } from 'lucide-react'
 import { getAllCreators, getInvitations, createInvitation, revokeInvitation, type CreatorWithProfile, type InvitationData } from '@/lib/services/adminService'
 import { toast } from 'sonner'
+import { PageHeader, Tabs, StatusPill, EmptyState } from '@/components/ui/workspace'
 
 type Tab = 'registered' | 'invitations'
 
+const TH = 'text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5'
+const ICON_BTN = 'w-8 h-8 rounded-lg border border-[#DADDE1] bg-white flex items-center justify-center text-[#65676B] hover:text-[#0866FF] hover:border-[#0866FF] transition-colors'
+
 export default function AdminCreatorsPage() {
+    const router = useRouter()
     const [creators, setCreators] = useState<CreatorWithProfile[]>([])
     const [invitations, setInvitations] = useState<InvitationData[]>([])
     const [isLoading, setIsLoading] = useState(true)
@@ -87,290 +92,245 @@ export default function AdminCreatorsPage() {
 
     const pendingInvites = invitations.filter(i => !i.used_at)
     const usedInvites = invitations.filter(i => i.used_at)
+    const orderedInvites = [...pendingInvites, ...usedInvites]
+
+    const resultCount = activeTab === 'registered' ? filteredCreators.length : invitations.length
+
+    const generateButton = (
+        <button
+            onClick={() => setShowInviteModal(true)}
+            className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#0866FF] text-white rounded-lg text-[13px] font-medium hover:bg-[#0653CC] transition-colors shrink-0"
+        >
+            <Plus className="w-4 h-4" strokeWidth={2.2} />
+            Générer un lien
+        </button>
+    )
 
     return (
-        <div className="max-w-7xl mx-auto space-y-6">
-            {/* Header */}
-            <div className="flex items-start justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-[#1C1E21] tracking-tight">Répertoire créateurs</h1>
-                    <p className="text-[#65676B] mt-1">
-                        {creators.length} créateur{creators.length > 1 ? 's' : ''} inscrit{creators.length > 1 ? 's' : ''} · {pendingInvites.length} invitation{pendingInvites.length > 1 ? 's' : ''} en attente
-                    </p>
-                </div>
-                {activeTab === 'invitations' && (
-                    <button
-                        onClick={() => setShowInviteModal(true)}
-                        className="px-4 py-2.5 bg-[#0866FF] text-white font-medium rounded-lg hover:bg-[#0653CC] transition-colors flex items-center gap-2"
-                    >
-                        <Plus className="w-4 h-4" />
-                        Générer un lien
-                    </button>
-                )}
-            </div>
+        <div className="max-w-[1400px] mx-auto">
+            <PageHeader
+                title="Créateurs"
+                description={`${creators.length} créateur${creators.length > 1 ? 's' : ''} inscrit${creators.length > 1 ? 's' : ''} · ${pendingInvites.length} invitation${pendingInvites.length > 1 ? 's' : ''} en attente`}
+                actions={activeTab === 'invitations' ? generateButton : undefined}
+            >
+                <Tabs
+                    tabs={[
+                        { id: 'registered', label: 'Créateurs', count: creators.length },
+                        { id: 'invitations', label: 'Invitations', count: pendingInvites.length },
+                    ]}
+                    active={activeTab}
+                    onChange={(id) => setActiveTab(id as Tab)}
+                />
+            </PageHeader>
 
-            {/* Tabs */}
-            <div className="flex gap-1 bg-[#F0F2F5] rounded-lg p-1 w-fit">
-                <button
-                    onClick={() => setActiveTab('registered')}
-                    className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'registered'
-                        ? 'bg-white text-[#1C1E21] shadow-sm'
-                        : 'text-[#65676B] hover:text-[#1C1E21]'
-                    }`}
-                >
-                    Créateurs
-                    <span className="ml-2 text-xs bg-[#E7F0FF] text-[#1C1E21] px-1.5 py-0.5 rounded-full">{creators.length}</span>
-                </button>
-                <button
-                    onClick={() => setActiveTab('invitations')}
-                    className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'invitations'
-                        ? 'bg-white text-[#1C1E21] shadow-sm'
-                        : 'text-[#65676B] hover:text-[#1C1E21]'
-                    }`}
-                >
-                    Invitations
-                    {pendingInvites.length > 0 && (
-                        <span className="ml-2 text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">{pendingInvites.length}</span>
-                    )}
-                </button>
-            </div>
-
-            {/* Search (only for registered) */}
-            {activeTab === 'registered' && (
-                <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A8D91]" strokeWidth={1.5} />
-                    <input
-                        type="text"
-                        placeholder="Rechercher par nom, canton, spécialité..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3 bg-[#DADDE1]/50 border border-[#DADDE1] rounded-lg text-sm text-[#1C1E21] placeholder:text-[#8A8D91] focus:outline-none focus:ring-2 focus:ring-[#0866FF]/30 focus:border-[#0866FF]/60 focus:bg-white/60 transition-all"
-                    />
-                </div>
-            )}
-
-            {/* Content */}
-            {isLoading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                    {[...Array(6)].map((_, i) => (
-                        <div key={i} className="bg-white rounded-xl p-6 border border-[#DADDE1] animate-pulse">
-                            <div className="flex items-start gap-4">
-                                <div className="w-14 h-14 rounded-lg bg-[#F0F2F5]" />
-                                <div className="flex-1 space-y-2">
-                                    <div className="h-4 bg-[#F0F2F5] rounded w-2/3" />
-                                    <div className="h-3 bg-[#F0F2F5] rounded w-1/2" />
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            ) : activeTab === 'registered' ? (
-                /* ─── Registered Creators ─── */
-                filteredCreators.length === 0 ? (
-                    <div className="bg-white rounded-xl border border-[#DADDE1] p-12 text-center">
-                        <p className="text-[#65676B] font-medium">Aucun créateur trouvé</p>
-                        <p className="text-[#8A8D91] text-sm mt-1">Essayez un autre terme de recherche</p>
+            {/* Toolbar — bare controls above the surface */}
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+                {activeTab === 'registered' && (
+                    <div className="relative flex-1 min-w-[220px]">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A8D91]" strokeWidth={1.8} />
+                        <input
+                            type="text"
+                            placeholder="Rechercher par nom, canton, spécialité…"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full h-9 pl-9 pr-3 bg-white border border-[#DADDE1] rounded-lg text-[13px] text-[#1C1E21] placeholder:text-[#8A8D91] focus:outline-none focus:border-[#0866FF] focus:ring-2 focus:ring-[#0866FF]/20 transition-colors"
+                        />
                     </div>
-                ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                        {filteredCreators.map((creator, i) => (
-                            <motion.div
-                                key={creator.id}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.03 }}
-                            >
-                                <Link
-                                    href={`/mosh-cockpit/creators/${creator.id}`}
-                                    className="block bg-white border border-[#DADDE1] rounded-xl p-6 hover:shadow-md hover:border-[#0866FF]/30 transition-all group"
-                                >
-                                    <div className="flex items-start gap-4">
-                                        <div className="w-14 h-14 rounded-lg bg-[#E7F0FF] flex items-center justify-center text-[#1C1E21] text-lg font-bold shrink-0 group-hover:bg-[#0866FF]/30 transition-colors">
-                                            {creator.full_name?.[0] || '?'}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="text-[#1C1E21] font-semibold truncate">{creator.full_name}</h3>
-                                            <p className="text-[#8A8D91] text-sm truncate">{creator.email}</p>
-                                        </div>
-                                        {creator.profiles_creator?.is_available && (
-                                            <div className="w-2.5 h-2.5 rounded-full bg-[#0866FF] ring-2 ring-[#0866FF]/20 flex-shrink-0 mt-1.5" />
-                                        )}
-                                    </div>
+                )}
+                <span className="text-[12px] text-[#8A8D91] tabular-nums ml-auto">
+                    {activeTab === 'registered'
+                        ? `${resultCount} créateur${resultCount > 1 ? 's' : ''}`
+                        : `${resultCount} invitation${resultCount > 1 ? 's' : ''}`}
+                </span>
+            </div>
 
-                                    <div className="mt-4 space-y-2 text-sm">
-                                        {creator.profiles_creator?.location_canton && (
-                                            <div className="flex items-center gap-2 text-[#65676B]">
-                                                <MapPin className="w-3.5 h-3.5" strokeWidth={1.5} />
-                                                {creator.profiles_creator.location_canton}
-                                            </div>
-                                        )}
-                                        {creator.profiles_creator?.specialties?.length ? (
-                                            <div className="flex items-center gap-2 text-[#65676B]">
-                                                <Sparkles className="w-3.5 h-3.5" strokeWidth={1.5} />
-                                                <div className="flex flex-wrap gap-1">
-                                                    {creator.profiles_creator.specialties.slice(0, 3).map(s => (
-                                                        <span key={s} className="px-2 py-0.5 bg-[#F0F2F5] rounded-full text-xs text-[#1C1E21]">{s}</span>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        ) : null}
-                                        {creator.profiles_creator?.languages?.length ? (
-                                            <div className="flex items-center gap-2 text-[#65676B]">
-                                                <span className="text-xs">🌐</span>
-                                                <span className="text-xs">{creator.profiles_creator.languages.join(', ')}</span>
-                                            </div>
-                                        ) : null}
-                                    </div>
-
-                                    <div className="mt-4 pt-3 border-t border-[#DADDE1] flex items-center justify-between">
-                                        <span className="text-xs text-[#8A8D91]">
-                                            Inscrit le {new Date(creator.created_at).toLocaleDateString('fr-CH')}
-                                        </span>
-                                        {creator.profiles_creator?.rating_avg ? (
-                                            <div className="flex items-center gap-1 text-xs text-[#65676B]">
-                                                <Star className="w-3 h-3 fill-[#0866FF] text-[#0866FF]" />
-                                                {creator.profiles_creator.rating_avg.toFixed(1)}
-                                            </div>
-                                        ) : null}
-                                    </div>
-                                </Link>
-                            </motion.div>
+            {/* One dense surface */}
+            <div className="bg-white border border-[#DADDE1] rounded-xl overflow-hidden">
+                {isLoading ? (
+                    <div className="divide-y divide-[#DADDE1]">
+                        {[...Array(6)].map((_, i) => (
+                            <div key={i} className="flex items-center gap-3 px-4 py-3 animate-pulse">
+                                <div className="h-4 bg-[#F0F2F5] rounded w-1/4" />
+                                <div className="h-4 bg-[#F0F2F5] rounded w-1/6 ml-auto" />
+                            </div>
                         ))}
                     </div>
-                )
-            ) : (
-                /* ─── Invitations ─── */
-                <div className="space-y-6">
-                    {/* Pending invitations */}
-                    {pendingInvites.length > 0 && (
-                        <div className="space-y-3">
-                            <h2 className="text-sm font-semibold text-[#65676B] uppercase tracking-wider">En attente</h2>
-                            {pendingInvites.map((invite, i) => {
-                                const isExpired = invite.expires_at && new Date(invite.expires_at) < new Date()
-                                return (
-                                    <motion.div
-                                        key={invite.id}
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: i * 0.03 }}
-                                        className="bg-white border border-[#DADDE1] rounded-xl p-5 flex items-center gap-4"
-                                    >
-                                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center shrink-0 ${isExpired ? 'bg-red-50' : 'bg-amber-50'}`}>
-                                            {isExpired ? (
-                                                <Clock className="w-5 h-5 text-red-400" />
-                                            ) : (
-                                                <LinkIcon className="w-5 h-5 text-amber-500" />
-                                            )}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <code className="text-sm font-mono font-semibold text-[#1C1E21] tracking-wider">{invite.code}</code>
-                                                {isExpired && (
-                                                    <span className="px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider rounded-full bg-red-50 text-red-500">Expiré</span>
-                                                )}
-                                            </div>
-                                            <p className="text-xs text-[#8A8D91] mt-0.5">
-                                                {invite.label && <span className="text-[#65676B]">{invite.label} · </span>}
-                                                Créé le {new Date(invite.created_at).toLocaleDateString('fr-CH')}
-                                                {invite.expires_at && ` · Expire le ${new Date(invite.expires_at).toLocaleDateString('fr-CH')}`}
-                                            </p>
-                                        </div>
-                                        <div className="flex items-center gap-2 shrink-0">
-                                            {!isExpired && (
-                                                <>
-                                                    <button
-                                                        onClick={() => handleCopyLink(invite.code)}
-                                                        className="w-9 h-9 rounded-lg bg-[#F0F2F5] flex items-center justify-center text-[#65676B] hover:text-[#1C1E21] hover:bg-[#E7F0FF] transition-all"
-                                                        title="Copier le lien"
-                                                    >
-                                                        {copiedCode === invite.code ? (
-                                                            <Check className="w-4 h-4 text-[#0866FF]" />
-                                                        ) : (
-                                                            <Copy className="w-4 h-4" />
-                                                        )}
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleShareWhatsApp(invite.code)}
-                                                        className="w-9 h-9 rounded-lg bg-[#F0F2F5] flex items-center justify-center text-[#65676B] hover:text-[#1C1E21] hover:bg-[#25D366]/20 transition-all"
-                                                        title="Partager sur WhatsApp"
-                                                    >
-                                                        <MessageCircle className="w-4 h-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleShareEmail(invite.code)}
-                                                        className="w-9 h-9 rounded-lg bg-[#F0F2F5] flex items-center justify-center text-[#65676B] hover:text-[#1C1E21] hover:bg-[#E7F0FF] transition-all"
-                                                        title="Envoyer par email"
-                                                    >
-                                                        <Mail className="w-4 h-4" />
-                                                    </button>
-                                                </>
-                                            )}
-                                            <button
-                                                onClick={() => handleRevoke(invite.id)}
-                                                className="w-9 h-9 rounded-lg bg-[#F0F2F5] flex items-center justify-center text-[#8A8D91] hover:bg-red-50 hover:text-red-500 transition-all"
-                                                title="Supprimer"
+                ) : activeTab === 'registered' ? (
+                    filteredCreators.length === 0 ? (
+                        <EmptyState
+                            icon={Users}
+                            title="Aucun créateur"
+                            description={searchQuery ? 'Aucun résultat pour cette recherche.' : 'Les créateurs inscrits apparaîtront ici.'}
+                        />
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-[13px]">
+                                <thead>
+                                    <tr className="border-b border-[#DADDE1]">
+                                        <th className={TH}>Créateur</th>
+                                        <th className={`${TH} hidden md:table-cell`}>Canton</th>
+                                        <th className={`${TH} hidden lg:table-cell`}>Spécialités</th>
+                                        <th className={`${TH} hidden xl:table-cell`}>Langues</th>
+                                        <th className={TH}>Statut</th>
+                                        <th className={`${TH} text-right hidden sm:table-cell`}>Note</th>
+                                        <th className={`${TH} hidden xl:table-cell`}>Inscription</th>
+                                        <th className="w-8" />
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-[#DADDE1]">
+                                    {filteredCreators.map((creator) => {
+                                        const p = creator.profiles_creator
+                                        return (
+                                            <tr
+                                                key={creator.id}
+                                                onClick={() => router.push(`/mosh-cockpit/creators/${creator.id}`)}
+                                                className="hover:bg-[#F7F8FA] cursor-pointer transition-colors group"
                                             >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    </motion.div>
-                                )
-                            })}
+                                                <td className="px-4 py-2.5 max-w-[280px]">
+                                                    <div className="flex items-center gap-2.5 min-w-0">
+                                                        <div className="w-7 h-7 rounded-lg bg-[#E7F0FF] text-[#0866FF] text-[12px] font-semibold flex items-center justify-center shrink-0">
+                                                            {creator.full_name?.[0]?.toUpperCase() || '?'}
+                                                        </div>
+                                                        <div className="min-w-0">
+                                                            <span className="block font-medium text-[#1C1E21] truncate">{creator.full_name}</span>
+                                                            <span className="block text-[12px] text-[#8A8D91] truncate">{creator.email}</span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-2.5 text-[#65676B] hidden md:table-cell whitespace-nowrap">
+                                                    {p?.location_canton || '—'}
+                                                </td>
+                                                <td className="px-4 py-2.5 text-[#65676B] hidden lg:table-cell max-w-[220px]">
+                                                    <span className="block truncate">
+                                                        {p?.specialties?.length ? p.specialties.slice(0, 3).join(' · ') : '—'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-2.5 text-[#65676B] hidden xl:table-cell max-w-[160px]">
+                                                    <span className="block truncate">{p?.languages?.length ? p.languages.join(', ') : '—'}</span>
+                                                </td>
+                                                <td className="px-4 py-2.5">
+                                                    {p?.is_available
+                                                        ? <StatusPill tone="done">Disponible</StatusPill>
+                                                        : <StatusPill tone="idle">Indisponible</StatusPill>}
+                                                </td>
+                                                <td className="px-4 py-2.5 text-right hidden sm:table-cell whitespace-nowrap tabular-nums text-[#1C1E21]">
+                                                    {p?.rating_avg ? (
+                                                        <span className="inline-flex items-center gap-1">
+                                                            <Star className="w-3 h-3 fill-[#0866FF] text-[#0866FF]" />
+                                                            {p.rating_avg.toFixed(1)}
+                                                        </span>
+                                                    ) : <span className="text-[#8A8D91]">—</span>}
+                                                </td>
+                                                <td className="px-4 py-2.5 text-[#65676B] hidden xl:table-cell whitespace-nowrap tabular-nums">
+                                                    {new Date(creator.created_at).toLocaleDateString('fr-CH')}
+                                                </td>
+                                                <td className="pr-3">
+                                                    <ArrowRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors" strokeWidth={2} />
+                                                </td>
+                                            </tr>
+                                        )
+                                    })}
+                                </tbody>
+                            </table>
                         </div>
-                    )}
-
-                    {/* Used invitations */}
-                    {usedInvites.length > 0 && (
-                        <div className="space-y-3">
-                            <h2 className="text-sm font-semibold text-[#65676B] uppercase tracking-wider">Utilisées</h2>
-                            {usedInvites.map((invite, i) => (
-                                <motion.div
-                                    key={invite.id}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: i * 0.03 }}
-                                    className="bg-white border border-[#DADDE1] rounded-xl p-5 flex items-center gap-4 opacity-70"
-                                >
-                                    <div className="w-12 h-12 rounded-lg bg-[#E7F0FF] flex items-center justify-center shrink-0">
-                                        <CheckCircle2 className="w-5 h-5 text-[#0866FF]" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2">
-                                            <code className="text-sm font-mono font-semibold text-[#1C1E21] tracking-wider">{invite.code}</code>
-                                            <span className="px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider rounded-full bg-[#E7F0FF] text-[#1C1E21]">Utilisée</span>
-                                        </div>
-                                        <p className="text-xs text-[#8A8D91] mt-0.5">
-                                            {invite.label && <span className="text-[#65676B]">{invite.label} · </span>}
-                                            Utilisée par <span className="text-[#1C1E21] font-medium">{invite.used_by_user?.full_name || 'Inconnu'}</span>
-                                            {invite.used_at && ` le ${new Date(invite.used_at).toLocaleDateString('fr-CH')}`}
-                                        </p>
-                                    </div>
-                                </motion.div>
-                            ))}
+                    )
+                ) : (
+                    invitations.length === 0 ? (
+                        <EmptyState
+                            icon={LinkIcon}
+                            title="Aucune invitation"
+                            description="Générez des liens d'invitation pour que les créateurs puissent s'inscrire sur la plateforme."
+                            action={generateButton}
+                        />
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-[13px]">
+                                <thead>
+                                    <tr className="border-b border-[#DADDE1]">
+                                        <th className={TH}>Code</th>
+                                        <th className={`${TH} hidden md:table-cell`}>Étiquette</th>
+                                        <th className={TH}>Statut</th>
+                                        <th className={`${TH} hidden lg:table-cell`}>Créée</th>
+                                        <th className={`${TH} hidden xl:table-cell`}>Expire</th>
+                                        <th className={`${TH} text-right`}>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-[#DADDE1]">
+                                    {orderedInvites.map((invite) => {
+                                        const isUsed = !!invite.used_at
+                                        const isExpired = !isUsed && !!invite.expires_at && new Date(invite.expires_at) < new Date()
+                                        return (
+                                            <tr key={invite.id} className="hover:bg-[#F7F8FA] transition-colors">
+                                                <td className="px-4 py-2.5">
+                                                    <code className="font-mono font-semibold text-[#1C1E21] tracking-wider">{invite.code}</code>
+                                                </td>
+                                                <td className="px-4 py-2.5 text-[#65676B] hidden md:table-cell max-w-[240px]">
+                                                    <span className="block truncate">
+                                                        {isUsed
+                                                            ? `Utilisée par ${invite.used_by_user?.full_name || 'Inconnu'}`
+                                                            : invite.label || '—'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-2.5">
+                                                    {isUsed ? <StatusPill tone="done">Utilisée</StatusPill>
+                                                        : isExpired ? <StatusPill tone="alert">Expirée</StatusPill>
+                                                            : <StatusPill tone="waiting">En attente</StatusPill>}
+                                                </td>
+                                                <td className="px-4 py-2.5 text-[#65676B] hidden lg:table-cell whitespace-nowrap tabular-nums">
+                                                    {new Date(invite.created_at).toLocaleDateString('fr-CH')}
+                                                </td>
+                                                <td className="px-4 py-2.5 text-[#65676B] hidden xl:table-cell whitespace-nowrap tabular-nums">
+                                                    {invite.expires_at ? new Date(invite.expires_at).toLocaleDateString('fr-CH') : '—'}
+                                                </td>
+                                                <td className="px-4 py-2.5">
+                                                    <div className="flex items-center justify-end gap-1.5">
+                                                        {!isUsed && !isExpired && (
+                                                            <>
+                                                                <button
+                                                                    onClick={() => handleCopyLink(invite.code)}
+                                                                    className={ICON_BTN}
+                                                                    title="Copier le lien"
+                                                                >
+                                                                    {copiedCode === invite.code
+                                                                        ? <Check className="w-3.5 h-3.5 text-[#0866FF]" />
+                                                                        : <Copy className="w-3.5 h-3.5" />}
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleShareWhatsApp(invite.code)}
+                                                                    className={ICON_BTN}
+                                                                    title="Partager sur WhatsApp"
+                                                                >
+                                                                    <MessageCircle className="w-3.5 h-3.5" />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleShareEmail(invite.code)}
+                                                                    className={ICON_BTN}
+                                                                    title="Envoyer par email"
+                                                                >
+                                                                    <Mail className="w-3.5 h-3.5" />
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                        {!isUsed && (
+                                                            <button
+                                                                onClick={() => handleRevoke(invite.id)}
+                                                                className={ICON_BTN}
+                                                                title="Supprimer"
+                                                            >
+                                                                <Trash2 className="w-3.5 h-3.5" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )
+                                    })}
+                                </tbody>
+                            </table>
                         </div>
-                    )}
-
-                    {/* Empty state */}
-                    {invitations.length === 0 && (
-                        <div className="bg-white rounded-xl border border-[#DADDE1] p-12 text-center">
-                            <div className="w-16 h-16 rounded-lg bg-[#F0F2F5] flex items-center justify-center mx-auto mb-4">
-                                <LinkIcon className="w-7 h-7 text-[#8A8D91]" strokeWidth={1.5} />
-                            </div>
-                            <p className="text-[#65676B] font-medium">Aucune invitation</p>
-                            <p className="text-[#8A8D91] text-sm mt-1 max-w-[300px] mx-auto">
-                                Générez des liens d&apos;invitation pour que les créateurs puissent s&apos;inscrire sur la plateforme
-                            </p>
-                            <button
-                                onClick={() => setShowInviteModal(true)}
-                                className="mt-4 px-4 py-2 bg-[#0866FF] text-white font-medium rounded-lg hover:bg-[#0653CC] transition-colors inline-flex items-center gap-2"
-                            >
-                                <Plus className="w-4 h-4" />
-                                Générer un lien
-                            </button>
-                        </div>
-                    )}
-                </div>
-            )}
+                    )
+                )}
+            </div>
 
             {/* ─── Generate Invitation Modal ─── */}
             <AnimatePresence>
@@ -383,47 +343,45 @@ export default function AdminCreatorsPage() {
                         onClick={() => setShowInviteModal(false)}
                     >
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            initial={{ opacity: 0, scale: 0.98, y: 12 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            exit={{ opacity: 0, scale: 0.98, y: 12 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-white rounded-xl shadow-xl w-full max-w-md"
+                            className="bg-white rounded-xl border border-[#DADDE1] shadow-xl w-full max-w-md overflow-hidden"
                         >
-                            <div className="flex items-center justify-between px-6 py-5 border-b border-[#DADDE1]">
-                                <h2 className="text-lg font-semibold text-[#1C1E21]">Nouveau lien d&apos;invitation</h2>
+                            <div className="flex items-center justify-between gap-3 px-4 h-11 border-b border-[#DADDE1]">
+                                <h2 className="text-[13px] font-semibold text-[#1C1E21]">Nouveau lien d&apos;invitation</h2>
                                 <button
                                     onClick={() => setShowInviteModal(false)}
-                                    className="w-8 h-8 rounded-lg bg-[#F0F2F5] flex items-center justify-center text-[#8A8D91] hover:text-[#1C1E21] transition-colors"
+                                    className="w-7 h-7 rounded-lg flex items-center justify-center text-[#8A8D91] hover:bg-[#F0F2F5] hover:text-[#1C1E21] transition-colors"
                                 >
                                     <X className="w-4 h-4" />
                                 </button>
                             </div>
 
-                            <div className="px-6 py-5 space-y-4">
-                                <div>
-                                    <label className="text-xs font-medium text-[#65676B] mb-1.5 block">Nom ou email (étiquette, optionnel)</label>
-                                    <input
-                                        type="text"
-                                        value={inviteEmail}
-                                        onChange={(e) => setInviteEmail(e.target.value)}
-                                        placeholder="Ex : Marie Dupont"
-                                        className="w-full px-4 py-2.5 bg-[#F0F2F5]/50 border border-[#DADDE1] rounded-lg text-sm text-[#1C1E21] placeholder:text-[#8A8D91] focus:outline-none focus:ring-2 focus:ring-[#0866FF]/30 focus:border-[#0866FF]/50"
-                                    />
-                                    <p className="text-xs text-[#8A8D91] mt-1.5">Sert juste à identifier l&apos;invitation. Le lien (valide 30 jours, à usage unique) sera copié — partage-le via Copier / WhatsApp / Email.</p>
-                                </div>
+                            <div className="p-4">
+                                <label className="text-[12px] font-medium text-[#65676B] mb-1.5 block">Nom ou email (étiquette, optionnel)</label>
+                                <input
+                                    type="text"
+                                    value={inviteEmail}
+                                    onChange={(e) => setInviteEmail(e.target.value)}
+                                    placeholder="Ex : Marie Dupont"
+                                    className="w-full h-9 px-3 bg-white border border-[#DADDE1] rounded-lg text-[13px] text-[#1C1E21] placeholder:text-[#8A8D91] focus:outline-none focus:border-[#0866FF] focus:ring-2 focus:ring-[#0866FF]/20 transition-colors"
+                                />
+                                <p className="text-[12px] text-[#8A8D91] mt-1.5">Sert juste à identifier l&apos;invitation. Le lien (valide 30 jours, à usage unique) sera copié — partage-le via Copier / WhatsApp / Email.</p>
                             </div>
 
-                            <div className="px-6 py-4 border-t border-[#DADDE1] flex items-center justify-end gap-3">
+                            <div className="px-4 py-3 border-t border-[#DADDE1] flex items-center justify-end gap-2">
                                 <button
                                     onClick={() => setShowInviteModal(false)}
-                                    className="px-4 py-2.5 text-sm text-[#65676B] hover:text-[#1C1E21] transition-colors"
+                                    className="px-3 h-9 text-[13px] text-[#65676B] hover:text-[#1C1E21] transition-colors"
                                 >
                                     Annuler
                                 </button>
                                 <button
                                     onClick={handleCreateInvitation}
                                     disabled={isCreating}
-                                    className="px-5 py-2.5 bg-[#0866FF] text-white font-medium rounded-lg hover:bg-[#0653CC] transition-colors disabled:opacity-50 flex items-center gap-2 text-sm"
+                                    className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#0866FF] text-white font-medium rounded-lg hover:bg-[#0653CC] transition-colors disabled:opacity-50 text-[13px]"
                                 >
                                     {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : <LinkIcon className="w-4 h-4" />}
                                     Générer le lien
