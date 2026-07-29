@@ -153,7 +153,7 @@ export default function CreatorDashboardPage() {
     if (!mounted || (!user && isLoading) || needsOnboarding === null) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-[#A1A1AA]" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#8A8D91]" />
             </div>
         )
     }
@@ -177,10 +177,10 @@ export default function CreatorDashboardPage() {
                 className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
                 <div>
-                    <h1 className="text-[28px] md:text-[34px] font-semibold text-[#18181B] tracking-[-0.02em]">
+                    <h1 className="text-[28px] md:text-[34px] font-semibold text-[#1C1E21] tracking-[-0.02em]">
                         Bienvenue, {user?.full_name?.split(' ')[0] || 'Créateur'} 👋
                     </h1>
-                    <p className="text-[#71717A] mt-1">
+                    <p className="text-[#65676B] mt-1">
                         Voici un aperçu de votre activité
                     </p>
                 </div>
@@ -194,16 +194,16 @@ export default function CreatorDashboardPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className="bg-white/90 backdrop-blur-sm rounded-[20px] border border-black/[0.03] p-5"
+                        className="bg-white rounded-xl border border-[#DADDE1] p-5"
                     >
                         <div className="flex items-center justify-between gap-2">
                             <div className="min-w-0">
-                                <p className="text-sm text-[#71717A]">{stat.label}</p>
-                                <p className="text-lg md:text-2xl font-bold text-[#18181B] mt-1 truncate">{stat.value}</p>
-                                <p className="text-xs text-[#A1A1AA] mt-1">{stat.change}</p>
+                                <p className="text-sm text-[#65676B]">{stat.label}</p>
+                                <p className="text-lg md:text-2xl font-bold text-[#1C1E21] mt-1 truncate">{stat.value}</p>
+                                <p className="text-xs text-[#8A8D91] mt-1">{stat.change}</p>
                             </div>
-                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-[#C4F042]/15 flex items-center justify-center flex-shrink-0">
-                                <stat.icon className="h-5 w-5 md:h-6 md:w-6 text-[#18181B]" strokeWidth={1.5} />
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[#E7F0FF] flex items-center justify-center flex-shrink-0">
+                                <stat.icon className="h-5 w-5 md:h-6 md:w-6 text-[#1C1E21]" strokeWidth={1.5} />
                             </div>
                         </div>
                     </motion.div>
@@ -215,12 +215,12 @@ export default function CreatorDashboardPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-white/90 backdrop-blur-sm rounded-[24px] border border-black/[0.03] overflow-hidden"
+                className="bg-white rounded-xl border border-[#DADDE1] overflow-hidden"
             >
                 <div className="flex items-center justify-between p-6 pb-4">
-                    <h2 className="text-lg font-semibold text-[#18181B]">Missions récentes</h2>
+                    <h2 className="text-lg font-semibold text-[#1C1E21]">Missions récentes</h2>
                     <Link href="/creator/missions">
-                        <Button variant="ghost" className="text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F3EF] rounded-full">
+                        <Button variant="ghost" className="text-[#65676B] hover:text-[#1C1E21] hover:bg-[#F0F2F5] rounded-full">
                             Voir tout
                             <ChevronRight className="h-4 w-4 ml-1" strokeWidth={1.5} />
                         </Button>
@@ -228,7 +228,7 @@ export default function CreatorDashboardPage() {
                 </div>
                 <div className="px-6 pb-6">
                     {missions.length === 0 ? (
-                        <div className="text-center py-12 text-[#A1A1AA]">
+                        <div className="text-center py-12 text-[#8A8D91]">
                             <Clock className="w-12 h-12 mx-auto mb-4 opacity-50" />
                             <p>Aucune mission pour le moment</p>
                             <p className="text-sm mt-2">MOSH vous contactera dès qu&apos;une mission correspond à votre profil</p>
@@ -243,22 +243,22 @@ export default function CreatorDashboardPage() {
                                     transition={{ delay: 0.3 + index * 0.05 }}
                                 >
                                     <Link href={`/creator/missions/${mission.id}`}>
-                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-[#F4F3EF]/60 hover:bg-[#F4F3EF] transition-all group cursor-pointer">
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg bg-[#F0F2F5]/60 hover:bg-[#F0F2F5] transition-all group cursor-pointer">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-[#C4F042]/20 flex items-center justify-center text-[#18181B] font-bold text-sm">
+                                                <div className="w-10 h-10 rounded-lg bg-[#E7F0FF] flex items-center justify-center text-[#1C1E21] font-bold text-sm">
                                                     {mission.brand.charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <p className="font-medium text-[#18181B] group-hover:text-[#18181B] transition-colors">{mission.title}</p>
-                                                    <p className="text-sm text-[#71717A]">{mission.brand}</p>
+                                                    <p className="font-medium text-[#1C1E21] group-hover:text-[#1C1E21] transition-colors">{mission.title}</p>
+                                                    <p className="text-sm text-[#65676B]">{mission.brand}</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-4">
-                                                <Badge className={getStatusConfig(mission.status)?.badgeClass || 'bg-[#F4F3EF] text-[#71717A]'}>
+                                                <Badge className={getStatusConfig(mission.status)?.badgeClass || 'bg-[#F0F2F5] text-[#65676B]'}>
                                                     {getStatusConfig(mission.status)?.label || mission.status}
                                                 </Badge>
-                                                <span className="text-[#18181B] font-semibold">{formatCHF(mission.budget)}</span>
-                                                <ChevronRight className="w-4 h-4 text-[#A1A1AA] group-hover:text-[#C4F042] transition-colors" strokeWidth={1.5} />
+                                                <span className="text-[#1C1E21] font-semibold">{formatCHF(mission.budget)}</span>
+                                                <ChevronRight className="w-4 h-4 text-[#8A8D91] group-hover:text-[#0866FF] transition-colors" strokeWidth={1.5} />
                                             </div>
                                         </div>
                                     </Link>
@@ -275,38 +275,38 @@ export default function CreatorDashboardPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
             >
-                <h2 className="text-lg font-semibold text-[#18181B] mb-4">Actions rapides</h2>
+                <h2 className="text-lg font-semibold text-[#1C1E21] mb-4">Actions rapides</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Link href="/creator/portfolio">
-                        <div className="bg-white/90 backdrop-blur-sm rounded-[20px] border border-black/[0.03] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-[#C4F042]/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Upload className="h-6 w-6 text-[#18181B]" strokeWidth={1.5} />
+                        <div className="bg-white rounded-xl border border-[#DADDE1] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-lg bg-[#E7F0FF] flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Upload className="h-6 w-6 text-[#1C1E21]" strokeWidth={1.5} />
                             </div>
                             <div>
-                                <p className="font-medium text-[#18181B]">Mettre à jour le portfolio</p>
-                                <p className="text-sm text-[#71717A]">Ajoutez vos dernières créations</p>
+                                <p className="font-medium text-[#1C1E21]">Mettre à jour le portfolio</p>
+                                <p className="text-sm text-[#65676B]">Ajoutez vos dernières créations</p>
                             </div>
                         </div>
                     </Link>
                     <Link href="/creator/missions">
-                        <div className="bg-white/90 backdrop-blur-sm rounded-[20px] border border-black/[0.03] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-[#C4F042]/15 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Briefcase className="h-6 w-6 text-[#18181B]" strokeWidth={1.5} />
+                        <div className="bg-white rounded-xl border border-[#DADDE1] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-lg bg-[#E7F0FF] flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Briefcase className="h-6 w-6 text-[#1C1E21]" strokeWidth={1.5} />
                             </div>
                             <div>
-                                <p className="font-medium text-[#18181B]">Mes missions</p>
-                                <p className="text-sm text-[#71717A]">Suivre vos missions en cours</p>
+                                <p className="font-medium text-[#1C1E21]">Mes missions</p>
+                                <p className="text-sm text-[#65676B]">Suivre vos missions en cours</p>
                             </div>
                         </div>
                     </Link>
                     <Link href="/creator/settings">
-                        <div className="bg-white/90 backdrop-blur-sm rounded-[20px] border border-black/[0.03] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-[#C4F042]/15 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Star className="h-6 w-6 text-[#18181B]" strokeWidth={1.5} />
+                        <div className="bg-white rounded-xl border border-[#DADDE1] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-lg bg-[#E7F0FF] flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Star className="h-6 w-6 text-[#1C1E21]" strokeWidth={1.5} />
                             </div>
                             <div>
-                                <p className="font-medium text-[#18181B]">Compléter le profil</p>
-                                <p className="text-sm text-[#71717A]">Augmentez votre visibilité</p>
+                                <p className="font-medium text-[#1C1E21]">Compléter le profil</p>
+                                <p className="text-sm text-[#65676B]">Augmentez votre visibilité</p>
                             </div>
                         </div>
                     </Link>

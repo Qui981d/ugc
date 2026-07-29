@@ -84,8 +84,8 @@ export default function ContractViewer({
                         exit={{ opacity: 0, y: 100 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                         className="fixed inset-x-0 bottom-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-50 
-                                   bg-[#0a0a0f] border border-white/[0.15] 
-                                   rounded-t-3xl md:rounded-2xl 
+                                   bg-[#1C1E21] border border-white/[0.15] 
+                                   rounded-t-3xl md:rounded-lg 
                                    w-full md:w-[600px] md:max-w-[95vw]
                                    max-h-[90vh] overflow-hidden flex flex-col"
                     >
@@ -97,7 +97,7 @@ export default function ContractViewer({
                         {/* Header */}
                         <div className="flex items-center justify-between p-5 pb-3">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center">
                                     <FileText className="w-5 h-5 text-accent" />
                                 </div>
                                 <div>
@@ -125,7 +125,7 @@ export default function ContractViewer({
 
                         {/* Contract text */}
                         <div className="flex-1 overflow-y-auto px-5">
-                            <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-4">
+                            <div className="bg-white/[0.03] border border-white/[0.08] rounded-lg p-4">
                                 <pre className="text-xs text-white/60 whitespace-pre-wrap font-mono leading-relaxed">
                                     {contractText || 'Chargement du contrat...'}
                                 </pre>
@@ -133,7 +133,7 @@ export default function ContractViewer({
                         </div>
 
                         {/* Footer */}
-                        <div className="border-t border-white/[0.08] p-5 space-y-3 bg-[#0a0a0f]">
+                        <div className="border-t border-white/[0.08] p-5 space-y-3 bg-[#1C1E21]">
                             {/* Creator needs to sign */}
                             {needsCreatorSignature && onSign && (
                                 <>

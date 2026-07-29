@@ -18,11 +18,11 @@ type Persona = 'creator' | 'brand'
 
 // Floating creator images
 const CREATOR_IMAGES = [
-  { src: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=500&fit=crop&crop=face', alt: 'Créatrice mode', style: 'rounded-3xl', w: 220, h: 280 },
+  { src: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=500&fit=crop&crop=face', alt: 'Créatrice mode', style: 'rounded-xl', w: 220, h: 280 },
   { src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face', alt: 'Créateur lifestyle', style: 'rounded-full', w: 160, h: 160 },
-  { src: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=500&fit=crop&crop=face', alt: 'Créatrice beauté', style: 'rounded-3xl', w: 200, h: 260 },
+  { src: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=500&fit=crop&crop=face', alt: 'Créatrice beauté', style: 'rounded-xl', w: 200, h: 260 },
   { src: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&h=400&fit=crop&crop=face', alt: 'Créateur food', style: 'rounded-full', w: 140, h: 140 },
-  { src: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=500&fit=crop&crop=face', alt: 'Créatrice sport', style: 'rounded-3xl', w: 180, h: 240 },
+  { src: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=500&fit=crop&crop=face', alt: 'Créatrice sport', style: 'rounded-xl', w: 180, h: 240 },
 ]
 
 // Category badges à la YOO
@@ -116,7 +116,7 @@ function Navbar({ persona, setPersona }: { persona: Persona; setPersona: (p: Per
         </Link>
 
         {/* Center links */}
-        <div className="hidden md:flex items-center bg-white/80 backdrop-blur-sm rounded-full border border-gray-200/50 px-1 py-1">
+        <div className="hidden md:flex items-center bg-white rounded-full border border-gray-200/50 px-1 py-1">
           <a href="#form-section" onClick={() => setPersona('creator')} className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${persona === 'creator' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}>
             Créateur
           </a>
@@ -171,7 +171,7 @@ function HeroSection({ persona, setPersona }: { persona: Persona; setPersona: (p
           transition={{ duration: 0.8, delay: 0.3 }}
           className="absolute top-[15%] left-[3%] z-20"
         >
-          <div className="w-[180px] h-[230px] rounded-3xl overflow-hidden shadow-2xl" style={{ animation: 'floatA 6s ease-in-out infinite' }}>
+          <div className="w-[180px] h-[230px] rounded-xl overflow-hidden shadow-xl" style={{ animation: 'floatA 6s ease-in-out infinite' }}>
             <Image src={CREATOR_IMAGES[0].src} alt={CREATOR_IMAGES[0].alt} width={180} height={230} className="w-full h-full object-cover" />
           </div>
         </motion.div>
@@ -184,7 +184,7 @@ function HeroSection({ persona, setPersona }: { persona: Persona; setPersona: (p
           transition={{ duration: 0.8, delay: 0.5 }}
           className="absolute top-[10%] right-[5%] z-20"
         >
-          <div className="w-[200px] h-[260px] rounded-3xl overflow-hidden shadow-2xl" style={{ animation: 'floatB 7s ease-in-out infinite' }}>
+          <div className="w-[200px] h-[260px] rounded-xl overflow-hidden shadow-xl" style={{ animation: 'floatB 7s ease-in-out infinite' }}>
             <Image src={CREATOR_IMAGES[2].src} alt={CREATOR_IMAGES[2].alt} width={200} height={260} className="w-full h-full object-cover" />
           </div>
         </motion.div>
@@ -210,7 +210,7 @@ function HeroSection({ persona, setPersona }: { persona: Persona; setPersona: (p
           transition={{ duration: 0.8, delay: 0.9 }}
           className="absolute top-[50%] right-[3%] z-20"
         >
-          <div className="w-[160px] h-[200px] rounded-[40px] overflow-hidden shadow-2xl" style={{ animation: 'floatD 8s ease-in-out infinite' }}>
+          <div className="w-[160px] h-[200px] rounded-[40px] overflow-hidden shadow-xl" style={{ animation: 'floatD 8s ease-in-out infinite' }}>
             <Image src={CREATOR_IMAGES[4].src} alt={CREATOR_IMAGES[4].alt} width={160} height={200} className="w-full h-full object-cover" />
           </div>
         </motion.div>
@@ -417,7 +417,7 @@ function StatsSection() {
           transition={{ duration: 0.8 }}
           className="absolute right-[5%] top-[10%]"
         >
-          <div className="w-[200px] h-[260px] rounded-[40px] overflow-hidden shadow-2xl">
+          <div className="w-[200px] h-[260px] rounded-[40px] overflow-hidden shadow-xl">
             <Image src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=500&fit=crop&crop=face" alt="Créatrice" width={200} height={260} className="w-full h-full object-cover" />
           </div>
         </motion.div>
@@ -605,7 +605,7 @@ function CreatorSignupForm() {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="bg-white rounded-3xl border-2 border-gray-100 p-8 md:p-12 shadow-xl max-w-lg mx-auto"
+      className="bg-white rounded-xl border-2 border-gray-100 p-8 md:p-12 shadow-xl max-w-lg mx-auto"
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
@@ -613,7 +613,7 @@ function CreatorSignupForm() {
           <input
             type="text" required value={form.fullName}
             onChange={(e) => setForm(f => ({ ...f, fullName: e.target.value }))}
-            className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors text-base"
+            className="w-full px-5 py-4 rounded-lg border-2 border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors text-base"
             placeholder="Ton nom et prénom"
           />
         </div>
@@ -622,7 +622,7 @@ function CreatorSignupForm() {
           <input
             type="email" required value={form.email}
             onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
-            className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors text-base"
+            className="w-full px-5 py-4 rounded-lg border-2 border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors text-base"
             placeholder="ton@email.com"
           />
         </div>
@@ -631,11 +631,11 @@ function CreatorSignupForm() {
           <input
             type="password" required minLength={6} value={form.password}
             onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
-            className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors text-base"
+            className="w-full px-5 py-4 rounded-lg border-2 border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors text-base"
             placeholder="Minimum 6 caractères"
           />
         </div>
-        {error && <p className="text-sm text-red-500 bg-red-50 px-4 py-2 rounded-xl">{error}</p>}
+        {error && <p className="text-sm text-red-500 bg-red-50 px-4 py-2 rounded-lg">{error}</p>}
         <button
           type="submit" disabled={loading}
           className="w-full py-4 rounded-full text-white font-bold text-lg bg-[#6C3FA0] hover:bg-[#5A2D8C] transition-colors flex items-center justify-center gap-2 shadow-lg"
@@ -709,7 +709,7 @@ function BrandContactForm() {
   if (sent) {
     return (
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-3xl border-2 border-gray-100 p-8 md:p-12 shadow-xl max-w-lg mx-auto text-center"
+        className="bg-white rounded-xl border-2 border-gray-100 p-8 md:p-12 shadow-xl max-w-lg mx-auto text-center"
       >
         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <CheckCircle2 className="w-8 h-8 text-green-600" />
@@ -720,32 +720,32 @@ function BrandContactForm() {
     )
   }
 
-  const inputClass = "w-full px-5 py-4 rounded-2xl border-2 border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors"
+  const inputClass = "w-full px-5 py-4 rounded-lg border-2 border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors"
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="bg-white rounded-3xl border-2 border-gray-100 p-8 md:p-12 shadow-xl max-w-lg mx-auto"
+      className="bg-white rounded-xl border-2 border-gray-100 p-8 md:p-12 shadow-xl max-w-lg mx-auto"
     >
       {/* Mode toggle */}
-      <div className="flex rounded-2xl bg-gray-100 p-1 mb-8">
+      <div className="flex rounded-lg bg-gray-100 p-1 mb-8">
         <button
           onClick={() => setMode('signup')}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${mode === 'signup' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+          className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${mode === 'signup' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
         >
           Créer un compte
         </button>
         <button
           onClick={() => setMode('rdv')}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${mode === 'rdv' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+          className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${mode === 'rdv' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
         >
           Prendre un RDV
         </button>
       </div>
 
-      {error && <p className="text-sm text-red-500 bg-red-50 px-4 py-2 rounded-xl mb-4">{error}</p>}
+      {error && <p className="text-sm text-red-500 bg-red-50 px-4 py-2 rounded-lg mb-4">{error}</p>}
 
       {mode === 'signup' ? (
         <form onSubmit={handleSignup} className="space-y-5">
@@ -857,7 +857,7 @@ function FaqSection({ openFaq, setOpenFaq }: { openFaq: number | null; setOpenFa
             >
               <button
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                className="w-full flex items-center justify-between p-5 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+                className="w-full flex items-center justify-between p-5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-left"
               >
                 <span className="font-bold text-gray-900 pr-4">{item.q}</span>
                 <ChevronDown className={`w-5 h-5 text-gray-400 flex-shrink-0 transition-transform duration-300 ${openFaq === i ? 'rotate-180' : ''}`} />

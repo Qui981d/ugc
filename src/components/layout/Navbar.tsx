@@ -160,7 +160,7 @@ export function Navbar() {
                                 <motion.div
                                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    className="absolute top-full right-0 mt-2 w-56 bg-[#1A1A1A] border border-white/10 rounded-xl shadow-xl overflow-hidden"
+                                    className="absolute top-full right-0 mt-2 w-56 bg-[#1C1E21] border border-white/10 rounded-lg shadow-xl overflow-hidden"
                                 >
                                     {/* User Info */}
                                     <div className="p-4 border-b border-white/10">
@@ -262,7 +262,7 @@ export function Navbar() {
                             <Link
                                 href="/aide"
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="w-full text-center px-6 py-4 text-lg text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+                                className="w-full text-center px-6 py-4 text-lg text-white/80 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                             >
                                 Nos services
                             </Link>
@@ -270,7 +270,7 @@ export function Navbar() {
                                 <Link
                                     href="/signup?role=brand"
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="w-full text-center px-6 py-4 text-lg text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+                                    className="w-full text-center px-6 py-4 text-lg text-white/80 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                                 >
                                     Pour les marques
                                 </Link>
@@ -278,7 +278,7 @@ export function Navbar() {
                             <Link
                                 href="/aide"
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="w-full text-center px-6 py-4 text-lg text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+                                className="w-full text-center px-6 py-4 text-lg text-white/80 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                             >
                                 Aide
                             </Link>
@@ -286,7 +286,7 @@ export function Navbar() {
                                 <Link
                                     href={dashboardLink}
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="w-full text-center px-6 py-4 text-lg text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+                                    className="w-full text-center px-6 py-4 text-lg text-white/80 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                                 >
                                     Dashboard
                                 </Link>
@@ -301,7 +301,7 @@ export function Navbar() {
                                         setMobileMenuOpen(false)
                                         router.push('/login')
                                     }}
-                                    className="w-full text-center px-6 py-4 text-lg text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+                                    className="w-full text-center px-6 py-4 text-lg text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
                                 >
                                     Déconnexion
                                 </button>
@@ -310,14 +310,14 @@ export function Navbar() {
                                     <Link
                                         href="/login"
                                         onClick={() => setMobileMenuOpen(false)}
-                                        className="w-full text-center px-6 py-4 text-lg text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+                                        className="w-full text-center px-6 py-4 text-lg text-white/80 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                                     >
                                         Connexion
                                     </Link>
                                     <Link
                                         href="/signup"
                                         onClick={() => setMobileMenuOpen(false)}
-                                        className="w-full text-center px-6 py-4 text-lg bg-accent text-white rounded-xl hover:bg-accent/90 transition-colors font-medium"
+                                        className="w-full text-center px-6 py-4 text-lg bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors font-medium"
                                     >
                                         S&apos;inscrire
                                     </Link>

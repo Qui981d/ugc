@@ -33,10 +33,10 @@ export const STATUS_CONFIG: Record<string, StatusDef> = {
     },
     in_progress: {
         label: 'En production',
-        color: 'text-[#18181B]',
-        bg: 'bg-[#C4F042]/10',
-        dotColor: 'bg-[#C4F042]',
-        badgeClass: 'bg-[#C4F042]/20 text-[#18181B] border border-[#C4F042]/30',
+        color: 'text-[#1C1E21]',
+        bg: 'bg-[#E7F0FF]',
+        dotColor: 'bg-[#0866FF]',
+        badgeClass: 'bg-[#E7F0FF] text-[#1C1E21] border border-[#0866FF]/30',
         icon: Clock,
     },
     completed: {

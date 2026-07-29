@@ -138,8 +138,8 @@ export default function ContractModal({
                         exit={{ opacity: 0, y: 100 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                         className="fixed inset-x-0 bottom-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-50 
-                                   bg-[#0a0a0f] border border-white/[0.15] 
-                                   rounded-t-3xl md:rounded-2xl 
+                                   bg-[#1C1E21] border border-white/[0.15] 
+                                   rounded-t-3xl md:rounded-lg 
                                    w-full md:w-[600px] md:max-w-[95vw]
                                    max-h-[90vh] overflow-hidden flex flex-col"
                     >
@@ -151,7 +151,7 @@ export default function ContractModal({
                         {/* Header */}
                         <div className="flex items-center justify-between p-5 pb-0">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center">
                                     <ScrollText className="w-5 h-5 text-accent" />
                                 </div>
                                 <div>
@@ -176,7 +176,7 @@ export default function ContractModal({
                             {/* Contract Summary Cards */}
                             <div className="space-y-3">
                                 {/* Parties */}
-                                <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-4">
+                                <div className="bg-white/[0.04] border border-white/[0.08] rounded-lg p-4">
                                     <h3 className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-3">
                                         Parties
                                     </h3>
@@ -208,7 +208,7 @@ export default function ContractModal({
                                 </div>
 
                                 {/* Mission */}
-                                <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-4">
+                                <div className="bg-white/[0.04] border border-white/[0.08] rounded-lg p-4">
                                     <h3 className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-3">
                                         Mission
                                     </h3>
@@ -232,7 +232,7 @@ export default function ContractModal({
 
                                 {/* Amount & Deadline */}
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-4">
+                                    <div className="bg-white/[0.04] border border-white/[0.08] rounded-lg p-4">
                                         <div className="flex items-center gap-2 mb-1">
                                             <Banknote className="w-3.5 h-3.5 text-emerald-400" />
                                             <span className="text-xs text-white/40">Montant</span>
@@ -241,7 +241,7 @@ export default function ContractModal({
                                             {data.amount.toLocaleString('fr-CH')} <span className="text-sm text-white/50">CHF</span>
                                         </p>
                                     </div>
-                                    <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-4">
+                                    <div className="bg-white/[0.04] border border-white/[0.08] rounded-lg p-4">
                                         <div className="flex items-center gap-2 mb-1">
                                             <Calendar className="w-3.5 h-3.5 text-accent" />
                                             <span className="text-xs text-white/40">Deadline</span>
@@ -255,7 +255,7 @@ export default function ContractModal({
                                 </div>
 
                                 {/* Key clauses summary */}
-                                <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-4">
+                                <div className="bg-white/[0.04] border border-white/[0.08] rounded-lg p-4">
                                     <h3 className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-3">
                                         Clauses principales
                                     </h3>
@@ -286,7 +286,7 @@ export default function ContractModal({
                                 {/* Full contract expandable */}
                                 <button
                                     onClick={() => setShowFullContract(!showFullContract)}
-                                    className="w-full flex items-center justify-between p-3 bg-white/[0.03] border border-white/[0.08] rounded-xl hover:bg-white/[0.05] transition-colors"
+                                    className="w-full flex items-center justify-between p-3 bg-white/[0.03] border border-white/[0.08] rounded-lg hover:bg-white/[0.05] transition-colors"
                                 >
                                     <div className="flex items-center gap-2">
                                         <FileText className="w-4 h-4 text-white/40" />
@@ -308,7 +308,7 @@ export default function ContractModal({
                                             exit={{ height: 0, opacity: 0 }}
                                             className="overflow-hidden"
                                         >
-                                            <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-4 max-h-[400px] overflow-y-auto">
+                                            <div className="bg-white/[0.03] border border-white/[0.08] rounded-lg p-4 max-h-[400px] overflow-y-auto">
                                                 <pre className="text-xs text-white/60 whitespace-pre-wrap font-mono leading-relaxed">
                                                     {previewText}
                                                 </pre>
@@ -320,7 +320,7 @@ export default function ContractModal({
                         </div>
 
                         {/* Footer — Sticky */}
-                        <div className="border-t border-white/[0.08] p-5 space-y-3 bg-[#0a0a0f]">
+                        <div className="border-t border-white/[0.08] p-5 space-y-3 bg-[#1C1E21]">
                             {/* Checkbox */}
                             <label className="flex items-start gap-3 cursor-pointer group">
                                 <div className="relative mt-0.5">

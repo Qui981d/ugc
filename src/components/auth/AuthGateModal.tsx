@@ -62,7 +62,7 @@ export function AuthGateModal({ isOpen, onClose, action, redirectTo }: AuthGateM
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-6 z-50"
                     >
-                        <div className="bg-[#1A1A1A] border border-white/10 rounded-2xl overflow-hidden">
+                        <div className="bg-[#1C1E21] border border-white/10 rounded-lg overflow-hidden">
                             {/* Header */}
                             <div className="relative p-6 pb-4 text-center">
                                 <button
@@ -72,7 +72,7 @@ export function AuthGateModal({ isOpen, onClose, action, redirectTo }: AuthGateM
                                     <X className="w-5 h-5 text-white/60" />
                                 </button>
 
-                                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-accent/20 flex items-center justify-center">
+                                <div className="w-16 h-16 mx-auto mb-4 rounded-lg bg-accent/20 flex items-center justify-center">
                                     <Icon className="w-8 h-8 text-accent" />
                                 </div>
 
@@ -87,7 +87,7 @@ export function AuthGateModal({ isOpen, onClose, action, redirectTo }: AuthGateM
                                     <div className="grid grid-cols-2 gap-3">
                                         <button
                                             onClick={() => setSelectedRole('brand')}
-                                            className={`p-4 rounded-xl border transition-all ${selectedRole === 'brand'
+                                            className={`p-4 rounded-lg border transition-all ${selectedRole === 'brand'
                                                     ? 'border-accent bg-accent/10'
                                                     : 'border-white/10 hover:border-white/20'
                                                 }`}
@@ -99,7 +99,7 @@ export function AuthGateModal({ isOpen, onClose, action, redirectTo }: AuthGateM
                                         </button>
                                         <button
                                             onClick={() => setSelectedRole('creator')}
-                                            className={`p-4 rounded-xl border transition-all ${selectedRole === 'creator'
+                                            className={`p-4 rounded-lg border transition-all ${selectedRole === 'creator'
                                                     ? 'border-accent bg-accent/10'
                                                     : 'border-white/10 hover:border-white/20'
                                                 }`}

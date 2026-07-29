@@ -89,7 +89,7 @@ export default function BrandDashboardPage() {
     if (!mounted || (!user && isLoading) || isDataLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-[#A1A1AA]" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#8A8D91]" />
             </div>
         )
     }
@@ -103,15 +103,15 @@ export default function BrandDashboardPage() {
                 className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
                 <div>
-                    <h1 className="text-[28px] md:text-[34px] font-semibold text-[#18181B] tracking-[-0.02em]">
+                    <h1 className="text-[28px] md:text-[34px] font-semibold text-[#1C1E21] tracking-[-0.02em]">
                         Bienvenue, {user?.full_name?.split(' ')[0] || 'Marque'} 👋
                     </h1>
-                    <p className="text-[#71717A] mt-1">
+                    <p className="text-[#65676B] mt-1">
                         Voici un aperçu de votre activité
                     </p>
                 </div>
                 <Link href="/brand/campaigns/new">
-                    <Button className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full px-6 w-full sm:w-auto">
+                    <Button className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-full px-6 w-full sm:w-auto">
                         <Plus className="h-4 w-4 mr-2" strokeWidth={1.5} />
                         Nouvelle campagne
                     </Button>
@@ -123,21 +123,21 @@ export default function BrandDashboardPage() {
                 <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 flex items-center gap-3"
+                    className="bg-amber-50/80 border border-amber-200 rounded-lg p-4 flex items-center gap-3"
                 >
-                    <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
                         <span className="text-lg">⚡</span>
                     </div>
                     <div className="flex-1">
-                        <p className="text-sm font-medium text-[#18181B]">
+                        <p className="text-sm font-medium text-[#1C1E21]">
                             {brandActionCampaigns.length} campagne{brandActionCampaigns.length > 1 ? 's' : ''} nécessite{brandActionCampaigns.length > 1 ? 'nt' : ''} votre attention
                         </p>
-                        <p className="text-xs text-[#71717A]">
+                        <p className="text-xs text-[#65676B]">
                             {getActiveStepForCampaign(brandActionCampaigns[0].id)?.label || 'Action requise'}
                         </p>
                     </div>
                     <Link href={`/brand/campaigns/${brandActionCampaigns[0].id}`}>
-                        <Button size="sm" className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full px-4">
+                        <Button size="sm" className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-full px-4">
                             Voir
                             <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
                         </Button>
@@ -153,11 +153,11 @@ export default function BrandDashboardPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className="bg-white/90 backdrop-blur-sm rounded-[20px] border border-black/[0.03] p-5"
+                        className="bg-white rounded-xl border border-[#DADDE1] p-5"
                     >
-                        <p className="text-sm text-[#71717A]">{stat.label}</p>
-                        <p className="text-2xl font-bold text-[#18181B] mt-1">{stat.value}</p>
-                        <p className="text-xs text-[#A1A1AA] mt-1">{stat.change}</p>
+                        <p className="text-sm text-[#65676B]">{stat.label}</p>
+                        <p className="text-2xl font-bold text-[#1C1E21] mt-1">{stat.value}</p>
+                        <p className="text-xs text-[#8A8D91] mt-1">{stat.change}</p>
                     </motion.div>
                 ))}
             </div>
@@ -167,12 +167,12 @@ export default function BrandDashboardPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-white/90 backdrop-blur-sm rounded-[24px] border border-black/[0.03] overflow-hidden"
+                className="bg-white rounded-xl border border-[#DADDE1] overflow-hidden"
             >
                 <div className="flex items-center justify-between p-6 pb-4">
-                    <h2 className="text-lg font-semibold text-[#18181B]">Mes campagnes récentes</h2>
+                    <h2 className="text-lg font-semibold text-[#1C1E21]">Mes campagnes récentes</h2>
                     <Link href="/brand/campaigns">
-                        <Button variant="ghost" className="text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F3EF] rounded-full">
+                        <Button variant="ghost" className="text-[#65676B] hover:text-[#1C1E21] hover:bg-[#F0F2F5] rounded-full">
                             Voir tout
                             <ArrowUpRight className="h-4 w-4 ml-1" strokeWidth={1.5} />
                         </Button>
@@ -180,12 +180,12 @@ export default function BrandDashboardPage() {
                 </div>
                 <div className="px-6 pb-6">
                     {campaigns.length === 0 ? (
-                        <div className="text-center py-12 text-[#A1A1AA]">
+                        <div className="text-center py-12 text-[#8A8D91]">
                             <Plus className="w-12 h-12 mx-auto mb-4 opacity-50" />
                             <p>Aucune campagne pour le moment</p>
                             <p className="text-sm mt-2">Créez votre première campagne</p>
                             <Link href="/brand/campaigns/new">
-                                <Button className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full px-6 mt-4">
+                                <Button className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-full px-6 mt-4">
                                     <Plus className="w-4 h-4 mr-2" strokeWidth={1.5} />
                                     Créer une campagne
                                 </Button>
@@ -206,15 +206,15 @@ export default function BrandDashboardPage() {
                                     >
                                         <Link
                                             href={`/brand/campaigns/${campaign.id}`}
-                                            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-[#F4F3EF]/60 hover:bg-[#F4F3EF] transition-all cursor-pointer group"
+                                            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg bg-[#F0F2F5]/60 hover:bg-[#F0F2F5] transition-all cursor-pointer group"
                                         >
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-[#C4F042]/20 flex items-center justify-center">
-                                                    <StatusIcon className="h-5 w-5 text-[#18181B]" strokeWidth={1.5} />
+                                                <div className="w-10 h-10 rounded-lg bg-[#E7F0FF] flex items-center justify-center">
+                                                    <StatusIcon className="h-5 w-5 text-[#1C1E21]" strokeWidth={1.5} />
                                                 </div>
                                                 <div>
-                                                    <p className="font-medium text-[#18181B] group-hover:text-[#18181B]">{campaign.title}</p>
-                                                    <p className="text-sm text-[#71717A]">{campaign.script_type}</p>
+                                                    <p className="font-medium text-[#1C1E21] group-hover:text-[#1C1E21]">{campaign.title}</p>
+                                                    <p className="text-sm text-[#65676B]">{campaign.script_type}</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-4">
@@ -226,8 +226,8 @@ export default function BrandDashboardPage() {
                                                     const status = getStatusConfig(campaign.status)
                                                     return <Badge className={status.badgeClass}>{status.label}</Badge>
                                                 })()}
-                                                <span className="text-[#18181B] font-semibold">{formatCHF(campaign.budget_chf)}</span>
-                                                <ArrowUpRight className="w-4 h-4 text-[#A1A1AA] group-hover:text-[#C4F042] transition-colors" strokeWidth={1.5} />
+                                                <span className="text-[#1C1E21] font-semibold">{formatCHF(campaign.budget_chf)}</span>
+                                                <ArrowUpRight className="w-4 h-4 text-[#8A8D91] group-hover:text-[#0866FF] transition-colors" strokeWidth={1.5} />
                                             </div>
                                         </Link>
                                     </motion.div>
@@ -244,38 +244,38 @@ export default function BrandDashboardPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
             >
-                <h2 className="text-lg font-semibold text-[#18181B] mb-4">Actions rapides</h2>
+                <h2 className="text-lg font-semibold text-[#1C1E21] mb-4">Actions rapides</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Link href="/brand/campaigns/new">
-                        <div className="bg-white/90 backdrop-blur-sm rounded-[20px] border border-black/[0.03] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-[#C4F042]/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Plus className="h-6 w-6 text-[#18181B]" strokeWidth={1.5} />
+                        <div className="bg-white rounded-xl border border-[#DADDE1] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-lg bg-[#E7F0FF] flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Plus className="h-6 w-6 text-[#1C1E21]" strokeWidth={1.5} />
                             </div>
                             <div>
-                                <p className="font-medium text-[#18181B]">Créer une campagne</p>
-                                <p className="text-sm text-[#71717A]">Décrivez votre besoin en vidéo UGC</p>
+                                <p className="font-medium text-[#1C1E21]">Créer une campagne</p>
+                                <p className="text-sm text-[#65676B]">Décrivez votre besoin en vidéo UGC</p>
                             </div>
                         </div>
                     </Link>
                     <Link href="/brand/campaigns">
-                        <div className="bg-white/90 backdrop-blur-sm rounded-[20px] border border-black/[0.03] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-blue-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <div className="bg-white rounded-xl border border-[#DADDE1] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-lg bg-blue-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <Eye className="h-6 w-6 text-blue-700" strokeWidth={1.5} />
                             </div>
                             <div>
-                                <p className="font-medium text-[#18181B]">Suivre mes campagnes</p>
-                                <p className="text-sm text-[#71717A]">Voyez l&apos;avancement de vos projets</p>
+                                <p className="font-medium text-[#1C1E21]">Suivre mes campagnes</p>
+                                <p className="text-sm text-[#65676B]">Voyez l&apos;avancement de vos projets</p>
                             </div>
                         </div>
                     </Link>
                     <Link href="/brand/settings">
-                        <div className="bg-white/90 backdrop-blur-sm rounded-[20px] border border-black/[0.03] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-[#F4F3EF] flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Settings className="h-6 w-6 text-[#18181B]" strokeWidth={1.5} />
+                        <div className="bg-white rounded-xl border border-[#DADDE1] hover:bg-white transition-all cursor-pointer group p-5 flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-lg bg-[#F0F2F5] flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Settings className="h-6 w-6 text-[#1C1E21]" strokeWidth={1.5} />
                             </div>
                             <div>
-                                <p className="font-medium text-[#18181B]">Compléter le profil</p>
-                                <p className="text-sm text-[#71717A]">Finalisez votre profil marque</p>
+                                <p className="font-medium text-[#1C1E21]">Compléter le profil</p>
+                                <p className="text-sm text-[#65676B]">Finalisez votre profil marque</p>
                             </div>
                         </div>
                     </Link>

@@ -77,7 +77,7 @@ export function CreatorFilters({ onFilterChange }: CreatorFiltersProps) {
                             className="appearance-none bg-white/5 border border-white/10 rounded-full px-4 py-2 pr-10 text-sm text-white/80 focus:outline-none focus:ring-2 focus:ring-accent/50 cursor-pointer"
                         >
                             {CANTONS.map((canton) => (
-                                <option key={canton.id} value={canton.id} className="bg-[#1A1A1A]">
+                                <option key={canton.id} value={canton.id} className="bg-[#1C1E21]">
                                     {canton.label}
                                 </option>
                             ))}

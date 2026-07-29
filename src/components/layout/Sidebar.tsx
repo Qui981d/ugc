@@ -92,7 +92,7 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
                 className={`
                     fixed left-3 top-3 bottom-3 z-40
                     hidden md:flex flex-col items-center
-                    bg-[#1A1A1D] rounded-2xl
+                    bg-[#1C1E21] rounded-lg
                     py-4 gap-1
                     transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
                     shadow-xl shadow-black/10
@@ -103,7 +103,7 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
                 <Link
                     href={config.logoHref}
                     className={`
-                        flex items-center gap-2.5 rounded-xl
+                        flex items-center gap-2.5 rounded-lg
                         bg-white/[0.07] hover:bg-white/[0.12]
                         border border-white/[0.08]
                         transition-all duration-200
@@ -121,7 +121,7 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
                 {/* Role badge */}
                 {expanded && (
                     <div className="w-[calc(100%-24px)] px-1 mb-3">
-                        <span className="text-[10px] font-semibold uppercase tracking-widest text-[#6B6B70]">
+                        <span className="text-[10px] font-semibold uppercase tracking-widest text-[#8A8D91]">
                             {config.badge}
                         </span>
                     </div>
@@ -140,12 +140,12 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
                                 href={item.href}
                                 title={item.label}
                                 className={`
-                                    relative flex items-center gap-3 rounded-xl
+                                    relative flex items-center gap-3 rounded-lg
                                     transition-all duration-200
                                     ${expanded ? 'px-3 py-2.5' : 'w-[44px] h-[44px] justify-center mx-auto'}
                                     ${isActive
-                                        ? 'bg-[#C4F042] text-[#1A1A1D] shadow-md shadow-[#C4F042]/20'
-                                        : 'text-[#6B6B70] hover:text-white hover:bg-white/[0.06]'
+                                        ? 'bg-[#0866FF] text-white'
+                                        : 'text-[#8A8D91] hover:text-white hover:bg-white/[0.06]'
                                     }
                                 `}
                             >
@@ -154,7 +154,7 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
                                     strokeWidth={1.5}
                                 />
                                 {expanded && (
-                                    <span className={`text-sm font-medium truncate ${isActive ? 'text-[#1A1A1D]' : ''}`}>
+                                    <span className={`text-sm font-medium truncate ${isActive ? 'text-white' : ''}`}>
                                         {item.label}
                                     </span>
                                 )}
@@ -162,7 +162,7 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
                                     <span className={`
                                         absolute w-2 h-2 bg-red-500 rounded-full
                                         ${expanded ? 'right-2 top-1/2 -translate-y-1/2' : '-top-0.5 -right-0.5'}
-                                        border-2 border-[#1A1A1D]
+                                        border-2 border-[#1C1E21]
                                     `} />
                                 )}
                             </Link>
@@ -172,15 +172,15 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
 
                 {/* Separator */}
                 <div className={`flex items-center justify-center my-1 ${expanded ? 'px-3' : ''}`}>
-                    <MoreHorizontal className="w-[18px] h-[18px] text-[#4A4A4E]" strokeWidth={1.5} />
+                    <MoreHorizontal className="w-[18px] h-[18px] text-[#65676B]" strokeWidth={1.5} />
                 </div>
 
                 {/* Collapse / Expand toggle */}
                 <button
                     onClick={() => toggleExpanded(!expanded)}
                     className={`
-                        flex items-center gap-2 rounded-xl
-                        text-[#6B6B70] hover:text-white hover:bg-white/[0.06]
+                        flex items-center gap-2 rounded-lg
+                        text-[#8A8D91] hover:text-white hover:bg-white/[0.06]
                         transition-all duration-200 mb-2
                         ${expanded ? 'w-[calc(100%-24px)] px-3 py-2.5' : 'w-[44px] h-[44px] justify-center'}
                     `}
@@ -199,11 +199,11 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
                 {/* Bottom avatar */}
                 <div className={`${expanded ? 'w-[calc(100%-24px)] px-3' : ''}`}>
                     <div className={`
-                        rounded-full bg-gradient-to-br from-[#C4F042] to-[#8AB800]
+                        rounded-full bg-[#0866FF]
                         flex items-center justify-center
                         ${expanded ? 'w-8 h-8' : 'w-9 h-9'}
                     `}>
-                        <span className="text-[#1A1A1D] text-xs font-bold" suppressHydrationWarning>
+                        <span className="text-[#1C1E21] text-xs font-bold" suppressHydrationWarning>
                             {userName?.charAt(0)?.toUpperCase() || (role === 'admin' ? 'A' : role === 'brand' ? 'B' : 'C')}
                         </span>
                     </div>

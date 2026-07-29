@@ -124,14 +124,14 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-                        className="w-16 h-16 rounded-2xl bg-[#C4F042] flex items-center justify-center mx-auto mb-4"
+                        className="w-16 h-16 rounded-lg bg-[#0866FF] flex items-center justify-center mx-auto mb-4"
                     >
-                        <span className="text-2xl font-black text-[#18181B]">M</span>
+                        <span className="text-2xl font-black text-[#1C1E21]">M</span>
                     </motion.div>
-                    <h1 className="text-[28px] font-semibold text-[#18181B] tracking-[-0.02em]">
+                    <h1 className="text-[28px] font-semibold text-[#1C1E21] tracking-[-0.02em]">
                         Bienvenue, {userName.split(' ')[0]} ! 👋
                     </h1>
-                    <p className="text-[#71717A] mt-2">
+                    <p className="text-[#65676B] mt-2">
                         Complétez votre profil pour recevoir vos premières missions
                     </p>
                 </div>
@@ -142,10 +142,10 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                         <div key={index} className="flex-1 flex flex-col items-center gap-1.5">
                             <div className={`
                                 w-full h-1.5 rounded-full transition-all duration-500
-                                ${index <= currentStep ? 'bg-[#C4F042]' : 'bg-[#E8E6DF]'}
+                                ${index <= currentStep ? 'bg-[#0866FF]' : 'bg-[#EBEDF0]'}
                             `} />
                             <span className={`text-[10px] font-medium transition-colors ${
-                                index <= currentStep ? 'text-[#18181B]' : 'text-[#A1A1AA]'
+                                index <= currentStep ? 'text-[#1C1E21]' : 'text-[#8A8D91]'
                             }`}>
                                 {step.title}
                             </span>
@@ -154,7 +154,7 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                 </div>
 
                 {/* Form Card */}
-                <div className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[24px] p-6 md:p-8">
+                <div className="bg-white border border-[#DADDE1] rounded-xl p-6 md:p-8">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={currentStep}
@@ -167,17 +167,17 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                             {currentStep === 0 && (
                                 <div className="space-y-4">
                                     <div>
-                                        <h2 className="text-lg font-semibold text-[#18181B] mb-1">Présentez-vous</h2>
-                                        <p className="text-sm text-[#71717A]">Décrivez votre style, votre expérience et ce qui vous rend unique</p>
+                                        <h2 className="text-lg font-semibold text-[#1C1E21] mb-1">Présentez-vous</h2>
+                                        <p className="text-sm text-[#65676B]">Décrivez votre style, votre expérience et ce qui vous rend unique</p>
                                     </div>
                                     <textarea
                                         value={bio}
                                         onChange={(e) => setBio(e.target.value)}
                                         rows={5}
                                         placeholder="Ex : Créatrice de contenu spécialisée dans le lifestyle et la beauté. 3 ans d'expérience en UGC avec un style authentique et dynamique..."
-                                        className="w-full bg-[#F4F3EF] border border-transparent rounded-xl px-4 py-3 text-[#18181B] focus:outline-none focus:border-[#C4F042] focus:ring-1 focus:ring-[#C4F042]/25 resize-none placeholder:text-[#A1A1AA]"
+                                        className="w-full bg-[#F0F2F5] border border-transparent rounded-lg px-4 py-3 text-[#1C1E21] focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30 resize-none placeholder:text-[#8A8D91]"
                                     />
-                                    <p className={`text-xs ${bio.trim().length >= 10 ? 'text-[#71717A]' : 'text-[#A1A1AA]'}`}>
+                                    <p className={`text-xs ${bio.trim().length >= 10 ? 'text-[#65676B]' : 'text-[#8A8D91]'}`}>
                                         {bio.trim().length}/10 caractères minimum
                                     </p>
                                 </div>
@@ -187,8 +187,8 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                             {currentStep === 1 && (
                                 <div className="space-y-4">
                                     <div>
-                                        <h2 className="text-lg font-semibold text-[#18181B] mb-1">Vos spécialités</h2>
-                                        <p className="text-sm text-[#71717A]">Sélectionnez les formats que vous maîtrisez</p>
+                                        <h2 className="text-lg font-semibold text-[#1C1E21] mb-1">Vos spécialités</h2>
+                                        <p className="text-sm text-[#65676B]">Sélectionnez les formats que vous maîtrisez</p>
                                     </div>
                                     <div className="grid grid-cols-2 gap-3">
                                         {specialties.map(spec => {
@@ -204,10 +204,10 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                                                         )
                                                     }}
                                                     className={`
-                                                        flex items-center gap-3 p-4 rounded-2xl text-left transition-all
+                                                        flex items-center gap-3 p-4 rounded-lg text-left transition-all
                                                         ${isSelected
-                                                            ? 'bg-[#18181B] text-white ring-2 ring-[#C4F042]'
-                                                            : 'bg-[#F4F3EF] text-[#71717A] hover:bg-[#E8E6DF]'
+                                                            ? 'bg-[#1C1E21] text-white ring-2 ring-[#0866FF]'
+                                                            : 'bg-[#F0F2F5] text-[#65676B] hover:bg-[#EBEDF0]'
                                                         }
                                                     `}
                                                 >
@@ -225,8 +225,8 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                             {currentStep === 2 && (
                                 <div className="space-y-4">
                                     <div>
-                                        <h2 className="text-lg font-semibold text-[#18181B] mb-1">Langues parlées</h2>
-                                        <p className="text-sm text-[#71717A]">Dans quelles langues pouvez-vous créer du contenu ?</p>
+                                        <h2 className="text-lg font-semibold text-[#1C1E21] mb-1">Langues parlées</h2>
+                                        <p className="text-sm text-[#65676B]">Dans quelles langues pouvez-vous créer du contenu ?</p>
                                     </div>
                                     <div className="flex flex-wrap gap-3">
                                         {languages.map(lang => {
@@ -244,8 +244,8 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                                                     className={`
                                                         px-5 py-3 rounded-full font-medium text-sm transition-all
                                                         ${isSelected
-                                                            ? 'bg-[#18181B] text-white ring-2 ring-[#C4F042]'
-                                                            : 'bg-[#F4F3EF] text-[#71717A] hover:bg-[#E8E6DF]'
+                                                            ? 'bg-[#1C1E21] text-white ring-2 ring-[#0866FF]'
+                                                            : 'bg-[#F0F2F5] text-[#65676B] hover:bg-[#EBEDF0]'
                                                         }
                                                     `}
                                                 >
@@ -262,8 +262,8 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                             {currentStep === 3 && (
                                 <div className="space-y-4">
                                     <div>
-                                        <h2 className="text-lg font-semibold text-[#18181B] mb-1">Votre portfolio</h2>
-                                        <p className="text-sm text-[#71717A]">Ajoutez des liens vers vos vidéos (TikTok, Instagram, YouTube...)</p>
+                                        <h2 className="text-lg font-semibold text-[#1C1E21] mb-1">Votre portfolio</h2>
+                                        <p className="text-sm text-[#65676B]">Ajoutez des liens vers vos vidéos (TikTok, Instagram, YouTube...)</p>
                                     </div>
                                     <div className="flex gap-2">
                                         <input
@@ -272,12 +272,12 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                                             onChange={(e) => setPortfolioUrl(e.target.value)}
                                             onKeyDown={(e) => e.key === 'Enter' && handleAddPortfolioUrl()}
                                             placeholder="https://www.tiktok.com/@votre-video"
-                                            className="flex-1 bg-[#F4F3EF] border border-transparent rounded-xl px-4 py-3 text-[#18181B] focus:outline-none focus:border-[#C4F042] focus:ring-1 focus:ring-[#C4F042]/25 placeholder:text-[#A1A1AA]"
+                                            className="flex-1 bg-[#F0F2F5] border border-transparent rounded-lg px-4 py-3 text-[#1C1E21] focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30 placeholder:text-[#8A8D91]"
                                         />
                                         <Button
                                             onClick={handleAddPortfolioUrl}
                                             disabled={!portfolioUrl.trim()}
-                                            className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-xl px-4"
+                                            className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-lg px-4"
                                         >
                                             Ajouter
                                         </Button>
@@ -285,12 +285,12 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                                     {portfolioUrls.length > 0 && (
                                         <div className="space-y-2">
                                             {portfolioUrls.map((url, index) => (
-                                                <div key={index} className="flex items-center gap-2 p-3 bg-[#F4F3EF] rounded-xl">
-                                                    <Video className="w-4 h-4 text-[#71717A] flex-shrink-0" />
-                                                    <span className="text-sm text-[#18181B] truncate flex-1">{url}</span>
+                                                <div key={index} className="flex items-center gap-2 p-3 bg-[#F0F2F5] rounded-lg">
+                                                    <Video className="w-4 h-4 text-[#65676B] flex-shrink-0" />
+                                                    <span className="text-sm text-[#1C1E21] truncate flex-1">{url}</span>
                                                     <button
                                                         onClick={() => handleRemoveUrl(index)}
-                                                        className="text-[#A1A1AA] hover:text-red-500 transition-colors text-xs"
+                                                        className="text-[#8A8D91] hover:text-red-500 transition-colors text-xs"
                                                     >
                                                         ✕
                                                     </button>
@@ -298,7 +298,7 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                                             ))}
                                         </div>
                                     )}
-                                    <p className="text-xs text-[#A1A1AA]">
+                                    <p className="text-xs text-[#8A8D91]">
                                         Vous pourrez aussi en ajouter plus tard depuis votre portfolio
                                     </p>
                                 </div>
@@ -307,12 +307,12 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                     </AnimatePresence>
 
                     {/* Navigation */}
-                    <div className="flex items-center justify-between mt-8 pt-6 border-t border-[#E8E6DF]">
+                    <div className="flex items-center justify-between mt-8 pt-6 border-t border-[#EBEDF0]">
                         {currentStep > 0 ? (
                             <Button
                                 variant="ghost"
                                 onClick={prevStep}
-                                className="text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F3EF] rounded-full"
+                                className="text-[#65676B] hover:text-[#1C1E21] hover:bg-[#F0F2F5] rounded-full"
                             >
                                 <ChevronLeft className="w-4 h-4 mr-1" />
                                 Retour
@@ -323,7 +323,7 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                         <Button
                             onClick={nextStep}
                             disabled={!canProceed() || isSaving}
-                            className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full px-6"
+                            className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-full px-6"
                         >
                             {isSaving ? (
                                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -347,7 +347,7 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                 <div className="text-center mt-4">
                     <button
                         onClick={onComplete}
-                        className="text-sm text-[#A1A1AA] hover:text-[#71717A] transition-colors"
+                        className="text-sm text-[#8A8D91] hover:text-[#65676B] transition-colors"
                     >
                         Compléter plus tard
                     </button>

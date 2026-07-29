@@ -21,11 +21,11 @@ import { WORKFLOW_STEPS as CENTRAL_STEPS, isStepCompletedOrPassed } from '@/lib/
 import { ArrowUpDown } from 'lucide-react'
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: typeof Clock }> = {
-    draft: { label: 'Brief reçu', color: 'text-[#71717A]', bg: 'bg-[#F4F3EF]', icon: FileText },
-    open: { label: 'Profils proposés', color: 'text-[#3F3F00]', bg: 'bg-[#C4F042]/20', icon: Users },
-    in_progress: { label: 'En production', color: 'text-white', bg: 'bg-[#18181B]', icon: Video },
-    completed: { label: 'Terminée', color: 'text-[#18181B]', bg: 'bg-[#C4F042]', icon: CheckCircle2 },
-    cancelled: { label: 'Annulée', color: 'text-[#A1A1AA]', bg: 'bg-[#F4F3EF]', icon: XCircle },
+    draft: { label: 'Brief reçu', color: 'text-[#65676B]', bg: 'bg-[#F0F2F5]', icon: FileText },
+    open: { label: 'Profils proposés', color: 'text-[#0653CC]', bg: 'bg-[#E7F0FF]', icon: Users },
+    in_progress: { label: 'En production', color: 'text-white', bg: 'bg-[#1C1E21]', icon: Video },
+    completed: { label: 'Terminée', color: 'text-[#1C1E21]', bg: 'bg-[#0866FF]', icon: CheckCircle2 },
+    cancelled: { label: 'Annulée', color: 'text-[#8A8D91]', bg: 'bg-[#F0F2F5]', icon: XCircle },
 }
 
 const FILTER_TABS = [
@@ -93,8 +93,8 @@ export default function AdminMissionsPage() {
         for (let i = CENTRAL_STEPS.length - 1; i >= 0; i--) {
             if (isStepDone(CENTRAL_STEPS[i].type)) {
                 const next = CENTRAL_STEPS[i + 1]
-                if (!next) return { label: 'Terminée', color: 'text-[#18181B]', bg: 'bg-[#C4F042]', icon: CheckCircle2 }
-                return { label: next.label, color: next.owner === 'brand' ? 'text-amber-700' : next.owner === 'creator' ? 'text-blue-700' : 'text-[#3F3F00]', bg: next.owner === 'brand' ? 'bg-amber-100' : next.owner === 'creator' ? 'bg-blue-100' : 'bg-[#C4F042]/20', icon: next.icon }
+                if (!next) return { label: 'Terminée', color: 'text-[#1C1E21]', bg: 'bg-[#0866FF]', icon: CheckCircle2 }
+                return { label: next.label, color: next.owner === 'brand' ? 'text-amber-700' : next.owner === 'creator' ? 'text-blue-700' : 'text-[#0653CC]', bg: next.owner === 'brand' ? 'bg-amber-100' : next.owner === 'creator' ? 'bg-blue-100' : 'bg-[#E7F0FF]', icon: next.icon }
             }
         }
         return null
@@ -105,11 +105,11 @@ export default function AdminMissionsPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-[#18181B] tracking-tight">Missions</h1>
-                    <p className="text-[#71717A] mt-1">Gérez toutes les missions de la plateforme</p>
+                    <h1 className="text-3xl font-bold text-[#1C1E21] tracking-tight">Missions</h1>
+                    <p className="text-[#65676B] mt-1">Gérez toutes les missions de la plateforme</p>
                 </div>
                 <Link href="/mosh-cockpit/missions/new"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#18181B] text-[#C4F042] rounded-xl text-sm font-medium hover:bg-[#18181B]/90 transition-colors shrink-0">
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0866FF] text-white rounded-lg text-sm font-medium hover:bg-[#0653CC] transition-colors shrink-0">
                     <Plus className="w-4 h-4" strokeWidth={2} />
                     Créer une mission
                 </Link>
@@ -121,9 +121,9 @@ export default function AdminMissionsPage() {
                     <button
                         key={tab.key}
                         onClick={() => setActiveFilter(tab.key)}
-                        className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeFilter === tab.key
-                            ? 'bg-[#18181B] text-white shadow-sm'
-                            : 'bg-white/90 text-[#71717A] hover:text-[#18181B] hover:bg-[#F4F3EF] border border-black/[0.03]'
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeFilter === tab.key
+                            ? 'bg-[#1C1E21] text-white shadow-sm'
+                            : 'bg-white/90 text-[#65676B] hover:text-[#1C1E21] hover:bg-[#F0F2F5] border border-[#DADDE1]'
                             }`}
                     >
                         {tab.label}
@@ -134,19 +134,19 @@ export default function AdminMissionsPage() {
             {/* Search + Sort */}
             <div className="flex gap-3">
                 <div className="relative flex-1">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A1A099]" strokeWidth={1.5} />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A8D91]" strokeWidth={1.5} />
                     <input
                         type="text"
                         placeholder="Rechercher par mission, marque ou créateur..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3 bg-[#D9D7D0]/50 border border-[#C8C6BF]/40 rounded-2xl text-sm text-[#18181B] placeholder:text-[#A1A099] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 focus:border-[#C4F042]/60 focus:bg-white/60 transition-all"
+                        className="w-full pl-11 pr-4 py-3 bg-[#DADDE1]/50 border border-[#DADDE1] rounded-lg text-sm text-[#1C1E21] placeholder:text-[#8A8D91] focus:outline-none focus:ring-2 focus:ring-[#0866FF]/30 focus:border-[#0866FF]/60 focus:bg-white/60 transition-all"
                     />
                 </div>
                 <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                    className="px-4 py-3 bg-white/90 border border-black/[0.06] rounded-2xl text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 appearance-none cursor-pointer min-w-[160px]"
+                    className="px-4 py-3 bg-white/90 border border-[#DADDE1] rounded-lg text-sm text-[#1C1E21] focus:outline-none focus:ring-2 focus:ring-[#0866FF]/30 appearance-none cursor-pointer min-w-[160px]"
                 >
                     <option value="date_desc">Plus récentes</option>
                     <option value="date_asc">Plus anciennes</option>
@@ -159,16 +159,16 @@ export default function AdminMissionsPage() {
             {isLoading ? (
                 <div className="space-y-3">
                     {[...Array(4)].map((_, i) => (
-                        <div key={i} className="bg-white/90 backdrop-blur-sm rounded-[24px] border border-black/[0.03] p-5 animate-pulse">
-                            <div className="h-5 bg-[#F4F3EF] rounded w-1/3 mb-2" />
-                            <div className="h-3 bg-[#F4F3EF] rounded w-2/3" />
+                        <div key={i} className="bg-white rounded-xl border border-[#DADDE1] p-5 animate-pulse">
+                            <div className="h-5 bg-[#F0F2F5] rounded w-1/3 mb-2" />
+                            <div className="h-3 bg-[#F0F2F5] rounded w-2/3" />
                         </div>
                     ))}
                 </div>
             ) : filteredCampaigns.length === 0 ? (
-                <div className="bg-white/90 backdrop-blur-sm rounded-[24px] border border-black/[0.03] p-12 text-center">
-                    <p className="text-[#71717A] font-medium">Aucune mission trouvée</p>
-                    <p className="text-[#A1A1AA] text-sm mt-1">Essayez un autre filtre ou terme de recherche</p>
+                <div className="bg-white rounded-xl border border-[#DADDE1] p-12 text-center">
+                    <p className="text-[#65676B] font-medium">Aucune mission trouvée</p>
+                    <p className="text-[#8A8D91] text-sm mt-1">Essayez un autre filtre ou terme de recherche</p>
                 </div>
             ) : (
                 <div className="space-y-3">
@@ -185,12 +185,12 @@ export default function AdminMissionsPage() {
                             >
                                 <Link
                                     href={`/mosh-cockpit/missions/${campaign.id}`}
-                                    className="block bg-white/90 backdrop-blur-sm hover:shadow-md border border-black/[0.03] hover:border-[#C4F042]/30 rounded-[24px] p-5 transition-all group"
+                                    className="block bg-white hover:shadow-md border border-[#DADDE1] hover:border-[#0866FF]/30 rounded-xl p-5 transition-all group"
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-3 mb-2">
-                                                <h3 className="text-[#18181B] font-semibold truncate group-hover:text-[#18181B] transition-colors">
+                                                <h3 className="text-[#1C1E21] font-semibold truncate group-hover:text-[#1C1E21] transition-colors">
                                                     {campaign.title}
                                                 </h3>
                                                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${(() => {
@@ -207,7 +207,7 @@ export default function AdminMissionsPage() {
                                                     })()}
                                                 </span>
                                             </div>
-                                            <div className="flex items-center gap-4 text-sm text-[#A1A1AA]">
+                                            <div className="flex items-center gap-4 text-sm text-[#8A8D91]">
                                                 <span>🏢 {campaign.brand?.profiles_brand?.company_name || campaign.brand?.full_name || '—'}</span>
                                                 <span>🎬 {campaign.selected_creator?.full_name || 'Non assigné'}</span>
                                                 {campaign.deadline && (
@@ -219,7 +219,7 @@ export default function AdminMissionsPage() {
                                                 <span>CHF {campaign.budget_chf?.toLocaleString('fr-CH')}</span>
                                             </div>
                                         </div>
-                                        <ArrowRight className="w-5 h-5 text-[#D4D4D8] group-hover:text-[#C4F042] group-hover:translate-x-1 transition-all" strokeWidth={1.5} />
+                                        <ArrowRight className="w-5 h-5 text-[#BCC0C4] group-hover:text-[#0866FF] group-hover:translate-x-1 transition-all" strokeWidth={1.5} />
                                     </div>
                                 </Link>
                             </motion.div>

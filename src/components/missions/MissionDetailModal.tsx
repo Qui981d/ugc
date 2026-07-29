@@ -94,7 +94,7 @@ export default function MissionDetailModal({
                         {/* Header */}
                         <SheetHeader className="p-6 pb-4 border-b border-white/10">
                             <div className="flex items-start gap-4">
-                                <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                                <div className="w-14 h-14 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
                                     <Building2 className="w-6 h-6 text-white/40" />
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -116,7 +116,7 @@ export default function MissionDetailModal({
                         <div className="flex-1 overflow-y-auto p-6 space-y-6">
                             {/* Key Metrics */}
                             <div className="grid grid-cols-2 gap-3">
-                                <div className="bg-white/[0.06] rounded-xl p-4 border border-white/[0.08]">
+                                <div className="bg-white/[0.06] rounded-lg p-4 border border-white/[0.08]">
                                     <div className="flex items-center gap-2 text-white/40 text-xs mb-1">
                                         <DollarSign className="w-3.5 h-3.5" />
                                         Budget
@@ -126,7 +126,7 @@ export default function MissionDetailModal({
                                     </p>
                                 </div>
                                 {campaign.deadline && (
-                                    <div className="bg-white/[0.06] rounded-xl p-4 border border-white/[0.08]">
+                                    <div className="bg-white/[0.06] rounded-lg p-4 border border-white/[0.08]">
                                         <div className="flex items-center gap-2 text-white/40 text-xs mb-1">
                                             <Calendar className="w-3.5 h-3.5" />
                                             Échéance
@@ -149,7 +149,7 @@ export default function MissionDetailModal({
                                         <FileText className="w-4 h-4" />
                                         Description
                                     </h3>
-                                    <p className="text-sm text-white/60 leading-relaxed bg-white/[0.04] rounded-xl p-4 border border-white/[0.06]">
+                                    <p className="text-sm text-white/60 leading-relaxed bg-white/[0.04] rounded-lg p-4 border border-white/[0.06]">
                                         {campaign.description}
                                     </p>
                                 </div>
@@ -162,7 +162,7 @@ export default function MissionDetailModal({
                                         <Package className="w-4 h-4" />
                                         Produit
                                     </h3>
-                                    <div className="bg-white/[0.04] rounded-xl p-4 border border-white/[0.06] space-y-2">
+                                    <div className="bg-white/[0.04] rounded-lg p-4 border border-white/[0.06] space-y-2">
                                         {campaign.product_name && (
                                             <p className="text-sm font-medium text-white">
                                                 {campaign.product_name}
@@ -183,7 +183,7 @@ export default function MissionDetailModal({
                                     <Briefcase className="w-4 h-4" />
                                     Spécifications
                                 </h3>
-                                <div className="bg-white/[0.04] rounded-xl p-4 border border-white/[0.06] space-y-3">
+                                <div className="bg-white/[0.04] rounded-lg p-4 border border-white/[0.06] space-y-3">
                                     {campaign.format && (
                                         <div className="flex justify-between items-center">
                                             <span className="text-sm text-white/50">Format</span>
@@ -224,7 +224,7 @@ export default function MissionDetailModal({
                                         <FileText className="w-4 h-4" />
                                         Notes de script
                                     </h3>
-                                    <p className="text-sm text-white/60 leading-relaxed bg-white/[0.04] rounded-xl p-4 border border-white/[0.06]">
+                                    <p className="text-sm text-white/60 leading-relaxed bg-white/[0.04] rounded-lg p-4 border border-white/[0.06]">
                                         {campaign.script_notes}
                                     </p>
                                 </div>

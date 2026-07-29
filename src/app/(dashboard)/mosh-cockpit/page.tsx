@@ -24,7 +24,7 @@ function CapsuleBar({ filled, total, dark = false }: { filled: number; total: nu
         <div className="mt-5">
             <div className={`h-2 w-full rounded-full ${dark ? 'bg-white/[0.1]' : 'bg-black/[0.06]'}`}>
                 <div
-                    className={`h-2 rounded-full transition-all duration-500 ${dark ? 'bg-[#C4F042]' : 'bg-[#18181B]'}`}
+                    className={`h-2 rounded-full transition-all duration-500 ${dark ? 'bg-[#0866FF]' : 'bg-[#1C1E21]'}`}
                     style={{ width: `${pct}%` }}
                 />
             </div>
@@ -65,15 +65,15 @@ export default function AdminDashboardPage() {
                     className="flex items-start justify-between"
                 >
                     <div>
-                        <h1 className="text-[40px] leading-[1.15] font-medium text-[#18181B] tracking-[-0.02em]">
+                        <h1 className="text-[40px] leading-[1.15] font-medium text-[#1C1E21] tracking-[-0.02em]">
                             Pilotage <span className="inline-flex items-center align-middle"><Settings className="w-6 h-6 text-gray-400 mx-1" /></span> Missions
                             <br />
-                            et <span className="inline-flex items-center align-middle"><span className="text-[#C4F042] text-2xl mx-1">✦</span></span> Production
+                            et <span className="inline-flex items-center align-middle"><span className="text-[#0866FF] text-2xl mx-1">✦</span></span> Production
                         </h1>
                     </div>
                     <Link
                         href="/mosh-cockpit/missions?filter=draft"
-                        className="flex items-center gap-2 px-5 py-2.5 bg-[#18181B] text-white text-sm font-medium rounded-full hover:bg-[#2A2A2E] transition-colors shadow-sm"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-[#1C1E21] text-white text-sm font-medium rounded-full hover:bg-[#2A2A2E] transition-colors shadow-sm"
                     >
                         <FileText className="w-4 h-4" />
                         Briefs en attente
@@ -87,22 +87,22 @@ export default function AdminDashboardPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="bg-white/90 backdrop-blur-sm rounded-[24px] p-6 shadow-sm border border-black/[0.03]"
+                        className="bg-white rounded-xl p-6 shadow-sm border border-[#DADDE1]"
                     >
                         <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center gap-2">
-                                <div className="w-7 h-7 rounded-lg bg-[#F4F4F5] flex items-center justify-center">
-                                    <FileText className="w-3.5 h-3.5 text-[#71717A]" strokeWidth={1.5} />
+                                <div className="w-7 h-7 rounded-lg bg-[#F0F2F5] flex items-center justify-center">
+                                    <FileText className="w-3.5 h-3.5 text-[#65676B]" strokeWidth={1.5} />
                                 </div>
-                                <span className="text-sm font-medium text-[#71717A]">Briefs</span>
+                                <span className="text-sm font-medium text-[#65676B]">Briefs</span>
                             </div>
                             <span />
                         </div>
                         <div className="flex items-baseline gap-2 mt-4">
-                            <span className="text-[52px] leading-none font-bold text-[#18181B] tracking-[-0.03em]">
+                            <span className="text-[52px] leading-none font-bold text-[#1C1E21] tracking-[-0.03em]">
                                 {isLoading ? '—' : stats.pendingBriefs}
                             </span>
-                            <span className="text-sm text-[#A1A1AA] font-normal">en attente</span>
+                            <span className="text-sm text-[#8A8D91] font-normal">en attente</span>
                         </div>
                         <CapsuleBar filled={isLoading ? 0 : stats.pendingBriefs} total={totalMissions || 1} />
                     </motion.div>
@@ -112,22 +112,22 @@ export default function AdminDashboardPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.15 }}
-                        className="bg-[#E2F57A] rounded-[24px] p-6 shadow-sm border border-[#D4E542]/40"
+                        className="bg-[#E2F57A] rounded-xl p-6 shadow-sm border border-[#D4E542]/40"
                     >
                         <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center gap-2">
                                 <div className="w-7 h-7 rounded-lg bg-black/[0.06] flex items-center justify-center">
-                                    <ClipboardList className="w-3.5 h-3.5 text-[#3F3F00]" strokeWidth={1.5} />
+                                    <ClipboardList className="w-3.5 h-3.5 text-[#0653CC]" strokeWidth={1.5} />
                                 </div>
-                                <span className="text-sm font-medium text-[#3F3F00]/70">Missions actives</span>
+                                <span className="text-sm font-medium text-[#0653CC]/70">Missions actives</span>
                             </div>
                             <span />
                         </div>
                         <div className="flex items-baseline gap-2 mt-4">
-                            <span className="text-[52px] leading-none font-bold text-[#18181B] tracking-[-0.03em]">
+                            <span className="text-[52px] leading-none font-bold text-[#1C1E21] tracking-[-0.03em]">
                                 {isLoading ? '—' : stats.activeMissions}
                             </span>
-                            <span className="text-sm text-[#3F3F00]/50 font-normal">/ {totalMissions || '—'}</span>
+                            <span className="text-sm text-[#0653CC]/50 font-normal">/ {totalMissions || '—'}</span>
                         </div>
                         <CapsuleBar filled={isLoading ? 0 : stats.activeMissions} total={totalMissions || 1} />
                     </motion.div>
@@ -137,19 +137,19 @@ export default function AdminDashboardPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="bg-[#18181B] rounded-[24px] p-6 shadow-sm flex flex-col justify-between relative overflow-hidden"
+                        className="bg-[#1C1E21] rounded-xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden"
                     >
                         {/* Decorative gradient */}
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#C4F042]/20 to-transparent rounded-bl-full" />
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#0866FF]/20 to-transparent rounded-bl-full" />
                         <div>
                             <p className="text-white/90 text-lg font-medium leading-snug relative z-10">
                                 Gérez vos missions<br />
-                                <span className="text-[#C4F042]">UGC en direct ↗</span>
+                                <span className="text-[#0866FF]">UGC en direct ↗</span>
                             </p>
                         </div>
                         <Link
                             href="/mosh-cockpit/missions"
-                            className="mt-5 inline-flex items-center gap-2 px-4 py-2 bg-white text-[#18181B] text-sm font-medium rounded-full hover:bg-gray-100 transition-colors w-fit"
+                            className="mt-5 inline-flex items-center gap-2 px-4 py-2 bg-white text-[#1C1E21] text-sm font-medium rounded-full hover:bg-gray-100 transition-colors w-fit"
                         >
                             Pipeline <ArrowUpRight className="w-3.5 h-3.5" />
                         </Link>
@@ -159,21 +159,21 @@ export default function AdminDashboardPage() {
                 {/* ── Missions récentes ── */}
                 <div>
                     <div className="flex items-center gap-3 mb-5">
-                        <div className="w-7 h-7 rounded-lg bg-white flex items-center justify-center shadow-sm border border-black/[0.04]">
-                            <ClipboardList className="w-3.5 h-3.5 text-[#71717A]" strokeWidth={1.5} />
+                        <div className="w-7 h-7 rounded-lg bg-white flex items-center justify-center shadow-sm border border-[#DADDE1]">
+                            <ClipboardList className="w-3.5 h-3.5 text-[#65676B]" strokeWidth={1.5} />
                         </div>
-                        <h2 className="text-lg font-semibold text-[#18181B] tracking-tight">Missions récentes</h2>
+                        <h2 className="text-lg font-semibold text-[#1C1E21] tracking-tight">Missions récentes</h2>
                         <div className="flex-1" />
                         <Link
                             href="/mosh-cockpit/missions"
-                            className="text-sm text-[#71717A] hover:text-[#18181B] transition-colors flex items-center gap-1"
+                            className="text-sm text-[#65676B] hover:text-[#1C1E21] transition-colors flex items-center gap-1"
                         >
                             Voir tout <ArrowUpRight className="w-3.5 h-3.5" />
                         </Link>
                     </div>
 
                     {isLoading ? (
-                        <div className="bg-white/90 backdrop-blur-sm rounded-[24px] border border-black/[0.03] divide-y divide-gray-100">
+                        <div className="bg-white rounded-xl border border-[#DADDE1] divide-y divide-gray-100">
                             {[...Array(3)].map((_, i) => (
                                 <div key={i} className="p-5 animate-pulse">
                                     <div className="h-4 bg-gray-100 rounded w-1/3 mb-2" />
@@ -182,12 +182,12 @@ export default function AdminDashboardPage() {
                             ))}
                         </div>
                     ) : recentCampaigns.length === 0 ? (
-                        <div className="bg-white/90 backdrop-blur-sm rounded-[24px] border border-black/[0.03] p-10 text-center">
-                            <p className="text-[#A1A1AA] font-medium">Aucune mission</p>
-                            <p className="text-[#D4D4D8] text-sm mt-1">Les briefs apparaîtront ici</p>
+                        <div className="bg-white rounded-xl border border-[#DADDE1] p-10 text-center">
+                            <p className="text-[#8A8D91] font-medium">Aucune mission</p>
+                            <p className="text-[#BCC0C4] text-sm mt-1">Les briefs apparaîtront ici</p>
                         </div>
                     ) : (
-                        <div className="bg-white/90 backdrop-blur-sm rounded-[24px] border border-black/[0.03] divide-y divide-gray-100 overflow-hidden">
+                        <div className="bg-white rounded-xl border border-[#DADDE1] divide-y divide-gray-100 overflow-hidden">
                             {recentCampaigns.map((campaign, i) => (
                                 <motion.div
                                     key={campaign.id}
@@ -200,21 +200,21 @@ export default function AdminDashboardPage() {
                                         className="group flex items-center gap-4 p-5 hover:bg-[#FAFAF9] transition-colors"
                                     >
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-semibold text-[#18181B] text-[15px] group-hover:text-[#18181B] transition-colors truncate">
+                                            <p className="font-semibold text-[#1C1E21] text-[15px] group-hover:text-[#1C1E21] transition-colors truncate">
                                                 {campaign.title}
                                             </p>
-                                            <p className="text-sm text-[#A1A1AA] mt-0.5">
+                                            <p className="text-sm text-[#8A8D91] mt-0.5">
                                                 {campaign.brand?.profiles_brand?.company_name || campaign.brand?.full_name || '—'}
                                             </p>
                                         </div>
-                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#F4F4F5] text-[#52525B]">
+                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#F0F2F5] text-[#65676B]">
                                             <span className={`w-[6px] h-[6px] rounded-full ${getStatusConfig(campaign.status).dotColor}`} />
                                             {getStatusConfig(campaign.status).label}
                                         </span>
-                                        <span className="text-xs text-[#D4D4D8] font-medium tabular-nums">
+                                        <span className="text-xs text-[#BCC0C4] font-medium tabular-nums">
                                             {new Date(campaign.created_at).toLocaleDateString('fr-CH')}
                                         </span>
-                                        <ArrowUpRight className="w-4 h-4 text-[#D4D4D8] group-hover:text-[#C4F042] transition-all flex-shrink-0" />
+                                        <ArrowUpRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-all flex-shrink-0" />
                                     </Link>
                                 </motion.div>
                             ))}
@@ -232,17 +232,17 @@ export default function AdminDashboardPage() {
             >
                 {/* Top row: 2 icon cards */}
                 <div className="grid grid-cols-2 gap-3">
-                    <Link href="/mosh-cockpit/creators" className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-black/[0.03] text-center hover:shadow-sm transition-all group">
-                        <div className="w-9 h-9 rounded-xl border border-black/[0.06] flex items-center justify-center mx-auto mb-2 group-hover:border-[#C4F042]/40 transition-colors">
-                            <Users className="w-4 h-4 text-[#71717A] group-hover:text-[#1A1A1D] transition-colors" strokeWidth={1.5} />
+                    <Link href="/mosh-cockpit/creators" className="bg-white rounded-lg p-4 border border-[#DADDE1] text-center hover:shadow-sm transition-all group">
+                        <div className="w-9 h-9 rounded-lg border border-[#DADDE1] flex items-center justify-center mx-auto mb-2 group-hover:border-[#0866FF]/40 transition-colors">
+                            <Users className="w-4 h-4 text-[#65676B] group-hover:text-[#1C1E21] transition-colors" strokeWidth={1.5} />
                         </div>
-                        <p className="text-xs font-semibold text-[#18181B]">Créateurs</p>
+                        <p className="text-xs font-semibold text-[#1C1E21]">Créateurs</p>
                     </Link>
-                    <Link href="/mosh-cockpit/brands" className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-black/[0.03] text-center hover:shadow-sm transition-all group">
-                        <div className="w-9 h-9 rounded-xl border border-black/[0.06] flex items-center justify-center mx-auto mb-2 group-hover:border-[#C4F042]/40 transition-colors">
-                            <Building2 className="w-4 h-4 text-[#71717A] group-hover:text-[#1A1A1D] transition-colors" strokeWidth={1.5} />
+                    <Link href="/mosh-cockpit/brands" className="bg-white rounded-lg p-4 border border-[#DADDE1] text-center hover:shadow-sm transition-all group">
+                        <div className="w-9 h-9 rounded-lg border border-[#DADDE1] flex items-center justify-center mx-auto mb-2 group-hover:border-[#0866FF]/40 transition-colors">
+                            <Building2 className="w-4 h-4 text-[#65676B] group-hover:text-[#1C1E21] transition-colors" strokeWidth={1.5} />
                         </div>
-                        <p className="text-xs font-semibold text-[#18181B]">Marques</p>
+                        <p className="text-xs font-semibold text-[#1C1E21]">Marques</p>
                     </Link>
                 </div>
 
@@ -256,16 +256,16 @@ export default function AdminDashboardPage() {
                     <Link
                         key={item.title}
                         href={item.href}
-                        className="group flex items-start gap-3 bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-black/[0.03] hover:shadow-sm transition-all"
+                        className="group flex items-start gap-3 bg-white rounded-lg p-4 border border-[#DADDE1] hover:shadow-sm transition-all"
                     >
-                        <div className="w-9 h-9 rounded-xl border border-black/[0.06] flex items-center justify-center flex-shrink-0 group-hover:border-[#C4F042]/40 transition-colors">
-                            <item.icon className="w-4 h-4 text-[#71717A] group-hover:text-[#1A1A1D] transition-colors" strokeWidth={1.5} />
+                        <div className="w-9 h-9 rounded-lg border border-[#DADDE1] flex items-center justify-center flex-shrink-0 group-hover:border-[#0866FF]/40 transition-colors">
+                            <item.icon className="w-4 h-4 text-[#65676B] group-hover:text-[#1C1E21] transition-colors" strokeWidth={1.5} />
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-[#18181B]">{item.title}</p>
-                            <p className="text-xs text-[#A1A1AA] mt-0.5 truncate">{item.desc}</p>
+                            <p className="text-sm font-semibold text-[#1C1E21]">{item.title}</p>
+                            <p className="text-xs text-[#8A8D91] mt-0.5 truncate">{item.desc}</p>
                         </div>
-                        <ArrowUpRight className="w-3.5 h-3.5 text-[#D4D4D8] group-hover:text-[#1A1A1D] transition-all flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+                        <ArrowUpRight className="w-3.5 h-3.5 text-[#BCC0C4] group-hover:text-[#1C1E21] transition-all flex-shrink-0 mt-0.5" strokeWidth={1.5} />
                     </Link>
                 ))}
             </motion.aside>

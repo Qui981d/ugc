@@ -97,16 +97,16 @@ export function Header() {
     const basePath = user?.role === 'brand' ? '/brand' : user?.role === 'admin' ? '/mosh-cockpit' : '/creator'
 
     return (
-        <header className="sticky top-0 z-30 h-16 bg-[#E8E6DF]/80 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 h-16 bg-[#EBEDF0]/80 backdrop-blur-xl">
             <div className="h-full flex items-center justify-between px-6">
                 {/* Search */}
                 <div className="flex-1 max-w-md hidden md:block">
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#A1A099]" strokeWidth={1.5} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8A8D91]" strokeWidth={1.5} />
                         <input
                             type="text"
                             placeholder="Rechercher..."
-                            className="w-full h-10 pl-10 pr-4 bg-[#D9D7D0]/50 border border-[#C8C6BF]/40 rounded-2xl text-sm text-[#3A3A38] placeholder:text-[#A1A099] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 focus:border-[#C4F042]/60 focus:bg-white/60 transition-all"
+                            className="w-full h-10 pl-10 pr-4 bg-[#DADDE1]/50 border border-[#DADDE1] rounded-lg text-sm text-[#65676B] placeholder:text-[#8A8D91] focus:outline-none focus:ring-2 focus:ring-[#0866FF]/30 focus:border-[#0866FF]/60 focus:bg-white/60 transition-all"
                         />
                     </div>
                 </div>
@@ -120,7 +120,7 @@ export function Header() {
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="relative text-[#8A8A82] hover:text-[#3A3A38] hover:bg-[#D9D7D0]/50 rounded-xl"
+                                className="relative text-[#8A8A82] hover:text-[#65676B] hover:bg-[#DADDE1]/50 rounded-lg"
                             >
                                 <Bell className="h-5 w-5" strokeWidth={1.5} />
                                 {unreadCounts.total > 0 && (
@@ -141,7 +141,7 @@ export function Header() {
                                 {unreadCounts.total > 0 && (
                                     <button
                                         onClick={() => markAllAsRead()}
-                                        className="text-xs text-[#18181B] hover:underline flex items-center gap-1"
+                                        className="text-xs text-[#1C1E21] hover:underline flex items-center gap-1"
                                     >
                                         <CheckCheck className="w-3 h-3" />
                                         Tout marquer lu
@@ -188,7 +188,7 @@ export function Header() {
                                                     </p>
                                                 </div>
                                                 {!notif.is_read && (
-                                                    <span className="w-2 h-2 bg-[#18181B] rounded-full flex-shrink-0 mt-1.5" />
+                                                    <span className="w-2 h-2 bg-[#1C1E21] rounded-full flex-shrink-0 mt-1.5" />
                                                 )}
                                             </Link>
                                         </DropdownMenuItem>
@@ -209,7 +209,7 @@ export function Header() {
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
-                                className="flex items-center gap-3 px-3 hover:bg-[#D9D7D0]/50 rounded-xl"
+                                className="flex items-center gap-3 px-3 hover:bg-[#DADDE1]/50 rounded-lg"
                             >
                                 <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
                                     {user?.avatar_url ? (
@@ -225,7 +225,7 @@ export function Header() {
                                     )}
                                 </div>
                                 <div className="hidden md:block text-left">
-                                    <p className="text-sm font-medium text-[#3A3A38]">
+                                    <p className="text-sm font-medium text-[#65676B]">
                                         {user?.role === 'admin' ? 'Mosh' : user?.full_name || 'Mon Compte'}
                                     </p>
                                 </div>
@@ -242,7 +242,7 @@ export function Header() {
                                 <p className="text-xs text-gray-500 mt-0.5">
                                     {user?.email || ''}
                                 </p>
-                                <span className="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-full bg-[#18181B]/5 text-[#71717A]">
+                                <span className="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-full bg-[#1C1E21]/5 text-[#65676B]">
                                     {user?.role === 'admin' ? 'Admin' : user?.role === 'brand' ? 'Marque' : 'Créateur'}
                                 </span>
                             </div>

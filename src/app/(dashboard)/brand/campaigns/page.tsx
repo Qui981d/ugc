@@ -70,7 +70,7 @@ export default function BrandCampaignsPage() {
     if (!mounted || (!user && isLoading) || isDataLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-[#A1A1AA]" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#8A8D91]" />
             </div>
         )
     }
@@ -80,11 +80,11 @@ export default function BrandCampaignsPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-[28px] md:text-[34px] font-semibold text-[#18181B] tracking-[-0.02em]">Mes Campagnes</h1>
-                    <p className="text-[#71717A] mt-1">Suivez l&apos;avancement de vos projets vidéo</p>
+                    <h1 className="text-[28px] md:text-[34px] font-semibold text-[#1C1E21] tracking-[-0.02em]">Mes Campagnes</h1>
+                    <p className="text-[#65676B] mt-1">Suivez l&apos;avancement de vos projets vidéo</p>
                 </div>
                 <Link href="/brand/campaigns/new">
-                    <Button className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full px-6 w-full sm:w-auto">
+                    <Button className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-full px-6 w-full sm:w-auto">
                         <Plus className="h-4 w-4 mr-2" strokeWidth={1.5} />
                         Nouvelle campagne
                     </Button>
@@ -98,8 +98,8 @@ export default function BrandCampaignsPage() {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${activeTab === tab.id
-                            ? 'bg-[#18181B] text-white shadow-sm'
-                            : 'bg-[#F4F3EF] text-[#71717A] hover:text-[#18181B] hover:bg-[#E8E6DF] border border-[#D9D7D0]/50'
+                            ? 'bg-[#1C1E21] text-white shadow-sm'
+                            : 'bg-[#F0F2F5] text-[#65676B] hover:text-[#1C1E21] hover:bg-[#EBEDF0] border border-[#DADDE1]'
                             }`}
                     >
                         {tab.label}
@@ -112,13 +112,13 @@ export default function BrandCampaignsPage() {
 
             {/* Search */}
             <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A1A1AA]" strokeWidth={1.5} />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A8D91]" strokeWidth={1.5} />
                 <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Rechercher une campagne..."
-                    className="w-full bg-[#F4F3EF] border border-transparent rounded-full pl-10 pr-4 py-2.5 text-sm text-[#18181B] focus:outline-none focus:border-[#C4F042] focus:ring-1 focus:ring-[#C4F042]/25 placeholder:text-[#A1A1AA]"
+                    className="w-full bg-[#F0F2F5] border border-transparent rounded-full pl-10 pr-4 py-2.5 text-sm text-[#1C1E21] focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30 placeholder:text-[#8A8D91]"
                 />
             </div>
 
@@ -132,11 +132,11 @@ export default function BrandCampaignsPage() {
                     className="space-y-3"
                 >
                     {filteredCampaigns.length === 0 ? (
-                        <div className="text-center py-16 text-[#A1A1AA]">
+                        <div className="text-center py-16 text-[#8A8D91]">
                             <Megaphone className="w-12 h-12 mx-auto mb-4 opacity-50" />
                             <p>Aucune campagne pour le moment</p>
                             <Link href="/brand/campaigns/new">
-                                <Button className="bg-[#18181B] hover:bg-[#18181B]/90 text-white rounded-full px-6 mt-4">
+                                <Button className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-full px-6 mt-4">
                                     <Plus className="w-4 h-4 mr-2" strokeWidth={1.5} />
                                     Créer une campagne
                                 </Button>
@@ -156,12 +156,12 @@ export default function BrandCampaignsPage() {
                                 >
                                     <Link
                                         href={`/brand/campaigns/${campaign.id}`}
-                                        className="block bg-white/90 backdrop-blur-sm border border-black/[0.03] hover:bg-white rounded-[20px] p-5 transition-all group hover:shadow-sm"
+                                        className="block bg-white border border-[#DADDE1] hover:bg-white rounded-xl p-5 transition-all group hover:shadow-sm"
                                     >
                                         <div className="flex items-center justify-between">
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center gap-3 mb-2">
-                                                    <h3 className="text-[#18181B] font-semibold truncate group-hover:text-[#18181B] transition-colors">
+                                                    <h3 className="text-[#1C1E21] font-semibold truncate group-hover:text-[#1C1E21] transition-colors">
                                                         {campaign.title}
                                                     </h3>
                                                     <Badge className={status.badgeClass}>
@@ -170,9 +170,9 @@ export default function BrandCampaignsPage() {
                                                     </Badge>
                                                 </div>
                                                 {campaign.description && (
-                                                    <p className="text-sm text-[#71717A] mb-3 line-clamp-1">{campaign.description}</p>
+                                                    <p className="text-sm text-[#65676B] mb-3 line-clamp-1">{campaign.description}</p>
                                                 )}
-                                                <div className="flex items-center gap-4 text-sm text-[#A1A1AA]">
+                                                <div className="flex items-center gap-4 text-sm text-[#8A8D91]">
                                                     <span className="flex items-center gap-1">
                                                         <Target className="w-3.5 h-3.5" strokeWidth={1.5} />
                                                         {campaign.script_type}
@@ -183,10 +183,10 @@ export default function BrandCampaignsPage() {
                                                             {new Date(campaign.deadline).toLocaleDateString('fr-CH')}
                                                         </span>
                                                     )}
-                                                    <span className="font-semibold text-[#18181B]">{formatCHF(campaign.budget_chf)}</span>
+                                                    <span className="font-semibold text-[#1C1E21]">{formatCHF(campaign.budget_chf)}</span>
                                                 </div>
                                             </div>
-                                            <ArrowRight className="w-5 h-5 text-[#A1A1AA] group-hover:text-[#C4F042] group-hover:translate-x-1 transition-all ml-4" strokeWidth={1.5} />
+                                            <ArrowRight className="w-5 h-5 text-[#8A8D91] group-hover:text-[#0866FF] group-hover:translate-x-1 transition-all ml-4" strokeWidth={1.5} />
                                         </div>
                                     </Link>
                                 </motion.div>

@@ -213,7 +213,7 @@ export default function CreatorMissionsPage() {
     if (!mounted || isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-[#A1A1AA]" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#8A8D91]" />
             </div>
         )
     }
@@ -223,24 +223,24 @@ export default function CreatorMissionsPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-[28px] md:text-[34px] font-semibold text-[#18181B] tracking-[-0.02em]">Mes Missions</h1>
-                    <p className="text-[#71717A] mt-1">Suivez l&apos;avancement de vos collaborations</p>
+                    <h1 className="text-[28px] md:text-[34px] font-semibold text-[#1C1E21] tracking-[-0.02em]">Mes Missions</h1>
+                    <p className="text-[#65676B] mt-1">Suivez l&apos;avancement de vos collaborations</p>
                 </div>
             </div>
 
             {/* Stats Row */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                 {[
-                    { label: 'Total missions', value: String(stats.total), color: 'text-[#18181B]' },
-                    { label: 'En cours', value: String(stats.active), color: 'text-[#18181B]' },
-                    { label: 'Terminées', value: String(stats.completed), color: 'text-[#18181B]' },
-                    { label: 'Revenus en attente', value: formatCHF(stats.pendingRevenue), color: 'text-[#18181B]' },
+                    { label: 'Total missions', value: String(stats.total), color: 'text-[#1C1E21]' },
+                    { label: 'En cours', value: String(stats.active), color: 'text-[#1C1E21]' },
+                    { label: 'Terminées', value: String(stats.completed), color: 'text-[#1C1E21]' },
+                    { label: 'Revenus en attente', value: formatCHF(stats.pendingRevenue), color: 'text-[#1C1E21]' },
                 ].map((stat, i) => (
                     <motion.div key={stat.label}
                         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                        className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[20px] p-5"
+                        className="bg-white border border-[#DADDE1] rounded-xl p-5"
                     >
-                        <p className="text-sm text-[#71717A] mb-1">{stat.label}</p>
+                        <p className="text-sm text-[#65676B] mb-1">{stat.label}</p>
                         <p className={`text-xl md:text-3xl font-bold ${stat.color}`}>{stat.value}</p>
                     </motion.div>
                 ))}
@@ -253,8 +253,8 @@ export default function CreatorMissionsPage() {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${activeTab === tab.id
-                            ? 'bg-[#18181B] text-white shadow-sm'
-                            : 'bg-[#F4F3EF] text-[#71717A] hover:text-[#18181B] hover:bg-[#E8E6DF] border border-[#D9D7D0]/50'
+                            ? 'bg-[#1C1E21] text-white shadow-sm'
+                            : 'bg-[#F0F2F5] text-[#65676B] hover:text-[#1C1E21] hover:bg-[#EBEDF0] border border-[#DADDE1]'
                             }`}
                     >
                         {tab.label}
@@ -271,10 +271,10 @@ export default function CreatorMissionsPage() {
                 >
                     {isDataLoading ? (
                         <div className="flex items-center justify-center py-16">
-                            <Loader2 className="w-8 h-8 animate-spin text-[#A1A1AA]" />
+                            <Loader2 className="w-8 h-8 animate-spin text-[#8A8D91]" />
                         </div>
                     ) : filteredMissions.length === 0 ? (
-                        <div className="text-center py-16 text-[#A1A1AA]">
+                        <div className="text-center py-16 text-[#8A8D91]">
                             <Briefcase className="w-12 h-12 mx-auto mb-4 opacity-50" />
                             <p>{activeTab === 'active' ? 'Aucune mission en cours' : 'Aucune mission terminée'}</p>
                         </div>
@@ -291,17 +291,17 @@ export default function CreatorMissionsPage() {
                                     transition={{ delay: index * 0.05 }}
                                 >
                                     <Link href={`/creator/missions/${mission.campaign_id}`}>
-                                        <div className={`bg-white/90 backdrop-blur-sm border rounded-[20px] p-6 transition-all duration-300 hover:bg-white hover:shadow-md cursor-pointer group ${mission.isCreatorAction
-                                            ? 'border-[#C4F042]/30 hover:border-[#C4F042]/40'
-                                            : 'border-black/[0.03]'
+                                        <div className={`bg-white border rounded-xl p-6 transition-all duration-300 hover:bg-white hover:shadow-md cursor-pointer group ${mission.isCreatorAction
+                                            ? 'border-[#0866FF]/30 hover:border-[#0866FF]/40'
+                                            : 'border-[#DADDE1]'
                                             }`}>
                                             <div className="flex items-start gap-5">
                                                 {/* Brand Logo */}
-                                                <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-[#F4F3EF] border border-[#D9D7D0] flex-shrink-0">
+                                                <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-[#F0F2F5] border border-[#DADDE1] flex-shrink-0">
                                                     {mission.brand_avatar ? (
                                                         <Image src={mission.brand_avatar} alt={mission.brand_name} fill className="object-cover" />
                                                     ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-[#71717A] text-lg font-bold">
+                                                        <div className="w-full h-full flex items-center justify-center text-[#65676B] text-lg font-bold">
                                                             {mission.brand_name.charAt(0)}
                                                         </div>
                                                     )}
@@ -311,27 +311,27 @@ export default function CreatorMissionsPage() {
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-start justify-between gap-4">
                                                         <div>
-                                                            <h3 className="text-lg font-semibold text-[#18181B] mb-0.5 group-hover:text-[#18181B] transition-colors">{mission.title}</h3>
-                                                            <p className="text-sm text-[#71717A]">{mission.brand_name}</p>
+                                                            <h3 className="text-lg font-semibold text-[#1C1E21] mb-0.5 group-hover:text-[#1C1E21] transition-colors">{mission.title}</h3>
+                                                            <p className="text-sm text-[#65676B]">{mission.brand_name}</p>
                                                         </div>
                                                         <div className="flex items-center gap-2 flex-shrink-0">
                                                             {/* Active step badge */}
                                                             {mission.activeStep ? (
                                                                 <Badge className={`border flex-shrink-0 ${mission.isCreatorAction
-                                                                    ? 'bg-[#C4F042]/20 text-[#18181B] border-[#C4F042]/30'
-                                                                    : 'bg-[#F4F3EF] text-[#71717A] border-[#D9D7D0]'
+                                                                    ? 'bg-[#E7F0FF] text-[#1C1E21] border-[#0866FF]/30'
+                                                                    : 'bg-[#F0F2F5] text-[#65676B] border-[#DADDE1]'
                                                                     }`}>
                                                                     <ActiveIcon className="w-3 h-3 mr-1" />
                                                                     {mission.isCreatorAction ? '⚡ ' : ''}
                                                                     {mission.activeStep.label}
                                                                 </Badge>
                                                             ) : (
-                                                                <Badge className="bg-[#C4F042]/20 text-[#18181B] border-[#C4F042]/30">
+                                                                <Badge className="bg-[#E7F0FF] text-[#1C1E21] border-[#0866FF]/30">
                                                                     <CheckCircle2 className="w-3 h-3 mr-1" />
                                                                     Terminée
                                                                 </Badge>
                                                             )}
-                                                            <ChevronRight className="w-4 h-4 text-[#A1A1AA] group-hover:text-[#C4F042] transition-colors" />
+                                                            <ChevronRight className="w-4 h-4 text-[#8A8D91] group-hover:text-[#0866FF] transition-colors" />
                                                         </div>
                                                     </div>
 
@@ -339,11 +339,11 @@ export default function CreatorMissionsPage() {
                                                     <div className="mt-3 flex items-center gap-2">
                                                         <div className="flex-1 h-1.5 rounded-full bg-black/[0.04] overflow-hidden">
                                                             <div
-                                                                className={`h-full rounded-full transition-all duration-700 ${mission.isCreatorAction ? 'bg-[#C4F042]' : 'bg-[#C4F042]'}`}
+                                                                className={`h-full rounded-full transition-all duration-700 ${mission.isCreatorAction ? 'bg-[#0866FF]' : 'bg-[#0866FF]'}`}
                                                                 style={{ width: `${progress}%` }}
                                                             />
                                                         </div>
-                                                        <span className="text-[10px] text-[#A1A1AA] font-medium w-8 text-right">
+                                                        <span className="text-[10px] text-[#8A8D91] font-medium w-8 text-right">
                                                             {mission.completedCount}/{PIPELINE_STEPS.length}
                                                         </span>
                                                     </div>
@@ -351,13 +351,13 @@ export default function CreatorMissionsPage() {
                                                     {/* Meta Row */}
                                                     <div className="flex flex-wrap items-center gap-3 md:gap-5 mt-3 text-sm">
                                                         {mission.deadline && (
-                                                            <span className="text-[#71717A] flex items-center gap-1.5">
+                                                            <span className="text-[#65676B] flex items-center gap-1.5">
                                                                 <Calendar className="w-3.5 h-3.5" strokeWidth={1.5} />
                                                                 {new Date(mission.deadline).toLocaleDateString('fr-CH')}
                                                             </span>
                                                         )}
-                                                        <span className="text-[#71717A]">{mission.script_type}</span>
-                                                        <span className="text-[#18181B] font-semibold">
+                                                        <span className="text-[#65676B]">{mission.script_type}</span>
+                                                        <span className="text-[#1C1E21] font-semibold">
                                                             {mission.creator_amount_chf
                                                                 ? formatCHF(mission.creator_amount_chf)
                                                                 : formatCHF(mission.budget_chf)}

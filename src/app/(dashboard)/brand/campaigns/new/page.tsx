@@ -370,7 +370,7 @@ export default function NewCampaignPage() {
                 {[1, 2, 3, 4].map(s => (
                     <div key={s} className="flex items-center gap-2 flex-1">
                         <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium transition-all flex-shrink-0 ${step >= s
-                            ? 'bg-[#18181B] text-white'
+                            ? 'bg-[#1C1E21] text-white'
                             : 'bg-gray-100 text-gray-400'
                             }`}>
                             {step > s ? <CheckCircle2 className="w-3.5 h-3.5" /> : s}
@@ -378,7 +378,7 @@ export default function NewCampaignPage() {
                         <span className={`text-xs whitespace-nowrap ${step >= s ? 'text-gray-900' : 'text-gray-400'}`}>
                             {s === 1 ? 'Détails' : s === 2 ? 'Contenus' : s === 3 ? 'Créateurs' : 'Offre'}
                         </span>
-                        {s < 4 && <div className={`flex-1 h-px ${step > s ? 'bg-[#18181B]' : 'bg-gray-100'}`} />}
+                        {s < 4 && <div className={`flex-1 h-px ${step > s ? 'bg-[#1C1E21]' : 'bg-gray-100'}`} />}
                     </div>
                 ))}
             </div>
@@ -389,7 +389,7 @@ export default function NewCampaignPage() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="bg-white border border-white/[0.15] rounded-2xl p-8"
+                className="bg-white border border-white/[0.15] rounded-lg p-8"
             >
                 {/* ═══════════ STEP 1: DÉTAILS ═══════════ */}
                 {step === 1 && (
@@ -404,7 +404,7 @@ export default function NewCampaignPage() {
                                 value={campaign.title}
                                 onChange={(e) => { setCampaign({ ...campaign, title: e.target.value }); setErrors(prev => ({ ...prev, title: '' })) }}
                                 placeholder="Ex: Lancement collection été 2026"
-                                className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#18181B]/20 ${errors.title ? 'border-red-400' : 'border-gray-200'}`}
+                                className={`w-full bg-gray-50 border rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1C1E21]/20 ${errors.title ? 'border-red-400' : 'border-gray-200'}`}
                             />
                             {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title}</p>}
                         </div>
@@ -417,7 +417,7 @@ export default function NewCampaignPage() {
                                 onChange={(e) => { setCampaign({ ...campaign, description: e.target.value }); setErrors(prev => ({ ...prev, description: '' })) }}
                                 rows={4}
                                 placeholder="Décrivez votre campagne, le produit/service, et ce que vous attendez des créateurs..."
-                                className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#18181B]/20 resize-none ${errors.description ? 'border-red-400' : 'border-gray-200'}`}
+                                className={`w-full bg-gray-50 border rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1C1E21]/20 resize-none ${errors.description ? 'border-red-400' : 'border-gray-200'}`}
                             />
                             {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description}</p>}
                         </div>
@@ -430,7 +430,7 @@ export default function NewCampaignPage() {
                                 value={campaign.productName}
                                 onChange={(e) => setCampaign({ ...campaign, productName: e.target.value })}
                                 placeholder="Ex: Montre Alpine Pro X"
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#18181B]/20"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1C1E21]/20"
                             />
                         </div>
 
@@ -443,7 +443,7 @@ export default function NewCampaignPage() {
                                         key={specialty.id}
                                         onClick={() => toggleSpecialty(specialty.id)}
                                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedSpecialties.includes(specialty.id)
-                                            ? 'bg-[#18181B] text-white'
+                                            ? 'bg-[#1C1E21] text-white'
                                             : 'bg-gray-50 text-gray-500 hover:bg-gray-100 border border-gray-200'
                                             }`}
                                     >
@@ -488,7 +488,7 @@ export default function NewCampaignPage() {
                             )}
                             <label
                                 htmlFor="brief-images-upload"
-                                className="block border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:border-gray-300 transition-colors cursor-pointer"
+                                className="block border-2 border-dashed border-gray-200 rounded-lg p-6 text-center hover:border-gray-300 transition-colors cursor-pointer"
                             >
                                 <Upload className="w-6 h-6 text-gray-400 mx-auto mb-2" />
                                 <p className="text-sm text-gray-500">
@@ -506,7 +506,7 @@ export default function NewCampaignPage() {
                         <div>
                             <h2 className="text-xl font-semibold text-gray-900">Quelles vidéos souhaitez-vous ?</h2>
                             <p className="text-sm text-gray-500 mt-1">Chaque bloc ci-dessous correspond à une vidéo à produire dans le cadre de cette campagne. Ajoutez autant de vidéos que nécessaire.</p>
-                            <div className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-[#18181B]/5 rounded-full">
+                            <div className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-[#1C1E21]/5 rounded-full">
                                 <span className="text-base">🎬</span>
                                 <span className="text-sm font-medium text-gray-700">{contentBlocks.length} vidéo{contentBlocks.length > 1 ? 's' : ''} dans cette campagne</span>
                             </div>
@@ -520,7 +520,7 @@ export default function NewCampaignPage() {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -10 }}
-                                    className="bg-gray-50 border border-gray-200 rounded-xl p-5 relative"
+                                    className="bg-gray-50 border border-gray-200 rounded-lg p-5 relative"
                                 >
                                     {/* Block header */}
                                     <div className="flex items-center justify-between mb-4">
@@ -546,7 +546,7 @@ export default function NewCampaignPage() {
                                                     key={type.id}
                                                     onClick={() => updateBlock(block.id, { contentType: type.id as 'video' | 'photo' })}
                                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${block.contentType === type.id
-                                                        ? 'bg-[#18181B] text-white'
+                                                        ? 'bg-[#1C1E21] text-white'
                                                         : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300'
                                                         }`}
                                                 >
@@ -565,7 +565,7 @@ export default function NewCampaignPage() {
                                                     key={fmt.id}
                                                     onClick={() => updateBlock(block.id, { format: fmt.id })}
                                                     className={`px-3 py-1.5 rounded-lg text-sm transition-all ${block.format === fmt.id
-                                                        ? 'bg-[#18181B] text-white'
+                                                        ? 'bg-[#1C1E21] text-white'
                                                         : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300'
                                                         }`}
                                                 >
@@ -585,7 +585,7 @@ export default function NewCampaignPage() {
                                                     key={spec.id}
                                                     onClick={() => updateBlock(block.id, { scriptType: spec.id })}
                                                     className={`px-3 py-1.5 rounded-lg text-sm transition-all ${block.scriptType === spec.id
-                                                        ? 'bg-[#18181B] text-white'
+                                                        ? 'bg-[#1C1E21] text-white'
                                                         : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300'
                                                         }`}
                                                 >
@@ -603,7 +603,7 @@ export default function NewCampaignPage() {
                                             onChange={(e) => updateBlock(block.id, { description: e.target.value })}
                                             rows={3}
                                             placeholder="Décrivez ce que vous attendez pour ce contenu..."
-                                            className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#18181B]/20 resize-none"
+                                            className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1C1E21]/20 resize-none"
                                         />
                                     </div>
 
@@ -621,7 +621,7 @@ export default function NewCampaignPage() {
                                                         value={d}
                                                         onChange={(e) => updateBlockDo(block.id, i, e.target.value)}
                                                         placeholder="Ex: Montrer le produit en utilisation"
-                                                        className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#18181B]/20"
+                                                        className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#1C1E21]/20"
                                                     />
                                                     {block.dos.length > 1 && (
                                                         <button onClick={() => removeBlockDo(block.id, i)} className="text-gray-400 hover:text-red-500 px-1">
@@ -650,7 +650,7 @@ export default function NewCampaignPage() {
                                                         value={d}
                                                         onChange={(e) => updateBlockDont(block.id, i, e.target.value)}
                                                         placeholder="Ex: Ne pas mentionner les concurrents"
-                                                        className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#18181B]/20"
+                                                        className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#1C1E21]/20"
                                                     />
                                                     {block.donts.length > 1 && (
                                                         <button onClick={() => removeBlockDont(block.id, i)} className="text-gray-400 hover:text-red-500 px-1">
@@ -673,7 +673,7 @@ export default function NewCampaignPage() {
                         {/* Add content button */}
                         <button
                             onClick={addContentBlock}
-                            className="w-full border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-all flex items-center justify-center gap-2"
+                            className="w-full border-2 border-dashed border-gray-200 rounded-lg py-3 text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-all flex items-center justify-center gap-2"
                         >
                             <Plus className="w-4 h-4" />
                             Ajouter une vidéo
@@ -692,12 +692,12 @@ export default function NewCampaignPage() {
                             <div className="space-y-3">
                                 <button
                                     onClick={() => setCreatorPreference('single')}
-                                    className={`w-full p-4 rounded-xl text-left transition-all flex items-center gap-4 ${creatorPreference === 'single'
-                                        ? 'bg-[#18181B]/10 border-[#18181B]/50 border-2'
+                                    className={`w-full p-4 rounded-lg text-left transition-all flex items-center gap-4 ${creatorPreference === 'single'
+                                        ? 'bg-[#1C1E21]/10 border-[#1C1E21]/50 border-2'
                                         : 'bg-gray-50 border border-gray-200 hover:border-gray-300'
                                         }`}
                                 >
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${creatorPreference === 'single' ? 'bg-[#18181B] text-white' : 'bg-gray-200 text-gray-500'}`}>
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${creatorPreference === 'single' ? 'bg-[#1C1E21] text-white' : 'bg-gray-200 text-gray-500'}`}>
                                         <User className="w-5 h-5" />
                                     </div>
                                     <div>
@@ -710,12 +710,12 @@ export default function NewCampaignPage() {
 
                                 <button
                                     onClick={() => setCreatorPreference('per_video')}
-                                    className={`w-full p-4 rounded-xl text-left transition-all flex items-center gap-4 ${creatorPreference === 'per_video'
-                                        ? 'bg-[#18181B]/10 border-[#18181B]/50 border-2'
+                                    className={`w-full p-4 rounded-lg text-left transition-all flex items-center gap-4 ${creatorPreference === 'per_video'
+                                        ? 'bg-[#1C1E21]/10 border-[#1C1E21]/50 border-2'
                                         : 'bg-gray-50 border border-gray-200 hover:border-gray-300'
                                         }`}
                                 >
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${creatorPreference === 'per_video' ? 'bg-[#18181B] text-white' : 'bg-gray-200 text-gray-500'}`}>
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${creatorPreference === 'per_video' ? 'bg-[#1C1E21] text-white' : 'bg-gray-200 text-gray-500'}`}>
                                         <Users className="w-5 h-5" />
                                     </div>
                                     <div>
@@ -737,7 +737,7 @@ export default function NewCampaignPage() {
                                     type="date"
                                     value={campaign.deadline}
                                     onChange={(e) => setCampaign({ ...campaign, deadline: e.target.value })}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#18181B]/20 [color-scheme:dark]"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-10 pr-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#1C1E21]/20 [color-scheme:dark]"
                                 />
                             </div>
                         </div>
@@ -766,16 +766,16 @@ export default function NewCampaignPage() {
                                     <button
                                         key={tier.id}
                                         onClick={() => setSelectedPlan(tier.id)}
-                                        className={`relative text-left p-5 rounded-2xl transition-all ${
+                                        className={`relative text-left p-5 rounded-lg transition-all ${
                                             isSelected
-                                                ? 'bg-[#18181B] text-white ring-2 ring-[#18181B] scale-[1.02]'
+                                                ? 'bg-[#1C1E21] text-white ring-2 ring-[#1C1E21] scale-[1.02]'
                                                 : 'bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm'
                                         }`}
                                     >
                                         {/* Popular badge */}
                                         {isPopular && (
                                             <div className={`absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-medium ${
-                                                isSelected ? 'bg-[#C4F042] text-[#18181B]' : 'bg-[#C4F042] text-[#18181B]'
+                                                isSelected ? 'bg-[#0866FF] text-white' : 'bg-[#0866FF] text-white'
                                             }`}>
                                                 Le plus populaire
                                             </div>
@@ -783,8 +783,8 @@ export default function NewCampaignPage() {
 
                                         {/* Header */}
                                         <div className="flex items-center gap-2 mb-1">
-                                            <TierIcon className={`w-4 h-4 ${isSelected ? 'text-[#C4F042]' : 'text-[#18181B]'}`} />
-                                            <span className={`font-bold text-sm uppercase tracking-wide ${isSelected ? 'text-white' : 'text-[#18181B]'}`}>
+                                            <TierIcon className={`w-4 h-4 ${isSelected ? 'text-[#0866FF]' : 'text-[#1C1E21]'}`} />
+                                            <span className={`font-bold text-sm uppercase tracking-wide ${isSelected ? 'text-white' : 'text-[#1C1E21]'}`}>
                                                 {tier.name}
                                             </span>
                                         </div>
@@ -794,7 +794,7 @@ export default function NewCampaignPage() {
 
                                         {/* Price */}
                                         <div className="mb-4">
-                                            <span className={`text-2xl font-bold ${isSelected ? 'text-white' : 'text-[#18181B]'}`}>
+                                            <span className={`text-2xl font-bold ${isSelected ? 'text-white' : 'text-[#1C1E21]'}`}>
                                                 {price.toLocaleString('fr-CH')} CHF
                                             </span>
                                         </div>
@@ -803,7 +803,7 @@ export default function NewCampaignPage() {
                                         <div className="space-y-2">
                                             {tier.features.map((feature, fi) => (
                                                 <div key={fi} className="flex items-start gap-2">
-                                                    <Check className={`w-3.5 h-3.5 mt-0.5 flex-shrink-0 ${isSelected ? 'text-[#C4F042]' : 'text-emerald-600'}`} />
+                                                    <Check className={`w-3.5 h-3.5 mt-0.5 flex-shrink-0 ${isSelected ? 'text-[#0866FF]' : 'text-emerald-600'}`} />
                                                     <span className={`text-xs ${isSelected ? 'text-gray-300' : 'text-gray-600'}`}>
                                                         {feature}
                                                     </span>
@@ -812,9 +812,9 @@ export default function NewCampaignPage() {
                                         </div>
 
                                         {/* Select indicator */}
-                                        <div className={`mt-4 py-2 rounded-xl text-center text-sm font-medium transition-all ${
+                                        <div className={`mt-4 py-2 rounded-lg text-center text-sm font-medium transition-all ${
                                             isSelected
-                                                ? 'bg-[#C4F042] text-[#18181B]'
+                                                ? 'bg-[#0866FF] text-white'
                                                 : 'bg-gray-100 text-gray-600'
                                         }`}>
                                             {isSelected ? 'Sélectionné' : `Choisir ${tier.name}`}
@@ -825,9 +825,9 @@ export default function NewCampaignPage() {
                         </div>
 
                         {/* Summary Card */}
-                        <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 mt-4">
+                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 mt-4">
                             <div className="flex items-center gap-2 mb-4">
-                                <Sparkles className="w-4 h-4 text-[#18181B]" />
+                                <Sparkles className="w-4 h-4 text-[#1C1E21]" />
                                 <span className="text-gray-900 font-medium">Résumé de la campagne</span>
                             </div>
                             <div className="space-y-2 text-sm">
@@ -915,13 +915,13 @@ export default function NewCampaignPage() {
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+                            className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
                         >
                             {/* Header */}
                             <div className="p-6 pb-0">
                                 <div className="flex items-center gap-3 mb-1">
-                                    <div className="w-10 h-10 rounded-xl bg-[#18181B] flex items-center justify-center">
-                                        <FileSignature className="w-5 h-5 text-[#C4F042]" />
+                                    <div className="w-10 h-10 rounded-lg bg-[#1C1E21] flex items-center justify-center">
+                                        <FileSignature className="w-5 h-5 text-[#0866FF]" />
                                     </div>
                                     <div>
                                         <h3 className="text-lg font-bold text-gray-900">Signature du devis</h3>
@@ -933,7 +933,7 @@ export default function NewCampaignPage() {
                             {/* Devis content */}
                             <div className="p-6 space-y-4">
                                 {/* Summary */}
-                                <div className="bg-gray-50 rounded-2xl p-4 space-y-2.5 text-sm">
+                                <div className="bg-gray-50 rounded-lg p-4 space-y-2.5 text-sm">
                                     <div className="flex justify-between">
                                         <span className="text-gray-500">Campagne</span>
                                         <span className="text-gray-900 font-medium">{campaign.title || '—'}</span>
@@ -967,7 +967,7 @@ export default function NewCampaignPage() {
                                 </div>
 
                                 {/* Legal text */}
-                                <div className="bg-gray-50 rounded-2xl p-4">
+                                <div className="bg-gray-50 rounded-lg p-4">
                                     <p className="text-xs text-gray-500 leading-relaxed">
                                         En signant ce devis, vous confirmez avoir pris connaissance de l&apos;offre sélectionnée 
                                         et acceptez les conditions générales de MOSH. Ce devis fait foi comme engagement 
@@ -981,12 +981,12 @@ export default function NewCampaignPage() {
                                     <div
                                         className={`w-5 h-5 mt-0.5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                                             acceptedTerms
-                                                ? 'bg-[#18181B] border-[#18181B]'
+                                                ? 'bg-[#1C1E21] border-[#1C1E21]'
                                                 : 'border-gray-300 group-hover:border-gray-400'
                                         }`}
                                         onClick={() => setAcceptedTerms(!acceptedTerms)}
                                     >
-                                        {acceptedTerms && <Check className="w-3.5 h-3.5 text-[#C4F042]" />}
+                                        {acceptedTerms && <Check className="w-3.5 h-3.5 text-[#0866FF]" />}
                                     </div>
                                     <span className="text-sm text-gray-700">
                                         J&apos;accepte les conditions générales et je confirme cette commande

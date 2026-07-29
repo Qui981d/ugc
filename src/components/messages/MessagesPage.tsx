@@ -266,8 +266,8 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
                             className={`flex ${msg.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}
                         >
                             <div className={`${maxWidth} ${msg.sender_id === user?.id
-                                ? 'bg-accent text-white rounded-2xl rounded-br-md'
-                                : 'bg-white/10 text-white rounded-2xl rounded-bl-md'
+                                ? 'bg-accent text-white rounded-lg rounded-br-md'
+                                : 'bg-white/10 text-white rounded-lg rounded-bl-md'
                                 } px-4 py-2.5`}>
                                 {/* Attachment rendering */}
                                 {msg.attachment_url && (
@@ -328,7 +328,7 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
     return (
         <div className="h-[calc(100vh-120px)] flex gap-0 md:gap-6 -mx-4 md:mx-0 -mt-4 md:mt-0">
             {/* Conversations List — visible on desktop always, on mobile only when no conversation selected */}
-            <div className={`${selectedConversation ? 'hidden md:flex' : 'flex'} w-full md:w-80 flex-shrink-0 md:bg-white/[0.08] md:backdrop-blur-xl md:border md:border-white/[0.15] md:rounded-2xl overflow-hidden flex-col`}>
+            <div className={`${selectedConversation ? 'hidden md:flex' : 'flex'} w-full md:w-80 flex-shrink-0 md:bg-white/[0.08] md:backdrop-blur-xl md:border md:border-white/[0.15] md:rounded-lg overflow-hidden flex-col`}>
                 {/* Header */}
                 <div className="p-4 border-b border-white/10">
                     <h1 className="text-xl font-bold text-white mb-4">Messages</h1>
@@ -339,7 +339,7 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
                             placeholder="Rechercher..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/25"
+                            className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/25"
                         />
                     </div>
                 </div>
@@ -457,7 +457,7 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
                                     value={messageInput}
                                     onChange={(e) => setMessageInput(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/25"
+                                    className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/25"
                                 />
                                 <Button
                                     onClick={handleSendMessage}
@@ -471,7 +471,7 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
                     </div>
 
                     {/* ===== DESKTOP: normal flex layout with glass card ===== */}
-                    <div className="hidden md:flex flex-1 bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl overflow-hidden flex-col">
+                    <div className="hidden md:flex flex-1 bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-lg overflow-hidden flex-col">
                         {/* Chat Header */}
                         <div className="p-4 border-b border-white/10 flex items-center justify-between">
                             <div className="flex items-center gap-3">
@@ -526,7 +526,7 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
                                     value={messageInput}
                                     onChange={(e) => setMessageInput(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/25"
+                                    className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/25"
                                 />
                                 <Button
                                     onClick={handleSendMessage}
@@ -540,7 +540,7 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
                     </div>
                 </>
             ) : (
-                <div className="hidden md:flex flex-1 bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl items-center justify-center">
+                <div className="hidden md:flex flex-1 bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-lg items-center justify-center">
                     <div className="text-center text-white/40">
                         <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
                             <Send className="w-8 h-8" />

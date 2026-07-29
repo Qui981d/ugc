@@ -93,15 +93,15 @@ export default function AdminCreatorsPage() {
             {/* Header */}
             <div className="flex items-start justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-[#18181B] tracking-tight">Répertoire créateurs</h1>
-                    <p className="text-[#71717A] mt-1">
+                    <h1 className="text-3xl font-bold text-[#1C1E21] tracking-tight">Répertoire créateurs</h1>
+                    <p className="text-[#65676B] mt-1">
                         {creators.length} créateur{creators.length > 1 ? 's' : ''} inscrit{creators.length > 1 ? 's' : ''} · {pendingInvites.length} invitation{pendingInvites.length > 1 ? 's' : ''} en attente
                     </p>
                 </div>
                 {activeTab === 'invitations' && (
                     <button
                         onClick={() => setShowInviteModal(true)}
-                        className="px-4 py-2.5 bg-[#C4F042] text-[#18181B] font-medium rounded-xl hover:bg-[#C4F042]/80 transition-colors flex items-center gap-2"
+                        className="px-4 py-2.5 bg-[#0866FF] text-white font-medium rounded-lg hover:bg-[#0653CC] transition-colors flex items-center gap-2"
                     >
                         <Plus className="w-4 h-4" />
                         Générer un lien
@@ -110,22 +110,22 @@ export default function AdminCreatorsPage() {
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-1 bg-[#F4F3EF] rounded-2xl p-1 w-fit">
+            <div className="flex gap-1 bg-[#F0F2F5] rounded-lg p-1 w-fit">
                 <button
                     onClick={() => setActiveTab('registered')}
-                    className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${activeTab === 'registered'
-                        ? 'bg-white text-[#18181B] shadow-sm'
-                        : 'text-[#71717A] hover:text-[#18181B]'
+                    className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'registered'
+                        ? 'bg-white text-[#1C1E21] shadow-sm'
+                        : 'text-[#65676B] hover:text-[#1C1E21]'
                     }`}
                 >
                     Créateurs
-                    <span className="ml-2 text-xs bg-[#C4F042]/20 text-[#18181B] px-1.5 py-0.5 rounded-full">{creators.length}</span>
+                    <span className="ml-2 text-xs bg-[#E7F0FF] text-[#1C1E21] px-1.5 py-0.5 rounded-full">{creators.length}</span>
                 </button>
                 <button
                     onClick={() => setActiveTab('invitations')}
-                    className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${activeTab === 'invitations'
-                        ? 'bg-white text-[#18181B] shadow-sm'
-                        : 'text-[#71717A] hover:text-[#18181B]'
+                    className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'invitations'
+                        ? 'bg-white text-[#1C1E21] shadow-sm'
+                        : 'text-[#65676B] hover:text-[#1C1E21]'
                     }`}
                 >
                     Invitations
@@ -138,13 +138,13 @@ export default function AdminCreatorsPage() {
             {/* Search (only for registered) */}
             {activeTab === 'registered' && (
                 <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A1A099]" strokeWidth={1.5} />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A8D91]" strokeWidth={1.5} />
                     <input
                         type="text"
                         placeholder="Rechercher par nom, canton, spécialité..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3 bg-[#D9D7D0]/50 border border-[#C8C6BF]/40 rounded-2xl text-sm text-[#18181B] placeholder:text-[#A1A099] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 focus:border-[#C4F042]/60 focus:bg-white/60 transition-all"
+                        className="w-full pl-11 pr-4 py-3 bg-[#DADDE1]/50 border border-[#DADDE1] rounded-lg text-sm text-[#1C1E21] placeholder:text-[#8A8D91] focus:outline-none focus:ring-2 focus:ring-[#0866FF]/30 focus:border-[#0866FF]/60 focus:bg-white/60 transition-all"
                     />
                 </div>
             )}
@@ -153,12 +153,12 @@ export default function AdminCreatorsPage() {
             {isLoading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     {[...Array(6)].map((_, i) => (
-                        <div key={i} className="bg-white/90 backdrop-blur-sm rounded-[24px] p-6 border border-black/[0.03] animate-pulse">
+                        <div key={i} className="bg-white rounded-xl p-6 border border-[#DADDE1] animate-pulse">
                             <div className="flex items-start gap-4">
-                                <div className="w-14 h-14 rounded-2xl bg-[#F4F3EF]" />
+                                <div className="w-14 h-14 rounded-lg bg-[#F0F2F5]" />
                                 <div className="flex-1 space-y-2">
-                                    <div className="h-4 bg-[#F4F3EF] rounded w-2/3" />
-                                    <div className="h-3 bg-[#F4F3EF] rounded w-1/2" />
+                                    <div className="h-4 bg-[#F0F2F5] rounded w-2/3" />
+                                    <div className="h-3 bg-[#F0F2F5] rounded w-1/2" />
                                 </div>
                             </div>
                         </div>
@@ -167,9 +167,9 @@ export default function AdminCreatorsPage() {
             ) : activeTab === 'registered' ? (
                 /* ─── Registered Creators ─── */
                 filteredCreators.length === 0 ? (
-                    <div className="bg-white/90 backdrop-blur-sm rounded-[24px] border border-black/[0.03] p-12 text-center">
-                        <p className="text-[#71717A] font-medium">Aucun créateur trouvé</p>
-                        <p className="text-[#A1A1AA] text-sm mt-1">Essayez un autre terme de recherche</p>
+                    <div className="bg-white rounded-xl border border-[#DADDE1] p-12 text-center">
+                        <p className="text-[#65676B] font-medium">Aucun créateur trouvé</p>
+                        <p className="text-[#8A8D91] text-sm mt-1">Essayez un autre terme de recherche</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -182,53 +182,53 @@ export default function AdminCreatorsPage() {
                             >
                                 <Link
                                     href={`/mosh-cockpit/creators/${creator.id}`}
-                                    className="block bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[24px] p-6 hover:shadow-md hover:border-[#C4F042]/30 transition-all group"
+                                    className="block bg-white border border-[#DADDE1] rounded-xl p-6 hover:shadow-md hover:border-[#0866FF]/30 transition-all group"
                                 >
                                     <div className="flex items-start gap-4">
-                                        <div className="w-14 h-14 rounded-2xl bg-[#C4F042]/20 flex items-center justify-center text-[#18181B] text-lg font-bold shrink-0 group-hover:bg-[#C4F042]/30 transition-colors">
+                                        <div className="w-14 h-14 rounded-lg bg-[#E7F0FF] flex items-center justify-center text-[#1C1E21] text-lg font-bold shrink-0 group-hover:bg-[#0866FF]/30 transition-colors">
                                             {creator.full_name?.[0] || '?'}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="text-[#18181B] font-semibold truncate">{creator.full_name}</h3>
-                                            <p className="text-[#A1A1AA] text-sm truncate">{creator.email}</p>
+                                            <h3 className="text-[#1C1E21] font-semibold truncate">{creator.full_name}</h3>
+                                            <p className="text-[#8A8D91] text-sm truncate">{creator.email}</p>
                                         </div>
                                         {creator.profiles_creator?.is_available && (
-                                            <div className="w-2.5 h-2.5 rounded-full bg-[#C4F042] ring-2 ring-[#C4F042]/20 flex-shrink-0 mt-1.5" />
+                                            <div className="w-2.5 h-2.5 rounded-full bg-[#0866FF] ring-2 ring-[#0866FF]/20 flex-shrink-0 mt-1.5" />
                                         )}
                                     </div>
 
                                     <div className="mt-4 space-y-2 text-sm">
                                         {creator.profiles_creator?.location_canton && (
-                                            <div className="flex items-center gap-2 text-[#71717A]">
+                                            <div className="flex items-center gap-2 text-[#65676B]">
                                                 <MapPin className="w-3.5 h-3.5" strokeWidth={1.5} />
                                                 {creator.profiles_creator.location_canton}
                                             </div>
                                         )}
                                         {creator.profiles_creator?.specialties?.length ? (
-                                            <div className="flex items-center gap-2 text-[#71717A]">
+                                            <div className="flex items-center gap-2 text-[#65676B]">
                                                 <Sparkles className="w-3.5 h-3.5" strokeWidth={1.5} />
                                                 <div className="flex flex-wrap gap-1">
                                                     {creator.profiles_creator.specialties.slice(0, 3).map(s => (
-                                                        <span key={s} className="px-2 py-0.5 bg-[#F4F3EF] rounded-full text-xs text-[#18181B]">{s}</span>
+                                                        <span key={s} className="px-2 py-0.5 bg-[#F0F2F5] rounded-full text-xs text-[#1C1E21]">{s}</span>
                                                     ))}
                                                 </div>
                                             </div>
                                         ) : null}
                                         {creator.profiles_creator?.languages?.length ? (
-                                            <div className="flex items-center gap-2 text-[#71717A]">
+                                            <div className="flex items-center gap-2 text-[#65676B]">
                                                 <span className="text-xs">🌐</span>
                                                 <span className="text-xs">{creator.profiles_creator.languages.join(', ')}</span>
                                             </div>
                                         ) : null}
                                     </div>
 
-                                    <div className="mt-4 pt-3 border-t border-black/[0.04] flex items-center justify-between">
-                                        <span className="text-xs text-[#A1A1AA]">
+                                    <div className="mt-4 pt-3 border-t border-[#DADDE1] flex items-center justify-between">
+                                        <span className="text-xs text-[#8A8D91]">
                                             Inscrit le {new Date(creator.created_at).toLocaleDateString('fr-CH')}
                                         </span>
                                         {creator.profiles_creator?.rating_avg ? (
-                                            <div className="flex items-center gap-1 text-xs text-[#71717A]">
-                                                <Star className="w-3 h-3 fill-[#C4F042] text-[#C4F042]" />
+                                            <div className="flex items-center gap-1 text-xs text-[#65676B]">
+                                                <Star className="w-3 h-3 fill-[#0866FF] text-[#0866FF]" />
                                                 {creator.profiles_creator.rating_avg.toFixed(1)}
                                             </div>
                                         ) : null}
@@ -244,7 +244,7 @@ export default function AdminCreatorsPage() {
                     {/* Pending invitations */}
                     {pendingInvites.length > 0 && (
                         <div className="space-y-3">
-                            <h2 className="text-sm font-semibold text-[#71717A] uppercase tracking-wider">En attente</h2>
+                            <h2 className="text-sm font-semibold text-[#65676B] uppercase tracking-wider">En attente</h2>
                             {pendingInvites.map((invite, i) => {
                                 const isExpired = invite.expires_at && new Date(invite.expires_at) < new Date()
                                 return (
@@ -253,9 +253,9 @@ export default function AdminCreatorsPage() {
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: i * 0.03 }}
-                                        className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[20px] p-5 flex items-center gap-4"
+                                        className="bg-white border border-[#DADDE1] rounded-xl p-5 flex items-center gap-4"
                                     >
-                                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${isExpired ? 'bg-red-50' : 'bg-amber-50'}`}>
+                                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center shrink-0 ${isExpired ? 'bg-red-50' : 'bg-amber-50'}`}>
                                             {isExpired ? (
                                                 <Clock className="w-5 h-5 text-red-400" />
                                             ) : (
@@ -264,13 +264,13 @@ export default function AdminCreatorsPage() {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2">
-                                                <code className="text-sm font-mono font-semibold text-[#18181B] tracking-wider">{invite.code}</code>
+                                                <code className="text-sm font-mono font-semibold text-[#1C1E21] tracking-wider">{invite.code}</code>
                                                 {isExpired && (
                                                     <span className="px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider rounded-full bg-red-50 text-red-500">Expiré</span>
                                                 )}
                                             </div>
-                                            <p className="text-xs text-[#A1A1AA] mt-0.5">
-                                                {invite.label && <span className="text-[#71717A]">{invite.label} · </span>}
+                                            <p className="text-xs text-[#8A8D91] mt-0.5">
+                                                {invite.label && <span className="text-[#65676B]">{invite.label} · </span>}
                                                 Créé le {new Date(invite.created_at).toLocaleDateString('fr-CH')}
                                                 {invite.expires_at && ` · Expire le ${new Date(invite.expires_at).toLocaleDateString('fr-CH')}`}
                                             </p>
@@ -280,25 +280,25 @@ export default function AdminCreatorsPage() {
                                                 <>
                                                     <button
                                                         onClick={() => handleCopyLink(invite.code)}
-                                                        className="w-9 h-9 rounded-lg bg-[#F4F3EF] flex items-center justify-center text-[#71717A] hover:text-[#18181B] hover:bg-[#C4F042]/20 transition-all"
+                                                        className="w-9 h-9 rounded-lg bg-[#F0F2F5] flex items-center justify-center text-[#65676B] hover:text-[#1C1E21] hover:bg-[#E7F0FF] transition-all"
                                                         title="Copier le lien"
                                                     >
                                                         {copiedCode === invite.code ? (
-                                                            <Check className="w-4 h-4 text-[#C4F042]" />
+                                                            <Check className="w-4 h-4 text-[#0866FF]" />
                                                         ) : (
                                                             <Copy className="w-4 h-4" />
                                                         )}
                                                     </button>
                                                     <button
                                                         onClick={() => handleShareWhatsApp(invite.code)}
-                                                        className="w-9 h-9 rounded-lg bg-[#F4F3EF] flex items-center justify-center text-[#71717A] hover:text-[#18181B] hover:bg-[#25D366]/20 transition-all"
+                                                        className="w-9 h-9 rounded-lg bg-[#F0F2F5] flex items-center justify-center text-[#65676B] hover:text-[#1C1E21] hover:bg-[#25D366]/20 transition-all"
                                                         title="Partager sur WhatsApp"
                                                     >
                                                         <MessageCircle className="w-4 h-4" />
                                                     </button>
                                                     <button
                                                         onClick={() => handleShareEmail(invite.code)}
-                                                        className="w-9 h-9 rounded-lg bg-[#F4F3EF] flex items-center justify-center text-[#71717A] hover:text-[#18181B] hover:bg-[#C4F042]/20 transition-all"
+                                                        className="w-9 h-9 rounded-lg bg-[#F0F2F5] flex items-center justify-center text-[#65676B] hover:text-[#1C1E21] hover:bg-[#E7F0FF] transition-all"
                                                         title="Envoyer par email"
                                                     >
                                                         <Mail className="w-4 h-4" />
@@ -307,7 +307,7 @@ export default function AdminCreatorsPage() {
                                             )}
                                             <button
                                                 onClick={() => handleRevoke(invite.id)}
-                                                className="w-9 h-9 rounded-lg bg-[#F4F3EF] flex items-center justify-center text-[#A1A1AA] hover:bg-red-50 hover:text-red-500 transition-all"
+                                                className="w-9 h-9 rounded-lg bg-[#F0F2F5] flex items-center justify-center text-[#8A8D91] hover:bg-red-50 hover:text-red-500 transition-all"
                                                 title="Supprimer"
                                             >
                                                 <Trash2 className="w-4 h-4" />
@@ -322,26 +322,26 @@ export default function AdminCreatorsPage() {
                     {/* Used invitations */}
                     {usedInvites.length > 0 && (
                         <div className="space-y-3">
-                            <h2 className="text-sm font-semibold text-[#71717A] uppercase tracking-wider">Utilisées</h2>
+                            <h2 className="text-sm font-semibold text-[#65676B] uppercase tracking-wider">Utilisées</h2>
                             {usedInvites.map((invite, i) => (
                                 <motion.div
                                     key={invite.id}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: i * 0.03 }}
-                                    className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-[20px] p-5 flex items-center gap-4 opacity-70"
+                                    className="bg-white border border-[#DADDE1] rounded-xl p-5 flex items-center gap-4 opacity-70"
                                 >
-                                    <div className="w-12 h-12 rounded-xl bg-[#C4F042]/10 flex items-center justify-center shrink-0">
-                                        <CheckCircle2 className="w-5 h-5 text-[#C4F042]" />
+                                    <div className="w-12 h-12 rounded-lg bg-[#E7F0FF] flex items-center justify-center shrink-0">
+                                        <CheckCircle2 className="w-5 h-5 text-[#0866FF]" />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2">
-                                            <code className="text-sm font-mono font-semibold text-[#18181B] tracking-wider">{invite.code}</code>
-                                            <span className="px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider rounded-full bg-[#C4F042]/10 text-[#18181B]">Utilisée</span>
+                                            <code className="text-sm font-mono font-semibold text-[#1C1E21] tracking-wider">{invite.code}</code>
+                                            <span className="px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider rounded-full bg-[#E7F0FF] text-[#1C1E21]">Utilisée</span>
                                         </div>
-                                        <p className="text-xs text-[#A1A1AA] mt-0.5">
-                                            {invite.label && <span className="text-[#71717A]">{invite.label} · </span>}
-                                            Utilisée par <span className="text-[#18181B] font-medium">{invite.used_by_user?.full_name || 'Inconnu'}</span>
+                                        <p className="text-xs text-[#8A8D91] mt-0.5">
+                                            {invite.label && <span className="text-[#65676B]">{invite.label} · </span>}
+                                            Utilisée par <span className="text-[#1C1E21] font-medium">{invite.used_by_user?.full_name || 'Inconnu'}</span>
                                             {invite.used_at && ` le ${new Date(invite.used_at).toLocaleDateString('fr-CH')}`}
                                         </p>
                                     </div>
@@ -352,17 +352,17 @@ export default function AdminCreatorsPage() {
 
                     {/* Empty state */}
                     {invitations.length === 0 && (
-                        <div className="bg-white/90 backdrop-blur-sm rounded-[24px] border border-black/[0.03] p-12 text-center">
-                            <div className="w-16 h-16 rounded-2xl bg-[#F4F3EF] flex items-center justify-center mx-auto mb-4">
-                                <LinkIcon className="w-7 h-7 text-[#A1A1AA]" strokeWidth={1.5} />
+                        <div className="bg-white rounded-xl border border-[#DADDE1] p-12 text-center">
+                            <div className="w-16 h-16 rounded-lg bg-[#F0F2F5] flex items-center justify-center mx-auto mb-4">
+                                <LinkIcon className="w-7 h-7 text-[#8A8D91]" strokeWidth={1.5} />
                             </div>
-                            <p className="text-[#71717A] font-medium">Aucune invitation</p>
-                            <p className="text-[#A1A1AA] text-sm mt-1 max-w-[300px] mx-auto">
+                            <p className="text-[#65676B] font-medium">Aucune invitation</p>
+                            <p className="text-[#8A8D91] text-sm mt-1 max-w-[300px] mx-auto">
                                 Générez des liens d&apos;invitation pour que les créateurs puissent s&apos;inscrire sur la plateforme
                             </p>
                             <button
                                 onClick={() => setShowInviteModal(true)}
-                                className="mt-4 px-4 py-2 bg-[#C4F042] text-[#18181B] font-medium rounded-xl hover:bg-[#C4F042]/80 transition-colors inline-flex items-center gap-2"
+                                className="mt-4 px-4 py-2 bg-[#0866FF] text-white font-medium rounded-lg hover:bg-[#0653CC] transition-colors inline-flex items-center gap-2"
                             >
                                 <Plus className="w-4 h-4" />
                                 Générer un lien
@@ -387,13 +387,13 @@ export default function AdminCreatorsPage() {
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-white rounded-[24px] shadow-2xl w-full max-w-md"
+                            className="bg-white rounded-xl shadow-xl w-full max-w-md"
                         >
-                            <div className="flex items-center justify-between px-6 py-5 border-b border-black/[0.04]">
-                                <h2 className="text-lg font-semibold text-[#18181B]">Nouveau lien d&apos;invitation</h2>
+                            <div className="flex items-center justify-between px-6 py-5 border-b border-[#DADDE1]">
+                                <h2 className="text-lg font-semibold text-[#1C1E21]">Nouveau lien d&apos;invitation</h2>
                                 <button
                                     onClick={() => setShowInviteModal(false)}
-                                    className="w-8 h-8 rounded-lg bg-[#F4F3EF] flex items-center justify-center text-[#A1A1AA] hover:text-[#18181B] transition-colors"
+                                    className="w-8 h-8 rounded-lg bg-[#F0F2F5] flex items-center justify-center text-[#8A8D91] hover:text-[#1C1E21] transition-colors"
                                 >
                                     <X className="w-4 h-4" />
                                 </button>
@@ -401,29 +401,29 @@ export default function AdminCreatorsPage() {
 
                             <div className="px-6 py-5 space-y-4">
                                 <div>
-                                    <label className="text-xs font-medium text-[#71717A] mb-1.5 block">Nom ou email (étiquette, optionnel)</label>
+                                    <label className="text-xs font-medium text-[#65676B] mb-1.5 block">Nom ou email (étiquette, optionnel)</label>
                                     <input
                                         type="text"
                                         value={inviteEmail}
                                         onChange={(e) => setInviteEmail(e.target.value)}
                                         placeholder="Ex : Marie Dupont"
-                                        className="w-full px-4 py-2.5 bg-[#F4F3EF]/50 border border-black/[0.06] rounded-xl text-sm text-[#18181B] placeholder:text-[#A1A1AA] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 focus:border-[#C4F042]/50"
+                                        className="w-full px-4 py-2.5 bg-[#F0F2F5]/50 border border-[#DADDE1] rounded-lg text-sm text-[#1C1E21] placeholder:text-[#8A8D91] focus:outline-none focus:ring-2 focus:ring-[#0866FF]/30 focus:border-[#0866FF]/50"
                                     />
-                                    <p className="text-xs text-[#A1A1AA] mt-1.5">Sert juste à identifier l&apos;invitation. Le lien (valide 30 jours, à usage unique) sera copié — partage-le via Copier / WhatsApp / Email.</p>
+                                    <p className="text-xs text-[#8A8D91] mt-1.5">Sert juste à identifier l&apos;invitation. Le lien (valide 30 jours, à usage unique) sera copié — partage-le via Copier / WhatsApp / Email.</p>
                                 </div>
                             </div>
 
-                            <div className="px-6 py-4 border-t border-black/[0.04] flex items-center justify-end gap-3">
+                            <div className="px-6 py-4 border-t border-[#DADDE1] flex items-center justify-end gap-3">
                                 <button
                                     onClick={() => setShowInviteModal(false)}
-                                    className="px-4 py-2.5 text-sm text-[#71717A] hover:text-[#18181B] transition-colors"
+                                    className="px-4 py-2.5 text-sm text-[#65676B] hover:text-[#1C1E21] transition-colors"
                                 >
                                     Annuler
                                 </button>
                                 <button
                                     onClick={handleCreateInvitation}
                                     disabled={isCreating}
-                                    className="px-5 py-2.5 bg-[#C4F042] text-[#18181B] font-medium rounded-xl hover:bg-[#C4F042]/80 transition-colors disabled:opacity-50 flex items-center gap-2 text-sm"
+                                    className="px-5 py-2.5 bg-[#0866FF] text-white font-medium rounded-lg hover:bg-[#0653CC] transition-colors disabled:opacity-50 flex items-center gap-2 text-sm"
                                 >
                                     {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : <LinkIcon className="w-4 h-4" />}
                                     Générer le lien

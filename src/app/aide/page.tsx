@@ -255,7 +255,7 @@ export default function AidePage() {
                                     placeholder="Rechercher une question..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl pl-14 pr-6 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-gray-50 focus:border-gray-300 transition-all text-base"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-14 pr-6 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-gray-50 focus:border-gray-300 transition-all text-base"
                                 />
                             </div>
                         </motion.div>

@@ -235,8 +235,8 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
         return (
             <div className="flex items-center justify-center min-h-[400px]">
                 <div className="flex flex-col items-center gap-3">
-                    <Loader2 className="w-6 h-6 animate-spin text-[#A1A1AA]" />
-                    <p className="text-sm text-[#A1A1AA]">Chargement…</p>
+                    <Loader2 className="w-6 h-6 animate-spin text-[#8A8D91]" />
+                    <p className="text-sm text-[#8A8D91]">Chargement…</p>
                 </div>
             </div>
         )
@@ -246,11 +246,11 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
         return (
             <div className="flex items-center justify-center min-h-[400px]">
                 <div className="text-center">
-                    <div className="w-16 h-16 rounded-2xl bg-[#F4F3EF] flex items-center justify-center mx-auto mb-4">
-                        <Package className="w-7 h-7 text-[#A1A1AA]" strokeWidth={1.5} />
+                    <div className="w-16 h-16 rounded-lg bg-[#F0F2F5] flex items-center justify-center mx-auto mb-4">
+                        <Package className="w-7 h-7 text-[#8A8D91]" strokeWidth={1.5} />
                     </div>
-                    <p className="font-semibold text-[#18181B]">Aucun projet en cours</p>
-                    <p className="text-sm text-[#A1A1AA] mt-1 max-w-[260px] mx-auto">
+                    <p className="font-semibold text-[#1C1E21]">Aucun projet en cours</p>
+                    <p className="text-sm text-[#8A8D91] mt-1 max-w-[260px] mx-auto">
                         Vos projets et communications apparaîtront ici
                     </p>
                 </div>
@@ -269,10 +269,10 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
         if (isMissionCompleted)
             return { bg: 'bg-emerald-100 text-emerald-700', text: '✅ Mission terminée' }
         if (activeOwner === 'brand')
-            return { bg: 'bg-[#C4F042] text-[#18181B]', text: userRole === 'brand' ? `⚡ ${activeStep?.label || 'Action requise'}` : `⏳ Marque : ${activeStep?.label || 'en attente'}` }
+            return { bg: 'bg-[#0866FF] text-white', text: userRole === 'brand' ? `⚡ ${activeStep?.label || 'Action requise'}` : `⏳ Marque : ${activeStep?.label || 'en attente'}` }
         if (activeOwner === 'creator')
             return { bg: 'bg-blue-100 text-blue-700', text: userRole === 'creator' ? `⚡ ${activeStep?.label || 'Action requise'}` : `🎬 Créateur : ${activeStep?.label || 'en action'}` }
-        return { bg: 'bg-[#18181B] text-[#C4F042]', text: userRole === 'admin' ? `⚡ ${activeStep?.label || 'À traiter'}` : `⏳ MOSH : ${activeStep?.label || 'travaille'}` }
+        return { bg: 'bg-[#0866FF] text-white', text: userRole === 'admin' ? `⚡ ${activeStep?.label || 'À traiter'}` : `⏳ MOSH : ${activeStep?.label || 'travaille'}` }
     }
 
     const statusBadge = getStatusBadge()
@@ -284,23 +284,23 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
         title: string, letter: string, ownerSteps: WorkflowStepDef[],
         isActive: boolean, darkMode: boolean, accentColor: string
     ) => (
-        <div className={`rounded-2xl p-4 transition-all ${isActive
-            ? darkMode ? 'bg-[#18181B] shadow-lg' : `bg-white border-2 shadow-lg`
-            : 'bg-[#F4F3EF]/60 border border-black/[0.04]'
+        <div className={`rounded-lg p-4 transition-all ${isActive
+            ? darkMode ? 'bg-[#1C1E21] shadow-lg' : `bg-white border-2 shadow-lg`
+            : 'bg-[#F0F2F5]/60 border border-[#DADDE1]'
             }`}
             style={isActive && !darkMode ? { borderColor: accentColor, boxShadow: `0 4px 20px ${accentColor}15` } : {}}
         >
             <div className="flex items-center gap-2.5 mb-3">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold ${isActive
-                    ? darkMode ? 'text-[#18181B]' : 'bg-[#18181B] text-white'
-                    : 'bg-black/[0.06] text-[#71717A]'
+                    ? darkMode ? 'text-[#1C1E21]' : 'bg-[#1C1E21] text-white'
+                    : 'bg-black/[0.06] text-[#65676B]'
                     }`}
                     style={isActive && darkMode ? { backgroundColor: accentColor } : {}}
                 >{letter}</div>
                 <div className="min-w-0">
-                    <p className={`text-xs font-semibold ${isActive && darkMode ? 'text-white' : 'text-[#18181B]'}`}>{title}</p>
+                    <p className={`text-xs font-semibold ${isActive && darkMode ? 'text-white' : 'text-[#1C1E21]'}`}>{title}</p>
                     {isActive && !isMissionCompleted && (
-                        <p className={`text-[9px] font-medium flex items-center gap-1 ${darkMode ? '' : 'text-[#18181B]'}`}
+                        <p className={`text-[9px] font-medium flex items-center gap-1 ${darkMode ? '' : 'text-[#1C1E21]'}`}
                             style={darkMode ? { color: accentColor } : {}}
                         >
                             <Sparkles className="w-2.5 h-2.5" />
@@ -315,20 +315,20 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                     const isActiveStep = activeStep?.type === step.type
                     return (
                         <div key={step.type} className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] transition-all ${completed
-                            ? isActive && darkMode ? 'bg-white/10' : 'bg-black/[0.04] text-[#52525B]'
+                            ? isActive && darkMode ? 'bg-white/10' : 'bg-black/[0.04] text-[#65676B]'
                             : isActiveStep
-                                ? isActive && darkMode ? 'font-semibold' : 'bg-white text-[#18181B] font-semibold shadow-sm border border-black/[0.06]'
-                                : isActive && darkMode ? 'text-white/30' : 'text-[#A1A1AA]'
+                                ? isActive && darkMode ? 'font-semibold' : 'bg-white text-[#1C1E21] font-semibold shadow-sm border border-[#DADDE1]'
+                                : isActive && darkMode ? 'text-white/30' : 'text-[#8A8D91]'
                             }`}
                             style={completed && isActive && darkMode ? { color: accentColor } :
                                 isActiveStep && isActive && darkMode ? { color: accentColor, backgroundColor: `${accentColor}15` } : {}}
                         >
                             {completed ? (
-                                <CheckCircle2 className={`w-3 h-3 shrink-0 ${isActive && darkMode ? '' : 'text-[#71717A]'}`}
+                                <CheckCircle2 className={`w-3 h-3 shrink-0 ${isActive && darkMode ? '' : 'text-[#65676B]'}`}
                                     style={isActive && darkMode ? { color: accentColor } : {}} />
                             ) : isActiveStep ? (
                                 <div className="w-3 h-3 rounded-full border-2 shrink-0 animate-pulse"
-                                    style={isActive && darkMode ? { borderColor: accentColor } : { borderColor: '#18181B' }} />
+                                    style={isActive && darkMode ? { borderColor: accentColor } : { borderColor: '#1C1E21' }} />
                             ) : (
                                 <div className={`w-3 h-3 rounded-full border shrink-0 ${isActive && darkMode ? 'border-white/20' : 'border-black/10'}`} />
                             )}
@@ -362,25 +362,25 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
     return (
         <div className="space-y-5">
             {/* ─── BLOCK 1: Project Selector + Status ─── */}
-            <div className="bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-2xl p-5 shadow-sm relative z-20 overflow-visible">
+            <div className="bg-white border border-[#DADDE1] rounded-lg p-5 shadow-sm relative z-20 overflow-visible">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-4 min-w-0 flex-1">
                         {/* Project Dropdown */}
                         <div className="relative min-w-0 flex-1 max-w-md">
                             <button
                                 onClick={() => setProjectDropdownOpen(!projectDropdownOpen)}
-                                className="w-full flex items-center justify-between gap-3 bg-[#F4F3EF] hover:bg-[#E8E6DF] rounded-xl px-4 py-3 transition-colors"
+                                className="w-full flex items-center justify-between gap-3 bg-[#F0F2F5] hover:bg-[#EBEDF0] rounded-lg px-4 py-3 transition-colors"
                             >
                                 <div className="flex items-center gap-3 min-w-0">
-                                    <div className="w-9 h-9 rounded-xl bg-[#18181B] flex items-center justify-center flex-shrink-0">
-                                        <FileText className="w-4 h-4 text-[#C4F042]" />
+                                    <div className="w-9 h-9 rounded-lg bg-[#1C1E21] flex items-center justify-center flex-shrink-0">
+                                        <FileText className="w-4 h-4 text-[#0866FF]" />
                                     </div>
                                     <div className="min-w-0 text-left">
-                                        <p className="text-sm font-semibold text-[#18181B] truncate">{selectedCampaign.title}</p>
-                                        <p className="text-[11px] text-[#A1A1AA] truncate">{selectedCampaign.script_type}</p>
+                                        <p className="text-sm font-semibold text-[#1C1E21] truncate">{selectedCampaign.title}</p>
+                                        <p className="text-[11px] text-[#8A8D91] truncate">{selectedCampaign.script_type}</p>
                                     </div>
                                 </div>
-                                <ChevronDown className={`w-4 h-4 text-[#A1A1AA] transition-transform flex-shrink-0 ${projectDropdownOpen ? 'rotate-180' : ''}`} />
+                                <ChevronDown className={`w-4 h-4 text-[#8A8D91] transition-transform flex-shrink-0 ${projectDropdownOpen ? 'rotate-180' : ''}`} />
                             </button>
 
                             {/* Dropdown */}
@@ -391,7 +391,7 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         exit={{ opacity: 0, y: -8, scale: 0.97 }}
                                         transition={{ duration: 0.15 }}
-                                        className="absolute z-50 top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-black/[0.06] overflow-hidden max-h-64 overflow-y-auto"
+                                        className="absolute z-50 top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-[#DADDE1] overflow-hidden max-h-64 overflow-y-auto"
                                     >
                                         {campaigns.map(camp => (
                                             <button
@@ -400,14 +400,14 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                                                     setSelectedCampaignId(camp.id)
                                                     setProjectDropdownOpen(false)
                                                 }}
-                                                className={`w-full text-left px-4 py-3 hover:bg-[#F4F3EF] transition-colors flex items-center gap-3 ${camp.id === selectedCampaignId ? 'bg-[#C4F042]/10' : ''}`}
+                                                className={`w-full text-left px-4 py-3 hover:bg-[#F0F2F5] transition-colors flex items-center gap-3 ${camp.id === selectedCampaignId ? 'bg-[#E7F0FF]' : ''}`}
                                             >
-                                                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${camp.id === selectedCampaignId ? 'bg-[#C4F042]' : 'bg-black/10'}`} />
+                                                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${camp.id === selectedCampaignId ? 'bg-[#0866FF]' : 'bg-black/10'}`} />
                                                 <div className="min-w-0">
-                                                    <p className={`text-sm truncate ${camp.id === selectedCampaignId ? 'font-semibold text-[#18181B]' : 'text-[#52525B]'}`}>
+                                                    <p className={`text-sm truncate ${camp.id === selectedCampaignId ? 'font-semibold text-[#1C1E21]' : 'text-[#65676B]'}`}>
                                                         {camp.title}
                                                     </p>
-                                                    <p className="text-[11px] text-[#A1A1AA]">{camp.script_type}</p>
+                                                    <p className="text-[11px] text-[#8A8D91]">{camp.script_type}</p>
                                                 </div>
                                             </button>
                                         ))}
@@ -427,9 +427,9 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                                 <div
                                     key={step.type}
                                     className={`w-2 h-2 rounded-full transition-all ${i < (userRole === 'creator' ? creatorCompletedCount : completedCount)
-                                        ? 'bg-[#C4F042]'
+                                        ? 'bg-[#0866FF]'
                                         : i === (userRole === 'creator' ? creatorCompletedCount : completedCount)
-                                            ? 'bg-[#C4F042]/40 animate-pulse'
+                                            ? 'bg-[#0866FF]/40 animate-pulse'
                                             : 'bg-black/[0.06]'
                                         }`}
                                 />
@@ -443,27 +443,27 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
 
                 {/* ─── BLOCK 2: Workflow Columns ─── */}
-                <div className="lg:col-span-3 bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-2xl shadow-sm overflow-hidden">
+                <div className="lg:col-span-3 bg-white border border-[#DADDE1] rounded-lg shadow-sm overflow-hidden">
                     {/* Workflow header */}
-                    <div className="px-6 py-4 border-b border-black/[0.04] flex items-center justify-between">
+                    <div className="px-6 py-4 border-b border-[#DADDE1] flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-lg bg-[#18181B] flex items-center justify-center">
-                                <Shield className="w-3.5 h-3.5 text-[#C4F042]" />
+                            <div className="w-7 h-7 rounded-lg bg-[#1C1E21] flex items-center justify-center">
+                                <Shield className="w-3.5 h-3.5 text-[#0866FF]" />
                             </div>
                             <div>
-                                <h3 className="text-sm font-semibold text-[#18181B] tracking-tight">Pipeline</h3>
-                                <p className="text-[10px] text-[#A1A1AA]">{userRole === 'creator' ? creatorCompletedCount : completedCount}/{userRole === 'creator' ? CREATOR_PIPELINE.length : WORKFLOW_STEPS.length} étapes</p>
+                                <h3 className="text-sm font-semibold text-[#1C1E21] tracking-tight">Pipeline</h3>
+                                <p className="text-[10px] text-[#8A8D91]">{userRole === 'creator' ? creatorCompletedCount : completedCount}/{userRole === 'creator' ? CREATOR_PIPELINE.length : WORKFLOW_STEPS.length} étapes</p>
                             </div>
                         </div>
                         {/* Linear progress */}
                         <div className="hidden sm:flex items-center gap-2 flex-1 max-w-[180px] ml-4">
                             <div className="flex-1 h-1.5 rounded-full bg-black/[0.04] overflow-hidden">
                                 <div
-                                    className="h-full bg-[#C4F042] rounded-full transition-all duration-700"
+                                    className="h-full bg-[#0866FF] rounded-full transition-all duration-700"
                                     style={{ width: `${((userRole === 'creator' ? creatorCompletedCount : completedCount) / (userRole === 'creator' ? CREATOR_PIPELINE.length : WORKFLOW_STEPS.length)) * 100}%` }}
                                 />
                             </div>
-                            <span className="text-[10px] text-[#A1A1AA] font-medium">{Math.round(((userRole === 'creator' ? creatorCompletedCount : completedCount) / (userRole === 'creator' ? CREATOR_PIPELINE.length : WORKFLOW_STEPS.length)) * 100)}%</span>
+                            <span className="text-[10px] text-[#8A8D91] font-medium">{Math.round(((userRole === 'creator' ? creatorCompletedCount : completedCount) / (userRole === 'creator' ? CREATOR_PIPELINE.length : WORKFLOW_STEPS.length)) * 100)}%</span>
                         </div>
                     </div>
 
@@ -477,22 +477,22 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                                     const isActiveStep = !completed && (i === 0 || isStepCompleted(CREATOR_PIPELINE[i - 1].type as MissionStepType))
                                     const isCreatorAction = step.owner === 'creator' && isActiveStep
                                     return (
-                                        <div key={step.type} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all ${
-                                            completed ? 'bg-[#C4F042]/10 text-[#18181B]'
-                                            : isCreatorAction ? 'bg-[#18181B] text-white font-semibold shadow-sm'
-                                            : isActiveStep ? 'bg-[#F4F3EF] text-[#71717A] font-medium'
-                                            : 'text-[#A1A1AA]'
+                                        <div key={step.type} className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all ${
+                                            completed ? 'bg-[#E7F0FF] text-[#1C1E21]'
+                                            : isCreatorAction ? 'bg-[#1C1E21] text-white font-semibold shadow-sm'
+                                            : isActiveStep ? 'bg-[#F0F2F5] text-[#65676B] font-medium'
+                                            : 'text-[#8A8D91]'
                                         }`}>
                                             {completed ? (
-                                                <CheckCircle2 className="w-4 h-4 text-[#18181B] shrink-0" />
+                                                <CheckCircle2 className="w-4 h-4 text-[#1C1E21] shrink-0" />
                                             ) : isActiveStep ? (
-                                                <div className={`w-4 h-4 rounded-full border-2 shrink-0 animate-pulse ${isCreatorAction ? 'border-[#C4F042]' : 'border-[#71717A]'}`} />
+                                                <div className={`w-4 h-4 rounded-full border-2 shrink-0 animate-pulse ${isCreatorAction ? 'border-[#0866FF]' : 'border-[#65676B]'}`} />
                                             ) : (
                                                 <div className="w-4 h-4 rounded-full border border-black/10 shrink-0" />
                                             )}
                                             <span>{step.label}</span>
-                                            {isCreatorAction && <span className="ml-auto text-xs bg-[#C4F042] text-[#18181B] px-2 py-0.5 rounded-full font-medium">⚡ À vous</span>}
-                                            {isActiveStep && !isCreatorAction && step.owner !== 'creator' && <span className="ml-auto text-xs text-[#A1A1AA]">En attente</span>}
+                                            {isCreatorAction && <span className="ml-auto text-xs bg-[#0866FF] text-white px-2 py-0.5 rounded-full font-medium">⚡ À vous</span>}
+                                            {isActiveStep && !isCreatorAction && step.owner !== 'creator' && <span className="ml-auto text-xs text-[#8A8D91]">En attente</span>}
                                         </div>
                                     )
                                 })}
@@ -500,8 +500,8 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                         ) : (
                             /* Admin/Brand: full 3-column pipeline */
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                {renderColumn('MOSH', 'M', moshSteps, activeOwner === 'mosh', true, '#C4F042')}
-                                {renderColumn('Marque', 'B', brandSteps, activeOwner === 'brand', false, '#C4F042')}
+                                {renderColumn('MOSH', 'M', moshSteps, activeOwner === 'mosh', true, '#0866FF')}
+                                {renderColumn('Marque', 'B', brandSteps, activeOwner === 'brand', false, '#0866FF')}
                                 {renderColumn('Créateur', 'C', creatorSteps, activeOwner === 'creator', false, '#3B82F6')}
                             </div>
                         )}
@@ -509,17 +509,17 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                 </div>
 
                 {/* ─── BLOCK 3: Messages ─── */}
-                <div className="lg:col-span-2 bg-white/90 backdrop-blur-sm border border-black/[0.03] rounded-2xl shadow-sm flex flex-col overflow-hidden"
+                <div className="lg:col-span-2 bg-white border border-[#DADDE1] rounded-lg shadow-sm flex flex-col overflow-hidden"
                     style={{ height: 'calc(100vh - 18rem)', minHeight: '420px' }}
                 >
                     {/* Chat header */}
-                    <div className="px-5 py-4 border-b border-black/[0.04] flex items-center gap-2.5 flex-shrink-0">
-                        <div className="w-7 h-7 rounded-lg bg-[#18181B] flex items-center justify-center">
-                            <MessageSquare className="w-3.5 h-3.5 text-[#C4F042]" />
+                    <div className="px-5 py-4 border-b border-[#DADDE1] flex items-center gap-2.5 flex-shrink-0">
+                        <div className="w-7 h-7 rounded-lg bg-[#1C1E21] flex items-center justify-center">
+                            <MessageSquare className="w-3.5 h-3.5 text-[#0866FF]" />
                         </div>
                         <div className="flex-1 min-w-0">
-                            <h3 className="text-sm font-semibold text-[#18181B] tracking-tight">Échanges</h3>
-                            <p className="text-[10px] text-[#A1A1AA]">{messages.length} message{messages.length !== 1 ? 's' : ''}</p>
+                            <h3 className="text-sm font-semibold text-[#1C1E21] tracking-tight">Échanges</h3>
+                            <p className="text-[10px] text-[#8A8D91]">{messages.length} message{messages.length !== 1 ? 's' : ''}</p>
                         </div>
                     </div>
 
@@ -527,11 +527,11 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                     <div className="flex-1 overflow-y-auto p-5 space-y-3 min-h-0">
                         {messages.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-12 text-center h-full">
-                                <div className="w-14 h-14 rounded-2xl bg-[#F4F3EF] flex items-center justify-center mb-4">
-                                    <MessageSquare className="w-6 h-6 text-[#A1A1AA]" strokeWidth={1.5} />
+                                <div className="w-14 h-14 rounded-lg bg-[#F0F2F5] flex items-center justify-center mb-4">
+                                    <MessageSquare className="w-6 h-6 text-[#8A8D91]" strokeWidth={1.5} />
                                 </div>
-                                <p className="text-sm font-medium text-[#52525B]">Aucun message</p>
-                                <p className="text-xs text-[#A1A1AA] mt-1 max-w-[220px]">
+                                <p className="text-sm font-medium text-[#65676B]">Aucun message</p>
+                                <p className="text-xs text-[#8A8D91] mt-1 max-w-[220px]">
                                     Posez une question ou partagez un commentaire à tout moment
                                 </p>
                             </div>
@@ -548,8 +548,8 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                                             className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
                                         >
                                             <div className={`max-w-[80%] px-4 py-3 text-sm leading-relaxed ${isOwn
-                                                ? 'bg-[#18181B] text-white rounded-[16px] rounded-br-[4px]'
-                                                : 'bg-[#F4F3EF] text-[#18181B] rounded-[16px] rounded-bl-[4px]'
+                                                ? 'bg-[#1C1E21] text-white rounded-xl rounded-br-[4px]'
+                                                : 'bg-[#F0F2F5] text-[#1C1E21] rounded-xl rounded-bl-[4px]'
                                                 }`}>
                                                 {/* Attachment */}
                                                 {msg.attachment_url && (
@@ -567,7 +567,7 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                                                     )
                                                 )}
                                                 {msg.content && <p>{msg.content}</p>}
-                                                <p className={`text-[10px] mt-1.5 text-right ${isOwn ? 'text-white/40' : 'text-[#A1A1AA]'}`}>
+                                                <p className={`text-[10px] mt-1.5 text-right ${isOwn ? 'text-white/40' : 'text-[#8A8D91]'}`}>
                                                     {new Date(msg.created_at).toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit' })}
                                                 </p>
                                             </div>
@@ -580,20 +580,20 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                     </div>
 
                     {/* Input area */}
-                    <div className="p-4 border-t border-black/[0.06] bg-white/80 flex-shrink-0">
+                    <div className="p-4 border-t border-[#DADDE1] bg-white/80 flex-shrink-0">
                         {/* Pending file preview */}
                         {pendingFile && (
-                            <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-[#F4F3EF] rounded-xl">
-                                <Paperclip className="w-3.5 h-3.5 text-[#A1A1AA] flex-shrink-0" />
-                                <span className="text-xs text-[#52525B] truncate flex-1">{pendingFile.name}</span>
-                                <span className="text-[10px] text-[#A1A1AA]">{(pendingFile.size / 1024).toFixed(0)} KB</span>
-                                <button onClick={() => setPendingFile(null)} className="text-[#A1A1AA] hover:text-[#18181B]">
+                            <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-[#F0F2F5] rounded-lg">
+                                <Paperclip className="w-3.5 h-3.5 text-[#8A8D91] flex-shrink-0" />
+                                <span className="text-xs text-[#65676B] truncate flex-1">{pendingFile.name}</span>
+                                <span className="text-[10px] text-[#8A8D91]">{(pendingFile.size / 1024).toFixed(0)} KB</span>
+                                <button onClick={() => setPendingFile(null)} className="text-[#8A8D91] hover:text-[#1C1E21]">
                                     <X className="w-3.5 h-3.5" />
                                 </button>
                             </div>
                         )}
                         <div className="flex items-center gap-2">
-                            <button onClick={() => fileInputRef.current?.click()} className="w-10 h-10 rounded-xl bg-[#F4F3EF] border border-black/[0.06] flex items-center justify-center text-[#A1A1AA] hover:text-[#18181B] hover:bg-[#E8E6DF] transition-all flex-shrink-0">
+                            <button onClick={() => fileInputRef.current?.click()} className="w-10 h-10 rounded-lg bg-[#F0F2F5] border border-[#DADDE1] flex items-center justify-center text-[#8A8D91] hover:text-[#1C1E21] hover:bg-[#EBEDF0] transition-all flex-shrink-0">
                                 <Paperclip className="w-4 h-4" />
                             </button>
                             <div className="flex-1 relative">
@@ -612,20 +612,20 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                                         }
                                     }}
                                     rows={1}
-                                    className="w-full bg-[#F4F3EF] border border-black/[0.06] rounded-2xl px-4 py-3 text-sm text-[#18181B] placeholder:text-[#A1A1AA] focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40 focus:border-[#C4F042]/50 focus:bg-white transition-all resize-none overflow-hidden"
+                                    className="w-full bg-[#F0F2F5] border border-[#DADDE1] rounded-lg px-4 py-3 text-sm text-[#1C1E21] placeholder:text-[#8A8D91] focus:outline-none focus:ring-2 focus:ring-[#0866FF]/30 focus:border-[#0866FF]/50 focus:bg-white transition-all resize-none overflow-hidden"
                                     style={{ minHeight: '48px', maxHeight: '160px' }}
                                 />
                             </div>
                             <button
                                 onClick={handleSendMessage}
                                 disabled={(!messageInput.trim() && !pendingFile) || isUploading}
-                                className="p-3 bg-[#18181B] text-white rounded-xl hover:bg-[#2A2A2E] transition-all disabled:opacity-30 disabled:cursor-not-allowed group flex-shrink-0"
+                                className="p-3 bg-[#1C1E21] text-white rounded-lg hover:bg-[#2A2A2E] transition-all disabled:opacity-30 disabled:cursor-not-allowed group flex-shrink-0"
                             >
-                                {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 group-hover:text-[#C4F042] transition-colors" />}
+                                {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 group-hover:text-[#0866FF] transition-colors" />}
                             </button>
                         </div>
-                        <p className="text-[10px] text-[#A1A1AA] mt-2 ml-1">
-                            <kbd className="px-1.5 py-0.5 bg-[#F4F3EF] rounded text-[9px] font-mono">Entrée</kbd> envoyer · <kbd className="px-1.5 py-0.5 bg-[#F4F3EF] rounded text-[9px] font-mono">Maj+Entrée</kbd> retour à la ligne
+                        <p className="text-[10px] text-[#8A8D91] mt-2 ml-1">
+                            <kbd className="px-1.5 py-0.5 bg-[#F0F2F5] rounded text-[9px] font-mono">Entrée</kbd> envoyer · <kbd className="px-1.5 py-0.5 bg-[#F0F2F5] rounded text-[9px] font-mono">Maj+Entrée</kbd> retour à la ligne
                         </p>
                     </div>
 

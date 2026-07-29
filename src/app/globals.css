@@ -4,8 +4,11 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ================================================
-   MOSH — YOO-Inspired Light Premium Theme
-   Clean, bright, modern
+   MOSH — Workspace UI
+   Sober, information-dense admin styling in the vein of
+   Meta Business Suite / Linear: neutral canvas, white
+   surfaces with 1px dividers, blue used sparingly for
+   intent (primary action, active state, links).
    ================================================ */
 
 @theme inline {
@@ -52,9 +55,10 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
 
-  /* Brand Accent — Lime/Chartreuse */
-  --color-brand: #C4F042;
-  --color-brand-hover: #B5E035;
+  /* Brand accent — blue, reserved for intent */
+  --color-brand: #0866FF;
+  --color-brand-hover: #0653CC;
+  --color-brand-subtle: #E7F0FF;
 
   /* Border Radius */
   --radius-sm: calc(var(--radius) - 4px);
@@ -67,51 +71,51 @@
 }
 
 /* ================================================
-   Light Theme (Default) — YOO-Inspired Clean
+   Light theme (default)
    ================================================ */
 :root {
-  --radius: 0.75rem;
+  --radius: 0.5rem;
 
   /* Backgrounds */
   --background: #FFFFFF;
-  --background-elevated: #F8F9FA;
-  --background-subtle: #F1F3F5;
+  --background-elevated: #F7F8FA;
+  --background-subtle: #F0F2F5;
 
   /* Foreground */
-  --foreground: #1A1A2E;
-  --foreground-muted: #6B7280;
+  --foreground: #1C1E21;
+  --foreground-muted: #65676B;
 
   /* Cards */
   --card: #FFFFFF;
-  --card-foreground: #1A1A2E;
+  --card-foreground: #1C1E21;
 
   /* Popovers */
   --popover: #FFFFFF;
-  --popover-foreground: #1A1A2E;
+  --popover-foreground: #1C1E21;
 
   /* Primary — Dark on light */
-  --primary: #1A1A2E;
+  --primary: #1C1E21;
   --primary-foreground: #FFFFFF;
 
   /* Secondary */
-  --secondary: #F1F3F5;
-  --secondary-foreground: #1A1A2E;
+  --secondary: #F0F2F5;
+  --secondary-foreground: #1C1E21;
 
   /* Muted */
-  --muted: #F1F3F5;
-  --muted-foreground: #6B7280;
+  --muted: #F0F2F5;
+  --muted-foreground: #65676B;
 
   /* Accent — Lime */
-  --accent: #C4F042;
-  --accent-foreground: #18181B;
+  --accent: #0866FF;
+  --accent-foreground: #1C1E21;
 
   /* Destructive */
   --destructive: #EF4444;
 
   /* Borders */
-  --border: #E5E7EB;
-  --input: #E5E7EB;
-  --ring: #C4F042;
+  --border: #DADDE1;
+  --input: #DADDE1;
+  --ring: #0866FF;
 
   /* Charts */
   --chart-1: #FF6B6B;
@@ -121,14 +125,14 @@
   --chart-5: #FFEAA7;
 
   /* Sidebar — Keep darker for dashboard contrast */
-  --sidebar: #1A1A2E;
-  --sidebar-foreground: #F8F9FA;
+  --sidebar: #1C1E21;
+  --sidebar-foreground: #F7F8FA;
   --sidebar-primary: #FFFFFF;
-  --sidebar-primary-foreground: #1A1A2E;
-  --sidebar-accent: #2D2D44;
-  --sidebar-accent-foreground: #F8F9FA;
-  --sidebar-border: #2D2D44;
-  --sidebar-ring: #C4F042;
+  --sidebar-primary-foreground: #1C1E21;
+  --sidebar-accent: #2A2D31;
+  --sidebar-accent-foreground: #F7F8FA;
+  --sidebar-border: #2A2D31;
+  --sidebar-ring: #0866FF;
 }
 
 /* ================================================
@@ -184,79 +188,68 @@
    ================================================ */
 @layer components {
 
-  /* Primary CTA — Coral Gradient with Glow */
+  /* Primary action — flat fill, no gradient, no glow, no lift */
   .btn-primary {
-    @apply relative font-semibold px-6 py-3 rounded-full;
-    @apply transition-all duration-300 ease-out;
-    @apply focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-background;
-    @apply active:scale-[0.97];
-    background: linear-gradient(135deg, #C4F042 0%, #A8D935 100%) !important;
-    box-shadow: 0 4px 20px rgba(196, 240, 66, 0.3);
-    color: #18181B !important;
+    @apply font-medium px-4 py-2.5 rounded-lg;
+    @apply transition-colors duration-150;
+    @apply focus:outline-none focus:ring-2 focus:ring-[#0866FF]/30 focus:ring-offset-1;
+    background: #0866FF;
+    color: #FFFFFF;
   }
 
   .btn-primary:hover,
-  .btn-primary:focus,
+  .btn-primary:focus {
+    background: #0653CC;
+    color: #FFFFFF;
+  }
+
   .btn-primary:active {
-    background: linear-gradient(135deg, #A8D935 0%, #C4F042 100%) !important;
-    box-shadow: 0 6px 30px rgba(196, 240, 66, 0.5);
-    transform: translateY(-2px);
-    color: #18181B !important;
+    background: #0949AD;
   }
 
   .btn-primary span,
-  .btn-primary svg,
-  .btn-primary:hover span,
-  .btn-primary:hover svg {
-    color: #18181B !important;
+  .btn-primary svg {
+    color: #FFFFFF;
   }
 
-  /* Secondary Button — Light border */
+  /* Secondary action — neutral, bordered */
   .btn-secondary {
-    @apply relative font-semibold px-6 py-3 rounded-full overflow-hidden;
-    @apply transition-all duration-300 ease-out;
-    @apply border border-gray-200 text-gray-800;
-    background: rgba(0, 0, 0, 0.02);
+    @apply font-medium px-4 py-2.5 rounded-lg bg-white;
+    @apply transition-colors duration-150;
+    @apply border border-[#DADDE1] text-[#1C1E21];
   }
 
   .btn-secondary:hover {
-    background: rgba(0, 0, 0, 0.05);
-    border-color: rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    background: #F0F2F5;
   }
 
-  /* Glass Card — Light version */
+  /* Surface — a panel is defined by its 1px border, not by a shadow */
   .glass-card {
-    @apply bg-white/80 backdrop-blur-xl border border-gray-200/80 rounded-2xl;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    @apply bg-white border border-[#DADDE1] rounded-xl;
   }
 
-  /* Nav — Floating light */
   .nav-floating {
     @apply fixed top-4 left-1/2 -translate-x-1/2 z-50;
-    @apply bg-white/80 backdrop-blur-xl border border-gray-200/80 rounded-full;
+    @apply bg-white border border-[#DADDE1] rounded-full;
     @apply px-6 py-3;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
   }
 
-  /* Creator Card — Light */
+  /* Media card — restrained hover, no scaling */
   .creator-card {
-    @apply relative overflow-hidden rounded-2xl bg-white;
-    @apply transition-all duration-500 ease-out;
-    @apply hover:scale-[1.02];
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    @apply relative overflow-hidden rounded-xl bg-white border border-[#DADDE1];
+    @apply transition-colors duration-150;
   }
 
   .creator-card:hover {
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    border-color: #BCC0C4;
   }
 
   .creator-card::before {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent;
+    @apply absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent;
     @apply z-10 pointer-events-none opacity-0;
-    @apply transition-opacity duration-300;
+    @apply transition-opacity duration-200;
   }
 
   .creator-card:hover::before {
@@ -265,17 +258,16 @@
 
   /* Tags */
   .tag {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
-    @apply bg-gray-100 text-gray-700;
+    @apply inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium;
+    @apply bg-[#F0F2F5] text-[#65676B];
   }
 
   .tag-accent {
-    @apply bg-red-50 text-accent;
+    @apply bg-[#E7F0FF] text-[#0866FF];
   }
 
-  /* Gradient Text — Coral to Orange */
   .gradient-text {
-    @apply bg-gradient-to-r from-[#C4F042] via-[#A8D935] to-[#C4F042] bg-clip-text text-transparent;
+    @apply text-[#1C1E21];
   }
 }
 
@@ -336,8 +328,8 @@
   .shimmer::after {
     content: '';
     @apply absolute inset-0;
-    background: linear-gradient(90deg, transparent 0%, rgba(196, 240, 66, 0.08) 50%, transparent 100%);
-    animation: shimmer 2s infinite;
+    background: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.04) 50%, transparent 100%);
+    animation: shimmer 1.6s infinite;
   }
 
   @keyframes shimmer {
@@ -351,7 +343,16 @@
   }
 
   .glow {
-    box-shadow: 0 0 40px rgba(196, 240, 66, 0.2);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Elevation — the only two shadows the workspace should need */
+  .elev-1 {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+
+  .elev-2 {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   }
 
   .video-overlay {
