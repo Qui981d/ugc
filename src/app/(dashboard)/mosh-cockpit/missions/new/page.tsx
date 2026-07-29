@@ -31,6 +31,10 @@ export default function NewInternalMissionPage() {
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
+    // ClickUp client lists (optional integration)
+    const [clickupGroups, setClickupGroups] = useState<{ folder: string; lists: { id: string; name: string }[] }[]>([])
+    const [clickupConfigured, setClickupConfigured] = useState<boolean | null>(null)
+
     const [form, setForm] = useState({
         clientName: '',
         title: '',
@@ -44,6 +48,7 @@ export default function NewInternalMissionPage() {
         shootingDateFixed: false,
         deliveryDate: '',
         deliveryDateFixed: false,
+        clickupListId: '',
     })
 
     useEffect(() => {
@@ -51,6 +56,13 @@ export default function NewInternalMissionPage() {
             setCreators(list)
             setLoadingCreators(false)
         })
+        fetch('/api/clickup/lists')
+            .then(r => r.json())
+            .then(d => {
+                setClickupGroups(d.groups || [])
+                setClickupConfigured(!!d.configured)
+            })
+            .catch(() => setClickupConfigured(false))
     }, [])
 
     const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
@@ -80,6 +92,7 @@ export default function NewInternalMissionPage() {
             deliveryDate: form.deliveryDate || null,
             deliveryDateFixed: form.deliveryDateFixed,
             creatorId: form.creatorId,
+            clickupListId: form.clickupListId || undefined,
         })
         setSubmitting(false)
 
@@ -138,6 +151,28 @@ export default function NewInternalMissionPage() {
                         ))}
                     </select>
                 </div>
+
+                {/* ClickUp client (optional) */}
+                {clickupConfigured && clickupGroups.length > 0 && (
+                    <div>
+                        <label className={labelClass}>Client ClickUp <span className="text-[#A1A1AA] font-normal">(optionnel)</span></label>
+                        <select className={inputClass} value={form.clickupListId}
+                            onChange={e => set('clickupListId', e.target.value)}>
+                            <option value="">Ne pas créer de carte ClickUp</option>
+                            {clickupGroups.map(g => (
+                                <optgroup key={g.folder} label={g.folder}>
+                                    {g.lists.map(l => (
+                                        <option key={l.id} value={l.id}>{g.folder} — {l.name}</option>
+                                    ))}
+                                </optgroup>
+                            ))}
+                        </select>
+                        <p className="text-xs text-[#A1A1AA] mt-1">Une carte + sous-tâches seront créées dans cette liste ClickUp.</p>
+                    </div>
+                )}
+                {clickupConfigured === false && (
+                    <p className="text-xs text-[#A1A1AA]">ClickUp non connecté (variable <code>CLICKUP_API_TOKEN</code> absente) — la mission sera créée sans carte ClickUp.</p>
+                )}
 
                 {/* Script */}
                 <div>

@@ -525,6 +525,30 @@ export async function completeMissionStep(
         )
     }
 
+    // Mirror the step to ClickUp: tick the matching subtask (best-effort, non-blocking)
+    try {
+        const { STEP_TO_SUBTASK } = await import('@/lib/clickup/mapping')
+        const subtaskName = STEP_TO_SUBTASK[stepType]
+        if (subtaskName) {
+            const { data: cuCamp } = await supabase
+                .from('campaigns')
+                .select('clickup_subtask_map')
+                .eq('id', campaignId)
+                .single()
+            const map = (cuCamp as any)?.clickup_subtask_map as Record<string, string> | null
+            const subtaskId = map?.[subtaskName]
+            if (subtaskId) {
+                await fetch('/api/clickup/complete-subtask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ taskId: subtaskId }),
+                })
+            }
+        }
+    } catch (e) {
+        console.error('ClickUp subtask sync failed:', e)
+    }
+
     return { success: true }
 }
 
@@ -665,6 +689,7 @@ export async function createInternalMission(input: {
     deliveryDate?: string | null
     deliveryDateFixed?: boolean
     creatorId: string
+    clickupListId?: string
 }): Promise<{ success: boolean; campaignId?: string; error?: string }> {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -715,6 +740,34 @@ export async function createInternalMission(input: {
             creator_status: 'brand_approved',
             position: 0,
         })
+
+    // 2b. Create the ClickUp card + subtasks (best-effort). Done BEFORE recording
+    //     steps so the map exists when completeMissionStep mirrors them to ClickUp.
+    if (input.clickupListId) {
+        try {
+            const res = await fetch('/api/clickup/create-mission', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    listId: input.clickupListId,
+                    title: `${input.clientName} — ${input.title}`,
+                    description: input.scriptContent,
+                }),
+            })
+            if (res.ok) {
+                const data = await res.json()
+                await (supabase.from('campaigns') as ReturnType<typeof supabase.from>)
+                    .update({
+                        clickup_list_id: input.clickupListId,
+                        clickup_task_id: data.taskId,
+                        clickup_subtask_map: data.subtaskMap,
+                    })
+                    .eq('id', campaignId)
+            }
+        } catch (e) {
+            console.error('ClickUp card creation failed:', e)
+        }
+    }
 
     // 3. Mark the script as approved (MOSH is the brand here) so the
     //    send-mission guard passes.

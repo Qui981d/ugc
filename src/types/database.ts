@@ -172,6 +172,10 @@ export interface Campaign {
     creator_counter_amount_chf: number | null
     creator_price_status: 'proposed' | 'counter' | 'accepted' | null
     creator_price_message: string | null
+    // ClickUp integration
+    clickup_list_id: string | null
+    clickup_task_id: string | null
+    clickup_subtask_map: Record<string, string> | null
     created_at: string
     updated_at: string
 }
