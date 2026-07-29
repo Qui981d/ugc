@@ -690,17 +690,20 @@ export async function createInternalMission(input: {
     deliveryDateFixed?: boolean
     creatorId: string
     clickupListId?: string
+    /** Real managed-brand id. Falls back to the MOSH admin (legacy internal mission). */
+    brandId?: string
 }): Promise<{ success: boolean; campaignId?: string; error?: string }> {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: 'Non authentifié' }
 
     const rightsUsage: RightsUsageType = input.isAds ? 'paid_12m' : 'organic'
+    const brandId = input.brandId || user.id
 
-    // 1. Create the campaign (brand_id = MOSH admin; script pre-approved by MOSH)
+    // 1. Create the campaign (brand_id = the managed brand, or MOSH admin for legacy)
     const { data: campData, error: campErr } = await (supabase.from('campaigns') as ReturnType<typeof supabase.from>)
         .insert({
-            brand_id: user.id,
+            brand_id: brandId,
             title: input.title,
             product_name: input.title,
             client_name: input.clientName,

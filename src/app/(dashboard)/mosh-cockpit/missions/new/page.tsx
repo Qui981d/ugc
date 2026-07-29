@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Loader2, Film, Send } from 'lucide-react'
+import { ArrowLeft, Loader2, Film, Send, Building2 } from 'lucide-react'
 import { getAllCreators, createInternalMission, type CreatorWithProfile } from '@/lib/services/adminService'
+import { createClient } from '@/lib/supabase/client'
 import type { VideoFormat, ScriptType } from '@/types/database'
 
 const FORMATS: { value: VideoFormat; label: string }[] = [
@@ -24,8 +25,11 @@ const SCRIPT_TYPES: { value: ScriptType; label: string }[] = [
     { value: 'review', label: 'Review' },
 ]
 
-export default function NewInternalMissionPage() {
+function NewMissionForm() {
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const brandId = searchParams.get('brand') || undefined
+    const [brandName, setBrandName] = useState<string | null>(null)
     const [creators, setCreators] = useState<CreatorWithProfile[]>([])
     const [loadingCreators, setLoadingCreators] = useState(true)
     const [submitting, setSubmitting] = useState(false)
@@ -56,14 +60,32 @@ export default function NewInternalMissionPage() {
             setCreators(list)
             setLoadingCreators(false)
         })
-        fetch('/api/clickup/lists')
-            .then(r => r.json())
-            .then(d => {
-                setClickupGroups(d.groups || [])
-                setClickupConfigured(!!d.configured)
-            })
-            .catch(() => setClickupConfigured(false))
-    }, [])
+        // Brand mode: prefill client + ClickUp list from the managed brand
+        if (brandId) {
+            const supabase = createClient()
+            supabase
+                .from('profiles_brand')
+                .select('company_name, clickup_list_id')
+                .eq('user_id', brandId)
+                .single()
+                .then(({ data }) => {
+                    const b = data as any
+                    if (b) {
+                        setBrandName(b.company_name)
+                        setForm(f => ({ ...f, clientName: b.company_name, clickupListId: b.clickup_list_id || '' }))
+                    }
+                })
+        } else {
+            // Legacy internal mode: offer the ClickUp list dropdown
+            fetch('/api/clickup/lists')
+                .then(r => r.json())
+                .then(d => {
+                    setClickupGroups(d.groups || [])
+                    setClickupConfigured(!!d.configured)
+                })
+                .catch(() => setClickupConfigured(false))
+        }
+    }, [brandId])
 
     const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
         setForm(prev => ({ ...prev, [key]: value }))
@@ -93,6 +115,7 @@ export default function NewInternalMissionPage() {
             deliveryDateFixed: form.deliveryDateFixed,
             creatorId: form.creatorId,
             clickupListId: form.clickupListId || undefined,
+            brandId,
         })
         setSubmitting(false)
 
@@ -129,9 +152,17 @@ export default function NewInternalMissionPage() {
                 {/* Client + title */}
                 <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                        <label className={labelClass}>Nom du client</label>
-                        <input className={inputClass} value={form.clientName}
-                            onChange={e => set('clientName', e.target.value)} placeholder="Ex : Nightout SNC" />
+                        <label className={labelClass}>Client</label>
+                        {brandId ? (
+                            <div className="flex items-center gap-2 px-4 py-2.5 bg-[#F4F3EF] border border-[#E5E7EB] rounded-xl text-sm text-[#18181B]">
+                                <Building2 className="w-4 h-4 text-[#71717A]" />
+                                {brandName || 'Marque…'}
+                                <span className="ml-auto text-xs text-[#A1A1AA]">compte géré</span>
+                            </div>
+                        ) : (
+                            <input className={inputClass} value={form.clientName}
+                                onChange={e => set('clientName', e.target.value)} placeholder="Ex : Nightout SNC" />
+                        )}
                     </div>
                     <div>
                         <label className={labelClass}>Titre de la vidéo</label>
@@ -271,5 +302,13 @@ export default function NewInternalMissionPage() {
                 </div>
             </motion.div>
         </div>
+    )
+}
+
+export default function NewMissionPage() {
+    return (
+        <Suspense fallback={<div className="flex items-center justify-center min-h-[300px]"><Loader2 className="w-6 h-6 animate-spin text-[#A1A1AA]" /></div>}>
+            <NewMissionForm />
+        </Suspense>
     )
 }

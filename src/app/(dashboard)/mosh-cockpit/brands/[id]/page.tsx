@@ -81,14 +81,23 @@ export default function BrandDetailPage() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            {/* Breadcrumb */}
-            <div className="flex items-center gap-2 text-sm text-[#A1A1AA]">
-                <Link href="/mosh-cockpit/brands" className="hover:text-[#18181B] transition-colors flex items-center gap-1">
-                    <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
-                    Marques
+            {/* Breadcrumb + primary action */}
+            <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2 text-sm text-[#A1A1AA]">
+                    <Link href="/mosh-cockpit/brands" className="hover:text-[#18181B] transition-colors flex items-center gap-1">
+                        <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
+                        Marques
+                    </Link>
+                    <ChevronRight className="w-3 h-3" />
+                    <span className="text-[#18181B]">{profile?.company_name || brand.full_name}</span>
+                </div>
+                <Link
+                    href={`/mosh-cockpit/missions/new?brand=${brand.id}`}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#18181B] text-[#C4F042] rounded-xl text-sm font-medium hover:bg-[#18181B]/90 transition-colors shrink-0"
+                >
+                    <Megaphone className="w-4 h-4" strokeWidth={1.8} />
+                    Créer une mission pour cette marque
                 </Link>
-                <ChevronRight className="w-3 h-3" />
-                <span className="text-[#18181B]">{profile?.company_name || brand.full_name}</span>
             </div>
 
             {/* Profile Header */}

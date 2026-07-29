@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Search, Building2, ChevronRight, CalendarClock, Mail, Phone, MessageSquare, Clock } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Search, Building2, ChevronRight, CalendarClock, Mail, Phone, MessageSquare, Clock, Plus, X, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { getAllBrands, getAllBrandRequests, updateBrandRequestStatus, type BrandWithProfile, type BrandRequest } from '@/lib/services/adminService'
+import { toast } from 'sonner'
 
 type Tab = 'inscrites' | 'rdv'
 
@@ -25,6 +26,12 @@ export default function AdminBrandsPage() {
     const [searchQuery, setSearchQuery] = useState('')
     const router = useRouter()
 
+    // Create managed brand
+    const [showCreate, setShowCreate] = useState(false)
+    const [creating, setCreating] = useState(false)
+    const [newBrand, setNewBrand] = useState({ companyName: '', contactName: '', contactEmail: '', clickupListId: '' })
+    const [clickupGroups, setClickupGroups] = useState<{ folder: string; lists: { id: string; name: string }[] }[]>([])
+
     useEffect(() => {
         async function load() {
             const [brandsData, requestsData] = await Promise.all([
@@ -36,7 +43,30 @@ export default function AdminBrandsPage() {
             setIsLoading(false)
         }
         load()
+        fetch('/api/clickup/lists').then(r => r.json()).then(d => setClickupGroups(d.groups || [])).catch(() => {})
     }, [])
+
+    const handleCreateBrand = async () => {
+        if (!newBrand.companyName.trim()) return
+        setCreating(true)
+        try {
+            const res = await fetch('/api/brands/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newBrand),
+            })
+            const data = await res.json()
+            if (res.ok && data.brandId) {
+                toast.success('Marque créée')
+                router.push(`/mosh-cockpit/brands/${data.brandId}`)
+            } else {
+                toast.error(data.error || 'Échec de la création')
+            }
+        } catch {
+            toast.error('Erreur réseau')
+        }
+        setCreating(false)
+    }
 
     const filteredBrands = brands.filter(b =>
         !searchQuery ||
@@ -66,9 +96,18 @@ export default function AdminBrandsPage() {
     return (
         <div className="max-w-7xl mx-auto space-y-6">
             {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-[#18181B] tracking-tight">Marques</h1>
-                <p className="text-[#71717A] mt-1">{brands.length} inscrite{brands.length > 1 ? 's' : ''} · {requests.length} demande{requests.length > 1 ? 's' : ''} de RDV</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold text-[#18181B] tracking-tight">Marques</h1>
+                    <p className="text-[#71717A] mt-1">{brands.length} inscrite{brands.length > 1 ? 's' : ''} · {requests.length} demande{requests.length > 1 ? 's' : ''} de RDV</p>
+                </div>
+                <button
+                    onClick={() => setShowCreate(true)}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#18181B] text-[#C4F042] rounded-xl text-sm font-medium hover:bg-[#18181B]/90 transition-colors shrink-0"
+                >
+                    <Plus className="w-4 h-4" strokeWidth={2} />
+                    Créer une marque
+                </button>
             </div>
 
             {/* Sub-tabs */}
@@ -259,6 +298,73 @@ export default function AdminBrandsPage() {
                     </div>
                 )
             )}
+
+            {/* Create managed brand modal */}
+            <AnimatePresence>
+                {showCreate && (
+                    <motion.div
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
+                        onClick={() => !creating && setShowCreate(false)}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white rounded-[24px] shadow-2xl w-full max-w-md"
+                        >
+                            <div className="flex items-center justify-between px-6 py-5 border-b border-black/[0.04]">
+                                <h2 className="text-lg font-semibold text-[#18181B]">Nouvelle marque (gérée par MOSH)</h2>
+                                <button onClick={() => setShowCreate(false)} className="w-8 h-8 rounded-lg bg-[#F4F3EF] flex items-center justify-center text-[#A1A1AA] hover:text-[#18181B] transition-colors">
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                            <div className="px-6 py-5 space-y-4">
+                                <div>
+                                    <label className="text-xs font-medium text-[#71717A] mb-1.5 block">Nom de la marque *</label>
+                                    <input value={newBrand.companyName} onChange={e => setNewBrand({ ...newBrand, companyName: e.target.value })}
+                                        placeholder="Ex : La Combe"
+                                        className="w-full px-4 py-2.5 bg-[#F4F3EF]/50 border border-black/[0.06] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40" />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-medium text-[#71717A] mb-1.5 block">Nom du contact (optionnel)</label>
+                                    <input value={newBrand.contactName} onChange={e => setNewBrand({ ...newBrand, contactName: e.target.value })}
+                                        placeholder="Ex : Marie Dupont"
+                                        className="w-full px-4 py-2.5 bg-[#F4F3EF]/50 border border-black/[0.06] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40" />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-medium text-[#71717A] mb-1.5 block">Email du contact (optionnel)</label>
+                                    <input type="email" value={newBrand.contactEmail} onChange={e => setNewBrand({ ...newBrand, contactEmail: e.target.value })}
+                                        placeholder="contact@client.com"
+                                        className="w-full px-4 py-2.5 bg-[#F4F3EF]/50 border border-black/[0.06] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40" />
+                                    <p className="text-xs text-[#A1A1AA] mt-1">Aucun email n&apos;est envoyé. Sert si le client veut se connecter plus tard.</p>
+                                </div>
+                                {clickupGroups.length > 0 && (
+                                    <div>
+                                        <label className="text-xs font-medium text-[#71717A] mb-1.5 block">Liste ClickUp (optionnel)</label>
+                                        <select value={newBrand.clickupListId} onChange={e => setNewBrand({ ...newBrand, clickupListId: e.target.value })}
+                                            className="w-full px-4 py-2.5 bg-[#F4F3EF]/50 border border-black/[0.06] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#C4F042]/40">
+                                            <option value="">Aucune</option>
+                                            {clickupGroups.map(g => (
+                                                <optgroup key={g.folder} label={g.folder}>
+                                                    {g.lists.map(l => <option key={l.id} value={l.id}>{g.folder} — {l.name}</option>)}
+                                                </optgroup>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="px-6 py-4 border-t border-black/[0.04] flex items-center justify-end gap-3">
+                                <button onClick={() => setShowCreate(false)} className="px-4 py-2.5 text-sm text-[#71717A] hover:text-[#18181B] transition-colors">Annuler</button>
+                                <button onClick={handleCreateBrand} disabled={creating || !newBrand.companyName.trim()}
+                                    className="px-5 py-2.5 bg-[#C4F042] text-[#18181B] font-medium rounded-xl hover:bg-[#C4F042]/80 transition-colors disabled:opacity-50 flex items-center gap-2 text-sm">
+                                    {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                                    Créer la marque
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     )
 }

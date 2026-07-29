@@ -80,6 +80,9 @@ export interface ProfileBrand {
     address: string | null
     company_size: string | null
     notification_prefs: Record<string, boolean> | null
+    // Agency model: brands MOSH creates & operates on behalf of
+    is_managed: boolean
+    clickup_list_id: string | null
     created_at: string
     updated_at: string
 }
