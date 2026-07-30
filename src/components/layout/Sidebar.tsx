@@ -125,40 +125,44 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
             className={`
                 fixed left-0 top-0 bottom-0 z-40
                 hidden md:flex flex-col
-                bg-white border-r border-[#DADDE1]
+                bg-white border-r border-[#E2E2E1]
                 transition-[width] duration-200 ease-out
                 ${expanded ? 'w-[240px]' : 'w-[60px]'}
             `}
         >
             {/* ── Workspace switcher: identity + context, always first ── */}
-            <div className="h-14 flex items-center border-b border-[#DADDE1] px-2 shrink-0">
+            <div className="h-14 flex items-center border-b border-[#E2E2E1] px-2 shrink-0">
                 <Link
                     href={HOME[role]}
                     title={workspaceName}
                     className={`
                         flex items-center gap-2.5 rounded-lg min-w-0
-                        hover:bg-[#F0F2F5] transition-colors
+                        hover:bg-[#F4F4F3] transition-colors
                         ${expanded ? 'flex-1 px-2 py-1.5' : 'w-11 h-11 justify-center'}
                     `}
                 >
+                    {/* Acting on a brand's behalf inverts the badge — in a monochrome
+                        system, reversing the fill is the available way to say "not you". */}
                     <span className={`
                         w-7 h-7 rounded-md shrink-0 grid place-items-center
-                        text-[11px] font-bold text-white
-                        ${isActingAsBrand ? 'bg-[#0866FF]' : 'bg-[#1C1E21]'}
+                        text-[11px] font-bold
+                        ${isActingAsBrand
+                            ? 'bg-white text-[#1A1A1A] ring-[1.5px] ring-[#1A1A1A]'
+                            : 'bg-[#1A1A1A] text-white'}
                     `}>
                         {workspaceInitial}
                     </span>
                     {expanded && (
                         <span className="min-w-0 flex-1 text-left">
-                            <span className="block text-[13px] font-semibold text-[#1C1E21] truncate leading-tight">
+                            <span className="block text-[13px] font-semibold text-[#1A1A1A] truncate leading-tight">
                                 {workspaceName}
                             </span>
-                            <span className="block text-[11px] text-[#8A8D91] truncate leading-tight">
+                            <span className="block text-[11px] text-[#9B9B9B] truncate leading-tight">
                                 {isActingAsBrand ? 'Piloté par MOSH' : ROLE_LABEL[role]}
                             </span>
                         </span>
                     )}
-                    {expanded && <ChevronsUpDown className="w-3.5 h-3.5 text-[#8A8D91] shrink-0" strokeWidth={2} />}
+                    {expanded && <ChevronsUpDown className="w-3.5 h-3.5 text-[#9B9B9B] shrink-0" strokeWidth={2} />}
                 </Link>
             </div>
 
@@ -167,7 +171,7 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
                 {groups.map((group, gi) => (
                     <div key={gi} className="flex flex-col gap-0.5">
                         {expanded && group.label && (
-                            <div className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[#8A8D91]">
+                            <div className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[#9B9B9B]">
                                 {group.label}
                             </div>
                         )}
@@ -184,8 +188,8 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
                                         transition-colors
                                         ${expanded ? 'px-2' : 'w-11 justify-center mx-auto'}
                                         ${active
-                                            ? 'bg-[#E7F0FF] text-[#0866FF]'
-                                            : 'text-[#65676B] hover:bg-[#F0F2F5] hover:text-[#1C1E21]'
+                                            ? 'bg-[#EDEDEC] text-[#1A1A1A]'
+                                            : 'text-[#6B6B6B] hover:bg-[#F4F4F3] hover:text-[#1A1A1A]'
                                         }
                                     `}
                                 >
@@ -197,11 +201,11 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
                                     )}
                                     {count > 0 && (
                                         expanded ? (
-                                            <span className="ml-auto shrink-0 min-w-[18px] h-[18px] px-1 rounded-full bg-[#0866FF] text-white text-[10px] font-semibold grid place-items-center tabular-nums">
+                                            <span className="ml-auto shrink-0 min-w-[18px] h-[18px] px-1 rounded-full bg-[#1A1A1A] text-white text-[10px] font-semibold grid place-items-center tabular-nums">
                                                 {count > 99 ? '99+' : count}
                                             </span>
                                         ) : (
-                                            <span className="absolute top-1 right-1.5 w-2 h-2 rounded-full bg-[#0866FF] ring-2 ring-white" />
+                                            <span className="absolute top-1 right-1.5 w-2 h-2 rounded-full bg-[#1A1A1A] ring-2 ring-white" />
                                         )
                                     )}
                                 </Link>
@@ -219,7 +223,7 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
                         title="Revenir à l'espace MOSH"
                         className={`
                             flex items-center gap-2.5 rounded-md h-8 w-full
-                            text-[#0866FF] hover:bg-[#E7F0FF] transition-colors
+                            text-[#1A1A1A] hover:bg-[#EDEDEC] transition-colors
                             ${expanded ? 'px-2' : 'justify-center'}
                         `}
                     >
@@ -230,16 +234,16 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
             )}
 
             {/* ── Footer: who you are + collapse ── */}
-            <div className="border-t border-[#DADDE1] p-2 flex items-center gap-2 shrink-0">
+            <div className="border-t border-[#E2E2E1] p-2 flex items-center gap-2 shrink-0">
                 <div className={`flex items-center gap-2.5 min-w-0 ${expanded ? 'flex-1' : 'mx-auto'}`}>
                     <span
-                        className="w-7 h-7 rounded-full bg-[#F0F2F5] border border-[#DADDE1] grid place-items-center text-[11px] font-semibold text-[#65676B] shrink-0"
+                        className="w-7 h-7 rounded-full bg-[#F4F4F3] border border-[#E2E2E1] grid place-items-center text-[11px] font-semibold text-[#6B6B6B] shrink-0"
                         suppressHydrationWarning
                     >
                         {userName?.charAt(0)?.toUpperCase() || role.charAt(0).toUpperCase()}
                     </span>
                     {expanded && (
-                        <span className="min-w-0 text-[12px] text-[#65676B] truncate" suppressHydrationWarning>
+                        <span className="min-w-0 text-[12px] text-[#6B6B6B] truncate" suppressHydrationWarning>
                             {userName || 'Mon compte'}
                         </span>
                     )}
@@ -248,7 +252,7 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
                     <button
                         onClick={toggle}
                         title="Réduire le menu"
-                        className="w-7 h-7 rounded-md grid place-items-center text-[#8A8D91] hover:bg-[#F0F2F5] hover:text-[#1C1E21] transition-colors shrink-0"
+                        className="w-7 h-7 rounded-md grid place-items-center text-[#9B9B9B] hover:bg-[#F4F4F3] hover:text-[#1A1A1A] transition-colors shrink-0"
                     >
                         <PanelLeft className="w-4 h-4" strokeWidth={1.8} />
                     </button>
@@ -259,7 +263,7 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
                 <button
                     onClick={toggle}
                     title="Agrandir le menu"
-                    className="absolute -right-3 top-16 w-6 h-6 rounded-full bg-white border border-[#DADDE1] grid place-items-center text-[#65676B] hover:text-[#1C1E21] shadow-sm"
+                    className="absolute -right-3 top-16 w-6 h-6 rounded-full bg-white border border-[#E2E2E1] grid place-items-center text-[#6B6B6B] hover:text-[#1A1A1A] shadow-sm"
                 >
                     <PanelLeft className="w-3 h-3 rotate-180" strokeWidth={2} />
                 </button>

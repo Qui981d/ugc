@@ -10,8 +10,8 @@ import { PageHeader, Tabs, StatusPill, EmptyState } from '@/components/ui/worksp
 
 type Tab = 'registered' | 'invitations'
 
-const TH = 'text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5'
-const ICON_BTN = 'w-8 h-8 rounded-lg border border-[#DADDE1] bg-white flex items-center justify-center text-[#65676B] hover:text-[#0866FF] hover:border-[#0866FF] transition-colors'
+const TH = 'text-left font-medium text-[11px] uppercase tracking-wider text-[#9B9B9B] px-4 py-2.5'
+const ICON_BTN = 'w-8 h-8 rounded-lg border border-[#E2E2E1] bg-white flex items-center justify-center text-[#6B6B6B] hover:text-[#1A1A1A] hover:border-[#1A1A1A] transition-colors'
 
 export default function AdminCreatorsPage() {
     const router = useRouter()
@@ -99,7 +99,7 @@ export default function AdminCreatorsPage() {
     const generateButton = (
         <button
             onClick={() => setShowInviteModal(true)}
-            className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#0866FF] text-white rounded-lg text-[13px] font-medium hover:bg-[#0653CC] transition-colors shrink-0"
+            className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#1A1A1A] text-white rounded-lg text-[13px] font-medium hover:bg-[#333333] transition-colors shrink-0"
         >
             <Plus className="w-4 h-4" strokeWidth={2.2} />
             Générer un lien
@@ -127,17 +127,17 @@ export default function AdminCreatorsPage() {
             <div className="flex flex-wrap items-center gap-2 mb-3">
                 {activeTab === 'registered' && (
                     <div className="relative flex-1 min-w-[220px]">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A8D91]" strokeWidth={1.8} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9B9B9B]" strokeWidth={1.8} />
                         <input
                             type="text"
                             placeholder="Rechercher par nom, canton, spécialité…"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full h-9 pl-9 pr-3 bg-white border border-[#DADDE1] rounded-lg text-[13px] text-[#1C1E21] placeholder:text-[#8A8D91] focus:outline-none focus:border-[#0866FF] focus:ring-2 focus:ring-[#0866FF]/20 transition-colors"
+                            className="w-full h-9 pl-9 pr-3 bg-white border border-[#E2E2E1] rounded-lg text-[13px] text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#1A1A1A] focus:ring-2 focus:ring-[#1A1A1A]/15 transition-colors"
                         />
                     </div>
                 )}
-                <span className="text-[12px] text-[#8A8D91] tabular-nums ml-auto">
+                <span className="text-[12px] text-[#9B9B9B] tabular-nums ml-auto">
                     {activeTab === 'registered'
                         ? `${resultCount} créateur${resultCount > 1 ? 's' : ''}`
                         : `${resultCount} invitation${resultCount > 1 ? 's' : ''}`}
@@ -145,13 +145,13 @@ export default function AdminCreatorsPage() {
             </div>
 
             {/* One dense surface */}
-            <div className="bg-white border border-[#DADDE1] rounded-xl overflow-hidden">
+            <div className="bg-white border border-[#E2E2E1] rounded-xl overflow-hidden">
                 {isLoading ? (
-                    <div className="divide-y divide-[#DADDE1]">
+                    <div className="divide-y divide-[#E2E2E1]">
                         {[...Array(6)].map((_, i) => (
                             <div key={i} className="flex items-center gap-3 px-4 py-3 animate-pulse">
-                                <div className="h-4 bg-[#F0F2F5] rounded w-1/4" />
-                                <div className="h-4 bg-[#F0F2F5] rounded w-1/6 ml-auto" />
+                                <div className="h-4 bg-[#F4F4F3] rounded w-1/4" />
+                                <div className="h-4 bg-[#F4F4F3] rounded w-1/6 ml-auto" />
                             </div>
                         ))}
                     </div>
@@ -166,7 +166,7 @@ export default function AdminCreatorsPage() {
                         <div className="overflow-x-auto">
                             <table className="w-full text-[13px]">
                                 <thead>
-                                    <tr className="border-b border-[#DADDE1]">
+                                    <tr className="border-b border-[#E2E2E1]">
                                         <th className={TH}>Créateur</th>
                                         <th className={`${TH} hidden md:table-cell`}>Canton</th>
                                         <th className={`${TH} hidden lg:table-cell`}>Spécialités</th>
@@ -177,35 +177,35 @@ export default function AdminCreatorsPage() {
                                         <th className="w-8" />
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-[#DADDE1]">
+                                <tbody className="divide-y divide-[#E2E2E1]">
                                     {filteredCreators.map((creator) => {
                                         const p = creator.profiles_creator
                                         return (
                                             <tr
                                                 key={creator.id}
                                                 onClick={() => router.push(`/mosh-cockpit/creators/${creator.id}`)}
-                                                className="hover:bg-[#F7F8FA] cursor-pointer transition-colors group"
+                                                className="hover:bg-[#FAFAF9] cursor-pointer transition-colors group"
                                             >
                                                 <td className="px-4 py-2.5 max-w-[280px]">
                                                     <div className="flex items-center gap-2.5 min-w-0">
-                                                        <div className="w-7 h-7 rounded-lg bg-[#E7F0FF] text-[#0866FF] text-[12px] font-semibold flex items-center justify-center shrink-0">
+                                                        <div className="w-7 h-7 rounded-lg bg-[#EDEDEC] text-[#1A1A1A] text-[12px] font-semibold flex items-center justify-center shrink-0">
                                                             {creator.full_name?.[0]?.toUpperCase() || '?'}
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <span className="block font-medium text-[#1C1E21] truncate">{creator.full_name}</span>
-                                                            <span className="block text-[12px] text-[#8A8D91] truncate">{creator.email}</span>
+                                                            <span className="block font-medium text-[#1A1A1A] truncate">{creator.full_name}</span>
+                                                            <span className="block text-[12px] text-[#9B9B9B] truncate">{creator.email}</span>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-2.5 text-[#65676B] hidden md:table-cell whitespace-nowrap">
+                                                <td className="px-4 py-2.5 text-[#6B6B6B] hidden md:table-cell whitespace-nowrap">
                                                     {p?.location_canton || '—'}
                                                 </td>
-                                                <td className="px-4 py-2.5 text-[#65676B] hidden lg:table-cell max-w-[220px]">
+                                                <td className="px-4 py-2.5 text-[#6B6B6B] hidden lg:table-cell max-w-[220px]">
                                                     <span className="block truncate">
                                                         {p?.specialties?.length ? p.specialties.slice(0, 3).join(' · ') : '—'}
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-2.5 text-[#65676B] hidden xl:table-cell max-w-[160px]">
+                                                <td className="px-4 py-2.5 text-[#6B6B6B] hidden xl:table-cell max-w-[160px]">
                                                     <span className="block truncate">{p?.languages?.length ? p.languages.join(', ') : '—'}</span>
                                                 </td>
                                                 <td className="px-4 py-2.5">
@@ -213,19 +213,19 @@ export default function AdminCreatorsPage() {
                                                         ? <StatusPill tone="done">Disponible</StatusPill>
                                                         : <StatusPill tone="idle">Indisponible</StatusPill>}
                                                 </td>
-                                                <td className="px-4 py-2.5 text-right hidden sm:table-cell whitespace-nowrap tabular-nums text-[#1C1E21]">
+                                                <td className="px-4 py-2.5 text-right hidden sm:table-cell whitespace-nowrap tabular-nums text-[#1A1A1A]">
                                                     {p?.rating_avg ? (
                                                         <span className="inline-flex items-center gap-1">
-                                                            <Star className="w-3 h-3 fill-[#0866FF] text-[#0866FF]" />
+                                                            <Star className="w-3 h-3 fill-[#1A1A1A] text-[#1A1A1A]" />
                                                             {p.rating_avg.toFixed(1)}
                                                         </span>
-                                                    ) : <span className="text-[#8A8D91]">—</span>}
+                                                    ) : <span className="text-[#9B9B9B]">—</span>}
                                                 </td>
-                                                <td className="px-4 py-2.5 text-[#65676B] hidden xl:table-cell whitespace-nowrap tabular-nums">
+                                                <td className="px-4 py-2.5 text-[#6B6B6B] hidden xl:table-cell whitespace-nowrap tabular-nums">
                                                     {new Date(creator.created_at).toLocaleDateString('fr-CH')}
                                                 </td>
                                                 <td className="pr-3">
-                                                    <ArrowRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors" strokeWidth={2} />
+                                                    <ArrowRight className="w-4 h-4 text-[#C4C4C3] group-hover:text-[#1A1A1A] transition-colors" strokeWidth={2} />
                                                 </td>
                                             </tr>
                                         )
@@ -246,7 +246,7 @@ export default function AdminCreatorsPage() {
                         <div className="overflow-x-auto">
                             <table className="w-full text-[13px]">
                                 <thead>
-                                    <tr className="border-b border-[#DADDE1]">
+                                    <tr className="border-b border-[#E2E2E1]">
                                         <th className={TH}>Code</th>
                                         <th className={`${TH} hidden md:table-cell`}>Étiquette</th>
                                         <th className={TH}>Statut</th>
@@ -255,16 +255,16 @@ export default function AdminCreatorsPage() {
                                         <th className={`${TH} text-right`}>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-[#DADDE1]">
+                                <tbody className="divide-y divide-[#E2E2E1]">
                                     {orderedInvites.map((invite) => {
                                         const isUsed = !!invite.used_at
                                         const isExpired = !isUsed && !!invite.expires_at && new Date(invite.expires_at) < new Date()
                                         return (
-                                            <tr key={invite.id} className="hover:bg-[#F7F8FA] transition-colors">
+                                            <tr key={invite.id} className="hover:bg-[#FAFAF9] transition-colors">
                                                 <td className="px-4 py-2.5">
-                                                    <code className="font-mono font-semibold text-[#1C1E21] tracking-wider">{invite.code}</code>
+                                                    <code className="font-mono font-semibold text-[#1A1A1A] tracking-wider">{invite.code}</code>
                                                 </td>
-                                                <td className="px-4 py-2.5 text-[#65676B] hidden md:table-cell max-w-[240px]">
+                                                <td className="px-4 py-2.5 text-[#6B6B6B] hidden md:table-cell max-w-[240px]">
                                                     <span className="block truncate">
                                                         {isUsed
                                                             ? `Utilisée par ${invite.used_by_user?.full_name || 'Inconnu'}`
@@ -276,10 +276,10 @@ export default function AdminCreatorsPage() {
                                                         : isExpired ? <StatusPill tone="alert">Expirée</StatusPill>
                                                             : <StatusPill tone="waiting">En attente</StatusPill>}
                                                 </td>
-                                                <td className="px-4 py-2.5 text-[#65676B] hidden lg:table-cell whitespace-nowrap tabular-nums">
+                                                <td className="px-4 py-2.5 text-[#6B6B6B] hidden lg:table-cell whitespace-nowrap tabular-nums">
                                                     {new Date(invite.created_at).toLocaleDateString('fr-CH')}
                                                 </td>
-                                                <td className="px-4 py-2.5 text-[#65676B] hidden xl:table-cell whitespace-nowrap tabular-nums">
+                                                <td className="px-4 py-2.5 text-[#6B6B6B] hidden xl:table-cell whitespace-nowrap tabular-nums">
                                                     {invite.expires_at ? new Date(invite.expires_at).toLocaleDateString('fr-CH') : '—'}
                                                 </td>
                                                 <td className="px-4 py-2.5">
@@ -292,7 +292,7 @@ export default function AdminCreatorsPage() {
                                                                     title="Copier le lien"
                                                                 >
                                                                     {copiedCode === invite.code
-                                                                        ? <Check className="w-3.5 h-3.5 text-[#0866FF]" />
+                                                                        ? <Check className="w-3.5 h-3.5 text-[#1A1A1A]" />
                                                                         : <Copy className="w-3.5 h-3.5" />}
                                                                 </button>
                                                                 <button
@@ -347,41 +347,41 @@ export default function AdminCreatorsPage() {
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.98, y: 12 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-white rounded-xl border border-[#DADDE1] shadow-xl w-full max-w-md overflow-hidden"
+                            className="bg-white rounded-xl border border-[#E2E2E1] shadow-xl w-full max-w-md overflow-hidden"
                         >
-                            <div className="flex items-center justify-between gap-3 px-4 h-11 border-b border-[#DADDE1]">
-                                <h2 className="text-[13px] font-semibold text-[#1C1E21]">Nouveau lien d&apos;invitation</h2>
+                            <div className="flex items-center justify-between gap-3 px-4 h-11 border-b border-[#E2E2E1]">
+                                <h2 className="text-[13px] font-semibold text-[#1A1A1A]">Nouveau lien d&apos;invitation</h2>
                                 <button
                                     onClick={() => setShowInviteModal(false)}
-                                    className="w-7 h-7 rounded-lg flex items-center justify-center text-[#8A8D91] hover:bg-[#F0F2F5] hover:text-[#1C1E21] transition-colors"
+                                    className="w-7 h-7 rounded-lg flex items-center justify-center text-[#9B9B9B] hover:bg-[#F4F4F3] hover:text-[#1A1A1A] transition-colors"
                                 >
                                     <X className="w-4 h-4" />
                                 </button>
                             </div>
 
                             <div className="p-4">
-                                <label className="text-[12px] font-medium text-[#65676B] mb-1.5 block">Nom ou email (étiquette, optionnel)</label>
+                                <label className="text-[12px] font-medium text-[#6B6B6B] mb-1.5 block">Nom ou email (étiquette, optionnel)</label>
                                 <input
                                     type="text"
                                     value={inviteEmail}
                                     onChange={(e) => setInviteEmail(e.target.value)}
                                     placeholder="Ex : Marie Dupont"
-                                    className="w-full h-9 px-3 bg-white border border-[#DADDE1] rounded-lg text-[13px] text-[#1C1E21] placeholder:text-[#8A8D91] focus:outline-none focus:border-[#0866FF] focus:ring-2 focus:ring-[#0866FF]/20 transition-colors"
+                                    className="w-full h-9 px-3 bg-white border border-[#E2E2E1] rounded-lg text-[13px] text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#1A1A1A] focus:ring-2 focus:ring-[#1A1A1A]/15 transition-colors"
                                 />
-                                <p className="text-[12px] text-[#8A8D91] mt-1.5">Sert juste à identifier l&apos;invitation. Le lien (valide 30 jours, à usage unique) sera copié — partage-le via Copier / WhatsApp / Email.</p>
+                                <p className="text-[12px] text-[#9B9B9B] mt-1.5">Sert juste à identifier l&apos;invitation. Le lien (valide 30 jours, à usage unique) sera copié — partage-le via Copier / WhatsApp / Email.</p>
                             </div>
 
-                            <div className="px-4 py-3 border-t border-[#DADDE1] flex items-center justify-end gap-2">
+                            <div className="px-4 py-3 border-t border-[#E2E2E1] flex items-center justify-end gap-2">
                                 <button
                                     onClick={() => setShowInviteModal(false)}
-                                    className="px-3 h-9 text-[13px] text-[#65676B] hover:text-[#1C1E21] transition-colors"
+                                    className="px-3 h-9 text-[13px] text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors"
                                 >
                                     Annuler
                                 </button>
                                 <button
                                     onClick={handleCreateInvitation}
                                     disabled={isCreating}
-                                    className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#0866FF] text-white font-medium rounded-lg hover:bg-[#0653CC] transition-colors disabled:opacity-50 text-[13px]"
+                                    className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#1A1A1A] text-white font-medium rounded-lg hover:bg-[#333333] transition-colors disabled:opacity-50 text-[13px]"
                                 >
                                     {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : <LinkIcon className="w-4 h-4" />}
                                     Générer le lien

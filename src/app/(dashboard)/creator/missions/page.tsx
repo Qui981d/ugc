@@ -200,7 +200,7 @@ export default function CreatorMissionsPage() {
     if (!mounted || isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-[#8A8D91]" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#9B9B9B]" />
             </div>
         )
     }
@@ -227,11 +227,11 @@ export default function CreatorMissionsPage() {
 
             <Panel>
                 {isDataLoading ? (
-                    <div className="divide-y divide-[#DADDE1]">
+                    <div className="divide-y divide-[#E2E2E1]">
                         {[...Array(4)].map((_, i) => (
                             <div key={i} className="flex items-center gap-3 px-4 py-3 animate-pulse">
-                                <div className="h-4 bg-[#F0F2F5] rounded w-1/3" />
-                                <div className="h-4 bg-[#F0F2F5] rounded w-16 ml-auto" />
+                                <div className="h-4 bg-[#F4F4F3] rounded w-1/3" />
+                                <div className="h-4 bg-[#F4F4F3] rounded w-16 ml-auto" />
                             </div>
                         ))}
                     </div>
@@ -263,27 +263,27 @@ export default function CreatorMissionsPage() {
                             return (
                                 <PanelRow key={mission.id} href={`/creator/missions/${mission.campaign_id}`}>
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-[13px] font-medium text-[#1C1E21] truncate">{mission.title}</p>
-                                        <p className="text-[12px] text-[#8A8D91] truncate">{meta}</p>
+                                        <p className="text-[13px] font-medium text-[#1A1A1A] truncate">{mission.title}</p>
+                                        <p className="text-[12px] text-[#9B9B9B] truncate">{meta}</p>
                                         <div className="flex items-center gap-2 mt-1.5 max-w-[260px]">
-                                            <div className="flex-1 h-1 rounded-full bg-[#F0F2F5] overflow-hidden">
+                                            <div className="flex-1 h-1 rounded-full bg-[#F4F4F3] overflow-hidden">
                                                 <div
-                                                    className="h-full rounded-full bg-[#0866FF]"
+                                                    className="h-full rounded-full bg-[#1A1A1A]"
                                                     style={{ width: `${progress}%` }}
                                                 />
                                             </div>
-                                            <span className="text-[11px] text-[#8A8D91] tabular-nums w-7 text-right">
+                                            <span className="text-[11px] text-[#9B9B9B] tabular-nums w-7 text-right">
                                                 {mission.completedCount}/{PIPELINE_STEPS.length}
                                             </span>
                                         </div>
                                     </div>
                                     <StatusPill tone={tone}>{label}</StatusPill>
-                                    <span className="text-[13px] font-medium text-[#1C1E21] tabular-nums whitespace-nowrap">
+                                    <span className="text-[13px] font-medium text-[#1A1A1A] tabular-nums whitespace-nowrap">
                                         {mission.creator_amount_chf
                                             ? formatCHF(mission.creator_amount_chf)
                                             : formatCHF(mission.budget_chf)}
                                     </span>
-                                    <ChevronRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors shrink-0" strokeWidth={2} />
+                                    <ChevronRight className="w-4 h-4 text-[#C4C4C3] group-hover:text-[#1A1A1A] transition-colors shrink-0" strokeWidth={2} />
                                 </PanelRow>
                             )
                         })}

@@ -62,7 +62,7 @@ export function AuthGateModal({ isOpen, onClose, action, redirectTo }: AuthGateM
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-6 z-50"
                     >
-                        <div className="bg-[#1C1E21] border border-white/10 rounded-lg overflow-hidden">
+                        <div className="bg-[#1A1A1A] border border-white/10 rounded-lg overflow-hidden">
                             {/* Header */}
                             <div className="relative p-6 pb-4 text-center">
                                 <button

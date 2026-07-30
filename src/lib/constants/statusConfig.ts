@@ -33,10 +33,10 @@ export const STATUS_CONFIG: Record<string, StatusDef> = {
     },
     in_progress: {
         label: 'En production',
-        color: 'text-[#1C1E21]',
-        bg: 'bg-[#E7F0FF]',
-        dotColor: 'bg-[#0866FF]',
-        badgeClass: 'bg-[#E7F0FF] text-[#1C1E21] border border-[#0866FF]/30',
+        color: 'text-[#1A1A1A]',
+        bg: 'bg-[#EDEDEC]',
+        dotColor: 'bg-[#1A1A1A]',
+        badgeClass: 'bg-[#EDEDEC] text-[#1A1A1A] border border-[#1A1A1A]/30',
         icon: Clock,
     },
     completed: {
@@ -52,7 +52,7 @@ export const STATUS_CONFIG: Record<string, StatusDef> = {
         color: 'text-red-700',
         bg: 'bg-red-50',
         dotColor: 'bg-gray-400',
-        badgeClass: 'bg-red-500/15 text-red-700 border border-red-500/25',
+        badgeClass: 'bg-[#1A1A1A]/15 text-red-700 border border-red-500/25',
         icon: XCircle,
     },
 }

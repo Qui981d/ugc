@@ -34,17 +34,17 @@ export function PageHeader({
     children?: ReactNode
 }) {
     return (
-        <div className="border-b border-[#DADDE1] pb-4 mb-6">
+        <div className="border-b border-[#E2E2E1] pb-4 mb-6">
             {breadcrumb && breadcrumb.length > 0 && (
-                <nav className="flex items-center gap-1.5 text-[12px] text-[#8A8D91] mb-2">
+                <nav className="flex items-center gap-1.5 text-[12px] text-[#9B9B9B] mb-2">
                     {breadcrumb.map((c, i) => (
                         <span key={i} className="flex items-center gap-1.5 min-w-0">
                             {c.href ? (
-                                <Link href={c.href} className="hover:text-[#1C1E21] transition-colors truncate">
+                                <Link href={c.href} className="hover:text-[#1A1A1A] transition-colors truncate">
                                     {c.label}
                                 </Link>
                             ) : (
-                                <span className="text-[#65676B] truncate">{c.label}</span>
+                                <span className="text-[#6B6B6B] truncate">{c.label}</span>
                             )}
                             {i < breadcrumb.length - 1 && <ChevronRight className="w-3 h-3 shrink-0" />}
                         </span>
@@ -53,11 +53,11 @@ export function PageHeader({
             )}
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                 <div className="min-w-0">
-                    <h1 className="text-[20px] font-semibold text-[#1C1E21] tracking-[-0.01em] leading-tight">
+                    <h1 className="text-[20px] font-semibold text-[#1A1A1A] tracking-[-0.01em] leading-tight">
                         {title}
                     </h1>
                     {description && (
-                        <p className="text-[13px] text-[#65676B] mt-0.5">{description}</p>
+                        <p className="text-[13px] text-[#6B6B6B] mt-0.5">{description}</p>
                     )}
                 </div>
                 {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
@@ -76,17 +76,18 @@ export function MetricStrip({
     metrics: { label: string; value: string; hint?: string; tone?: 'default' | 'accent' }[]
 }) {
     return (
-        <div className="bg-white border border-[#DADDE1] rounded-xl grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-[#DADDE1] overflow-hidden">
+        <div className="bg-white border border-[#E2E2E1] rounded-xl grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-[#E2E2E1] overflow-hidden">
             {metrics.map((m) => (
                 <div key={m.label} className="px-4 py-3.5 min-w-0">
-                    <p className="text-[11px] font-medium uppercase tracking-wider text-[#8A8D91] truncate">
+                    <p className="text-[11px] font-medium uppercase tracking-wider text-[#9B9B9B] truncate">
                         {m.label}
                     </p>
-                    <p className={`text-[22px] font-semibold tabular-nums leading-tight mt-1 ${m.tone === 'accent' ? 'text-[#0866FF]' : 'text-[#1C1E21]'
+                    {/* Monochrome has no accent hue to spend, so emphasis is weight. */}
+                    <p className={`text-[22px] tabular-nums leading-tight mt-1 text-[#1A1A1A] ${m.tone === 'accent' ? 'font-bold' : 'font-semibold'
                         }`}>
                         {m.value}
                     </p>
-                    {m.hint && <p className="text-[11.5px] text-[#8A8D91] truncate mt-0.5">{m.hint}</p>}
+                    {m.hint && <p className="text-[11.5px] text-[#9B9B9B] truncate mt-0.5">{m.hint}</p>}
                 </div>
             ))}
         </div>
@@ -110,10 +111,10 @@ export function Panel({
     padded?: boolean
 }) {
     return (
-        <div className="bg-white border border-[#DADDE1] rounded-xl overflow-hidden">
+        <div className="bg-white border border-[#E2E2E1] rounded-xl overflow-hidden">
             {(title || actions) && (
-                <div className="flex items-center justify-between gap-3 px-4 h-11 border-b border-[#DADDE1]">
-                    {title && <h2 className="text-[13px] font-semibold text-[#1C1E21] truncate">{title}</h2>}
+                <div className="flex items-center justify-between gap-3 px-4 h-11 border-b border-[#E2E2E1]">
+                    {title && <h2 className="text-[13px] font-semibold text-[#1A1A1A] truncate">{title}</h2>}
                     {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
                 </div>
             )}
@@ -124,12 +125,12 @@ export function Panel({
 
 /** A divided list of rows inside a Panel. */
 export function PanelList({ children }: { children: ReactNode }) {
-    return <div className="divide-y divide-[#DADDE1]">{children}</div>
+    return <div className="divide-y divide-[#E2E2E1]">{children}</div>
 }
 
 /** A single row: 40px-ish, hover-highlighted, optionally a link. */
 export function PanelRow({ href, children }: { href?: string; children: ReactNode }) {
-    const cls = 'flex items-center gap-3 px-4 py-2.5 hover:bg-[#F7F8FA] transition-colors min-w-0'
+    const cls = 'flex items-center gap-3 px-4 py-2.5 hover:bg-[#FAFAF9] transition-colors min-w-0'
     return href ? (
         <Link href={href} className={`${cls} group`}>{children}</Link>
     ) : (
@@ -159,14 +160,14 @@ export function Tabs({
                             relative px-3 h-9 text-[13px] whitespace-nowrap transition-colors
                             border-b-2 -mb-px
                             ${on
-                                ? 'border-[#0866FF] text-[#1C1E21] font-semibold'
-                                : 'border-transparent text-[#65676B] hover:text-[#1C1E21] font-medium'
+                                ? 'border-[#1A1A1A] text-[#1A1A1A] font-semibold'
+                                : 'border-transparent text-[#6B6B6B] hover:text-[#1A1A1A] font-medium'
                             }
                         `}
                     >
                         {t.label}
                         {typeof t.count === 'number' && (
-                            <span className={`ml-1.5 text-[11px] tabular-nums ${on ? 'text-[#0866FF]' : 'text-[#8A8D91]'}`}>
+                            <span className={`ml-1.5 text-[11px] tabular-nums ${on ? 'text-[#1A1A1A]' : 'text-[#9B9B9B]'}`}>
                                 {t.count}
                             </span>
                         )}
@@ -177,13 +178,17 @@ export function Tabs({
     )
 }
 
-/** Status pill — semantic colour, independent from the blue accent. */
+/**
+ * Status pill. In a monochrome system the brand ink is the loudest thing
+ * available, so "happening now" gets the solid fill; the states that need a
+ * human decision keep real colour, because grey cannot say waiting or done.
+ */
 const TONES = {
-    progress: 'bg-[#E7F0FF] text-[#0866FF]',
-    waiting: 'bg-[#FFF4D6] text-[#8A6100]',
-    done: 'bg-[#E3F6E8] text-[#1A7F37]',
-    idle: 'bg-[#F0F2F5] text-[#65676B]',
-    alert: 'bg-[#FDE8E6] text-[#D3382F]',
+    progress: 'bg-[#1A1A1A] text-white',
+    waiting: 'bg-[#FBF3E2] text-[#8A6100]',
+    done: 'bg-[#E8F3EA] text-[#1A7F37]',
+    idle: 'bg-[#F4F4F3] text-[#6B6B6B] ring-1 ring-inset ring-[#E2E2E1]',
+    alert: 'bg-[#FBEAE8] text-[#C0392B]',
 } as const
 
 export function StatusPill({
@@ -215,12 +220,12 @@ export function EmptyState({
     return (
         <div className="flex flex-col items-center text-center py-14 px-6">
             {Icon && (
-                <div className="w-10 h-10 rounded-lg bg-[#F0F2F5] grid place-items-center mb-3">
-                    <Icon className="w-5 h-5 text-[#8A8D91]" strokeWidth={1.8} />
+                <div className="w-10 h-10 rounded-lg bg-[#F4F4F3] grid place-items-center mb-3">
+                    <Icon className="w-5 h-5 text-[#9B9B9B]" strokeWidth={1.8} />
                 </div>
             )}
-            <p className="text-[14px] font-semibold text-[#1C1E21]">{title}</p>
-            {description && <p className="text-[13px] text-[#65676B] mt-1 max-w-sm">{description}</p>}
+            <p className="text-[14px] font-semibold text-[#1A1A1A]">{title}</p>
+            {description && <p className="text-[13px] text-[#6B6B6B] mt-1 max-w-sm">{description}</p>}
             {action && <div className="mt-4">{action}</div>}
         </div>
     )

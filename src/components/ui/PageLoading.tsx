@@ -14,8 +14,8 @@ export function PageLoading({ message = 'Chargement…' }: PageLoadingProps) {
     return (
         <div className="flex items-center justify-center min-h-[400px]">
             <div className="flex flex-col items-center gap-3">
-                <Loader2 className="w-7 h-7 animate-spin text-[#8A8D91]" />
-                <p className="text-sm text-[#8A8D91]">{message}</p>
+                <Loader2 className="w-7 h-7 animate-spin text-[#9B9B9B]" />
+                <p className="text-sm text-[#9B9B9B]">{message}</p>
             </div>
         </div>
     )

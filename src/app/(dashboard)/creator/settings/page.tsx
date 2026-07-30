@@ -162,7 +162,7 @@ export default function CreatorSettingsPage() {
     if (!mounted || (!user && isLoading)) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-[#8A8D91]" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#9B9B9B]" />
             </div>
         )
     }
@@ -175,7 +175,7 @@ export default function CreatorSettingsPage() {
                         {/* Avatar */}
                         <div className="flex items-center gap-6">
                             <div className="relative">
-                                <div className="w-24 h-24 rounded-lg overflow-hidden bg-[#F0F2F5] flex items-center justify-center">
+                                <div className="w-24 h-24 rounded-lg overflow-hidden bg-[#F4F4F3] flex items-center justify-center">
                                     {profileData.avatarUrl ? (
                                         <Image
                                             src={profileData.avatarUrl}
@@ -185,17 +185,17 @@ export default function CreatorSettingsPage() {
                                             className="object-cover"
                                         />
                                     ) : (
-                                        <span className="text-3xl text-[#65676B]">{profileData.name.charAt(0) || '?'}</span>
+                                        <span className="text-3xl text-[#6B6B6B]">{profileData.name.charAt(0) || '?'}</span>
                                     )}
                                 </div>
-                                <button className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-[#0866FF] flex items-center justify-center">
-                                    <Camera className="w-4 h-4 text-[#1C1E21]" />
+                                <button className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-[#1A1A1A] flex items-center justify-center">
+                                    <Camera className="w-4 h-4 text-[#1A1A1A]" />
                                 </button>
                             </div>
                             <div>
-                                <h3 className="text-lg font-semibold text-[#1C1E21]">{profileData.name || 'Nouveau créateur'}</h3>
-                                <p className="text-sm text-[#65676B]">{profileData.email}</p>
-                                <Button variant="outline" size="sm" className="mt-2 border-[#DADDE1] text-[#1C1E21] hover:bg-[#F0F2F5] rounded-full">
+                                <h3 className="text-lg font-semibold text-[#1A1A1A]">{profileData.name || 'Nouveau créateur'}</h3>
+                                <p className="text-sm text-[#6B6B6B]">{profileData.email}</p>
+                                <Button variant="outline" size="sm" className="mt-2 border-[#E2E2E1] text-[#1A1A1A] hover:bg-[#F4F4F3] rounded-full">
                                     Changer la photo
                                 </Button>
                             </div>
@@ -204,50 +204,50 @@ export default function CreatorSettingsPage() {
                         {/* Form Fields */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-sm text-[#65676B] mb-2">Nom complet</label>
+                                <label className="block text-sm text-[#6B6B6B] mb-2">Nom complet</label>
                                 <input
                                     type="text"
                                     value={profileData.name}
                                     onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                                    className="w-full bg-[#F0F2F5] border border-transparent rounded-lg px-4 py-3 text-[#1C1E21] focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30"
+                                    className="w-full bg-[#F4F4F3] border border-transparent rounded-lg px-4 py-3 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm text-[#65676B] mb-2">Email</label>
+                                <label className="block text-sm text-[#6B6B6B] mb-2">Email</label>
                                 <input
                                     type="email"
                                     value={profileData.email}
                                     disabled
-                                    className="w-full bg-[#F0F2F5] border border-transparent rounded-lg px-4 py-3 text-[#8A8D91] cursor-not-allowed"
+                                    className="w-full bg-[#F4F4F3] border border-transparent rounded-lg px-4 py-3 text-[#9B9B9B] cursor-not-allowed"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-sm text-[#65676B] mb-2">Bio</label>
+                            <label className="block text-sm text-[#6B6B6B] mb-2">Bio</label>
                             <textarea
                                 value={profileData.bio}
                                 onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
                                 rows={4}
                                 placeholder="Décrivez votre style et vos spécialités..."
-                                className="w-full bg-[#F0F2F5] border border-transparent rounded-lg px-4 py-3 text-[#1C1E21] focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30 resize-none placeholder:text-[#8A8D91]"
+                                className="w-full bg-[#F4F4F3] border border-transparent rounded-lg px-4 py-3 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15 resize-none placeholder:text-[#9B9B9B]"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm text-[#65676B] mb-2">Localisation</label>
+                            <label className="block text-sm text-[#6B6B6B] mb-2">Localisation</label>
                             <input
                                 type="text"
                                 value={profileData.location}
                                 onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
                                 placeholder="Ex: Genève, Suisse"
-                                className="w-full bg-[#F0F2F5] border border-transparent rounded-lg px-4 py-3 text-[#1C1E21] focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30 placeholder:text-[#8A8D91]"
+                                className="w-full bg-[#F4F4F3] border border-transparent rounded-lg px-4 py-3 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15 placeholder:text-[#9B9B9B]"
                             />
                         </div>
 
                         {/* Specialties */}
                         <div>
-                            <label className="block text-sm text-[#65676B] mb-3">Spécialités</label>
+                            <label className="block text-sm text-[#6B6B6B] mb-3">Spécialités</label>
                             <div className="flex flex-wrap gap-2">
                                 {specialties.map(specialty => (
                                     <button
@@ -262,8 +262,8 @@ export default function CreatorSettingsPage() {
                                             })
                                         }}
                                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${profileData.selectedSpecialties.includes(specialty)
-                                            ? 'bg-[#1C1E21] text-white'
-                                            : 'bg-[#F0F2F5] text-[#65676B] hover:bg-[#EBEDF0]'
+                                            ? 'bg-[#1A1A1A] text-white'
+                                            : 'bg-[#F4F4F3] text-[#6B6B6B] hover:bg-[#F2F2F1]'
                                             }`}
                                     >
                                         {specialty}
@@ -272,7 +272,7 @@ export default function CreatorSettingsPage() {
                             </div>
                         </div>
 
-                        <Button className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-full" onClick={handleSaveProfile} disabled={isSaving}>
+                        <Button className="bg-[#1A1A1A] hover:bg-[#333333] text-white rounded-full" onClick={handleSaveProfile} disabled={isSaving}>
                             {isSaving ? (
                                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                             ) : (
@@ -288,7 +288,7 @@ export default function CreatorSettingsPage() {
                     <div className="space-y-8">
                         {/* Email Notifications */}
                         <div>
-                            <h3 className="text-lg font-semibold text-[#1C1E21] mb-4">Notifications par email</h3>
+                            <h3 className="text-lg font-semibold text-[#1A1A1A] mb-4">Notifications par email</h3>
                             <div className="space-y-4">
                                 {[
                                     { key: 'emailNewMission', label: 'Nouvelles missions', desc: 'Recevez un email quand une nouvelle mission correspond à votre profil' },
@@ -296,10 +296,10 @@ export default function CreatorSettingsPage() {
                                     { key: 'emailPayments', label: 'Paiements', desc: 'Notifications de paiement et facturation' },
                                     { key: 'emailMarketing', label: 'Marketing', desc: 'Actualités et offres spéciales' },
                                 ].map(item => (
-                                    <div key={item.key} className="flex items-center justify-between p-4 bg-[#F0F2F5] rounded-lg">
+                                    <div key={item.key} className="flex items-center justify-between p-4 bg-[#F4F4F3] rounded-lg">
                                         <div>
-                                            <p className="text-[#1C1E21] font-medium">{item.label}</p>
-                                            <p className="text-sm text-[#8A8D91]">{item.desc}</p>
+                                            <p className="text-[#1A1A1A] font-medium">{item.label}</p>
+                                            <p className="text-sm text-[#9B9B9B]">{item.desc}</p>
                                         </div>
                                         <Switch
                                             checked={notifications[item.key as keyof typeof notifications]}
@@ -312,15 +312,15 @@ export default function CreatorSettingsPage() {
 
                         {/* Push Notifications */}
                         <div>
-                            <h3 className="text-lg font-semibold text-[#1C1E21] mb-4">Notifications push</h3>
+                            <h3 className="text-lg font-semibold text-[#1A1A1A] mb-4">Notifications push</h3>
                             <div className="space-y-4">
                                 {[
                                     { key: 'pushNewMission', label: 'Nouvelles missions' },
                                     { key: 'pushMessages', label: 'Messages' },
                                     { key: 'pushPayments', label: 'Paiements' },
                                 ].map(item => (
-                                    <div key={item.key} className="flex items-center justify-between p-4 bg-[#F0F2F5] rounded-lg">
-                                        <p className="text-[#1C1E21] font-medium">{item.label}</p>
+                                    <div key={item.key} className="flex items-center justify-between p-4 bg-[#F4F4F3] rounded-lg">
+                                        <p className="text-[#1A1A1A] font-medium">{item.label}</p>
                                         <Switch
                                             checked={notifications[item.key as keyof typeof notifications]}
                                             onCheckedChange={(checked) => setNotifications({ ...notifications, [item.key]: checked })}
@@ -337,16 +337,16 @@ export default function CreatorSettingsPage() {
                     <div className="space-y-8">
                         {/* Current Payment Method */}
                         <div>
-                            <h3 className="text-lg font-semibold text-[#1C1E21] mb-4">Méthode de paiement</h3>
-                            <div className="p-5 bg-[#F0F2F5] rounded-lg">
+                            <h3 className="text-lg font-semibold text-[#1A1A1A] mb-4">Méthode de paiement</h3>
+                            <div className="p-5 bg-[#F4F4F3] rounded-lg">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center">
-                                            <CreditCard className="w-6 h-6 text-[#65676B]" strokeWidth={1.5} />
+                                            <CreditCard className="w-6 h-6 text-[#6B6B6B]" strokeWidth={1.5} />
                                         </div>
                                         <div>
-                                            <p className="font-medium text-[#1C1E21]">Virement bancaire (IBAN)</p>
-                                            <p className="text-sm text-[#8A8D91]">Non configuré</p>
+                                            <p className="font-medium text-[#1A1A1A]">Virement bancaire (IBAN)</p>
+                                            <p className="text-sm text-[#9B9B9B]">Non configuré</p>
                                         </div>
                                     </div>
                                 </div>
@@ -355,33 +355,33 @@ export default function CreatorSettingsPage() {
 
                         {/* Update IBAN */}
                         <div>
-                            <h3 className="text-lg font-semibold text-[#1C1E21] mb-4">Configurer l'IBAN</h3>
+                            <h3 className="text-lg font-semibold text-[#1A1A1A] mb-4">Configurer l'IBAN</h3>
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm text-[#65676B] mb-2">Titulaire du compte</label>
+                                    <label className="block text-sm text-[#6B6B6B] mb-2">Titulaire du compte</label>
                                     <input
                                         type="text"
                                         placeholder="Votre nom complet"
-                                        className="w-full bg-[#F0F2F5] border border-transparent rounded-lg px-4 py-3 text-[#1C1E21] focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30 placeholder:text-[#8A8D91]"
+                                        className="w-full bg-[#F4F4F3] border border-transparent rounded-lg px-4 py-3 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15 placeholder:text-[#9B9B9B]"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm text-[#65676B] mb-2">IBAN</label>
+                                    <label className="block text-sm text-[#6B6B6B] mb-2">IBAN</label>
                                     <input
                                         type="text"
                                         placeholder="CH00 0000 0000 0000 0000 0"
-                                        className="w-full bg-[#F0F2F5] border border-transparent rounded-lg px-4 py-3 text-[#1C1E21] font-mono focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30 placeholder:text-[#8A8D91]"
+                                        className="w-full bg-[#F4F4F3] border border-transparent rounded-lg px-4 py-3 text-[#1A1A1A] font-mono focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15 placeholder:text-[#9B9B9B]"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm text-[#65676B] mb-2">BIC/SWIFT (optionnel)</label>
+                                    <label className="block text-sm text-[#6B6B6B] mb-2">BIC/SWIFT (optionnel)</label>
                                     <input
                                         type="text"
                                         placeholder="UBSWCHZH80A"
-                                        className="w-full bg-[#F0F2F5] border border-transparent rounded-lg px-4 py-3 text-[#1C1E21] font-mono focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30 placeholder:text-[#8A8D91]"
+                                        className="w-full bg-[#F4F4F3] border border-transparent rounded-lg px-4 py-3 text-[#1A1A1A] font-mono focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15 placeholder:text-[#9B9B9B]"
                                     />
                                 </div>
-                                <Button className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-full">
+                                <Button className="bg-[#1A1A1A] hover:bg-[#333333] text-white rounded-full">
                                     <Save className="w-4 h-4 mr-2" />
                                     Enregistrer
                                 </Button>
@@ -395,41 +395,41 @@ export default function CreatorSettingsPage() {
                     <div className="space-y-8">
                         {/* Password */}
                         <div>
-                            <h3 className="text-lg font-semibold text-[#1C1E21] mb-4">Mot de passe</h3>
+                            <h3 className="text-lg font-semibold text-[#1A1A1A] mb-4">Mot de passe</h3>
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm text-[#65676B] mb-2">Mot de passe actuel</label>
+                                    <label className="block text-sm text-[#6B6B6B] mb-2">Mot de passe actuel</label>
                                     <div className="relative">
                                         <input
                                             type={showPassword ? 'text' : 'password'}
                                             placeholder="••••••••"
-                                            className="w-full bg-[#F0F2F5] border border-transparent rounded-lg px-4 py-3 text-[#1C1E21] focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30"
+                                            className="w-full bg-[#F4F4F3] border border-transparent rounded-lg px-4 py-3 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15"
                                         />
                                         <button
                                             onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8A8D91] hover:text-[#1C1E21]"
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9B9B9B] hover:text-[#1A1A1A]"
                                         >
                                             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                         </button>
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-sm text-[#65676B] mb-2">Nouveau mot de passe</label>
+                                    <label className="block text-sm text-[#6B6B6B] mb-2">Nouveau mot de passe</label>
                                     <input
                                         type="password"
                                         placeholder="••••••••"
-                                        className="w-full bg-[#F0F2F5] border border-transparent rounded-lg px-4 py-3 text-[#1C1E21] focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30"
+                                        className="w-full bg-[#F4F4F3] border border-transparent rounded-lg px-4 py-3 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm text-[#65676B] mb-2">Confirmer le mot de passe</label>
+                                    <label className="block text-sm text-[#6B6B6B] mb-2">Confirmer le mot de passe</label>
                                     <input
                                         type="password"
                                         placeholder="••••••••"
-                                        className="w-full bg-[#F0F2F5] border border-transparent rounded-lg px-4 py-3 text-[#1C1E21] focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30"
+                                        className="w-full bg-[#F4F4F3] border border-transparent rounded-lg px-4 py-3 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15"
                                     />
                                 </div>
-                                <Button className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-full">
+                                <Button className="bg-[#1A1A1A] hover:bg-[#333333] text-white rounded-full">
                                     Changer le mot de passe
                                 </Button>
                             </div>
@@ -437,16 +437,16 @@ export default function CreatorSettingsPage() {
 
                         {/* 2FA */}
                         <div>
-                            <h3 className="text-lg font-semibold text-[#1C1E21] mb-4">Authentification à deux facteurs</h3>
-                            <div className="p-5 bg-[#F0F2F5] rounded-lg">
+                            <h3 className="text-lg font-semibold text-[#1A1A1A] mb-4">Authentification à deux facteurs</h3>
+                            <div className="p-5 bg-[#F4F4F3] rounded-lg">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center">
-                                            <Smartphone className="w-6 h-6 text-[#65676B]" strokeWidth={1.5} />
+                                            <Smartphone className="w-6 h-6 text-[#6B6B6B]" strokeWidth={1.5} />
                                         </div>
                                         <div>
-                                            <p className="font-medium text-[#1C1E21]">2FA par application</p>
-                                            <p className="text-sm text-[#8A8D91]">Utilisez Google Authenticator ou similaire</p>
+                                            <p className="font-medium text-[#1A1A1A]">2FA par application</p>
+                                            <p className="text-sm text-[#9B9B9B]">Utilisez Google Authenticator ou similaire</p>
                                         </div>
                                     </div>
                                     <Switch
@@ -464,13 +464,13 @@ export default function CreatorSettingsPage() {
                     <div className="space-y-8">
                         {/* Export Data */}
                         <div>
-                            <h3 className="text-lg font-semibold text-[#1C1E21] mb-4">Exporter vos données</h3>
-                            <div className="p-5 bg-[#F0F2F5] rounded-lg">
-                                <p className="text-[#65676B] mb-4">
+                            <h3 className="text-lg font-semibold text-[#1A1A1A] mb-4">Exporter vos données</h3>
+                            <div className="p-5 bg-[#F4F4F3] rounded-lg">
+                                <p className="text-[#6B6B6B] mb-4">
                                     Téléchargez une copie de toutes vos données personnelles, incluant votre profil,
                                     vos missions et votre historique de paiements.
                                 </p>
-                                <Button variant="outline" className="border-[#DADDE1] text-[#1C1E21] hover:bg-[#EBEDF0] rounded-full">
+                                <Button variant="outline" className="border-[#E2E2E1] text-[#1A1A1A] hover:bg-[#F2F2F1] rounded-full">
                                     <Download className="w-4 h-4 mr-2" />
                                     Exporter mes données
                                 </Button>
@@ -479,20 +479,20 @@ export default function CreatorSettingsPage() {
 
                         {/* Delete Account */}
                         <div>
-                            <h3 className="text-lg font-semibold text-[#1C1E21] mb-4">Supprimer le compte</h3>
-                            <div className="p-5 bg-red-500/10 border border-red-500/20 rounded-lg">
+                            <h3 className="text-lg font-semibold text-[#1A1A1A] mb-4">Supprimer le compte</h3>
+                            <div className="p-5 bg-[#1A1A1A]/10 border border-red-500/20 rounded-lg">
                                 <div className="flex items-start gap-4">
-                                    <div className="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                                    <div className="w-10 h-10 rounded-lg bg-[#1A1A1A]/20 flex items-center justify-center flex-shrink-0">
                                         <AlertTriangle className="w-5 h-5 text-red-700" />
                                     </div>
                                     <div>
-                                        <p className="text-[#1C1E21] font-medium mb-1">Action irréversible</p>
-                                        <p className="text-[#65676B] text-sm mb-4">
+                                        <p className="text-[#1A1A1A] font-medium mb-1">Action irréversible</p>
+                                        <p className="text-[#6B6B6B] text-sm mb-4">
                                             La suppression de votre compte effacera définitivement toutes vos données,
                                             incluant votre profil, portfolio, et historique de missions.
                                             Cette action ne peut pas être annulée.
                                         </p>
-                                        <Button variant="outline" className="border-red-500/30 text-red-700 hover:bg-red-500/20">
+                                        <Button variant="outline" className="border-red-500/30 text-red-700 hover:bg-[#1A1A1A]/20">
                                             <Trash2 className="w-4 h-4 mr-2" />
                                             Supprimer mon compte
                                         </Button>
@@ -512,8 +512,8 @@ export default function CreatorSettingsPage() {
         <div className="space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-[28px] md:text-[34px] font-semibold text-[#1C1E21] tracking-[-0.02em]">Paramètres</h1>
-                <p className="text-[#65676B] mt-1">Gérez votre profil et préférences</p>
+                <h1 className="text-[28px] md:text-[34px] font-semibold text-[#1A1A1A] tracking-[-0.02em]">Paramètres</h1>
+                <p className="text-[#6B6B6B] mt-1">Gérez votre profil et préférences</p>
             </div>
 
             <div className="flex flex-col md:flex-row gap-6 md:gap-8">
@@ -526,8 +526,8 @@ export default function CreatorSettingsPage() {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-2 md:gap-3 px-4 py-2.5 md:py-3 rounded-lg text-left transition-all whitespace-nowrap flex-shrink-0 md:w-full ${activeTab === tab.id
-                                    ? 'bg-[#1C1E21] text-white'
-                                    : 'text-[#65676B] hover:text-[#1C1E21] hover:bg-[#F0F2F5]'
+                                    ? 'bg-[#1A1A1A] text-white'
+                                    : 'text-[#6B6B6B] hover:text-[#1A1A1A] hover:bg-[#F4F4F3]'
                                     }`}
                             >
                                 <Icon className="w-4 h-4 md:w-5 md:h-5" />
@@ -545,7 +545,7 @@ export default function CreatorSettingsPage() {
                     key={activeTab}
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="flex-1 bg-white border border-[#DADDE1] rounded-xl p-4 md:p-8"
+                    className="flex-1 bg-white border border-[#E2E2E1] rounded-xl p-4 md:p-8"
                 >
                     {renderTabContent()}
                 </motion.div>

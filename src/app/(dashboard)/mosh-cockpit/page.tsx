@@ -62,7 +62,7 @@ export default function AdminDashboardPage() {
                 actions={
                     <Link
                         href="/mosh-cockpit/missions?filter=draft"
-                        className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#0866FF] text-white rounded-lg text-[13px] font-medium hover:bg-[#0653CC] transition-colors"
+                        className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#1A1A1A] text-white rounded-lg text-[13px] font-medium hover:bg-[#333333] transition-colors"
                     >
                         <FileText className="w-4 h-4" strokeWidth={2.2} />
                         Briefs en attente
@@ -88,18 +88,18 @@ export default function AdminDashboardPage() {
                         actions={
                             <Link
                                 href="/mosh-cockpit/missions"
-                                className="inline-flex items-center gap-1 text-[13px] text-[#65676B] hover:text-[#1C1E21] transition-colors"
+                                className="inline-flex items-center gap-1 text-[13px] text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors"
                             >
                                 Voir tout <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
                             </Link>
                         }
                     >
                         {isLoading ? (
-                            <div className="divide-y divide-[#DADDE1]">
+                            <div className="divide-y divide-[#E2E2E1]">
                                 {[...Array(5)].map((_, i) => (
                                     <div key={i} className="flex items-center gap-3 px-4 py-3 animate-pulse">
-                                        <div className="h-4 bg-[#F0F2F5] rounded w-1/3" />
-                                        <div className="h-4 bg-[#F0F2F5] rounded w-1/6 ml-auto" />
+                                        <div className="h-4 bg-[#F4F4F3] rounded w-1/3" />
+                                        <div className="h-4 bg-[#F4F4F3] rounded w-1/6 ml-auto" />
                                     </div>
                                 ))}
                             </div>
@@ -113,28 +113,28 @@ export default function AdminDashboardPage() {
                             <div className="overflow-x-auto">
                                 <table className="w-full text-[13px]">
                                     <thead>
-                                        <tr className="border-b border-[#DADDE1]">
-                                            <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5">Mission</th>
-                                            <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5 hidden md:table-cell">Marque</th>
-                                            <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5">Statut</th>
-                                            <th className="text-right font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5 hidden sm:table-cell">Créée</th>
+                                        <tr className="border-b border-[#E2E2E1]">
+                                            <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#9B9B9B] px-4 py-2.5">Mission</th>
+                                            <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#9B9B9B] px-4 py-2.5 hidden md:table-cell">Marque</th>
+                                            <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#9B9B9B] px-4 py-2.5">Statut</th>
+                                            <th className="text-right font-medium text-[11px] uppercase tracking-wider text-[#9B9B9B] px-4 py-2.5 hidden sm:table-cell">Créée</th>
                                             <th className="w-8" />
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-[#DADDE1]">
+                                    <tbody className="divide-y divide-[#E2E2E1]">
                                         {recentCampaigns.map((campaign) => {
                                             const brandName = campaign.brand?.profiles_brand?.company_name || campaign.brand?.full_name || '—'
                                             return (
                                                 <tr
                                                     key={campaign.id}
                                                     onClick={() => router.push(`/mosh-cockpit/missions/${campaign.id}`)}
-                                                    className="hover:bg-[#F7F8FA] cursor-pointer transition-colors group"
+                                                    className="hover:bg-[#FAFAF9] cursor-pointer transition-colors group"
                                                 >
                                                     <td className="px-4 py-2.5 max-w-[280px]">
-                                                        <span className="block font-medium text-[#1C1E21] truncate">{campaign.title}</span>
-                                                        <span className="block text-[12px] text-[#8A8D91] truncate md:hidden">{brandName}</span>
+                                                        <span className="block font-medium text-[#1A1A1A] truncate">{campaign.title}</span>
+                                                        <span className="block text-[12px] text-[#9B9B9B] truncate md:hidden">{brandName}</span>
                                                     </td>
-                                                    <td className="px-4 py-2.5 text-[#65676B] hidden md:table-cell max-w-[200px]">
+                                                    <td className="px-4 py-2.5 text-[#6B6B6B] hidden md:table-cell max-w-[200px]">
                                                         <span className="block truncate">{brandName}</span>
                                                     </td>
                                                     <td className="px-4 py-2.5">
@@ -142,11 +142,11 @@ export default function AdminDashboardPage() {
                                                             {getStatusConfig(campaign.status).label}
                                                         </StatusPill>
                                                     </td>
-                                                    <td className="px-4 py-2.5 text-right text-[#65676B] tabular-nums hidden sm:table-cell whitespace-nowrap">
+                                                    <td className="px-4 py-2.5 text-right text-[#6B6B6B] tabular-nums hidden sm:table-cell whitespace-nowrap">
                                                         {new Date(campaign.created_at).toLocaleDateString('fr-CH')}
                                                     </td>
                                                     <td className="pr-3">
-                                                        <ArrowRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors" strokeWidth={2} />
+                                                        <ArrowRight className="w-4 h-4 text-[#C4C4C3] group-hover:text-[#1A1A1A] transition-colors" strokeWidth={2} />
                                                     </td>
                                                 </tr>
                                             )
@@ -163,12 +163,12 @@ export default function AdminDashboardPage() {
                         <PanelList>
                             {SHORTCUTS.map((item) => (
                                 <PanelRow key={item.title} href={item.href}>
-                                    <item.icon className="w-4 h-4 text-[#8A8D91] shrink-0" strokeWidth={1.8} />
+                                    <item.icon className="w-4 h-4 text-[#9B9B9B] shrink-0" strokeWidth={1.8} />
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-[13px] font-medium text-[#1C1E21] truncate">{item.title}</p>
-                                        <p className="text-[12px] text-[#8A8D91] truncate">{item.desc}</p>
+                                        <p className="text-[13px] font-medium text-[#1A1A1A] truncate">{item.title}</p>
+                                        <p className="text-[12px] text-[#9B9B9B] truncate">{item.desc}</p>
                                     </div>
-                                    <ChevronRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors shrink-0" strokeWidth={2} />
+                                    <ChevronRight className="w-4 h-4 text-[#C4C4C3] group-hover:text-[#1A1A1A] transition-colors shrink-0" strokeWidth={2} />
                                 </PanelRow>
                             ))}
                         </PanelList>

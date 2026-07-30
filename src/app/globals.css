@@ -5,10 +5,12 @@
 
 /* ================================================
    MOSH — Workspace UI
-   Sober, information-dense admin styling in the vein of
-   Meta Business Suite / Linear: neutral canvas, white
-   surfaces with 1px dividers, blue used sparingly for
-   intent (primary action, active state, links).
+   Monochrome, matching the brand deck: #1A1A1A ink on
+   neutral greys, white surfaces with 1px dividers.
+   Contrast carries intent (primary action, active state),
+   not hue. Only status keeps colour, because grey cannot
+   say "waiting" or "done".
+   Typeface: Degular (brand), self-hosted.
    ================================================ */
 
 @theme inline {
@@ -17,7 +19,7 @@
   --color-foreground: var(--foreground);
 
   /* Typography */
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-sans: var(--font-degular), system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
   /* Sidebar */
@@ -55,10 +57,10 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
 
-  /* Brand accent — blue, reserved for intent */
-  --color-brand: #0866FF;
-  --color-brand-hover: #0653CC;
-  --color-brand-subtle: #E7F0FF;
+  /* Brand ink — the only "accent" the system has; spend it on intent */
+  --color-brand: #1A1A1A;
+  --color-brand-hover: #333333;
+  --color-brand-subtle: #EDEDEC;
 
   /* Border Radius */
   --radius-sm: calc(var(--radius) - 4px);
@@ -78,61 +80,61 @@
 
   /* Backgrounds */
   --background: #FFFFFF;
-  --background-elevated: #F7F8FA;
-  --background-subtle: #F0F2F5;
+  --background-elevated: #FAFAF9;
+  --background-subtle: #F4F4F3;
 
   /* Foreground */
-  --foreground: #1C1E21;
-  --foreground-muted: #65676B;
+  --foreground: #1A1A1A;
+  --foreground-muted: #6B6B6B;
 
   /* Cards */
   --card: #FFFFFF;
-  --card-foreground: #1C1E21;
+  --card-foreground: #1A1A1A;
 
   /* Popovers */
   --popover: #FFFFFF;
-  --popover-foreground: #1C1E21;
+  --popover-foreground: #1A1A1A;
 
   /* Primary — Dark on light */
-  --primary: #1C1E21;
+  --primary: #1A1A1A;
   --primary-foreground: #FFFFFF;
 
   /* Secondary */
-  --secondary: #F0F2F5;
-  --secondary-foreground: #1C1E21;
+  --secondary: #F4F4F3;
+  --secondary-foreground: #1A1A1A;
 
   /* Muted */
-  --muted: #F0F2F5;
-  --muted-foreground: #65676B;
+  --muted: #F4F4F3;
+  --muted-foreground: #6B6B6B;
 
-  /* Accent — Lime */
-  --accent: #0866FF;
-  --accent-foreground: #1C1E21;
+  /* Accent — the brand ink; white text sits on it */
+  --accent: #1A1A1A;
+  --accent-foreground: #FFFFFF;
 
-  /* Destructive */
-  --destructive: #EF4444;
+  /* Destructive — semantic, stays coloured */
+  --destructive: #C0392B;
 
   /* Borders */
-  --border: #DADDE1;
-  --input: #DADDE1;
-  --ring: #0866FF;
+  --border: #E2E2E1;
+  --input: #E2E2E1;
+  --ring: #1A1A1A;
 
-  /* Charts */
-  --chart-1: #FF6B6B;
-  --chart-2: #4ECDC4;
-  --chart-3: #45B7D1;
-  --chart-4: #96CEB4;
-  --chart-5: #FFEAA7;
+  /* Charts — monochrome ramp, so data reads as one family */
+  --chart-1: #1A1A1A;
+  --chart-2: #4D4D4D;
+  --chart-3: #7A7A7A;
+  --chart-4: #A6A6A6;
+  --chart-5: #D1D1D0;
 
-  /* Sidebar — Keep darker for dashboard contrast */
-  --sidebar: #1C1E21;
-  --sidebar-foreground: #F7F8FA;
-  --sidebar-primary: #FFFFFF;
-  --sidebar-primary-foreground: #1C1E21;
-  --sidebar-accent: #2A2D31;
-  --sidebar-accent-foreground: #F7F8FA;
-  --sidebar-border: #2A2D31;
-  --sidebar-ring: #0866FF;
+  /* Sidebar — light rail (see components/layout/Sidebar.tsx) */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #1A1A1A;
+  --sidebar-primary: #1A1A1A;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #EDEDEC;
+  --sidebar-accent-foreground: #1A1A1A;
+  --sidebar-border: #E2E2E1;
+  --sidebar-ring: #1A1A1A;
 }
 
 /* ================================================
@@ -149,7 +151,10 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    /* Degular's own defaults are correct; the previous cvXX settings were
+       Inter-specific character variants and did nothing here. Keep numerals
+       lining + proportional so UI numbers align in tables. */
+    font-variant-numeric: lining-nums;
   }
 
   /* Typography */
@@ -192,19 +197,19 @@
   .btn-primary {
     @apply font-medium px-4 py-2.5 rounded-lg;
     @apply transition-colors duration-150;
-    @apply focus:outline-none focus:ring-2 focus:ring-[#0866FF]/30 focus:ring-offset-1;
-    background: #0866FF;
+    @apply focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 focus:ring-offset-1;
+    background: #1A1A1A;
     color: #FFFFFF;
   }
 
   .btn-primary:hover,
   .btn-primary:focus {
-    background: #0653CC;
+    background: #333333;
     color: #FFFFFF;
   }
 
   .btn-primary:active {
-    background: #0949AD;
+    background: #000000;
   }
 
   .btn-primary span,
@@ -216,33 +221,33 @@
   .btn-secondary {
     @apply font-medium px-4 py-2.5 rounded-lg bg-white;
     @apply transition-colors duration-150;
-    @apply border border-[#DADDE1] text-[#1C1E21];
+    @apply border border-[#E2E2E1] text-[#1A1A1A];
   }
 
   .btn-secondary:hover {
-    background: #F0F2F5;
+    background: #F4F4F3;
   }
 
   /* Surface — a panel is defined by its 1px border, not by a shadow */
   .glass-card {
-    @apply bg-white border border-[#DADDE1] rounded-xl;
+    @apply bg-white border border-[#E2E2E1] rounded-xl;
   }
 
   .nav-floating {
     @apply fixed top-4 left-1/2 -translate-x-1/2 z-50;
-    @apply bg-white border border-[#DADDE1] rounded-full;
+    @apply bg-white border border-[#E2E2E1] rounded-full;
     @apply px-6 py-3;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
   }
 
   /* Media card — restrained hover, no scaling */
   .creator-card {
-    @apply relative overflow-hidden rounded-xl bg-white border border-[#DADDE1];
+    @apply relative overflow-hidden rounded-xl bg-white border border-[#E2E2E1];
     @apply transition-colors duration-150;
   }
 
   .creator-card:hover {
-    border-color: #BCC0C4;
+    border-color: #C4C4C3;
   }
 
   .creator-card::before {
@@ -259,15 +264,15 @@
   /* Tags */
   .tag {
     @apply inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium;
-    @apply bg-[#F0F2F5] text-[#65676B];
+    @apply bg-[#F4F4F3] text-[#6B6B6B];
   }
 
   .tag-accent {
-    @apply bg-[#E7F0FF] text-[#0866FF];
+    @apply bg-[#EDEDEC] text-[#1A1A1A];
   }
 
   .gradient-text {
-    @apply text-[#1C1E21];
+    @apply text-[#1A1A1A];
   }
 }
 

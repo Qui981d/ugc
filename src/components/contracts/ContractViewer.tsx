@@ -55,7 +55,7 @@ export default function ContractViewer({
         cancelled: {
             label: 'Contrat résilié',
             color: 'text-red-400',
-            bgColor: 'bg-red-500/10 border-red-500/20',
+            bgColor: 'bg-[#1A1A1A]/10 border-red-500/20',
             icon: X,
         },
     }
@@ -84,7 +84,7 @@ export default function ContractViewer({
                         exit={{ opacity: 0, y: 100 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                         className="fixed inset-x-0 bottom-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-50 
-                                   bg-[#1C1E21] border border-white/[0.15] 
+                                   bg-[#1A1A1A] border border-white/[0.15] 
                                    rounded-t-3xl md:rounded-lg 
                                    w-full md:w-[600px] md:max-w-[95vw]
                                    max-h-[90vh] overflow-hidden flex flex-col"
@@ -133,7 +133,7 @@ export default function ContractViewer({
                         </div>
 
                         {/* Footer */}
-                        <div className="border-t border-white/[0.08] p-5 space-y-3 bg-[#1C1E21]">
+                        <div className="border-t border-white/[0.08] p-5 space-y-3 bg-[#1A1A1A]">
                             {/* Creator needs to sign */}
                             {needsCreatorSignature && onSign && (
                                 <>

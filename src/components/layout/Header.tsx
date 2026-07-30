@@ -44,14 +44,14 @@ export function Header() {
     // Notification glyph + tint, by type
     const getNotifIcon = (type: string) => {
         switch (type) {
-            case 'new_application': return { Icon: FileText, tint: 'bg-[#E7F0FF] text-[#0866FF]' }
-            case 'message_received': return { Icon: MessageSquare, tint: 'bg-[#E7F0FF] text-[#0866FF]' }
-            case 'deliverable_submitted': return { Icon: Package, tint: 'bg-[#FFF4D6] text-[#8A6100]' }
+            case 'new_application': return { Icon: FileText, tint: 'bg-[#EDEDEC] text-[#1A1A1A]' }
+            case 'message_received': return { Icon: MessageSquare, tint: 'bg-[#EDEDEC] text-[#1A1A1A]' }
+            case 'deliverable_submitted': return { Icon: Package, tint: 'bg-[#FBF3E2] text-[#8A6100]' }
             case 'application_accepted':
-            case 'deliverable_approved': return { Icon: Check, tint: 'bg-[#E3F6E8] text-[#1A7F37]' }
+            case 'deliverable_approved': return { Icon: Check, tint: 'bg-[#E8F3EA] text-[#1A7F37]' }
             case 'application_rejected':
-            case 'deliverable_rejected': return { Icon: X, tint: 'bg-[#FDE8E6] text-[#D3382F]' }
-            default: return { Icon: Bell, tint: 'bg-[#F0F2F5] text-[#65676B]' }
+            case 'deliverable_rejected': return { Icon: X, tint: 'bg-[#FBEAE8] text-[#C0392B]' }
+            default: return { Icon: Bell, tint: 'bg-[#F4F4F3] text-[#6B6B6B]' }
         }
     }
 
@@ -101,7 +101,7 @@ export function Header() {
     return (
         // Slim, opaque utility bar. Identity lives in the sidebar and the page
         // title lives in PageHeader, so this only carries alerts and the account menu.
-        <header className="sticky top-0 z-30 h-14 bg-white border-b border-[#DADDE1]">
+        <header className="sticky top-0 z-30 h-14 bg-white border-b border-[#E2E2E1]">
             <div className="h-full flex items-center justify-end px-4 md:px-6">
                 <div className="flex items-center gap-1">
                     {/* Notifications */}
@@ -111,11 +111,11 @@ export function Header() {
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="relative text-[#65676B] hover:text-[#65676B] hover:bg-[#F0F2F5] rounded-lg"
+                                className="relative text-[#6B6B6B] hover:text-[#6B6B6B] hover:bg-[#F4F4F3] rounded-lg"
                             >
                                 <Bell className="h-5 w-5" strokeWidth={1.5} />
                                 {unreadCounts.total > 0 && (
-                                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white">
+                                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#1A1A1A] rounded-full flex items-center justify-center text-[10px] font-bold text-white">
                                         {unreadCounts.total > 9 ? '9+' : unreadCounts.total}
                                     </span>
                                 )}
@@ -123,30 +123,30 @@ export function Header() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                             align="end"
-                            className="w-80 bg-white border-[#DADDE1] shadow-xl rounded-xl"
+                            className="w-80 bg-white border-[#E2E2E1] shadow-xl rounded-xl"
                         >
                             <div className="flex items-center justify-between px-3 py-2">
-                                <DropdownMenuLabel className="text-[#1C1E21] p-0">
+                                <DropdownMenuLabel className="text-[#1A1A1A] p-0">
                                     Notifications
                                 </DropdownMenuLabel>
                                 {unreadCounts.total > 0 && (
                                     <button
                                         onClick={() => markAllAsRead()}
-                                        className="text-xs text-[#1C1E21] hover:underline flex items-center gap-1"
+                                        className="text-xs text-[#1A1A1A] hover:underline flex items-center gap-1"
                                     >
                                         <CheckCheck className="w-3 h-3" />
                                         Tout marquer lu
                                     </button>
                                 )}
                             </div>
-                            <DropdownMenuSeparator className="bg-[#DADDE1]" />
+                            <DropdownMenuSeparator className="bg-[#E2E2E1]" />
 
                             {isLoadingNotifs ? (
-                                <div className="p-4 text-center text-[#8A8D91] text-sm">
+                                <div className="p-4 text-center text-[#9B9B9B] text-sm">
                                     Chargement...
                                 </div>
                             ) : notifications.length === 0 ? (
-                                <div className="p-4 text-center text-[#8A8D91] text-sm">
+                                <div className="p-4 text-center text-[#9B9B9B] text-sm">
                                     Aucune notification
                                 </div>
                             ) : (
@@ -158,26 +158,26 @@ export function Header() {
                                                 <Link
                                                     href={getNotifLink(notif)}
                                                     onClick={() => !notif.is_read && markAsRead(notif.id)}
-                                                    className={`flex items-start gap-2.5 px-3 py-2.5 cursor-pointer ${!notif.is_read ? 'bg-[#F7F8FA]' : ''}`}
+                                                    className={`flex items-start gap-2.5 px-3 py-2.5 cursor-pointer ${!notif.is_read ? 'bg-[#FAFAF9]' : ''}`}
                                                 >
                                                     <span className={`w-7 h-7 rounded-lg grid place-items-center shrink-0 ${tint}`}>
                                                         <Icon className="w-3.5 h-3.5" strokeWidth={2} />
                                                     </span>
                                                     <div className="flex-1 min-w-0">
-                                                        <p className={`text-[13px] leading-snug ${notif.is_read ? 'text-[#65676B]' : 'text-[#1C1E21] font-semibold'}`}>
+                                                        <p className={`text-[13px] leading-snug ${notif.is_read ? 'text-[#6B6B6B]' : 'text-[#1A1A1A] font-semibold'}`}>
                                                             {notif.title}
                                                         </p>
                                                         {notif.message && (
-                                                            <p className="text-[12px] text-[#65676B] truncate">{notif.message}</p>
+                                                            <p className="text-[12px] text-[#6B6B6B] truncate">{notif.message}</p>
                                                         )}
-                                                        <p className="text-[11px] text-[#8A8D91] mt-0.5 tabular-nums">
+                                                        <p className="text-[11px] text-[#9B9B9B] mt-0.5 tabular-nums">
                                                             {new Date(notif.created_at).toLocaleDateString('fr-CH', {
                                                                 day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
                                                             })}
                                                         </p>
                                                     </div>
                                                     {!notif.is_read && (
-                                                        <span className="w-1.5 h-1.5 bg-[#0866FF] rounded-full shrink-0 mt-2" />
+                                                        <span className="w-1.5 h-1.5 bg-[#1A1A1A] rounded-full shrink-0 mt-2" />
                                                     )}
                                                 </Link>
                                             </DropdownMenuItem>
@@ -188,7 +188,7 @@ export function Header() {
                         </DropdownMenuContent>
                     </DropdownMenu>
                     ) : (
-                        <div className="w-10 h-10 flex items-center justify-center text-[#65676B]">
+                        <div className="w-10 h-10 flex items-center justify-center text-[#6B6B6B]">
                             <Bell className="h-5 w-5" strokeWidth={1.5} />
                         </div>
                     )}
@@ -199,9 +199,9 @@ export function Header() {
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
-                                className="flex items-center gap-3 px-3 hover:bg-[#F0F2F5] rounded-lg"
+                                className="flex items-center gap-3 px-3 hover:bg-[#F4F4F3] rounded-lg"
                             >
-                                <div className="w-8 h-8 rounded-full bg-[#F0F2F5] flex items-center justify-center overflow-hidden">
+                                <div className="w-8 h-8 rounded-full bg-[#F4F4F3] flex items-center justify-center overflow-hidden">
                                     {user?.avatar_url ? (
                                         <Image
                                             src={user.avatar_url}
@@ -211,11 +211,11 @@ export function Header() {
                                             className="object-cover"
                                         />
                                     ) : (
-                                        <User className="h-4 w-4 text-[#65676B]" />
+                                        <User className="h-4 w-4 text-[#6B6B6B]" />
                                     )}
                                 </div>
                                 <div className="hidden md:block text-left">
-                                    <p className="text-sm font-medium text-[#65676B]">
+                                    <p className="text-sm font-medium text-[#6B6B6B]">
                                         {user?.role === 'admin' ? 'Mosh' : user?.full_name || 'Mon Compte'}
                                     </p>
                                 </div>
@@ -223,33 +223,33 @@ export function Header() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                             align="end"
-                            className="w-56 bg-white border-[#DADDE1] shadow-xl rounded-xl"
+                            className="w-56 bg-white border-[#E2E2E1] shadow-xl rounded-xl"
                         >
                             <div className="px-2 py-2">
-                                <p className="text-sm font-medium text-[#1C1E21]">
+                                <p className="text-sm font-medium text-[#1A1A1A]">
                                     {user?.role === 'admin' ? 'Mosh' : user?.full_name || 'Mon compte'}
                                 </p>
-                                <p className="text-xs text-[#65676B] mt-0.5">
+                                <p className="text-xs text-[#6B6B6B] mt-0.5">
                                     {user?.email || ''}
                                 </p>
-                                <span className="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-full bg-[#1C1E21]/5 text-[#65676B]">
+                                <span className="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-full bg-[#1A1A1A]/5 text-[#6B6B6B]">
                                     {user?.role === 'admin' ? 'Admin' : user?.role === 'brand' ? 'Marque' : 'Créateur'}
                                 </span>
                             </div>
-                            <DropdownMenuSeparator className="bg-[#DADDE1]" />
+                            <DropdownMenuSeparator className="bg-[#E2E2E1]" />
 
-                            <DropdownMenuItem asChild className="text-[#1C1E21] focus:bg-[#F0F2F5] focus:text-[#1C1E21] cursor-pointer">
+                            <DropdownMenuItem asChild className="text-[#1A1A1A] focus:bg-[#F4F4F3] focus:text-[#1A1A1A] cursor-pointer">
                                 <Link href={`${basePath}/settings`} className="flex items-center gap-2">
                                     <Settings className="h-4 w-4" />
                                     Paramètres
                                 </Link>
                             </DropdownMenuItem>
 
-                            <DropdownMenuSeparator className="bg-[#DADDE1]" />
+                            <DropdownMenuSeparator className="bg-[#E2E2E1]" />
 
                             <DropdownMenuItem
                                 onClick={handleSignOut}
-                                className="text-red-500 focus:bg-[#F0F2F5] cursor-pointer flex items-center gap-2"
+                                className="text-red-500 focus:bg-[#F4F4F3] cursor-pointer flex items-center gap-2"
                             >
                                 <LogOut className="h-4 w-4" />
                                 Déconnexion
@@ -257,8 +257,8 @@ export function Header() {
                         </DropdownMenuContent>
                     </DropdownMenu>
                     ) : (
-                        <div className="w-8 h-8 rounded-full bg-[#F0F2F5] flex items-center justify-center">
-                            <User className="h-4 w-4 text-[#65676B]" />
+                        <div className="w-8 h-8 rounded-full bg-[#F4F4F3] flex items-center justify-center">
+                            <User className="h-4 w-4 text-[#6B6B6B]" />
                         </div>
                     )}
                 </div>

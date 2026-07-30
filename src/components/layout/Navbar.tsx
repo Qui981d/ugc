@@ -160,7 +160,7 @@ export function Navbar() {
                                 <motion.div
                                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    className="absolute top-full right-0 mt-2 w-56 bg-[#1C1E21] border border-white/10 rounded-lg shadow-xl overflow-hidden"
+                                    className="absolute top-full right-0 mt-2 w-56 bg-[#1A1A1A] border border-white/10 rounded-lg shadow-xl overflow-hidden"
                                 >
                                     {/* User Info */}
                                     <div className="p-4 border-b border-white/10">
@@ -207,7 +207,7 @@ export function Navbar() {
                                                 setDropdownOpen(false)
                                                 router.push('/login')
                                             }}
-                                            className="flex items-center gap-3 w-full px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                            className="flex items-center gap-3 w-full px-3 py-2 text-sm text-red-400 hover:bg-[#1A1A1A]/10 rounded-lg transition-colors"
                                         >
                                             <LogOut className="w-4 h-4" />
                                             Déconnexion
@@ -301,7 +301,7 @@ export function Navbar() {
                                         setMobileMenuOpen(false)
                                         router.push('/login')
                                     }}
-                                    className="w-full text-center px-6 py-4 text-lg text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                    className="w-full text-center px-6 py-4 text-lg text-red-400 hover:bg-[#1A1A1A]/10 rounded-lg transition-colors"
                                 >
                                     Déconnexion
                                 </button>

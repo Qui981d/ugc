@@ -24,8 +24,8 @@ const STATUS_LABELS: Record<string, { label: string; tone: 'progress' | 'waiting
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div className="min-w-0">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-[#8A8D91]">{label}</p>
-            <div className="text-[13px] text-[#1C1E21] mt-0.5 break-words">{children}</div>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-[#9B9B9B]">{label}</p>
+            <div className="text-[13px] text-[#1A1A1A] mt-0.5 break-words">{children}</div>
         </div>
     )
 }
@@ -53,16 +53,16 @@ export default function BrandDetailPage() {
     if (isLoading) {
         return (
             <div className="max-w-[1100px] mx-auto">
-                <div className="border-b border-[#DADDE1] pb-4 mb-6 space-y-2 animate-pulse">
-                    <div className="h-3 bg-[#F0F2F5] rounded w-40" />
-                    <div className="h-6 bg-[#F0F2F5] rounded w-1/3" />
+                <div className="border-b border-[#E2E2E1] pb-4 mb-6 space-y-2 animate-pulse">
+                    <div className="h-3 bg-[#F4F4F3] rounded w-40" />
+                    <div className="h-6 bg-[#F4F4F3] rounded w-1/3" />
                 </div>
-                <div className="bg-white border border-[#DADDE1] rounded-xl overflow-hidden mb-3">
-                    <div className="divide-y divide-[#DADDE1]">
+                <div className="bg-white border border-[#E2E2E1] rounded-xl overflow-hidden mb-3">
+                    <div className="divide-y divide-[#E2E2E1]">
                         {[...Array(4)].map((_, i) => (
                             <div key={i} className="flex items-center gap-3 px-4 py-3 animate-pulse">
-                                <div className="h-4 bg-[#F0F2F5] rounded w-1/4" />
-                                <div className="h-4 bg-[#F0F2F5] rounded w-1/6 ml-auto" />
+                                <div className="h-4 bg-[#F4F4F3] rounded w-1/4" />
+                                <div className="h-4 bg-[#F4F4F3] rounded w-1/6 ml-auto" />
                             </div>
                         ))}
                     </div>
@@ -74,13 +74,13 @@ export default function BrandDetailPage() {
     if (!brand) {
         return (
             <div className="max-w-[1100px] mx-auto">
-                <div className="bg-white border border-[#DADDE1] rounded-xl overflow-hidden">
+                <div className="bg-white border border-[#E2E2E1] rounded-xl overflow-hidden">
                     <EmptyState
                         title="Marque introuvable"
                         description="Cette marque n'existe pas ou a été supprimée."
                         action={
                             <Link href="/mosh-cockpit/brands"
-                                className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#0866FF] text-white rounded-lg text-[13px] font-medium hover:bg-[#0653CC] transition-colors">
+                                className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#1A1A1A] text-white rounded-lg text-[13px] font-medium hover:bg-[#333333] transition-colors">
                                 Retour aux marques
                             </Link>
                         }
@@ -115,7 +115,7 @@ export default function BrandDetailPage() {
                             setActingBrand(brand.id, profile?.company_name || brand.full_name)
                             router.push('/brand')
                         }}
-                        className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#0866FF] text-white rounded-lg text-[13px] font-medium hover:bg-[#0653CC] transition-colors shrink-0"
+                        className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#1A1A1A] text-white rounded-lg text-[13px] font-medium hover:bg-[#333333] transition-colors shrink-0"
                     >
                         <LogIn className="w-4 h-4" strokeWidth={2.2} />
                         Ouvrir l&apos;espace de la marque
@@ -152,7 +152,7 @@ export default function BrandDetailPage() {
                                     href={websiteHref}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1 text-[#0866FF] hover:text-[#0653CC] transition-colors"
+                                    className="inline-flex items-center gap-1 text-[#1A1A1A] hover:text-[#333333] transition-colors"
                                 >
                                     {website.replace(/^https?:\/\//, '')}
                                     <ExternalLink className="w-3 h-3" />
@@ -165,7 +165,7 @@ export default function BrandDetailPage() {
                         {profile?.description && (
                             <div className="sm:col-span-2">
                                 <Field label="Description">
-                                    <span className="block text-[#65676B] leading-relaxed whitespace-pre-wrap">{profile.description}</span>
+                                    <span className="block text-[#6B6B6B] leading-relaxed whitespace-pre-wrap">{profile.description}</span>
                                 </Field>
                             </div>
                         )}
@@ -177,7 +177,7 @@ export default function BrandDetailPage() {
             <Panel
                 title="Historique des missions"
                 actions={
-                    <span className="text-[12px] text-[#8A8D91] tabular-nums">
+                    <span className="text-[12px] text-[#9B9B9B] tabular-nums">
                         {campaigns.length} mission{campaigns.length > 1 ? 's' : ''}
                         {activeCampaigns > 0 && ` · ${activeCampaigns} en cours`}
                     </span>
@@ -193,44 +193,44 @@ export default function BrandDetailPage() {
                     <div className="overflow-x-auto">
                         <table className="w-full text-[13px]">
                             <thead>
-                                <tr className="border-b border-[#DADDE1]">
-                                    <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5">Mission</th>
-                                    <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5 hidden md:table-cell">Format</th>
-                                    <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5 hidden lg:table-cell">Créateur</th>
-                                    <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5">Statut</th>
-                                    <th className="text-right font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5 hidden sm:table-cell">Budget</th>
+                                <tr className="border-b border-[#E2E2E1]">
+                                    <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#9B9B9B] px-4 py-2.5">Mission</th>
+                                    <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#9B9B9B] px-4 py-2.5 hidden md:table-cell">Format</th>
+                                    <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#9B9B9B] px-4 py-2.5 hidden lg:table-cell">Créateur</th>
+                                    <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#9B9B9B] px-4 py-2.5">Statut</th>
+                                    <th className="text-right font-medium text-[11px] uppercase tracking-wider text-[#9B9B9B] px-4 py-2.5 hidden sm:table-cell">Budget</th>
                                     <th className="w-8" />
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[#DADDE1]">
+                            <tbody className="divide-y divide-[#E2E2E1]">
                                 {campaigns.map((campaign) => {
                                     const statusCfg = STATUS_LABELS[campaign.status] || STATUS_LABELS.draft
                                     return (
                                         <tr
                                             key={campaign.id}
                                             onClick={() => router.push(`/mosh-cockpit/missions/${campaign.id}`)}
-                                            className="hover:bg-[#F7F8FA] cursor-pointer transition-colors group"
+                                            className="hover:bg-[#FAFAF9] cursor-pointer transition-colors group"
                                         >
                                             <td className="px-4 py-2.5 max-w-[280px]">
-                                                <span className="block font-medium text-[#1C1E21] truncate">{campaign.title}</span>
-                                                <span className="block text-[12px] text-[#8A8D91] truncate md:hidden">{campaign.script_type}</span>
+                                                <span className="block font-medium text-[#1A1A1A] truncate">{campaign.title}</span>
+                                                <span className="block text-[12px] text-[#9B9B9B] truncate md:hidden">{campaign.script_type}</span>
                                             </td>
-                                            <td className="px-4 py-2.5 text-[#65676B] hidden md:table-cell max-w-[160px]">
+                                            <td className="px-4 py-2.5 text-[#6B6B6B] hidden md:table-cell max-w-[160px]">
                                                 <span className="block truncate">{campaign.script_type}</span>
                                             </td>
-                                            <td className="px-4 py-2.5 text-[#65676B] hidden lg:table-cell max-w-[160px]">
+                                            <td className="px-4 py-2.5 text-[#6B6B6B] hidden lg:table-cell max-w-[160px]">
                                                 <span className="block truncate">
-                                                    {campaign.selected_creator?.full_name || <span className="text-[#8A8D91]">Non assigné</span>}
+                                                    {campaign.selected_creator?.full_name || <span className="text-[#9B9B9B]">Non assigné</span>}
                                                 </span>
                                             </td>
                                             <td className="px-4 py-2.5">
                                                 <StatusPill tone={statusCfg.tone}>{statusCfg.label}</StatusPill>
                                             </td>
-                                            <td className="px-4 py-2.5 text-right tabular-nums text-[#1C1E21] hidden sm:table-cell whitespace-nowrap">
+                                            <td className="px-4 py-2.5 text-right tabular-nums text-[#1A1A1A] hidden sm:table-cell whitespace-nowrap">
                                                 {campaign.budget_chf ? campaign.budget_chf.toLocaleString('fr-CH') : '—'}
                                             </td>
                                             <td className="pr-3">
-                                                <ArrowRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors" strokeWidth={2} />
+                                                <ArrowRight className="w-4 h-4 text-[#C4C4C3] group-hover:text-[#1A1A1A] transition-colors" strokeWidth={2} />
                                             </td>
                                         </tr>
                                     )

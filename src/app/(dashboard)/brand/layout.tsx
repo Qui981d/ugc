@@ -43,7 +43,7 @@ export default function BrandDashboardLayout({ children }: { children: ReactNode
 
     return (
         <NotificationProvider>
-            <div className="min-h-screen bg-[#EBEDF0]">
+            <div className="min-h-screen bg-[#F2F2F1]">
                 <Sidebar role="brand" userName={isActingAsBrand ? actingBrandName || undefined : user?.full_name} onExpandChange={setSidebarExpanded} />
                 <div
                     className="md:transition-[margin-left] md:duration-300 md:ease-[cubic-bezier(0.4,0,0.2,1)]"
@@ -53,14 +53,14 @@ export default function BrandDashboardLayout({ children }: { children: ReactNode
                     {/* Impersonation notice: a thin, permanent strip. The sidebar carries
                         the identity, so this only needs to state the fact and offer the exit. */}
                     {isActingAsBrand && (
-                        <div className="sticky top-0 z-30 bg-[#E7F0FF] border-b border-[#0866FF]/20 px-4 md:px-8 py-1.5 flex items-center gap-2 text-[12px] text-[#0653CC]">
+                        <div className="sticky top-0 z-30 bg-[#EDEDEC] border-b border-[#1A1A1A]/20 px-4 md:px-8 py-1.5 flex items-center gap-2 text-[12px] text-[#333333]">
                             <Eye className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
                             <span className="min-w-0 truncate">
                                 Vous agissez au nom de <strong className="font-semibold">{actingBrandName || 'cette marque'}</strong>
                             </span>
                             <button
                                 onClick={exitActingAs}
-                                className="ml-auto shrink-0 font-medium underline underline-offset-2 hover:text-[#0866FF]"
+                                className="ml-auto shrink-0 font-medium underline underline-offset-2 hover:text-[#1A1A1A]"
                             >
                                 Quitter
                             </button>

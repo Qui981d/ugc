@@ -37,10 +37,10 @@ import { isStepCompletedOrPassed } from '@/lib/constants/workflowSteps'
 
 // Creator-centric content status (they don't care about script stages)
 const CREATOR_CONTENT_STATUS: Record<string, { label: string; color: string; bg: string; canDeliver: boolean }> = {
-    draft: { label: 'À livrer', color: 'text-[#65676B]', bg: 'bg-gray-100', canDeliver: true },
-    script_pending: { label: 'À livrer', color: 'text-[#65676B]', bg: 'bg-gray-100', canDeliver: true },
-    script_approved: { label: 'À livrer', color: 'text-[#65676B]', bg: 'bg-gray-100', canDeliver: true },
-    shooting: { label: 'À livrer', color: 'text-[#65676B]', bg: 'bg-gray-100', canDeliver: true },
+    draft: { label: 'À livrer', color: 'text-[#6B6B6B]', bg: 'bg-gray-100', canDeliver: true },
+    script_pending: { label: 'À livrer', color: 'text-[#6B6B6B]', bg: 'bg-gray-100', canDeliver: true },
+    script_approved: { label: 'À livrer', color: 'text-[#6B6B6B]', bg: 'bg-gray-100', canDeliver: true },
+    shooting: { label: 'À livrer', color: 'text-[#6B6B6B]', bg: 'bg-gray-100', canDeliver: true },
     uploaded: { label: 'Livrée', color: 'text-indigo-700', bg: 'bg-indigo-100', canDeliver: false },
     qc_approved: { label: 'QC validé ✓', color: 'text-teal-700', bg: 'bg-teal-100', canDeliver: false },
     sent_to_brand: { label: 'Chez la marque', color: 'text-orange-700', bg: 'bg-orange-100', canDeliver: false },
@@ -176,7 +176,7 @@ export default function CreatorMissionDetailPage() {
     if (isLoading) {
         return (
             <div className="max-w-3xl mx-auto py-12 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-[#8A8D91]" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#9B9B9B]" />
             </div>
         )
     }
@@ -184,8 +184,8 @@ export default function CreatorMissionDetailPage() {
     if (!campaign) {
         return (
             <div className="max-w-3xl mx-auto py-12 text-center">
-                <p className="text-[#65676B]">Mission introuvable</p>
-                <Link href="/creator/missions" className="text-sm text-[#8A8D91] hover:text-[#1C1E21] mt-2 inline-block">← Retour</Link>
+                <p className="text-[#6B6B6B]">Mission introuvable</p>
+                <Link href="/creator/missions" className="text-sm text-[#9B9B9B] hover:text-[#1A1A1A] mt-2 inline-block">← Retour</Link>
             </div>
         )
     }
@@ -206,7 +206,7 @@ export default function CreatorMissionDetailPage() {
             {/* Success toast */}
             {actionSuccess && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="fixed top-4 right-4 z-50 bg-[#0866FF] text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 max-w-sm"
+                    className="fixed top-4 right-4 z-50 bg-[#1A1A1A] text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 max-w-sm"
                 >
                     <CheckCircle2 className="w-4 h-4" />
                     <span className="text-sm font-medium">{actionSuccess}</span>
@@ -214,19 +214,19 @@ export default function CreatorMissionDetailPage() {
             )}
 
             {/* Breadcrumb */}
-            <div className="flex items-center gap-2 text-sm text-[#8A8D91]">
-                <Link href="/creator/missions" className="hover:text-[#1C1E21] transition-colors flex items-center gap-1">
+            <div className="flex items-center gap-2 text-sm text-[#9B9B9B]">
+                <Link href="/creator/missions" className="hover:text-[#1A1A1A] transition-colors flex items-center gap-1">
                     <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
                     Mes missions
                 </Link>
                 <ChevronRight className="w-3 h-3" />
-                <span className="text-[#1C1E21]">{campaign.title}</span>
+                <span className="text-[#1A1A1A]">{campaign.title}</span>
             </div>
 
             {/* Title */}
             <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-[#1C1E21] tracking-tight">{campaign.title}</h1>
-                <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-[#65676B]">
+                <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A] tracking-tight">{campaign.title}</h1>
+                <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-[#6B6B6B]">
                     <span>{campaign.script_type}</span>
                     {campaign.deadline && (
                         <span className="flex items-center gap-1.5">
@@ -235,9 +235,9 @@ export default function CreatorMissionDetailPage() {
                         </span>
                     )}
                     {(myCreatorAmount || campaign.creator_amount_chf) ? (
-                        <span className="font-semibold text-[#1C1E21]">CHF {(myCreatorAmount || campaign.creator_amount_chf)?.toLocaleString('fr-CH')}</span>
+                        <span className="font-semibold text-[#1A1A1A]">CHF {(myCreatorAmount || campaign.creator_amount_chf)?.toLocaleString('fr-CH')}</span>
                     ) : (
-                        <span className="font-semibold text-[#1C1E21]">CHF {campaign.budget_chf?.toLocaleString('fr-CH')}</span>
+                        <span className="font-semibold text-[#1A1A1A]">CHF {campaign.budget_chf?.toLocaleString('fr-CH')}</span>
                     )}
                 </div>
             </div>
@@ -245,30 +245,30 @@ export default function CreatorMissionDetailPage() {
             {/* Content blocks — per-content delivery */}
             {campaignContents.length > 0 && contractSigned && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-white border border-[#DADDE1] rounded-lg p-5"
+                    className="bg-white border border-[#E2E2E1] rounded-lg p-5"
                 >
                     <div className="flex items-center justify-between mb-3">
-                        <h2 className="text-sm font-semibold text-[#1C1E21] flex items-center gap-2">
-                            <Film className="w-4 h-4 text-[#65676B]" />
+                        <h2 className="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
+                            <Film className="w-4 h-4 text-[#6B6B6B]" />
                             Contenus à produire ({campaignContents.filter(c => ['uploaded', 'qc_approved', 'sent_to_brand', 'brand_approved'].includes(c.status)).length}/{campaignContents.length})
                         </h2>
                         <div className="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-[#0866FF] rounded-full transition-all" style={{ width: `${(campaignContents.filter(c => ['uploaded', 'qc_approved', 'sent_to_brand', 'brand_approved'].includes(c.status)).length / campaignContents.length) * 100}%` }} />
+                            <div className="h-full bg-[#1A1A1A] rounded-full transition-all" style={{ width: `${(campaignContents.filter(c => ['uploaded', 'qc_approved', 'sent_to_brand', 'brand_approved'].includes(c.status)).length / campaignContents.length) * 100}%` }} />
                         </div>
                     </div>
                     <div className="space-y-2">
                         {campaignContents.map((content, idx) => {
                             const statusCfg = CREATOR_CONTENT_STATUS[content.status] || CREATOR_CONTENT_STATUS.draft
                             return (
-                                <div key={content.id} className="flex items-center gap-3 p-3 rounded-lg bg-[#F0F2F5]/50">
+                                <div key={content.id} className="flex items-center gap-3 p-3 rounded-lg bg-[#F4F4F3]/50">
                                     <span className="text-sm">{content.content_type === 'video' ? '📹' : '📷'}</span>
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium text-[#1C1E21] truncate">Contenu {idx + 1} — {content.script_type}</p>
-                                        <p className="text-xs text-[#8A8D91]">{content.format}</p>
+                                        <p className="text-sm font-medium text-[#1A1A1A] truncate">Contenu {idx + 1} — {content.script_type}</p>
+                                        <p className="text-xs text-[#9B9B9B]">{content.format}</p>
                                     </div>
                                     {statusCfg.canDeliver ? (
                                         <Link href={`/creator/missions/${campaignId}/studio?content=${content.id}`}
-                                            className="flex items-center gap-1.5 bg-[#1C1E21] text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-[#1C1E21] transition-colors"
+                                            className="flex items-center gap-1.5 bg-[#1A1A1A] text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-[#1A1A1A] transition-colors"
                                         >
                                             <Upload className="w-3 h-3" />
                                             Livrer
@@ -294,23 +294,23 @@ export default function CreatorMissionDetailPage() {
             {/* 1) Waiting for others (QC, brand review, etc.) */}
             {isWaitingForOthers && !isFirstAction && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-[#F0F2F5] border border-[#DADDE1] rounded-lg p-5"
+                    className="bg-[#F4F4F3] border border-[#E2E2E1] rounded-lg p-5"
                 >
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
-                            <Hourglass className="w-5 h-5 text-[#65676B]" />
+                            <Hourglass className="w-5 h-5 text-[#6B6B6B]" />
                         </div>
                         <div>
-                            <h3 className="font-semibold text-[#1C1E21] flex items-center gap-2">
+                            <h3 className="font-semibold text-[#1A1A1A] flex items-center gap-2">
                                 En attente
-                                <span className="text-xs bg-[#EBEDF0] text-[#65676B] px-2 py-0.5 rounded-full font-medium">{nextStep.label}</span>
+                                <span className="text-xs bg-[#F2F2F1] text-[#6B6B6B] px-2 py-0.5 rounded-full font-medium">{nextStep.label}</span>
                             </h3>
-                            <p className="text-sm text-[#65676B] mt-0.5">{nextStep.waitingDesc}</p>
+                            <p className="text-sm text-[#6B6B6B] mt-0.5">{nextStep.waitingDesc}</p>
                         </div>
                     </div>
                     <div className="mt-3 flex">
                         <Link href={`/creator/messages?campaign=${campaignId}`}
-                            className="text-sm text-[#65676B] hover:text-[#1C1E21] flex items-center gap-1.5 transition-colors"
+                            className="text-sm text-[#6B6B6B] hover:text-[#1A1A1A] flex items-center gap-1.5 transition-colors"
                         >
                             <MessageSquare className="w-3.5 h-3.5" />
                             Envoyer un message à MOSH
@@ -322,32 +322,32 @@ export default function CreatorMissionDetailPage() {
             {/* 2) Contract step — first thing the creator sees */}
             {(isFirstAction || nextStep?.type === 'contract_signed') && !contractSigned && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className={`border-2 rounded-lg p-5 ${campaign.contract_mosh_status === 'pending_creator' ? 'bg-amber-50 border-amber-200' : 'bg-[#F0F2F5] border-[#DADDE1]'}`}
+                    className={`border-2 rounded-lg p-5 ${campaign.contract_mosh_status === 'pending_creator' ? 'bg-amber-50 border-amber-200' : 'bg-[#F4F4F3] border-[#E2E2E1]'}`}
                 >
                     <div className="flex items-center gap-3 mb-3">
                         <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${campaign.contract_mosh_status === 'pending_creator' ? 'bg-amber-100' : 'bg-white'}`}>
-                            <ScrollText className={`w-5 h-5 ${campaign.contract_mosh_status === 'pending_creator' ? 'text-amber-600' : 'text-[#65676B]'}`} />
+                            <ScrollText className={`w-5 h-5 ${campaign.contract_mosh_status === 'pending_creator' ? 'text-amber-600' : 'text-[#6B6B6B]'}`} />
                         </div>
                         <div>
                             {campaign.contract_mosh_status === 'pending_creator' ? (
                                 <>
-                                    <h3 className="font-semibold text-[#1C1E21]">⚡ Contrat à signer</h3>
-                                    <p className="text-sm text-[#65676B]">Lisez et signez votre contrat pour pouvoir démarrer</p>
+                                    <h3 className="font-semibold text-[#1A1A1A]">⚡ Contrat à signer</h3>
+                                    <p className="text-sm text-[#6B6B6B]">Lisez et signez votre contrat pour pouvoir démarrer</p>
                                 </>
                             ) : (
                                 <>
-                                    <h3 className="font-semibold text-[#1C1E21] flex items-center gap-2">
+                                    <h3 className="font-semibold text-[#1A1A1A] flex items-center gap-2">
                                         En préparation
-                                        <span className="text-xs bg-[#EBEDF0] text-[#65676B] px-2 py-0.5 rounded-full font-medium">Contrat</span>
+                                        <span className="text-xs bg-[#F2F2F1] text-[#6B6B6B] px-2 py-0.5 rounded-full font-medium">Contrat</span>
                                     </h3>
-                                    <p className="text-sm text-[#65676B]">MOSH prépare votre contrat. Vous serez notifié dès qu&apos;il sera prêt à signer.</p>
+                                    <p className="text-sm text-[#6B6B6B]">MOSH prépare votre contrat. Vous serez notifié dès qu&apos;il sera prêt à signer.</p>
                                 </>
                             )}
                         </div>
                     </div>
                     {(myCreatorAmount || campaign.creator_amount_chf) && (
-                        <div className="text-sm text-[#65676B] mb-3 bg-white rounded-lg px-3 py-2">
-                            Rémunération : <strong className="text-[#1C1E21]">CHF {(myCreatorAmount || campaign.creator_amount_chf)?.toLocaleString('fr-CH')}</strong>
+                        <div className="text-sm text-[#6B6B6B] mb-3 bg-white rounded-lg px-3 py-2">
+                            Rémunération : <strong className="text-[#1A1A1A]">CHF {(myCreatorAmount || campaign.creator_amount_chf)?.toLocaleString('fr-CH')}</strong>
                         </div>
                     )}
                     {campaign.contract_mosh_status === 'pending_creator' && (
@@ -368,39 +368,39 @@ export default function CreatorMissionDetailPage() {
                             {campaign.creator_price_status !== 'counter' && !showPriceForm && (
                                 <button
                                     onClick={() => { setPriceInput(String(myCreatorAmount || campaign.creator_amount_chf || '')); setShowPriceForm(true) }}
-                                    className="w-full py-2.5 bg-white border border-[#DADDE1] text-[#1C1E21] rounded-lg text-sm font-medium hover:bg-[#F0F2F5] transition-colors"
+                                    className="w-full py-2.5 bg-white border border-[#E2E2E1] text-[#1A1A1A] rounded-lg text-sm font-medium hover:bg-[#F4F4F3] transition-colors"
                                 >
                                     Demander un autre tarif
                                 </button>
                             )}
 
                             {showPriceForm && (
-                                <div className="bg-white border border-[#DADDE1] rounded-lg p-3 space-y-2">
+                                <div className="bg-white border border-[#E2E2E1] rounded-lg p-3 space-y-2">
                                     <div>
-                                        <label className="block text-xs font-medium text-[#1C1E21] mb-1">Tarif souhaité (CHF)</label>
+                                        <label className="block text-xs font-medium text-[#1A1A1A] mb-1">Tarif souhaité (CHF)</label>
                                         <input
                                             type="number" min="0" step="10" value={priceInput}
                                             onChange={e => setPriceInput(e.target.value)}
                                             placeholder="Ex : 600"
-                                            className="w-full px-3 py-2 bg-[#F0F2F5] border border-[#DADDE1] rounded-lg text-sm focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30"
+                                            className="w-full px-3 py-2 bg-[#F4F4F3] border border-[#E2E2E1] rounded-lg text-sm focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15"
                                         />
                                     </div>
                                     <textarea
                                         value={priceMessage} onChange={e => setPriceMessage(e.target.value)}
                                         rows={2} placeholder="Message pour MOSH (optionnel)"
-                                        className="w-full px-3 py-2 bg-[#F0F2F5] border border-[#DADDE1] rounded-lg text-sm resize-none focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30"
+                                        className="w-full px-3 py-2 bg-[#F4F4F3] border border-[#E2E2E1] rounded-lg text-sm resize-none focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15"
                                     />
                                     <div className="flex gap-2">
                                         <button
                                             onClick={handleRequestPrice}
                                             disabled={priceLoading || !parseFloat(priceInput)}
-                                            className="flex-1 py-2 bg-[#0866FF] text-white rounded-lg text-sm font-medium hover:bg-[#0653CC] transition-colors disabled:opacity-50"
+                                            className="flex-1 py-2 bg-[#1A1A1A] text-white rounded-lg text-sm font-medium hover:bg-[#333333] transition-colors disabled:opacity-50"
                                         >
                                             {priceLoading ? 'Envoi…' : 'Envoyer la demande'}
                                         </button>
                                         <button
                                             onClick={() => setShowPriceForm(false)}
-                                            className="px-3 py-2 text-[#65676B] text-sm hover:bg-[#F0F2F5] rounded-lg transition-colors"
+                                            className="px-3 py-2 text-[#6B6B6B] text-sm hover:bg-[#F4F4F3] rounded-lg transition-colors"
                                         >
                                             Annuler
                                         </button>
@@ -420,11 +420,11 @@ export default function CreatorMissionDetailPage() {
             {campaign.video_url && isStepCompleted('video_uploaded_by_creator') && !isStepCompleted('brand_final_approved') && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                     className="bg-white border border-gray-200 rounded-lg p-6">
-                    <h2 className="text-lg font-semibold text-[#1C1E21] mb-3 flex items-center gap-2">
-                        <Play className="w-4 h-4 text-[#0866FF]" />
+                    <h2 className="text-lg font-semibold text-[#1A1A1A] mb-3 flex items-center gap-2">
+                        <Play className="w-4 h-4 text-[#1A1A1A]" />
                         Votre vidéo
                         {isStepCompleted('video_validated') && (
-                            <span className="text-xs bg-[#E7F0FF] text-[#1C1E21] px-2 py-0.5 rounded-full">QC validé ✓</span>
+                            <span className="text-xs bg-[#EDEDEC] text-[#1A1A1A] px-2 py-0.5 rounded-full">QC validé ✓</span>
                         )}
                     </h2>
                     <video src={campaign.video_url} controls className="w-full rounded-lg bg-black max-h-[400px]" />
@@ -434,23 +434,23 @@ export default function CreatorMissionDetailPage() {
             {/* Mission complete banner */}
             {isStepCompleted('brand_final_approved') && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-[#E7F0FF] border-2 border-[#0866FF]/40 rounded-lg p-5 text-center"
+                    className="bg-[#EDEDEC] border-2 border-[#1A1A1A]/40 rounded-lg p-5 text-center"
                 >
-                    <Star className="w-8 h-8 text-[#1C1E21] mx-auto mb-2" />
-                    <h3 className="font-bold text-[#1C1E21] text-lg">Mission terminée ! 🎉</h3>
-                    <p className="text-sm text-[#65676B] mt-1">La marque a validé votre vidéo. Bravo pour cette collaboration !</p>
+                    <Star className="w-8 h-8 text-[#1A1A1A] mx-auto mb-2" />
+                    <h3 className="font-bold text-[#1A1A1A] text-lg">Mission terminée ! 🎉</h3>
+                    <p className="text-sm text-[#6B6B6B] mt-1">La marque a validé votre vidéo. Bravo pour cette collaboration !</p>
                 </motion.div>
             )}
 
             {/* Contract signed info banner */}
             {contractSigned && !isStepCompleted('brand_final_approved') && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-[#F0F2F5] border border-[#DADDE1] rounded-lg px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-[#EBEDF0] transition-colors"
+                    className="bg-[#F4F4F3] border border-[#E2E2E1] rounded-lg px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-[#F2F2F1] transition-colors"
                     onClick={handleViewContract}
                 >
-                    <ScrollText className="w-4 h-4 text-[#65676B]" />
-                    <p className="flex-1 text-sm text-[#1C1E21]">Contrat signé ✓ · <span className="text-[#65676B]">Consulter</span></p>
-                    <span className="text-xs text-[#65676B] font-medium">CHF {(myCreatorAmount || campaign.creator_amount_chf)?.toLocaleString('fr-CH')}</span>
+                    <ScrollText className="w-4 h-4 text-[#6B6B6B]" />
+                    <p className="flex-1 text-sm text-[#1A1A1A]">Contrat signé ✓ · <span className="text-[#6B6B6B]">Consulter</span></p>
+                    <span className="text-xs text-[#6B6B6B] font-medium">CHF {(myCreatorAmount || campaign.creator_amount_chf)?.toLocaleString('fr-CH')}</span>
                 </motion.div>
             )}
 
@@ -459,15 +459,15 @@ export default function CreatorMissionDetailPage() {
             {/* ========================================================== */}
             {campaign.script_content && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-white border border-[#DADDE1] rounded-lg p-6"
+                    className="bg-white border border-[#E2E2E1] rounded-lg p-6"
                 >
-                    <h2 className="text-sm font-semibold text-[#1C1E21] mb-1 flex items-center gap-2">
-                        <Pen className="w-4 h-4 text-[#65676B]" />
+                    <h2 className="text-sm font-semibold text-[#1A1A1A] mb-1 flex items-center gap-2">
+                        <Pen className="w-4 h-4 text-[#6B6B6B]" />
                         Script de la mission
                     </h2>
-                    <p className="text-xs text-[#65676B] mb-4">Voici le script à suivre pour votre production</p>
-                    <div className="bg-[#F0F2F5]/50 rounded-lg border border-[#DADDE1] p-4">
-                        <p className="text-sm text-[#1C1E21] whitespace-pre-wrap leading-relaxed">{campaign.script_content}</p>
+                    <p className="text-xs text-[#6B6B6B] mb-4">Voici le script à suivre pour votre production</p>
+                    <div className="bg-[#F4F4F3]/50 rounded-lg border border-[#E2E2E1] p-4">
+                        <p className="text-sm text-[#1A1A1A] whitespace-pre-wrap leading-relaxed">{campaign.script_content}</p>
                     </div>
                 </motion.div>
             )}
@@ -478,7 +478,7 @@ export default function CreatorMissionDetailPage() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                 className="bg-white border border-gray-200 rounded-lg p-6"
             >
-                <h2 className="text-lg font-semibold text-[#1C1E21] mb-6">Suivi de votre mission</h2>
+                <h2 className="text-lg font-semibold text-[#1A1A1A] mb-6">Suivi de votre mission</h2>
                 <div className="space-y-0">
                     {TIMELINE_STEPS.map((step, i) => {
                         const completed = isStepCompleted(step.type)
@@ -491,11 +491,11 @@ export default function CreatorMissionDetailPage() {
                         return (
                             <div key={step.type} className="relative flex gap-4">
                                 {i < TIMELINE_STEPS.length - 1 && (
-                                    <div className={`absolute left-5 top-10 w-0.5 h-full ${isPast ? 'bg-[#0866FF]/30' : 'bg-gray-100'}`} />
+                                    <div className={`absolute left-5 top-10 w-0.5 h-full ${isPast ? 'bg-[#1A1A1A]/30' : 'bg-gray-100'}`} />
                                 )}
-                                <div className={`relative z-10 w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${completed ? 'bg-[#E7F0FF] text-[#1C1E21]' :
-                                    isAction ? 'bg-[#0866FF] text-white ring-2 ring-[#0866FF]/40 animate-pulse' :
-                                        isCurrent ? 'bg-[#E7F0FF] text-[#0866FF] ring-2 ring-[#0866FF]/30' :
+                                <div className={`relative z-10 w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${completed ? 'bg-[#EDEDEC] text-[#1A1A1A]' :
+                                    isAction ? 'bg-[#1A1A1A] text-white ring-2 ring-[#1A1A1A]/40 animate-pulse' :
+                                        isCurrent ? 'bg-[#EDEDEC] text-[#1A1A1A] ring-2 ring-[#1A1A1A]/15' :
                                             'bg-gray-50 text-gray-300'
                                     }`}>
                                     {completed ? (
@@ -508,13 +508,13 @@ export default function CreatorMissionDetailPage() {
                                 </div>
                                 <div className="pb-8 flex-1 min-w-0">
                                     <p className={`font-medium ${completed ? 'text-gray-900' :
-                                        isAction ? 'text-[#1C1E21]' :
-                                            isCurrent ? 'text-[#1C1E21]' :
+                                        isAction ? 'text-[#1A1A1A]' :
+                                            isCurrent ? 'text-[#1A1A1A]' :
                                                 'text-gray-400'
                                         }`}>
                                         {step.label}
                                         {isAction && (
-                                            <span className="ml-2 inline-flex items-center gap-1 text-xs bg-[#E7F0FF] text-[#1C1E21] px-2 py-0.5 rounded-full font-semibold">
+                                            <span className="ml-2 inline-flex items-center gap-1 text-xs bg-[#EDEDEC] text-[#1A1A1A] px-2 py-0.5 rounded-full font-semibold">
                                                 <AlertCircle className="w-3 h-3" />
                                                 À vous
                                             </span>
@@ -550,34 +550,34 @@ export default function CreatorMissionDetailPage() {
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                     className="bg-white border border-gray-200 rounded-lg p-6"
                 >
-                    <h2 className="text-lg font-semibold text-[#1C1E21] mb-4">Brief de la mission</h2>
+                    <h2 className="text-lg font-semibold text-[#1A1A1A] mb-4">Brief de la mission</h2>
                     <div className="space-y-4">
                         {campaign.product_name && (
                             <div>
-                                <p className="text-xs text-[#8A8D91] mb-1">Produit</p>
-                                <p className="text-sm text-[#1C1E21]">{campaign.product_name}</p>
+                                <p className="text-xs text-[#9B9B9B] mb-1">Produit</p>
+                                <p className="text-sm text-[#1A1A1A]">{campaign.product_name}</p>
                             </div>
                         )}
                         {campaign.product_description && (
                             <div>
-                                <p className="text-xs text-[#8A8D91] mb-1">Description du produit</p>
-                                <p className="text-sm text-[#1C1E21] whitespace-pre-wrap">{campaign.product_description}</p>
+                                <p className="text-xs text-[#9B9B9B] mb-1">Description du produit</p>
+                                <p className="text-sm text-[#1A1A1A] whitespace-pre-wrap">{campaign.product_description}</p>
                             </div>
                         )}
                         {campaign.description && (
                             <div>
-                                <p className="text-xs text-[#8A8D91] mb-1">Instructions</p>
-                                <p className="text-sm text-[#1C1E21] whitespace-pre-wrap">{campaign.description}</p>
+                                <p className="text-xs text-[#9B9B9B] mb-1">Instructions</p>
+                                <p className="text-sm text-[#1A1A1A] whitespace-pre-wrap">{campaign.description}</p>
                             </div>
                         )}
                         <div className="grid grid-cols-2 gap-4 text-sm">
                             <div>
-                                <p className="text-xs text-[#8A8D91] mb-1">Format</p>
-                                <p className="text-[#1C1E21]">{campaign.format || '—'}</p>
+                                <p className="text-xs text-[#9B9B9B] mb-1">Format</p>
+                                <p className="text-[#1A1A1A]">{campaign.format || '—'}</p>
                             </div>
                             <div>
-                                <p className="text-xs text-[#8A8D91] mb-1">Droits d&apos;usage</p>
-                                <p className="text-[#1C1E21]">{campaign.rights_usage || '—'}</p>
+                                <p className="text-xs text-[#9B9B9B] mb-1">Droits d&apos;usage</p>
+                                <p className="text-[#1A1A1A]">{campaign.rights_usage || '—'}</p>
                             </div>
                         </div>
                     </div>

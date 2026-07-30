@@ -13,10 +13,10 @@ export function generateInvoicePDF(vars: InvoiceVariables): Blob {
     let y = margin
 
     // ── Colors ──
-    const dark = '#1C1E21'
-    const gray = '#65676B'
+    const dark = '#1A1A1A'
+    const gray = '#6B6B6B'
     const lightGray = '#E4E4E7'
-    const lime = '#0866FF'
+    const lime = '#1A1A1A'
 
     // ── Helper: draw a horizontal line ──
     const drawLine = (yPos: number, color = lightGray) => {
@@ -147,7 +147,7 @@ export function generateInvoicePDF(vars: InvoiceVariables): Blob {
     y += 3
 
     // Separator
-    doc.setDrawColor('#BCC0C4')
+    doc.setDrawColor('#C4C4C3')
     doc.setLineWidth(0.2)
     doc.line(margin + 5, y, pageW - margin - 5, y)
     y += 5

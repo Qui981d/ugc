@@ -95,7 +95,7 @@ export default function BrandDashboardPage() {
     if (!mounted || (!user && isLoading) || isDataLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-[#8A8D91]" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#9B9B9B]" />
             </div>
         )
     }
@@ -109,7 +109,7 @@ export default function BrandDashboardPage() {
                 description="Voici un aperçu de votre activité"
                 actions={
                     <Link href="/brand/campaigns/new"
-                        className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#0866FF] text-white rounded-lg text-[13px] font-medium hover:bg-[#0653CC] transition-colors">
+                        className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#1A1A1A] text-white rounded-lg text-[13px] font-medium hover:bg-[#333333] transition-colors">
                         <Plus className="w-4 h-4" strokeWidth={2.2} />
                         Nouvelle campagne
                     </Link>
@@ -118,19 +118,19 @@ export default function BrandDashboardPage() {
 
             {/* Action required — a single bordered row, not a floating card */}
             {brandActionCampaigns.length > 0 && (
-                <div className="flex items-center gap-3 px-4 py-3 bg-white border border-[#DADDE1] rounded-xl mb-3">
+                <div className="flex items-center gap-3 px-4 py-3 bg-white border border-[#E2E2E1] rounded-xl mb-3">
                     <StatusPill tone="waiting">Action requise</StatusPill>
                     <div className="min-w-0">
-                        <p className="text-[13px] font-medium text-[#1C1E21] truncate">
+                        <p className="text-[13px] font-medium text-[#1A1A1A] truncate">
                             {brandActionCampaigns.length} campagne{brandActionCampaigns.length > 1 ? 's' : ''} nécessite{brandActionCampaigns.length > 1 ? 'nt' : ''} votre attention
                         </p>
-                        <p className="text-[12px] text-[#8A8D91] truncate">
+                        <p className="text-[12px] text-[#9B9B9B] truncate">
                             {getActiveStepForCampaign(brandActionCampaigns[0].id)?.label || 'Action requise'}
                         </p>
                     </div>
                     <Link
                         href={`/brand/campaigns/${brandActionCampaigns[0].id}`}
-                        className="ml-auto shrink-0 inline-flex items-center gap-1.5 px-3 h-9 bg-[#0866FF] text-white rounded-lg text-[13px] font-medium hover:bg-[#0653CC] transition-colors"
+                        className="ml-auto shrink-0 inline-flex items-center gap-1.5 px-3 h-9 bg-[#1A1A1A] text-white rounded-lg text-[13px] font-medium hover:bg-[#333333] transition-colors"
                     >
                         Voir
                         <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.2} />
@@ -149,7 +149,7 @@ export default function BrandDashboardPage() {
                     title="Mes campagnes récentes"
                     actions={
                         <Link href="/brand/campaigns"
-                            className="inline-flex items-center gap-1 text-[13px] font-medium text-[#0866FF] hover:text-[#0653CC] transition-colors">
+                            className="inline-flex items-center gap-1 text-[13px] font-medium text-[#1A1A1A] hover:text-[#333333] transition-colors">
                             Voir tout
                             <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.2} />
                         </Link>
@@ -162,7 +162,7 @@ export default function BrandDashboardPage() {
                             description="Créez votre première campagne pour la voir apparaître ici."
                             action={
                                 <Link href="/brand/campaigns/new"
-                                    className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#0866FF] text-white rounded-lg text-[13px] font-medium hover:bg-[#0653CC] transition-colors">
+                                    className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#1A1A1A] text-white rounded-lg text-[13px] font-medium hover:bg-[#333333] transition-colors">
                                     <Plus className="w-4 h-4" strokeWidth={2.2} />
                                     Créer une campagne
                                 </Link>
@@ -172,15 +172,15 @@ export default function BrandDashboardPage() {
                         <div className="overflow-x-auto">
                             <table className="w-full text-[13px]">
                                 <thead>
-                                    <tr className="border-b border-[#DADDE1]">
-                                        <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5">Campagne</th>
-                                        <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5 hidden md:table-cell">Format</th>
-                                        <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5">Étape</th>
-                                        <th className="text-right font-medium text-[11px] uppercase tracking-wider text-[#8A8D91] px-4 py-2.5 hidden sm:table-cell">Budget</th>
+                                    <tr className="border-b border-[#E2E2E1]">
+                                        <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#9B9B9B] px-4 py-2.5">Campagne</th>
+                                        <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#9B9B9B] px-4 py-2.5 hidden md:table-cell">Format</th>
+                                        <th className="text-left font-medium text-[11px] uppercase tracking-wider text-[#9B9B9B] px-4 py-2.5">Étape</th>
+                                        <th className="text-right font-medium text-[11px] uppercase tracking-wider text-[#9B9B9B] px-4 py-2.5 hidden sm:table-cell">Budget</th>
                                         <th className="w-8" />
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-[#DADDE1]">
+                                <tbody className="divide-y divide-[#E2E2E1]">
                                     {recentCampaigns.map((campaign) => {
                                         const wf = getWorkflowLabel(campaign.id)
                                         const status = getStatusConfig(campaign.status)
@@ -189,23 +189,23 @@ export default function BrandDashboardPage() {
                                             <tr
                                                 key={campaign.id}
                                                 onClick={() => router.push(`/brand/campaigns/${campaign.id}`)}
-                                                className="hover:bg-[#F7F8FA] cursor-pointer transition-colors group"
+                                                className="hover:bg-[#FAFAF9] cursor-pointer transition-colors group"
                                             >
                                                 <td className="px-4 py-2.5 max-w-[320px]">
-                                                    <span className="block font-medium text-[#1C1E21] truncate">{campaign.title}</span>
-                                                    <span className="block text-[12px] text-[#8A8D91] truncate md:hidden">{campaign.script_type}</span>
+                                                    <span className="block font-medium text-[#1A1A1A] truncate">{campaign.title}</span>
+                                                    <span className="block text-[12px] text-[#9B9B9B] truncate md:hidden">{campaign.script_type}</span>
                                                 </td>
-                                                <td className="px-4 py-2.5 text-[#65676B] hidden md:table-cell max-w-[180px]">
+                                                <td className="px-4 py-2.5 text-[#6B6B6B] hidden md:table-cell max-w-[180px]">
                                                     <span className="block truncate">{campaign.script_type}</span>
                                                 </td>
                                                 <td className="px-4 py-2.5">
                                                     <StatusPill tone={tone}>{wf ? wf.label : status.label}</StatusPill>
                                                 </td>
-                                                <td className="px-4 py-2.5 text-right tabular-nums text-[#1C1E21] hidden sm:table-cell whitespace-nowrap">
+                                                <td className="px-4 py-2.5 text-right tabular-nums text-[#1A1A1A] hidden sm:table-cell whitespace-nowrap">
                                                     {formatCHF(campaign.budget_chf)}
                                                 </td>
                                                 <td className="pr-3">
-                                                    <ArrowRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors" strokeWidth={2} />
+                                                    <ArrowRight className="w-4 h-4 text-[#C4C4C3] group-hover:text-[#1A1A1A] transition-colors" strokeWidth={2} />
                                                 </td>
                                             </tr>
                                         )
@@ -221,34 +221,34 @@ export default function BrandDashboardPage() {
             <Panel title="Actions rapides">
                 <PanelList>
                     <PanelRow href="/brand/campaigns/new">
-                        <div className="w-8 h-8 rounded-lg bg-[#E7F0FF] grid place-items-center shrink-0">
-                            <Plus className="w-4 h-4 text-[#0866FF]" strokeWidth={2} />
+                        <div className="w-8 h-8 rounded-lg bg-[#EDEDEC] grid place-items-center shrink-0">
+                            <Plus className="w-4 h-4 text-[#1A1A1A]" strokeWidth={2} />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-[13px] font-medium text-[#1C1E21] truncate">Créer une campagne</p>
-                            <p className="text-[12px] text-[#8A8D91] truncate">Décrivez votre besoin en vidéo UGC</p>
+                            <p className="text-[13px] font-medium text-[#1A1A1A] truncate">Créer une campagne</p>
+                            <p className="text-[12px] text-[#9B9B9B] truncate">Décrivez votre besoin en vidéo UGC</p>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors ml-auto shrink-0" strokeWidth={2} />
+                        <ArrowRight className="w-4 h-4 text-[#C4C4C3] group-hover:text-[#1A1A1A] transition-colors ml-auto shrink-0" strokeWidth={2} />
                     </PanelRow>
                     <PanelRow href="/brand/campaigns">
-                        <div className="w-8 h-8 rounded-lg bg-[#F0F2F5] grid place-items-center shrink-0">
-                            <Eye className="w-4 h-4 text-[#65676B]" strokeWidth={2} />
+                        <div className="w-8 h-8 rounded-lg bg-[#F4F4F3] grid place-items-center shrink-0">
+                            <Eye className="w-4 h-4 text-[#6B6B6B]" strokeWidth={2} />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-[13px] font-medium text-[#1C1E21] truncate">Suivre mes campagnes</p>
-                            <p className="text-[12px] text-[#8A8D91] truncate">Voyez l&apos;avancement de vos projets</p>
+                            <p className="text-[13px] font-medium text-[#1A1A1A] truncate">Suivre mes campagnes</p>
+                            <p className="text-[12px] text-[#9B9B9B] truncate">Voyez l&apos;avancement de vos projets</p>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors ml-auto shrink-0" strokeWidth={2} />
+                        <ArrowRight className="w-4 h-4 text-[#C4C4C3] group-hover:text-[#1A1A1A] transition-colors ml-auto shrink-0" strokeWidth={2} />
                     </PanelRow>
                     <PanelRow href="/brand/settings">
-                        <div className="w-8 h-8 rounded-lg bg-[#F0F2F5] grid place-items-center shrink-0">
-                            <Settings className="w-4 h-4 text-[#65676B]" strokeWidth={2} />
+                        <div className="w-8 h-8 rounded-lg bg-[#F4F4F3] grid place-items-center shrink-0">
+                            <Settings className="w-4 h-4 text-[#6B6B6B]" strokeWidth={2} />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-[13px] font-medium text-[#1C1E21] truncate">Compléter le profil</p>
-                            <p className="text-[12px] text-[#8A8D91] truncate">Finalisez votre profil marque</p>
+                            <p className="text-[13px] font-medium text-[#1A1A1A] truncate">Compléter le profil</p>
+                            <p className="text-[12px] text-[#9B9B9B] truncate">Finalisez votre profil marque</p>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors ml-auto shrink-0" strokeWidth={2} />
+                        <ArrowRight className="w-4 h-4 text-[#C4C4C3] group-hover:text-[#1A1A1A] transition-colors ml-auto shrink-0" strokeWidth={2} />
                     </PanelRow>
                 </PanelList>
             </Panel>

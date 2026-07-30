@@ -354,25 +354,25 @@ export default function CreatorStudioPage() {
                         <ArrowLeft className="w-4 h-4 text-gray-600" />
                     </Link>
                     <div>
-                        <h1 className="text-xl font-bold text-[#1C1E21] flex items-center gap-2">
-                            <Film className="w-5 h-5 text-[#0866FF]" />
+                        <h1 className="text-xl font-bold text-[#1A1A1A] flex items-center gap-2">
+                            <Film className="w-5 h-5 text-[#1A1A1A]" />
                             Studio
                         </h1>
-                        <p className="text-sm text-[#65676B]">{campaign.title}</p>
+                        <p className="text-sm text-[#6B6B6B]">{campaign.title}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
                     {daysLeft !== null && (
                         <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${daysLeft <= 3 ? 'bg-red-100 text-red-700' :
                             daysLeft <= 7 ? 'bg-amber-100 text-amber-700' :
-                                'bg-[#E7F0FF] text-[#1C1E21]'
+                                'bg-[#EDEDEC] text-[#1A1A1A]'
                             }`}>
                             <Calendar className="w-3.5 h-3.5" />
                             {daysLeft === 0 ? 'Aujourd\'hui !' : `${daysLeft}j restants`}
                         </div>
                     )}
                     <Link href={`/creator/messages`}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0866FF] text-white text-xs font-medium rounded-full hover:bg-[#0653CC] transition-colors">
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1A1A1A] text-white text-xs font-medium rounded-full hover:bg-[#333333] transition-colors">
                         <MessageSquare className="w-3.5 h-3.5" />
                         Message MOSH
                     </Link>
@@ -382,7 +382,7 @@ export default function CreatorStudioPage() {
             {/* Success toast */}
             {actionSuccess && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-[#E7F0FF] border border-[#0866FF]/30 rounded-lg px-4 py-3 text-[#1C1E21] text-sm font-medium flex items-center gap-2">
+                    className="bg-[#EDEDEC] border border-[#1A1A1A]/30 rounded-lg px-4 py-3 text-[#1A1A1A] text-sm font-medium flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4" />
                     {actionSuccess}
                 </motion.div>
@@ -399,8 +399,8 @@ export default function CreatorStudioPage() {
                     {/* ===== VIDEO ZONE ===== */}
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                         className="bg-white border border-gray-200 rounded-lg p-6">
-                        <h2 className="text-lg font-semibold text-[#1C1E21] mb-4 flex items-center gap-2">
-                            <Film className="w-5 h-5 text-[#0866FF]" />
+                        <h2 className="text-lg font-semibold text-[#1A1A1A] mb-4 flex items-center gap-2">
+                            <Film className="w-5 h-5 text-[#1A1A1A]" />
                             {videoFile ? 'Éditeur vidéo' : 'Votre vidéo'}
                         </h2>
 
@@ -422,7 +422,7 @@ export default function CreatorStudioPage() {
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         {isStepCompleted('video_validated') ? (
-                                            <span className="text-xs bg-[#E7F0FF] text-[#1C1E21] px-2 py-0.5 rounded-full font-medium">QC validé ✓</span>
+                                            <span className="text-xs bg-[#EDEDEC] text-[#1A1A1A] px-2 py-0.5 rounded-full font-medium">QC validé ✓</span>
                                         ) : (
                                             <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
                                                 <Clock className="w-3 h-3" /> En vérification par MOSH
@@ -430,7 +430,7 @@ export default function CreatorStudioPage() {
                                         )}
                                     </div>
                                     {campaign.video_uploaded_at && (
-                                        <span className="text-xs text-[#65676B]">
+                                        <span className="text-xs text-[#6B6B6B]">
                                             Envoyée le {new Date(campaign.video_uploaded_at).toLocaleDateString('fr-CH')}
                                         </span>
                                     )}
@@ -442,16 +442,16 @@ export default function CreatorStudioPage() {
                                 {videoFile && videoPreviewUrl ? (
                                     <div className="space-y-4">
                                         <video src={videoPreviewUrl} controls className="w-full rounded-lg bg-black max-h-[350px]" />
-                                        <div className="flex flex-wrap items-center gap-3 text-xs text-[#65676B]">
-                                            <span className="bg-[#F0F2F5] px-2 py-1 rounded">{videoFile.name}</span>
-                                            <span className="bg-[#F0F2F5] px-2 py-1 rounded">{(videoFile.size / (1024 * 1024)).toFixed(1)} MB</span>
-                                            {videoDuration && <span className="bg-[#F0F2F5] px-2 py-1 rounded">{Math.floor(videoDuration / 60)}:{(Math.floor(videoDuration % 60)).toString().padStart(2, '0')}</span>}
+                                        <div className="flex flex-wrap items-center gap-3 text-xs text-[#6B6B6B]">
+                                            <span className="bg-[#F4F4F3] px-2 py-1 rounded">{videoFile.name}</span>
+                                            <span className="bg-[#F4F4F3] px-2 py-1 rounded">{(videoFile.size / (1024 * 1024)).toFixed(1)} MB</span>
+                                            {videoDuration && <span className="bg-[#F4F4F3] px-2 py-1 rounded">{Math.floor(videoDuration / 60)}:{(Math.floor(videoDuration % 60)).toString().padStart(2, '0')}</span>}
                                         </div>
                                         <div className="flex gap-3">
                                             <button
                                                 onClick={handleDirectUpload}
                                                 disabled={videoUploading}
-                                                className="flex-1 py-2.5 bg-[#0866FF] text-white rounded-lg text-sm font-medium hover:bg-[#0653CC] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                                                className="flex-1 py-2.5 bg-[#1A1A1A] text-white rounded-lg text-sm font-medium hover:bg-[#333333] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                                             >
                                                 {videoUploading ? (
                                                     <><Loader2 className="w-4 h-4 animate-spin" /> Upload en cours ({uploadProgress}%)...</>
@@ -462,14 +462,14 @@ export default function CreatorStudioPage() {
                                             <button
                                                 onClick={() => { setVideoFile(null); if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl); setVideoPreviewUrl(null); setVideoDuration(null) }}
                                                 disabled={videoUploading}
-                                                className="px-4 py-2.5 bg-[#F0F2F5] text-[#1C1E21] rounded-lg text-sm hover:bg-[#DADDE1] transition-colors disabled:opacity-50"
+                                                className="px-4 py-2.5 bg-[#F4F4F3] text-[#1A1A1A] rounded-lg text-sm hover:bg-[#E2E2E1] transition-colors disabled:opacity-50"
                                             >
                                                 Changer
                                             </button>
                                         </div>
                                         {videoUploading && (
-                                            <div className="w-full bg-[#F0F2F5] rounded-full h-2">
-                                                <div className="bg-[#0866FF] h-2 rounded-full transition-all" style={{ width: `${uploadProgress}%` }} />
+                                            <div className="w-full bg-[#F4F4F3] rounded-full h-2">
+                                                <div className="bg-[#1A1A1A] h-2 rounded-full transition-all" style={{ width: `${uploadProgress}%` }} />
                                             </div>
                                         )}
                                     </div>
@@ -485,7 +485,7 @@ export default function CreatorStudioPage() {
                                                 const file = e.dataTransfer.files[0]
                                                 if (file) validateAndSetVideo(file)
                                             }}
-                                            className={`border-2 border-dashed rounded-lg p-10 text-center cursor-pointer transition-all ${dragOver ? 'border-[#0866FF] bg-[#E7F0FF]' : 'border-gray-200 bg-gray-50/50 hover:bg-gray-50 hover:border-gray-300'
+                                            className={`border-2 border-dashed rounded-lg p-10 text-center cursor-pointer transition-all ${dragOver ? 'border-[#1A1A1A] bg-[#EDEDEC]' : 'border-gray-200 bg-gray-50/50 hover:bg-gray-50 hover:border-gray-300'
                                                 }`}
                                             onClick={() => {
                                                 const input = document.createElement('input')
@@ -499,8 +499,8 @@ export default function CreatorStudioPage() {
                                             }}
                                         >
                                             <Upload className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-                                            <p className="text-sm font-medium text-[#1C1E21]">Glissez votre vidéo ici</p>
-                                            <p className="text-xs text-[#65676B] mt-1">MP4, MOV, AVI, WebM • Max 500 MB</p>
+                                            <p className="text-sm font-medium text-[#1A1A1A]">Glissez votre vidéo ici</p>
+                                            <p className="text-xs text-[#6B6B6B] mt-1">MP4, MOV, AVI, WebM • Max 500 MB</p>
                                         </div>
                                         {fileError && (
                                             <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
@@ -511,7 +511,7 @@ export default function CreatorStudioPage() {
                                 )}
                             </>
                         ) : (
-                            <div className="text-center py-8 text-[#8A8D91]">
+                            <div className="text-center py-8 text-[#9B9B9B]">
                                 <Camera className="w-10 h-10 mx-auto mb-3 text-gray-200" />
                                 <p className="text-sm">Commencez le tournage pour accéder à l&apos;éditeur</p>
                             </div>
@@ -522,11 +522,11 @@ export default function CreatorStudioPage() {
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
                         className="bg-white border border-gray-200 rounded-lg p-6">
                         <div className="flex items-center justify-between mb-3">
-                            <h2 className="text-lg font-semibold text-[#1C1E21] flex items-center gap-2">
-                                <StickyNote className="w-5 h-5 text-[#0866FF]" />
+                            <h2 className="text-lg font-semibold text-[#1A1A1A] flex items-center gap-2">
+                                <StickyNote className="w-5 h-5 text-[#1A1A1A]" />
                                 Mes notes
                             </h2>
-                            <span className="text-xs text-[#8A8D91]">
+                            <span className="text-xs text-[#9B9B9B]">
                                 {notesSaving ? 'Sauvegarde...' : notesSaved ? '✓ Sauvegardé' : 'Auto-sauvegardé'}
                             </span>
                         </div>
@@ -535,7 +535,7 @@ export default function CreatorStudioPage() {
                             onChange={(e) => handleNotesChange(e.target.value)}
                             placeholder="Idées de tournage, shot list, rappels personnels..."
                             rows={5}
-                            className="w-full px-4 py-3 bg-[#F0F2F5] border border-[#DADDE1] rounded-lg text-sm placeholder:text-[#8A8D91] focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30 resize-none"
+                            className="w-full px-4 py-3 bg-[#F4F4F3] border border-[#E2E2E1] rounded-lg text-sm placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15 resize-none"
                         />
                     </motion.div>
                 </div>
@@ -546,31 +546,31 @@ export default function CreatorStudioPage() {
                     {/* Checklist */}
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
                         className="bg-white border border-gray-200 rounded-lg p-5">
-                        <h2 className="text-sm font-semibold text-[#1C1E21] mb-3 flex items-center justify-between">
+                        <h2 className="text-sm font-semibold text-[#1A1A1A] mb-3 flex items-center justify-between">
                             <span className="flex items-center gap-2">
-                                <ListChecks className="w-4 h-4 text-[#0866FF]" />
+                                <ListChecks className="w-4 h-4 text-[#1A1A1A]" />
                                 Checklist
                             </span>
-                            <span className="text-xs text-[#65676B] font-normal">{completedChecks}/{checklist.length}</span>
+                            <span className="text-xs text-[#6B6B6B] font-normal">{completedChecks}/{checklist.length}</span>
                         </h2>
 
                         {/* Progress bar */}
-                        <div className="w-full bg-[#F0F2F5] rounded-full h-1.5 mb-3">
-                            <div className="bg-[#0866FF] h-1.5 rounded-full transition-all" style={{ width: checklist.length ? `${(completedChecks / checklist.length) * 100}%` : '0%' }} />
+                        <div className="w-full bg-[#F4F4F3] rounded-full h-1.5 mb-3">
+                            <div className="bg-[#1A1A1A] h-1.5 rounded-full transition-all" style={{ width: checklist.length ? `${(completedChecks / checklist.length) * 100}%` : '0%' }} />
                         </div>
 
                         <div className="space-y-1.5">
                             {checklist.map((item, i) => (
                                 <div key={i} className="flex items-center gap-2 group">
                                     <button onClick={() => toggleCheckItem(i)}
-                                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors shrink-0 ${item.done ? 'bg-[#0866FF] border-[#0866FF]' : 'border-[#DADDE1] hover:border-[#0866FF]/60'
+                                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors shrink-0 ${item.done ? 'bg-[#1A1A1A] border-[#1A1A1A]' : 'border-[#E2E2E1] hover:border-[#1A1A1A]/60'
                                             }`}>
-                                        {item.done && <CheckCircle2 className="w-3 h-3 text-[#1C1E21]" />}
+                                        {item.done && <CheckCircle2 className="w-3 h-3 text-[#1A1A1A]" />}
                                     </button>
-                                    <span className={`text-sm flex-1 ${item.done ? 'line-through text-[#8A8D91]' : 'text-[#1C1E21]'}`}>{item.text}</span>
+                                    <span className={`text-sm flex-1 ${item.done ? 'line-through text-[#9B9B9B]' : 'text-[#1A1A1A]'}`}>{item.text}</span>
                                     <button onClick={() => removeCheckItem(i)}
                                         className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Trash2 className="w-3.5 h-3.5 text-[#8A8D91] hover:text-red-500" />
+                                        <Trash2 className="w-3.5 h-3.5 text-[#9B9B9B] hover:text-red-500" />
                                     </button>
                                 </div>
                             ))}
@@ -582,10 +582,10 @@ export default function CreatorStudioPage() {
                                 onChange={(e) => setNewCheckItem(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && addCheckItem()}
                                 placeholder="Ajouter un élément..."
-                                className="flex-1 px-3 py-1.5 bg-[#F0F2F5] border border-[#DADDE1] rounded-lg text-xs placeholder:text-[#8A8D91] focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30"
+                                className="flex-1 px-3 py-1.5 bg-[#F4F4F3] border border-[#E2E2E1] rounded-lg text-xs placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15"
                             />
                             <button onClick={addCheckItem}
-                                className="w-7 h-7 bg-[#0866FF] text-white rounded-lg flex items-center justify-center hover:bg-[#0653CC] transition-colors">
+                                className="w-7 h-7 bg-[#1A1A1A] text-white rounded-lg flex items-center justify-center hover:bg-[#333333] transition-colors">
                                 <Plus className="w-3.5 h-3.5" />
                             </button>
                         </div>
@@ -597,15 +597,15 @@ export default function CreatorStudioPage() {
                             className="bg-white border border-gray-200 rounded-lg p-5">
                             <button onClick={() => setScriptExpanded(!scriptExpanded)}
                                 className="w-full flex items-center justify-between">
-                                <h2 className="text-sm font-semibold text-[#1C1E21] flex items-center gap-2">
-                                    <Pen className="w-4 h-4 text-[#0866FF]" />
+                                <h2 className="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
+                                    <Pen className="w-4 h-4 text-[#1A1A1A]" />
                                     Script {contentData ? `— ${contentData.script_type}` : ''}
                                 </h2>
-                                {scriptExpanded ? <ChevronUp className="w-4 h-4 text-[#65676B]" /> : <ChevronDown className="w-4 h-4 text-[#65676B]" />}
+                                {scriptExpanded ? <ChevronUp className="w-4 h-4 text-[#6B6B6B]" /> : <ChevronDown className="w-4 h-4 text-[#6B6B6B]" />}
                             </button>
                             {scriptExpanded && (
-                                <div className="mt-3 bg-[#E7F0FF] rounded-lg p-3 border border-[#0866FF]/20">
-                                    <p className="text-xs text-[#1C1E21] whitespace-pre-wrap leading-relaxed">
+                                <div className="mt-3 bg-[#EDEDEC] rounded-lg p-3 border border-[#1A1A1A]/20">
+                                    <p className="text-xs text-[#1A1A1A] whitespace-pre-wrap leading-relaxed">
                                         {contentData?.script_content || campaign.script_content}
                                     </p>
                                 </div>
@@ -618,44 +618,44 @@ export default function CreatorStudioPage() {
                         className="bg-white border border-gray-200 rounded-lg p-5">
                         <button onClick={() => setBriefExpanded(!briefExpanded)}
                             className="w-full flex items-center justify-between">
-                            <h2 className="text-sm font-semibold text-[#1C1E21] flex items-center gap-2">
-                                <FileText className="w-4 h-4 text-[#0866FF]" />
+                            <h2 className="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
+                                <FileText className="w-4 h-4 text-[#1A1A1A]" />
                                 Brief
                             </h2>
-                            {briefExpanded ? <ChevronUp className="w-4 h-4 text-[#65676B]" /> : <ChevronDown className="w-4 h-4 text-[#65676B]" />}
+                            {briefExpanded ? <ChevronUp className="w-4 h-4 text-[#6B6B6B]" /> : <ChevronDown className="w-4 h-4 text-[#6B6B6B]" />}
                         </button>
                         {briefExpanded && (
                             <div className="mt-3 space-y-2 text-xs">
                                 <div className="bg-gray-50 rounded-lg p-3">
-                                    <p className="text-[#65676B]">Produit</p>
-                                    <p className="text-[#1C1E21] font-medium">{campaign.product_name}</p>
+                                    <p className="text-[#6B6B6B]">Produit</p>
+                                    <p className="text-[#1A1A1A] font-medium">{campaign.product_name}</p>
                                 </div>
                                 {campaign.product_description && (
                                     <div className="bg-gray-50 rounded-lg p-3">
-                                        <p className="text-[#65676B]">Description produit</p>
-                                        <p className="text-[#1C1E21] whitespace-pre-wrap">{campaign.product_description}</p>
+                                        <p className="text-[#6B6B6B]">Description produit</p>
+                                        <p className="text-[#1A1A1A] whitespace-pre-wrap">{campaign.product_description}</p>
                                     </div>
                                 )}
                                 {campaign.description && (
                                     <div className="bg-gray-50 rounded-lg p-3">
-                                        <p className="text-[#65676B]">Brief</p>
-                                        <p className="text-[#1C1E21] whitespace-pre-wrap">{campaign.description}</p>
+                                        <p className="text-[#6B6B6B]">Brief</p>
+                                        <p className="text-[#1A1A1A] whitespace-pre-wrap">{campaign.description}</p>
                                     </div>
                                 )}
                                 <div className="flex gap-2">
                                     <div className="flex-1 bg-gray-50 rounded-lg p-3">
-                                        <p className="text-[#65676B]">Format</p>
-                                        <p className="text-[#1C1E21] font-medium">{campaign.format}</p>
+                                        <p className="text-[#6B6B6B]">Format</p>
+                                        <p className="text-[#1A1A1A] font-medium">{campaign.format}</p>
                                     </div>
                                     <div className="flex-1 bg-gray-50 rounded-lg p-3">
-                                        <p className="text-[#65676B]">Type</p>
-                                        <p className="text-[#1C1E21] font-medium">{campaign.script_type}</p>
+                                        <p className="text-[#6B6B6B]">Type</p>
+                                        <p className="text-[#1A1A1A] font-medium">{campaign.script_type}</p>
                                     </div>
                                 </div>
                                 {campaign.script_notes && (
                                     <div className="bg-gray-50 rounded-lg p-3">
-                                        <p className="text-[#65676B]">Notes script</p>
-                                        <p className="text-[#1C1E21] whitespace-pre-wrap">{campaign.script_notes}</p>
+                                        <p className="text-[#6B6B6B]">Notes script</p>
+                                        <p className="text-[#1A1A1A] whitespace-pre-wrap">{campaign.script_notes}</p>
                                     </div>
                                 )}
                             </div>
@@ -665,8 +665,8 @@ export default function CreatorStudioPage() {
                     {/* Pipeline status */}
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
                         className="bg-white border border-gray-200 rounded-lg p-5">
-                        <h2 className="text-sm font-semibold text-[#1C1E21] mb-3 flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-[#65676B]" />
+                        <h2 className="text-sm font-semibold text-[#1A1A1A] mb-3 flex items-center gap-2">
+                            <Clock className="w-4 h-4 text-[#6B6B6B]" />
                             Étape actuelle
                         </h2>
                         <div className="space-y-2">
@@ -679,8 +679,8 @@ export default function CreatorStudioPage() {
                                 { step: 'brand_final_approved' as MissionStepType, label: 'Terminée ✅' },
                             ].map(({ step, label }) => (
                                 <div key={step} className="flex items-center gap-2">
-                                    <div className={`w-2 h-2 rounded-full ${isStepCompleted(step) ? 'bg-[#0866FF]' : 'bg-[#DADDE1]'}`} />
-                                    <span className={`text-xs ${isStepCompleted(step) ? 'text-[#1C1E21]' : 'text-[#8A8D91]'}`}>{label}</span>
+                                    <div className={`w-2 h-2 rounded-full ${isStepCompleted(step) ? 'bg-[#1A1A1A]' : 'bg-[#E2E2E1]'}`} />
+                                    <span className={`text-xs ${isStepCompleted(step) ? 'text-[#1A1A1A]' : 'text-[#9B9B9B]'}`}>{label}</span>
                                 </div>
                             ))}
                         </div>

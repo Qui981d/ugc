@@ -33,9 +33,9 @@ interface Transaction {
 }
 
 const statusConfig: Record<string, { label: string; class: string }> = {
-    completed: { label: "Payé", class: "bg-[#E7F0FF] text-[#1C1E21] border-[#0866FF]/30" },
+    completed: { label: "Payé", class: "bg-[#EDEDEC] text-[#1A1A1A] border-[#1A1A1A]/30" },
     pending: { label: "En attente", class: "bg-amber-500/20 text-amber-700 border-amber-500/30" },
-    failed: { label: "Échoué", class: "bg-red-500/20 text-red-700 border-red-500/30" },
+    failed: { label: "Échoué", class: "bg-[#1A1A1A]/20 text-red-700 border-red-500/30" },
 }
 
 export default function CreatorEarningsPage() {
@@ -106,7 +106,7 @@ export default function CreatorEarningsPage() {
     if (!mounted || (!user && isLoading)) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-[#8A8D91]" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#9B9B9B]" />
             </div>
         )
     }
@@ -116,10 +116,10 @@ export default function CreatorEarningsPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-[28px] md:text-[34px] font-semibold text-[#1C1E21] tracking-[-0.02em]">Revenus</h1>
-                    <p className="text-[#65676B] mt-1">Suivez vos gains et paiements</p>
+                    <h1 className="text-[28px] md:text-[34px] font-semibold text-[#1A1A1A] tracking-[-0.02em]">Revenus</h1>
+                    <p className="text-[#6B6B6B] mt-1">Suivez vos gains et paiements</p>
                 </div>
-                <Button variant="outline" className="border-[#DADDE1] text-[#8A8D91] rounded-full cursor-not-allowed opacity-50" disabled>
+                <Button variant="outline" className="border-[#E2E2E1] text-[#9B9B9B] rounded-full cursor-not-allowed opacity-50" disabled>
                     <Download className="h-4 w-4 mr-2" />
                     Exporter (bientôt)
                 </Button>
@@ -130,49 +130,49 @@ export default function CreatorEarningsPage() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white border border-[#DADDE1] rounded-xl p-5"
+                    className="bg-white border border-[#E2E2E1] rounded-xl p-5"
                 >
                     <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-lg bg-[#E7F0FF] flex items-center justify-center">
-                            <Wallet className="w-5 h-5 text-[#1C1E21]" strokeWidth={1.5} />
+                        <div className="w-10 h-10 rounded-lg bg-[#EDEDEC] flex items-center justify-center">
+                            <Wallet className="w-5 h-5 text-[#1A1A1A]" strokeWidth={1.5} />
                         </div>
-                        <span className="text-[#1C1E21] text-xs font-medium flex items-center gap-1">
+                        <span className="text-[#1A1A1A] text-xs font-medium flex items-center gap-1">
                             <TrendingUp className="w-3 h-3" />
                             Total
                         </span>
                     </div>
-                    <p className="text-2xl font-bold text-[#1C1E21]">{formatCHF(totalEarned)}</p>
-                    <p className="text-xs text-[#8A8D91] mt-1">Revenus totaux</p>
+                    <p className="text-2xl font-bold text-[#1A1A1A]">{formatCHF(totalEarned)}</p>
+                    <p className="text-xs text-[#9B9B9B] mt-1">Revenus totaux</p>
                 </motion.div>
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.05 }}
-                    className="bg-white border border-[#DADDE1] rounded-xl p-5"
+                    className="bg-white border border-[#E2E2E1] rounded-xl p-5"
                 >
                     <div className="flex items-center justify-between mb-3">
                         <div className="w-10 h-10 rounded-lg bg-amber-500/15 flex items-center justify-center">
                             <Clock className="w-5 h-5 text-amber-700" strokeWidth={1.5} />
                         </div>
                     </div>
-                    <p className="text-2xl font-bold text-[#1C1E21]">{formatCHF(pendingAmount)}</p>
-                    <p className="text-xs text-[#8A8D91] mt-1">En attente</p>
+                    <p className="text-2xl font-bold text-[#1A1A1A]">{formatCHF(pendingAmount)}</p>
+                    <p className="text-xs text-[#9B9B9B] mt-1">En attente</p>
                 </motion.div>
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="bg-white border border-[#DADDE1] rounded-xl p-5"
+                    className="bg-white border border-[#E2E2E1] rounded-xl p-5"
                 >
                     <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-lg bg-[#E7F0FF] flex items-center justify-center">
-                            <Calendar className="w-5 h-5 text-[#1C1E21]" strokeWidth={1.5} />
+                        <div className="w-10 h-10 rounded-lg bg-[#EDEDEC] flex items-center justify-center">
+                            <Calendar className="w-5 h-5 text-[#1A1A1A]" strokeWidth={1.5} />
                         </div>
                     </div>
-                    <p className="text-2xl font-bold text-[#1C1E21]">{transactions.length}</p>
-                    <p className="text-xs text-[#8A8D91] mt-1">Transactions</p>
+                    <p className="text-2xl font-bold text-[#1A1A1A]">{transactions.length}</p>
+                    <p className="text-xs text-[#9B9B9B] mt-1">Transactions</p>
                 </motion.div>
             </div>
 
@@ -181,24 +181,24 @@ export default function CreatorEarningsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
-                className="bg-white border border-[#DADDE1] rounded-xl p-6"
+                className="bg-white border border-[#E2E2E1] rounded-xl p-6"
             >
-                <h2 className="text-lg font-semibold text-[#1C1E21] mb-4">Méthode de paiement</h2>
+                <h2 className="text-lg font-semibold text-[#1A1A1A] mb-4">Méthode de paiement</h2>
 
                 <div className="space-y-4">
-                    <div className="bg-[#F0F2F5] rounded-lg p-4">
+                    <div className="bg-[#F4F4F3] rounded-lg p-4">
                         <div className="flex items-center gap-3 mb-3">
                             <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
-                                <Building2 className="w-5 h-5 text-[#65676B]" strokeWidth={1.5} />
+                                <Building2 className="w-5 h-5 text-[#6B6B6B]" strokeWidth={1.5} />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-[#1C1E21]">Virement bancaire</p>
-                                <p className="text-xs text-[#8A8D91]">Non configuré</p>
+                                <p className="text-sm font-medium text-[#1A1A1A]">Virement bancaire</p>
+                                <p className="text-xs text-[#9B9B9B]">Non configuré</p>
                             </div>
                         </div>
                     </div>
 
-                    <Button variant="outline" className="w-full border-[#DADDE1] text-[#8A8D91] rounded-full cursor-not-allowed opacity-50" disabled>
+                    <Button variant="outline" className="w-full border-[#E2E2E1] text-[#9B9B9B] rounded-full cursor-not-allowed opacity-50" disabled>
                         <CreditCard className="w-4 h-4 mr-2" />
                         Configurer IBAN (bientôt)
                     </Button>
@@ -210,49 +210,49 @@ export default function CreatorEarningsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-white border border-[#DADDE1] rounded-xl overflow-hidden"
+                className="bg-white border border-[#E2E2E1] rounded-xl overflow-hidden"
             >
-                <div className="p-6 border-b border-[#EBEDF0]">
-                    <h2 className="text-lg font-semibold text-[#1C1E21]">Historique des transactions</h2>
+                <div className="p-6 border-b border-[#F2F2F1]">
+                    <h2 className="text-lg font-semibold text-[#1A1A1A]">Historique des transactions</h2>
                 </div>
 
                 {transactions.length === 0 ? (
-                    <div className="p-12 text-center text-[#8A8D91]">
+                    <div className="p-12 text-center text-[#9B9B9B]">
                         <Wallet className="w-12 h-12 mx-auto mb-4 opacity-50" />
                         <p>Aucune transaction pour le moment</p>
                         <p className="text-sm mt-2">Complétez des missions pour gagner de l'argent</p>
                     </div>
                 ) : (
-                    <div className="divide-y divide-[#EBEDF0]">
+                    <div className="divide-y divide-[#F2F2F1]">
                         {transactions.map((tx, index) => (
                             <motion.div
                                 key={tx.id}
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.25 + index * 0.03 }}
-                                className="flex items-center justify-between p-5 hover:bg-[#F0F2F5]/40 transition-colors"
+                                className="flex items-center justify-between p-5 hover:bg-[#F4F4F3]/40 transition-colors"
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${tx.type === 'payment' ? 'bg-[#E7F0FF]' : 'bg-[#E7F0FF]'
+                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${tx.type === 'payment' ? 'bg-[#EDEDEC]' : 'bg-[#EDEDEC]'
                                         }`}>
                                         {tx.type === 'payment' ? (
-                                            <ArrowDownRight className="w-5 h-5 text-[#1C1E21]" />
+                                            <ArrowDownRight className="w-5 h-5 text-[#1A1A1A]" />
                                         ) : (
-                                            <ArrowUpRight className="w-5 h-5 text-[#1C1E21]" />
+                                            <ArrowUpRight className="w-5 h-5 text-[#1A1A1A]" />
                                         )}
                                     </div>
                                     <div>
-                                        <p className="text-sm font-medium text-[#1C1E21]">{tx.description}</p>
-                                        <p className="text-xs text-[#8A8D91]">{tx.brand}</p>
+                                        <p className="text-sm font-medium text-[#1A1A1A]">{tx.description}</p>
+                                        <p className="text-xs text-[#9B9B9B]">{tx.brand}</p>
                                     </div>
                                 </div>
 
                                 <div className="flex items-center gap-6">
-                                    <span className="text-xs text-[#8A8D91]">{tx.date}</span>
+                                    <span className="text-xs text-[#9B9B9B]">{tx.date}</span>
                                     <Badge className={`${statusConfig[tx.status].class} border`}>
                                         {statusConfig[tx.status].label}
                                     </Badge>
-                                    <span className={`text-lg font-semibold ${tx.amount >= 0 ? 'text-[#1C1E21]' : 'text-[#1C1E21]'
+                                    <span className={`text-lg font-semibold tabular-nums ${tx.amount >= 0 ? 'text-[#1A1A1A]' : 'text-[#C0392B]'
                                         }`}>
                                         {tx.amount >= 0 ? '+' : ''}{formatCHF(tx.amount)}
                                     </span>

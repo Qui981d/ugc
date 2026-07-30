@@ -306,33 +306,33 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
             </div>
 
             {/* ===== CONTROLS BAR ===== */}
-            <div className="flex items-center gap-2 bg-[#F0F2F5] rounded-lg px-3 py-2">
+            <div className="flex items-center gap-2 bg-[#F4F4F3] rounded-lg px-3 py-2">
                 <button onClick={togglePlay}
-                    className="w-9 h-9 rounded-lg bg-[#0866FF] text-white flex items-center justify-center hover:bg-[#0653CC] transition shrink-0">
+                    className="w-9 h-9 rounded-lg bg-[#1A1A1A] text-white flex items-center justify-center hover:bg-[#333333] transition shrink-0">
                     {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
                 </button>
 
                 {/* Trim info */}
                 <div className="flex-1 flex items-center justify-center gap-3">
                     <div className="flex items-center gap-1.5 text-xs">
-                        <Scissors className="w-3.5 h-3.5 text-[#0866FF]" />
-                        <span className="text-[#65676B]">Trim :</span>
-                        <span className="font-mono text-[#1C1E21] font-medium">{fmt(trimStart)}</span>
-                        <span className="text-[#8A8D91]">→</span>
-                        <span className="font-mono text-[#1C1E21] font-medium">{fmt(trimEnd)}</span>
-                        <span className="text-[#8A8D91]">({fmt(trimmedDuration)})</span>
+                        <Scissors className="w-3.5 h-3.5 text-[#1A1A1A]" />
+                        <span className="text-[#6B6B6B]">Trim :</span>
+                        <span className="font-mono text-[#1A1A1A] font-medium">{fmt(trimStart)}</span>
+                        <span className="text-[#9B9B9B]">→</span>
+                        <span className="font-mono text-[#1A1A1A] font-medium">{fmt(trimEnd)}</span>
+                        <span className="text-[#9B9B9B]">({fmt(trimmedDuration)})</span>
                     </div>
                 </div>
 
                 {/* Reset trim */}
                 <button onClick={() => { setTrimStart(0); setTrimEnd(duration) }}
-                    className="text-xs text-[#65676B] hover:text-[#1C1E21] transition flex items-center gap-1">
+                    className="text-xs text-[#6B6B6B] hover:text-[#1A1A1A] transition flex items-center gap-1">
                     <RotateCcw className="w-3 h-3" /> Reset
                 </button>
             </div>
 
             {/* ===== TIMELINE ===== */}
-            <div className="bg-[#1C1E21] rounded-lg p-3 space-y-2">
+            <div className="bg-[#1A1A1A] rounded-lg p-3 space-y-2">
                 <div
                     ref={timelineRef}
                     className="relative h-16 rounded-lg overflow-hidden cursor-pointer select-none"
@@ -340,8 +340,8 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
                 >
                     {/* Thumbnails */}
                     {thumbLoading ? (
-                        <div className="w-full h-full bg-[#1C1E21] flex items-center justify-center">
-                            <Loader2 className="w-5 h-5 text-[#65676B] animate-spin" />
+                        <div className="w-full h-full bg-[#1A1A1A] flex items-center justify-center">
+                            <Loader2 className="w-5 h-5 text-[#6B6B6B] animate-spin" />
                         </div>
                     ) : (
                         <div className="flex h-full">
@@ -357,22 +357,22 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
 
                     {/* Trim start handle */}
                     <div
-                        className="absolute inset-y-0 w-4 bg-[#0866FF] cursor-col-resize z-20 flex items-center justify-center hover:bg-[#0866FF] transition-colors"
+                        className="absolute inset-y-0 w-4 bg-[#1A1A1A] cursor-col-resize z-20 flex items-center justify-center hover:bg-[#1A1A1A] transition-colors"
                         style={{ left: `calc(${startPercent}% - 8px)` }}
                     >
-                        <div className="w-0.5 h-6 bg-[#1C1E21]/60 rounded-full" />
+                        <div className="w-0.5 h-6 bg-[#1A1A1A]/60 rounded-full" />
                     </div>
 
                     {/* Trim end handle */}
                     <div
-                        className="absolute inset-y-0 w-4 bg-[#0866FF] cursor-col-resize z-20 flex items-center justify-center hover:bg-[#0866FF] transition-colors"
+                        className="absolute inset-y-0 w-4 bg-[#1A1A1A] cursor-col-resize z-20 flex items-center justify-center hover:bg-[#1A1A1A] transition-colors"
                         style={{ left: `calc(${endPercent}% - 8px)` }}
                     >
-                        <div className="w-0.5 h-6 bg-[#1C1E21]/60 rounded-full" />
+                        <div className="w-0.5 h-6 bg-[#1A1A1A]/60 rounded-full" />
                     </div>
 
                     {/* Trim border */}
-                    <div className="absolute inset-y-0 border-t-2 border-b-2 border-[#0866FF] z-10 pointer-events-none"
+                    <div className="absolute inset-y-0 border-t-2 border-b-2 border-[#1A1A1A] z-10 pointer-events-none"
                         style={{ left: `${startPercent}%`, width: `${endPercent - startPercent}%` }} />
 
                     {/* Playhead */}
@@ -397,7 +397,7 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
                 </div>
 
                 {/* Time markers */}
-                <div className="flex justify-between text-[10px] font-mono text-[#65676B] px-1">
+                <div className="flex justify-between text-[10px] font-mono text-[#6B6B6B] px-1">
                     {[0, 0.25, 0.5, 0.75, 1].map(pct => (
                         <span key={pct}>{fmt(pct * duration)}</span>
                     ))}
@@ -405,26 +405,26 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
             </div>
 
             {/* ===== SUBTITLE PANEL ===== */}
-            <div className="bg-white border border-[#DADDE1] rounded-lg overflow-hidden">
+            <div className="bg-white border border-[#E2E2E1] rounded-lg overflow-hidden">
                 <button
                     onClick={() => setShowSubPanel(!showSubPanel)}
-                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#F0F2F5] transition"
+                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#F4F4F3] transition"
                 >
-                    <div className="flex items-center gap-2 text-sm font-medium text-[#1C1E21]">
+                    <div className="flex items-center gap-2 text-sm font-medium text-[#1A1A1A]">
                         <Type className="w-4 h-4 text-amber-500" />
                         Sous-titres
                         {subtitles.length > 0 && (
                             <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">{subtitles.length}</span>
                         )}
                     </div>
-                    {showSubPanel ? <ChevronUp className="w-4 h-4 text-[#8A8D91]" /> : <ChevronDown className="w-4 h-4 text-[#8A8D91]" />}
+                    {showSubPanel ? <ChevronUp className="w-4 h-4 text-[#9B9B9B]" /> : <ChevronDown className="w-4 h-4 text-[#9B9B9B]" />}
                 </button>
 
                 {showSubPanel && (
-                    <div className="border-t border-[#F0F2F5] px-4 py-3 space-y-3">
+                    <div className="border-t border-[#F4F4F3] px-4 py-3 space-y-3">
                         {subtitles.length === 0 && (
                             <div className="text-center py-4 space-y-3">
-                                <p className="text-xs text-[#8A8D91]">Aucun sous-titre.</p>
+                                <p className="text-xs text-[#9B9B9B]">Aucun sous-titre.</p>
                                 <button
                                     onClick={handleGenerateSubtitles}
                                     disabled={transcribing}
@@ -440,30 +440,30 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
                         )}
 
                         {subtitles.map(sub => (
-                            <div key={sub.id} className="flex items-start gap-2 bg-[#F0F2F5] rounded-lg p-3">
+                            <div key={sub.id} className="flex items-start gap-2 bg-[#F4F4F3] rounded-lg p-3">
                                 <div className="flex-1 space-y-1.5">
                                     <input
                                         value={sub.text}
                                         onChange={e => updateSubtitle(sub.id, 'text', e.target.value)}
-                                        className="w-full bg-white border border-[#DADDE1] rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30"
+                                        className="w-full bg-white border border-[#E2E2E1] rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15"
                                         placeholder="Texte du sous-titre..."
                                     />
                                     <div className="flex items-center gap-2 text-xs">
-                                        <label className="text-[#65676B]">De</label>
+                                        <label className="text-[#6B6B6B]">De</label>
                                         <input type="number" step="0.1" min={0} max={duration}
                                             value={sub.start.toFixed(1)}
                                             onChange={e => updateSubtitle(sub.id, 'start', parseFloat(e.target.value) || 0)}
-                                            className="w-16 bg-white border border-[#DADDE1] rounded-lg px-1.5 py-0.5 text-center font-mono focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30" />
-                                        <label className="text-[#65676B]">à</label>
+                                            className="w-16 bg-white border border-[#E2E2E1] rounded-lg px-1.5 py-0.5 text-center font-mono focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15" />
+                                        <label className="text-[#6B6B6B]">à</label>
                                         <input type="number" step="0.1" min={0} max={duration}
                                             value={sub.end.toFixed(1)}
                                             onChange={e => updateSubtitle(sub.id, 'end', parseFloat(e.target.value) || 0)}
-                                            className="w-16 bg-white border border-[#DADDE1] rounded-lg px-1.5 py-0.5 text-center font-mono focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30" />
-                                        <span className="text-[#8A8D91]">({fmt(sub.end - sub.start)})</span>
+                                            className="w-16 bg-white border border-[#E2E2E1] rounded-lg px-1.5 py-0.5 text-center font-mono focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15" />
+                                        <span className="text-[#9B9B9B]">({fmt(sub.end - sub.start)})</span>
                                     </div>
                                 </div>
                                 <button onClick={() => removeSubtitle(sub.id)}
-                                    className="p-1 text-[#8A8D91] hover:text-red-500 transition mt-1">
+                                    className="p-1 text-[#9B9B9B] hover:text-red-500 transition mt-1">
                                     <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                             </div>
@@ -471,7 +471,7 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
 
                         <div className="flex gap-2">
                             <button onClick={addSubtitle}
-                                className="flex-1 py-2.5 border border-dashed border-[#DADDE1] rounded-lg text-xs text-[#65676B] hover:bg-[#E7F0FF] hover:border-[#0866FF]/40 hover:text-[#1C1E21] transition flex items-center justify-center gap-1.5">
+                                className="flex-1 py-2.5 border border-dashed border-[#E2E2E1] rounded-lg text-xs text-[#6B6B6B] hover:bg-[#EDEDEC] hover:border-[#1A1A1A]/40 hover:text-[#1A1A1A] transition flex items-center justify-center gap-1.5">
                                 <Plus className="w-3.5 h-3.5" />
                                 Ajouter à {fmt(currentTime)}
                             </button>
@@ -496,14 +496,14 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
             {/* ===== EXPORT BAR ===== */}
             <div className="flex items-center gap-3">
                 <button onClick={onCancel}
-                    className="px-4 py-2.5 border border-[#DADDE1] rounded-lg text-sm text-[#65676B] hover:bg-[#F0F2F5] transition">
+                    className="px-4 py-2.5 border border-[#E2E2E1] rounded-lg text-sm text-[#6B6B6B] hover:bg-[#F4F4F3] transition">
                     Annuler
                 </button>
 
                 <button
                     onClick={handleExport}
                     disabled={exporting || ffmpeg.loading}
-                    className="flex-1 py-2.5 bg-[#0866FF] text-white rounded-lg text-sm font-semibold hover:bg-[#0653CC] transition disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-1 py-2.5 bg-[#1A1A1A] text-white rounded-lg text-sm font-semibold hover:bg-[#333333] transition disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                     {exporting || ffmpeg.loading ? (
                         <>
@@ -523,9 +523,9 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
 
             {/* Export progress bar */}
             {(exporting || ffmpeg.loading) && (
-                <div className="w-full bg-[#F0F2F5] rounded-full h-2">
+                <div className="w-full bg-[#F4F4F3] rounded-full h-2">
                     <motion.div
-                        className="bg-[#0866FF] h-2 rounded-full"
+                        className="bg-[#1A1A1A] h-2 rounded-full"
                         initial={{ width: '0%' }}
                         animate={{ width: ffmpeg.loading ? '30%' : `${ffmpeg.progress}%` }}
                         transition={{ duration: 0.3 }}

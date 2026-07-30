@@ -126,38 +126,38 @@ function NewMissionForm() {
         }
     }
 
-    const inputClass = 'w-full px-4 py-2.5 bg-white border border-[#DADDE1] rounded-lg text-sm text-[#1C1E21] placeholder:text-[#8A8D91] focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30'
-    const labelClass = 'block text-sm font-medium text-[#1C1E21] mb-1.5'
+    const inputClass = 'w-full px-4 py-2.5 bg-white border border-[#E2E2E1] rounded-lg text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15'
+    const labelClass = 'block text-sm font-medium text-[#1A1A1A] mb-1.5'
 
     return (
         <div className="max-w-2xl mx-auto space-y-6">
             {/* Header */}
             <div className="flex items-center gap-3">
                 <Link href="/mosh-cockpit/missions"
-                    className="w-10 h-10 rounded-lg bg-white border border-[#DADDE1] flex items-center justify-center hover:bg-[#F0F2F5] transition-colors">
-                    <ArrowLeft className="w-4 h-4 text-[#65676B]" />
+                    className="w-10 h-10 rounded-lg bg-white border border-[#E2E2E1] flex items-center justify-center hover:bg-[#F4F4F3] transition-colors">
+                    <ArrowLeft className="w-4 h-4 text-[#6B6B6B]" />
                 </Link>
                 <div>
-                    <h1 className="text-2xl font-semibold text-[#1C1E21] flex items-center gap-2">
-                        <Film className="w-5 h-5 text-[#0866FF]" />
+                    <h1 className="text-2xl font-semibold text-[#1A1A1A] flex items-center gap-2">
+                        <Film className="w-5 h-5 text-[#1A1A1A]" />
                         Nouvelle mission
                     </h1>
-                    <p className="text-sm text-[#65676B]">Créez une mission et proposez-la directement à un créateur</p>
+                    <p className="text-sm text-[#6B6B6B]">Créez une mission et proposez-la directement à un créateur</p>
                 </div>
             </div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                className="bg-white border border-[#DADDE1] rounded-xl p-6 space-y-5">
+                className="bg-white border border-[#E2E2E1] rounded-xl p-6 space-y-5">
 
                 {/* Client + title */}
                 <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                         <label className={labelClass}>Client</label>
                         {brandId ? (
-                            <div className="flex items-center gap-2 px-4 py-2.5 bg-[#F0F2F5] border border-[#DADDE1] rounded-lg text-sm text-[#1C1E21]">
-                                <Building2 className="w-4 h-4 text-[#65676B]" />
+                            <div className="flex items-center gap-2 px-4 py-2.5 bg-[#F4F4F3] border border-[#E2E2E1] rounded-lg text-sm text-[#1A1A1A]">
+                                <Building2 className="w-4 h-4 text-[#6B6B6B]" />
                                 {brandName || 'Marque…'}
-                                <span className="ml-auto text-xs text-[#8A8D91]">compte géré</span>
+                                <span className="ml-auto text-xs text-[#9B9B9B]">compte géré</span>
                             </div>
                         ) : (
                             <input className={inputClass} value={form.clientName}
@@ -186,7 +186,7 @@ function NewMissionForm() {
                 {/* ClickUp client (optional) */}
                 {clickupConfigured && clickupGroups.length > 0 && (
                     <div>
-                        <label className={labelClass}>Client ClickUp <span className="text-[#8A8D91] font-normal">(optionnel)</span></label>
+                        <label className={labelClass}>Client ClickUp <span className="text-[#9B9B9B] font-normal">(optionnel)</span></label>
                         <select className={inputClass} value={form.clickupListId}
                             onChange={e => set('clickupListId', e.target.value)}>
                             <option value="">Ne pas créer de carte ClickUp</option>
@@ -198,11 +198,11 @@ function NewMissionForm() {
                                 </optgroup>
                             ))}
                         </select>
-                        <p className="text-xs text-[#8A8D91] mt-1">Une carte + sous-tâches seront créées dans cette liste ClickUp.</p>
+                        <p className="text-xs text-[#9B9B9B] mt-1">Une carte + sous-tâches seront créées dans cette liste ClickUp.</p>
                     </div>
                 )}
                 {clickupConfigured === false && (
-                    <p className="text-xs text-[#8A8D91]">ClickUp non connecté (variable <code>CLICKUP_API_TOKEN</code> absente) — la mission sera créée sans carte ClickUp.</p>
+                    <p className="text-xs text-[#9B9B9B]">ClickUp non connecté (variable <code>CLICKUP_API_TOKEN</code> absente) — la mission sera créée sans carte ClickUp.</p>
                 )}
 
                 {/* Script */}
@@ -219,17 +219,17 @@ function NewMissionForm() {
                         <label className={labelClass}>Prix proposé au créateur (CHF)</label>
                         <input type="number" min="0" step="10" className={inputClass} value={form.creatorAmountChf}
                             onChange={e => set('creatorAmountChf', e.target.value)} placeholder="500" />
-                        <p className="text-xs text-[#8A8D91] mt-1">Le créateur pourra contre-proposer à la réception.</p>
+                        <p className="text-xs text-[#9B9B9B] mt-1">Le créateur pourra contre-proposer à la réception.</p>
                     </div>
                     <div>
                         <label className={labelClass}>Usage</label>
                         <div className="flex gap-2">
                             <button type="button" onClick={() => set('isAds', false)}
-                                className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-colors ${!form.isAds ? 'bg-[#E7F0FF] border-[#0866FF]/40 text-[#1C1E21]' : 'bg-white border-[#DADDE1] text-[#65676B] hover:bg-[#F0F2F5]'}`}>
+                                className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-colors ${!form.isAds ? 'bg-[#EDEDEC] border-[#1A1A1A]/40 text-[#1A1A1A]' : 'bg-white border-[#E2E2E1] text-[#6B6B6B] hover:bg-[#F4F4F3]'}`}>
                                 Organique
                             </button>
                             <button type="button" onClick={() => set('isAds', true)}
-                                className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-colors ${form.isAds ? 'bg-[#E7F0FF] border-[#0866FF]/40 text-[#1C1E21]' : 'bg-white border-[#DADDE1] text-[#65676B] hover:bg-[#F0F2F5]'}`}>
+                                className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-colors ${form.isAds ? 'bg-[#EDEDEC] border-[#1A1A1A]/40 text-[#1A1A1A]' : 'bg-white border-[#E2E2E1] text-[#6B6B6B] hover:bg-[#F4F4F3]'}`}>
                                 Ads
                             </button>
                         </div>
@@ -260,10 +260,10 @@ function NewMissionForm() {
                         <label className={labelClass}>Date de tournage</label>
                         <input type="date" className={inputClass} value={form.shootingDate}
                             onChange={e => set('shootingDate', e.target.value)} />
-                        <label className="flex items-center gap-2 mt-2 text-xs text-[#65676B] cursor-pointer">
+                        <label className="flex items-center gap-2 mt-2 text-xs text-[#6B6B6B] cursor-pointer">
                             <input type="checkbox" checked={form.shootingDateFixed}
                                 onChange={e => set('shootingDateFixed', e.target.checked)}
-                                className="accent-[#0866FF]" />
+                                className="accent-[#1A1A1A]" />
                             Date de tournage fixe (imposée)
                         </label>
                     </div>
@@ -271,10 +271,10 @@ function NewMissionForm() {
                         <label className={labelClass}>Date de livraison</label>
                         <input type="date" className={inputClass} value={form.deliveryDate}
                             onChange={e => set('deliveryDate', e.target.value)} />
-                        <label className="flex items-center gap-2 mt-2 text-xs text-[#65676B] cursor-pointer">
+                        <label className="flex items-center gap-2 mt-2 text-xs text-[#6B6B6B] cursor-pointer">
                             <input type="checkbox" checked={form.deliveryDateFixed}
                                 onChange={e => set('deliveryDateFixed', e.target.checked)}
-                                className="accent-[#0866FF]" />
+                                className="accent-[#1A1A1A]" />
                             Date de livraison fixe (imposée)
                         </label>
                     </div>
@@ -288,11 +288,11 @@ function NewMissionForm() {
 
                 <div className="flex justify-end gap-3 pt-2">
                     <Link href="/mosh-cockpit/missions"
-                        className="px-4 py-2.5 rounded-lg text-sm font-medium text-[#65676B] hover:bg-[#F0F2F5] transition-colors">
+                        className="px-4 py-2.5 rounded-lg text-sm font-medium text-[#6B6B6B] hover:bg-[#F4F4F3] transition-colors">
                         Annuler
                     </Link>
                     <button onClick={handleSubmit} disabled={submitting}
-                        className="px-5 py-2.5 bg-[#0866FF] text-white rounded-lg text-sm font-medium hover:bg-[#0653CC] transition-colors flex items-center gap-2 disabled:opacity-50">
+                        className="px-5 py-2.5 bg-[#1A1A1A] text-white rounded-lg text-sm font-medium hover:bg-[#333333] transition-colors flex items-center gap-2 disabled:opacity-50">
                         {submitting ? (
                             <><Loader2 className="w-4 h-4 animate-spin" /> Création…</>
                         ) : (
@@ -307,7 +307,7 @@ function NewMissionForm() {
 
 export default function NewMissionPage() {
     return (
-        <Suspense fallback={<div className="flex items-center justify-center min-h-[300px]"><Loader2 className="w-6 h-6 animate-spin text-[#8A8D91]" /></div>}>
+        <Suspense fallback={<div className="flex items-center justify-center min-h-[300px]"><Loader2 className="w-6 h-6 animate-spin text-[#9B9B9B]" /></div>}>
             <NewMissionForm />
         </Suspense>
     )

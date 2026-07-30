@@ -40,19 +40,19 @@ export default function ForgotPasswordPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="w-full max-w-md"
             >
-                <div className="bg-white border border-[#DADDE1] rounded-xl p-8">
+                <div className="bg-white border border-[#E2E2E1] rounded-xl p-8">
                     {isSent ? (
                         /* Success State */
                         <div className="text-center">
-                            <div className="w-16 h-16 rounded-lg bg-[#E7F0FF] flex items-center justify-center mx-auto mb-4">
-                                <CheckCircle2 className="w-8 h-8 text-[#1C1E21]" />
+                            <div className="w-16 h-16 rounded-lg bg-[#EDEDEC] flex items-center justify-center mx-auto mb-4">
+                                <CheckCircle2 className="w-8 h-8 text-[#1A1A1A]" />
                             </div>
-                            <h1 className="text-2xl font-semibold text-[#1C1E21] mb-2">Email envoyé !</h1>
-                            <p className="text-[#65676B] mb-6">
+                            <h1 className="text-2xl font-semibold text-[#1A1A1A] mb-2">Email envoyé !</h1>
+                            <p className="text-[#6B6B6B] mb-6">
                                 Si un compte est associé à <strong>{email}</strong>, vous recevrez un lien de réinitialisation.
                             </p>
                             <Link href="/login">
-                                <Button className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-full w-full">
+                                <Button className="bg-[#1A1A1A] hover:bg-[#333333] text-white rounded-full w-full">
                                     <ArrowLeft className="w-4 h-4 mr-2" />
                                     Retour à la connexion
                                 </Button>
@@ -62,27 +62,27 @@ export default function ForgotPasswordPage() {
                         /* Form */
                         <>
                             <div className="text-center mb-6">
-                                <div className="w-12 h-12 rounded-lg bg-[#0866FF] flex items-center justify-center mx-auto mb-4">
-                                    <span className="text-xl font-black text-[#1C1E21]">M</span>
+                                <div className="w-12 h-12 rounded-lg bg-[#1A1A1A] flex items-center justify-center mx-auto mb-4">
+                                    <span className="text-xl font-black text-[#1A1A1A]">M</span>
                                 </div>
-                                <h1 className="text-2xl font-semibold text-[#1C1E21]">Mot de passe oublié</h1>
-                                <p className="text-[#65676B] mt-2 text-sm">
+                                <h1 className="text-2xl font-semibold text-[#1A1A1A]">Mot de passe oublié</h1>
+                                <p className="text-[#6B6B6B] mt-2 text-sm">
                                     Entrez votre adresse email et nous vous enverrons un lien de réinitialisation
                                 </p>
                             </div>
 
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
-                                    <label className="block text-sm text-[#65676B] mb-2">Email</label>
+                                    <label className="block text-sm text-[#6B6B6B] mb-2">Email</label>
                                     <div className="relative">
-                                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A8D91]" />
+                                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9B9B9B]" />
                                         <input
                                             type="email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="votre@email.ch"
                                             required
-                                            className="w-full bg-[#F0F2F5] border border-transparent rounded-lg pl-10 pr-4 py-3 text-[#1C1E21] focus:outline-none focus:border-[#0866FF] focus:ring-1 focus:ring-[#0866FF]/30 placeholder:text-[#8A8D91]"
+                                            className="w-full bg-[#F4F4F3] border border-transparent rounded-lg pl-10 pr-4 py-3 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15 placeholder:text-[#9B9B9B]"
                                         />
                                     </div>
                                 </div>
@@ -94,7 +94,7 @@ export default function ForgotPasswordPage() {
                                 <Button
                                     type="submit"
                                     disabled={isLoading || !email.trim()}
-                                    className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-full w-full"
+                                    className="bg-[#1A1A1A] hover:bg-[#333333] text-white rounded-full w-full"
                                 >
                                     {isLoading ? (
                                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -104,7 +104,7 @@ export default function ForgotPasswordPage() {
                             </form>
 
                             <div className="mt-6 text-center">
-                                <Link href="/login" className="text-sm text-[#65676B] hover:text-[#1C1E21] transition-colors">
+                                <Link href="/login" className="text-sm text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors">
                                     <ArrowLeft className="w-3.5 h-3.5 inline mr-1" />
                                     Retour à la connexion
                                 </Link>

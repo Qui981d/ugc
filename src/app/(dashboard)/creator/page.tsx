@@ -10,7 +10,7 @@ import { getStatusConfig } from "@/lib/constants/statusConfig"
 import { CreatorOnboarding } from "@/components/onboarding/CreatorOnboarding"
 import { PageHeader, MetricStrip, Panel, PanelList, PanelRow, StatusPill, EmptyState } from '@/components/ui/workspace'
 
-const QUICK_ACTION_CLS = 'inline-flex items-center gap-1.5 h-9 px-3 bg-white border border-[#DADDE1] rounded-lg text-[13px] text-[#1C1E21] hover:bg-[#F0F2F5] transition-colors'
+const QUICK_ACTION_CLS = 'inline-flex items-center gap-1.5 h-9 px-3 bg-white border border-[#E2E2E1] rounded-lg text-[13px] text-[#1A1A1A] hover:bg-[#F4F4F3] transition-colors'
 
 interface MissionDisplay {
     id: string
@@ -157,7 +157,7 @@ export default function CreatorDashboardPage() {
     if (!mounted || (!user && isLoading) || needsOnboarding === null) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-[#8A8D91]" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#9B9B9B]" />
             </div>
         )
     }
@@ -180,15 +180,15 @@ export default function CreatorDashboardPage() {
                 actions={
                     <>
                         <Link href="/creator/missions" className={QUICK_ACTION_CLS}>
-                            <Briefcase className="w-4 h-4 text-[#65676B]" strokeWidth={1.8} />
+                            <Briefcase className="w-4 h-4 text-[#6B6B6B]" strokeWidth={1.8} />
                             Mes missions
                         </Link>
                         <Link href="/creator/portfolio" className={QUICK_ACTION_CLS}>
-                            <Upload className="w-4 h-4 text-[#65676B]" strokeWidth={1.8} />
+                            <Upload className="w-4 h-4 text-[#6B6B6B]" strokeWidth={1.8} />
                             Portfolio
                         </Link>
                         <Link href="/creator/settings" className={QUICK_ACTION_CLS}>
-                            <Star className="w-4 h-4 text-[#65676B]" strokeWidth={1.8} />
+                            <Star className="w-4 h-4 text-[#6B6B6B]" strokeWidth={1.8} />
                             Profil
                         </Link>
                     </>
@@ -204,7 +204,7 @@ export default function CreatorDashboardPage() {
                 actions={
                     <Link
                         href="/creator/missions"
-                        className="inline-flex items-center gap-1 text-[13px] font-medium text-[#0866FF] hover:text-[#0653CC] transition-colors"
+                        className="inline-flex items-center gap-1 text-[13px] font-medium text-[#1A1A1A] hover:text-[#333333] transition-colors"
                     >
                         Voir tout
                         <ChevronRight className="w-3.5 h-3.5" strokeWidth={2} />
@@ -212,11 +212,11 @@ export default function CreatorDashboardPage() {
                 }
             >
                 {isDataLoading ? (
-                    <div className="divide-y divide-[#DADDE1]">
+                    <div className="divide-y divide-[#E2E2E1]">
                         {[...Array(4)].map((_, i) => (
                             <div key={i} className="flex items-center gap-3 px-4 py-3 animate-pulse">
-                                <div className="h-4 bg-[#F0F2F5] rounded w-1/3" />
-                                <div className="h-4 bg-[#F0F2F5] rounded w-16 ml-auto" />
+                                <div className="h-4 bg-[#F4F4F3] rounded w-1/3" />
+                                <div className="h-4 bg-[#F4F4F3] rounded w-16 ml-auto" />
                             </div>
                         ))}
                     </div>
@@ -231,16 +231,16 @@ export default function CreatorDashboardPage() {
                         {missions.map((mission) => (
                             <PanelRow key={mission.id} href={`/creator/missions/${mission.id}`}>
                                 <div className="min-w-0 flex-1">
-                                    <p className="text-[13px] font-medium text-[#1C1E21] truncate">{mission.title}</p>
-                                    <p className="text-[12px] text-[#8A8D91] truncate">{mission.brand}</p>
+                                    <p className="text-[13px] font-medium text-[#1A1A1A] truncate">{mission.title}</p>
+                                    <p className="text-[12px] text-[#9B9B9B] truncate">{mission.brand}</p>
                                 </div>
                                 <StatusPill tone={statusTone(mission.status)}>
                                     {getStatusConfig(mission.status)?.label || mission.status}
                                 </StatusPill>
-                                <span className="text-[13px] font-medium text-[#1C1E21] tabular-nums whitespace-nowrap">
+                                <span className="text-[13px] font-medium text-[#1A1A1A] tabular-nums whitespace-nowrap">
                                     {formatCHF(mission.budget)}
                                 </span>
-                                <ChevronRight className="w-4 h-4 text-[#BCC0C4] group-hover:text-[#0866FF] transition-colors shrink-0" strokeWidth={2} />
+                                <ChevronRight className="w-4 h-4 text-[#C4C4C3] group-hover:text-[#1A1A1A] transition-colors shrink-0" strokeWidth={2} />
                             </PanelRow>
                         ))}
                     </PanelList>

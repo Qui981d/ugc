@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Button } from "@/components/ui/button"
 import {
     Send,
     Search,
@@ -243,7 +242,7 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
     if (!mounted || (!user && isLoading)) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-white/50" />
+                <Loader2 className="w-5 h-5 animate-spin text-[#9B9B9B]" />
             </div>
         )
     }
@@ -252,56 +251,62 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
     const renderMessages = (maxWidth: string) => (
         <>
             {messages.length === 0 ? (
-                <div className="flex items-center justify-center flex-1 text-white/40">
-                    <p>Aucun message. Commencez la conversation!</p>
+                <div className="flex flex-1 flex-col items-center justify-center text-center">
+                    <p className="text-[13px] font-medium text-[#6B6B6B]">Aucun message</p>
+                    <p className="mt-1 text-[12px] text-[#9B9B9B]">Commencez la conversation.</p>
                 </div>
             ) : (
                 <AnimatePresence>
-                    {messages.map((msg, index) => (
-                        <motion.div
-                            key={msg.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.02 }}
-                            className={`flex ${msg.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}
-                        >
-                            <div className={`${maxWidth} ${msg.sender_id === user?.id
-                                ? 'bg-accent text-white rounded-lg rounded-br-md'
-                                : 'bg-white/10 text-white rounded-lg rounded-bl-md'
-                                } px-4 py-2.5`}>
-                                {/* Attachment rendering */}
-                                {msg.attachment_url && (
-                                    msg.attachment_type === 'image' ? (
-                                        <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer" className="block mb-2">
-                                            <img
-                                                src={msg.attachment_url}
-                                                alt={msg.attachment_name || 'Image'}
-                                                className="max-w-full max-h-48 rounded-lg object-cover"
-                                            />
-                                        </a>
-                                    ) : (
-                                        <a
-                                            href={msg.attachment_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex items-center gap-2 mb-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/15 transition-colors"
-                                        >
-                                            <FileText className="w-4 h-4 flex-shrink-0" />
-                                            <span className="text-xs truncate flex-1">{msg.attachment_name || 'Fichier'}</span>
-                                            <Download className="w-3.5 h-3.5 flex-shrink-0 opacity-60" />
-                                        </a>
-                                    )
-                                )}
-                                {msg.content && <p className="text-sm">{msg.content}</p>}
-                                <div className={`flex items-center justify-end gap-1 mt-1 ${msg.sender_id === user?.id ? 'text-white/70' : 'text-white/40'
+                    {messages.map((msg, index) => {
+                        const isOwn = msg.sender_id === user?.id
+                        return (
+                            <motion.div
+                                key={msg.id}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.02 }}
+                                className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
+                            >
+                                <div className={`${maxWidth} px-3.5 py-2.5 rounded-2xl ${isOwn
+                                    ? 'bg-[#1A1A1A] text-white rounded-br-md'
+                                    : 'bg-[#F4F4F3] text-[#1A1A1A] rounded-bl-md'
                                     }`}>
-                                    <span className="text-[10px]">
-                                        {new Date(msg.created_at).toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit' })}
-                                    </span>
+                                    {/* Attachment rendering */}
+                                    {msg.attachment_url && (
+                                        msg.attachment_type === 'image' ? (
+                                            <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer" className="block mb-2">
+                                                <img
+                                                    src={msg.attachment_url}
+                                                    alt={msg.attachment_name || 'Image'}
+                                                    className="max-w-full max-h-48 rounded-lg object-cover"
+                                                />
+                                            </a>
+                                        ) : (
+                                            <a
+                                                href={msg.attachment_url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className={`flex items-center gap-2 mb-2 px-2.5 py-2 rounded-lg transition-colors ${isOwn
+                                                    ? 'bg-white/10 hover:bg-white/15'
+                                                    : 'bg-white border border-[#E2E2E1] hover:bg-[#FAFAF9]'
+                                                    }`}
+                                            >
+                                                <FileText className={`w-3.5 h-3.5 flex-shrink-0 ${isOwn ? 'text-white/70' : 'text-[#6B6B6B]'}`} />
+                                                <span className="text-[12px] truncate flex-1">{msg.attachment_name || 'Fichier'}</span>
+                                                <Download className={`w-3.5 h-3.5 flex-shrink-0 ${isOwn ? 'text-white/60' : 'text-[#9B9B9B]'}`} />
+                                            </a>
+                                        )
+                                    )}
+                                    {msg.content && <p className="text-[13px] leading-relaxed">{msg.content}</p>}
+                                    <div className="flex items-center justify-end gap-1 mt-1">
+                                        <span className={`text-[11px] ${isOwn ? 'text-white/60' : 'text-[#9B9B9B]'}`}>
+                                            {new Date(msg.created_at).toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit' })}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        </motion.div>
-                    ))}
+                            </motion.div>
+                        )
+                    })}
                 </AnimatePresence>
             )}
             <div ref={messagesEndRef} />
@@ -309,18 +314,18 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
     )
 
     // Shared partner avatar renderer
-    const renderAvatar = (conv: Conversation, size: number) => (
-        <div className={`w-${size === 48 ? 12 : 10} h-${size === 48 ? 12 : 10} rounded-full overflow-hidden bg-white/10 flex items-center justify-center`}>
+    const renderAvatar = (conv: Conversation, px: 36 | 40) => (
+        <div className={`${px === 40 ? 'w-10 h-10' : 'w-9 h-9'} rounded-full overflow-hidden bg-[#F4F4F3] border border-[#E2E2E1] flex items-center justify-center flex-shrink-0`}>
             {conv.partnerAvatar ? (
                 <Image
                     src={conv.partnerAvatar}
                     alt={conv.partnerName}
-                    width={size}
-                    height={size}
-                    className="object-cover"
+                    width={px}
+                    height={px}
+                    className="h-full w-full object-cover"
                 />
             ) : (
-                <span className="text-white/50 font-bold">{conv.partnerName.charAt(0)}</span>
+                <span className="text-[11px] font-semibold text-[#6B6B6B]">{conv.partnerName.charAt(0).toUpperCase()}</span>
             )}
         </div>
     )
@@ -328,18 +333,18 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
     return (
         <div className="h-[calc(100vh-120px)] flex gap-0 md:gap-6 -mx-4 md:mx-0 -mt-4 md:mt-0">
             {/* Conversations List — visible on desktop always, on mobile only when no conversation selected */}
-            <div className={`${selectedConversation ? 'hidden md:flex' : 'flex'} w-full md:w-80 flex-shrink-0 md:bg-white/[0.08] md:backdrop-blur-xl md:border md:border-white/[0.15] md:rounded-lg overflow-hidden flex-col`}>
+            <div className={`${selectedConversation ? 'hidden md:flex' : 'flex'} w-full md:w-80 flex-shrink-0 bg-white md:border md:border-[#E2E2E1] md:rounded-xl overflow-hidden flex-col`}>
                 {/* Header */}
-                <div className="p-4 border-b border-white/10">
-                    <h1 className="text-xl font-bold text-white mb-4">Messages</h1>
+                <div className="px-4 py-3.5 border-b border-[#E2E2E1]">
+                    <h1 className="text-[15px] font-semibold text-[#1A1A1A] mb-3">Messages</h1>
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#9B9B9B]" />
                         <input
                             type="text"
                             placeholder="Rechercher..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/25"
+                            className="w-full bg-[#F4F4F3] border border-[#E2E2E1] rounded-lg pl-9 pr-3 py-2 text-[13px] text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15"
                         />
                     </div>
                 </div>
@@ -347,10 +352,10 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
                 {/* Conversations */}
                 <div className="flex-1 overflow-y-auto pb-20 md:pb-0">
                     {filteredConversations.length === 0 ? (
-                        <div className="p-8 text-center text-white/40">
-                            <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                            <p>Aucune conversation</p>
-                            <p className="text-sm mt-2">
+                        <div className="px-6 py-12 text-center">
+                            <MessageSquare className="w-5 h-5 mx-auto mb-3 text-[#C4C4C3]" />
+                            <p className="text-[13px] font-medium text-[#6B6B6B]">Aucune conversation</p>
+                            <p className="mt-1 text-[12px] leading-relaxed text-[#9B9B9B]">
                                 {userRole === 'creator'
                                     ? 'Vos échanges avec les marques apparaîtront ici dès qu\'une mission vous sera attribuée'
                                     : 'Les conversations avec vos créateurs apparaîtront ici'
@@ -358,35 +363,31 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
                             </p>
                         </div>
                     ) : (
-                        filteredConversations.map(conv => (
-                            <button
-                                key={conv.id}
-                                onClick={() => setSelectedConversation(conv.id)}
-                                className={`w-full p-4 flex items-center gap-3 hover:bg-white/5 transition-colors border-b border-white/[0.05] active:bg-white/10 ${selectedConversation === conv.id ? 'bg-white/10' : ''
-                                    }`}
-                            >
-                                {/* Avatar */}
-                                <div className="w-12 h-12 rounded-full overflow-hidden bg-white/10 flex items-center justify-center">
-                                    {conv.partnerAvatar ? (
-                                        <Image
-                                            src={conv.partnerAvatar}
-                                            alt={conv.partnerName}
-                                            width={48}
-                                            height={48}
-                                            className="object-cover"
-                                        />
-                                    ) : (
-                                        <span className="text-white/50 font-bold">{conv.partnerName.charAt(0)}</span>
-                                    )}
-                                </div>
+                        <div className="divide-y divide-[#E2E2E1]">
+                            {filteredConversations.map(conv => (
+                                <button
+                                    key={conv.id}
+                                    onClick={() => setSelectedConversation(conv.id)}
+                                    className={`w-full px-4 py-3 flex items-center gap-3 text-left transition-colors focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 ${selectedConversation === conv.id ? 'bg-[#EDEDEC]' : 'hover:bg-[#FAFAF9]'
+                                        }`}
+                                >
+                                    {renderAvatar(conv, 36)}
 
-                                {/* Info */}
-                                <div className="flex-1 min-w-0 text-left">
-                                    <span className="font-medium text-white truncate block">{conv.partnerName}</span>
-                                    <p className="text-sm text-white/50 truncate">{conv.campaignTitle}</p>
-                                </div>
-                            </button>
-                        ))
+                                    {/* Info */}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className={`block truncate text-[13px] text-[#1A1A1A] ${conv.unread > 0 ? 'font-semibold' : 'font-medium'}`}>
+                                                {conv.partnerName}
+                                            </span>
+                                            {conv.unread > 0 && (
+                                                <span className="w-1.5 h-1.5 rounded-full bg-[#1A1A1A] flex-shrink-0" />
+                                            )}
+                                        </div>
+                                        <p className="truncate text-[12px] text-[#9B9B9B]">{conv.campaignTitle}</p>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
                     )}
                 </div>
             </div>
@@ -395,61 +396,58 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
             {selectedConv ? (
                 <>
                     {/* ===== MOBILE: fixed full-screen chat ===== */}
-                    <div className={`${selectedConversation ? 'flex' : 'hidden'} md:hidden fixed inset-0 z-40 flex-col bg-[#0A0A0A]`}>
+                    <div className={`${selectedConversation ? 'flex' : 'hidden'} md:hidden fixed inset-0 z-40 flex-col bg-white`}>
                         {/* Chat Header — pinned top */}
-                        <div className="p-4 border-b border-white/10 flex items-center justify-between flex-shrink-0">
-                            <div className="flex items-center gap-3">
+                        <div className="px-4 py-3 border-b border-[#E2E2E1] flex items-center justify-between flex-shrink-0">
+                            <div className="flex items-center gap-3 min-w-0">
                                 <button
                                     onClick={() => setSelectedConversation(null)}
-                                    className="p-1.5 rounded-lg hover:bg-white/10 text-white/60 active:text-white transition-colors"
+                                    className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#F4F4F3] hover:text-[#1A1A1A] transition-colors focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15"
                                 >
-                                    <ArrowLeft className="w-5 h-5" />
+                                    <ArrowLeft className="w-4 h-4" />
                                 </button>
-                                <div className="w-10 h-10 rounded-full overflow-hidden bg-white/10 flex items-center justify-center">
-                                    {selectedConv.partnerAvatar ? (
-                                        <Image
-                                            src={selectedConv.partnerAvatar}
-                                            alt={selectedConv.partnerName}
-                                            width={40}
-                                            height={40}
-                                            className="object-cover"
-                                        />
-                                    ) : (
-                                        <span className="text-white/50 font-bold">{selectedConv.partnerName.charAt(0)}</span>
-                                    )}
-                                </div>
-                                <div>
-                                    <h2 className="font-semibold text-white">{selectedConv.partnerName}</h2>
-                                    <p className="text-xs text-white/40">{selectedConv.campaignTitle}</p>
+                                {renderAvatar(selectedConv, 36)}
+                                <div className="min-w-0">
+                                    <h2 className="truncate text-[13px] font-semibold text-[#1A1A1A]">{selectedConv.partnerName}</h2>
+                                    <p className="truncate text-[11px] text-[#9B9B9B]">{selectedConv.campaignTitle}</p>
                                 </div>
                             </div>
-                            <Button size="sm" variant="ghost" className="text-white/50 hover:text-white hover:bg-white/10">
+                            <button
+                                type="button"
+                                className="p-1.5 rounded-lg text-[#9B9B9B] hover:bg-[#F4F4F3] hover:text-[#1A1A1A] transition-colors focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15"
+                            >
                                 <MoreVertical className="w-4 h-4" />
-                            </Button>
+                            </button>
                         </div>
 
                         {/* Messages — fills remaining space, messages pushed to bottom */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col">
+                        <div className="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col">
                             <div className="flex-1" />
                             {renderMessages('max-w-[80%]')}
                         </div>
 
                         {/* Input — pinned just above bottom nav */}
-                        <div className="flex-shrink-0 p-3 border-t border-white/10 bg-[#0A0A0A] mb-16">
+                        <div className="flex-shrink-0 p-3 border-t border-[#E2E2E1] bg-white mb-16">
                             {/* Pending file preview */}
                             {pendingFile && (
-                                <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-white/5 rounded-lg">
-                                    <Paperclip className="w-3.5 h-3.5 text-white/50 flex-shrink-0" />
-                                    <span className="text-xs text-white/70 truncate flex-1">{pendingFile.name}</span>
-                                    <span className="text-[10px] text-white/40">{(pendingFile.size / 1024).toFixed(0)} KB</span>
-                                    <button onClick={() => setPendingFile(null)} className="text-white/40 hover:text-white">
+                                <div className="flex items-center gap-2 mb-2 px-2.5 py-2 bg-[#F4F4F3] border border-[#E2E2E1] rounded-lg">
+                                    <Paperclip className="w-3.5 h-3.5 text-[#9B9B9B] flex-shrink-0" />
+                                    <span className="text-[12px] text-[#1A1A1A] truncate flex-1">{pendingFile.name}</span>
+                                    <span className="text-[11px] text-[#9B9B9B]">{(pendingFile.size / 1024).toFixed(0)} KB</span>
+                                    <button
+                                        onClick={() => setPendingFile(null)}
+                                        className="text-[#9B9B9B] hover:text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 rounded"
+                                    >
                                         <X className="w-3.5 h-3.5" />
                                     </button>
                                 </div>
                             )}
                             <div className="flex items-center gap-2">
-                                <button onClick={() => fileInputRef.current?.click()} className="text-white/50 hover:text-white p-2">
-                                    <Paperclip className="w-5 h-5" />
+                                <button
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="p-2 rounded-lg text-[#6B6B6B] hover:bg-[#F4F4F3] hover:text-[#1A1A1A] transition-colors focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15"
+                                >
+                                    <Paperclip className="w-4 h-4" />
                                 </button>
                                 <input
                                     type="text"
@@ -457,95 +455,93 @@ export default function MessagesPage({ userRole, initialCampaignId, initialCreat
                                     value={messageInput}
                                     onChange={(e) => setMessageInput(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                                    className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/25"
+                                    className="flex-1 bg-[#F4F4F3] border border-[#E2E2E1] rounded-lg px-3 py-2.5 text-[13px] text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15"
                                 />
-                                <Button
+                                <button
                                     onClick={handleSendMessage}
                                     disabled={(!messageInput.trim() && !pendingFile) || isUploading}
-                                    className="btn-primary"
+                                    className="inline-flex items-center justify-center px-3 py-2.5 rounded-lg bg-[#1A1A1A] text-white transition-colors hover:bg-[#333333] disabled:opacity-40 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15"
                                 >
                                     {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                                </Button>
+                                </button>
                             </div>
                         </div>
                     </div>
 
-                    {/* ===== DESKTOP: normal flex layout with glass card ===== */}
-                    <div className="hidden md:flex flex-1 bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-lg overflow-hidden flex-col">
+                    {/* ===== DESKTOP: normal flex layout ===== */}
+                    <div className="hidden md:flex flex-1 bg-white border border-[#E2E2E1] rounded-xl overflow-hidden flex-col">
                         {/* Chat Header */}
-                        <div className="p-4 border-b border-white/10 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full overflow-hidden bg-white/10 flex items-center justify-center">
-                                    {selectedConv.partnerAvatar ? (
-                                        <Image
-                                            src={selectedConv.partnerAvatar}
-                                            alt={selectedConv.partnerName}
-                                            width={40}
-                                            height={40}
-                                            className="object-cover"
-                                        />
-                                    ) : (
-                                        <span className="text-white/50 font-bold">{selectedConv.partnerName.charAt(0)}</span>
-                                    )}
-                                </div>
-                                <div>
-                                    <h2 className="font-semibold text-white">{selectedConv.partnerName}</h2>
-                                    <p className="text-xs text-white/40">{selectedConv.campaignTitle}</p>
+                        <div className="px-4 py-3 border-b border-[#E2E2E1] flex items-center justify-between">
+                            <div className="flex items-center gap-3 min-w-0">
+                                {renderAvatar(selectedConv, 36)}
+                                <div className="min-w-0">
+                                    <h2 className="truncate text-[13px] font-semibold text-[#1A1A1A]">{selectedConv.partnerName}</h2>
+                                    <p className="truncate text-[11px] text-[#9B9B9B]">{selectedConv.campaignTitle}</p>
                                 </div>
                             </div>
-                            <Button size="sm" variant="ghost" className="text-white/50 hover:text-white hover:bg-white/10">
+                            <button
+                                type="button"
+                                className="p-1.5 rounded-lg text-[#9B9B9B] hover:bg-[#F4F4F3] hover:text-[#1A1A1A] transition-colors focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15"
+                            >
                                 <MoreVertical className="w-4 h-4" />
-                            </Button>
+                            </button>
                         </div>
 
                         {/* Messages */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                        <div className="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col">
                             {renderMessages('max-w-[70%]')}
                         </div>
 
                         {/* Input */}
-                        <div className="p-4 border-t border-white/10">
+                        <div className="p-3 border-t border-[#E2E2E1] bg-white">
                             {/* Pending file preview */}
                             {pendingFile && (
-                                <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-white/5 rounded-lg">
-                                    <Paperclip className="w-3.5 h-3.5 text-white/50 flex-shrink-0" />
-                                    <span className="text-xs text-white/70 truncate flex-1">{pendingFile.name}</span>
-                                    <span className="text-[10px] text-white/40">{(pendingFile.size / 1024).toFixed(0)} KB</span>
-                                    <button onClick={() => setPendingFile(null)} className="text-white/40 hover:text-white">
+                                <div className="flex items-center gap-2 mb-2 px-2.5 py-2 bg-[#F4F4F3] border border-[#E2E2E1] rounded-lg">
+                                    <Paperclip className="w-3.5 h-3.5 text-[#9B9B9B] flex-shrink-0" />
+                                    <span className="text-[12px] text-[#1A1A1A] truncate flex-1">{pendingFile.name}</span>
+                                    <span className="text-[11px] text-[#9B9B9B]">{(pendingFile.size / 1024).toFixed(0)} KB</span>
+                                    <button
+                                        onClick={() => setPendingFile(null)}
+                                        className="text-[#9B9B9B] hover:text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 rounded"
+                                    >
                                         <X className="w-3.5 h-3.5" />
                                     </button>
                                 </div>
                             )}
-                            <div className="flex items-center gap-3">
-                                <Button size="sm" variant="ghost" className="text-white/50 hover:text-white hover:bg-white/10" onClick={() => fileInputRef.current?.click()}>
-                                    <Paperclip className="w-5 h-5" />
-                                </Button>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="p-2 rounded-lg text-[#6B6B6B] hover:bg-[#F4F4F3] hover:text-[#1A1A1A] transition-colors focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15"
+                                >
+                                    <Paperclip className="w-4 h-4" />
+                                </button>
                                 <input
                                     type="text"
                                     placeholder="Écrivez votre message..."
                                     value={messageInput}
                                     onChange={(e) => setMessageInput(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                                    className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/25"
+                                    className="flex-1 bg-[#F4F4F3] border border-[#E2E2E1] rounded-lg px-3 py-2.5 text-[13px] text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15"
                                 />
-                                <Button
+                                <button
                                     onClick={handleSendMessage}
                                     disabled={(!messageInput.trim() && !pendingFile) || isUploading}
-                                    className="btn-primary"
+                                    className="inline-flex items-center justify-center px-3 py-2.5 rounded-lg bg-[#1A1A1A] text-white transition-colors hover:bg-[#333333] disabled:opacity-40 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15"
                                 >
                                     {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                                </Button>
+                                </button>
                             </div>
                         </div>
                     </div>
                 </>
             ) : (
-                <div className="hidden md:flex flex-1 bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-lg items-center justify-center">
-                    <div className="text-center text-white/40">
-                        <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-                            <Send className="w-8 h-8" />
+                <div className="hidden md:flex flex-1 bg-white border border-[#E2E2E1] rounded-xl items-center justify-center">
+                    <div className="text-center">
+                        <div className="w-10 h-10 rounded-full bg-[#F4F4F3] border border-[#E2E2E1] flex items-center justify-center mx-auto mb-3">
+                            <MessageSquare className="w-4 h-4 text-[#C4C4C3]" />
                         </div>
-                        <p>Sélectionnez une conversation</p>
+                        <p className="text-[13px] font-medium text-[#6B6B6B]">Sélectionnez une conversation</p>
+                        <p className="mt-1 text-[12px] text-[#9B9B9B]">Vos échanges s&apos;afficheront ici.</p>
                     </div>
                 </div>
             )}

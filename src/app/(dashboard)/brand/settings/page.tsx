@@ -33,7 +33,7 @@ const tabs = [
 ]
 
 // T5: Unified input class constant
-const INPUT_CLASS = 'w-full bg-[#F0F2F5] border border-[#DADDE1] rounded-lg px-4 py-3 text-[#1C1E21] focus:outline-none focus:ring-2 focus:ring-[#0866FF]/30 focus:border-[#0866FF]/50'
+const INPUT_CLASS = 'w-full bg-[#F4F4F3] border border-[#E2E2E1] rounded-lg px-4 py-3 text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 focus:border-[#1A1A1A]/50'
 
 export default function BrandSettingsPage() {
     const { user } = useAuth()
@@ -126,7 +126,7 @@ export default function BrandSettingsPage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-[#8A8D91]" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#9B9B9B]" />
             </div>
         )
     }
@@ -139,7 +139,7 @@ export default function BrandSettingsPage() {
                         {/* Form Fields — T5: all using INPUT_CLASS */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-sm text-[#65676B] mb-2">Nom de l&apos;entreprise</label>
+                                <label className="block text-sm text-[#6B6B6B] mb-2">Nom de l&apos;entreprise</label>
                                 <input
                                     type="text"
                                     value={company.company_name}
@@ -148,9 +148,9 @@ export default function BrandSettingsPage() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm text-[#65676B] mb-2">Site web</label>
+                                <label className="block text-sm text-[#6B6B6B] mb-2">Site web</label>
                                 <div className="relative">
-                                    <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A8D91]" strokeWidth={1.5} />
+                                    <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9B9B9B]" strokeWidth={1.5} />
                                     <input
                                         type="url"
                                         value={company.website}
@@ -163,7 +163,7 @@ export default function BrandSettingsPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm text-[#65676B] mb-2">Description</label>
+                            <label className="block text-sm text-[#6B6B6B] mb-2">Description</label>
                             <textarea
                                 value={company.description}
                                 onChange={(e) => setCompany({ ...company, description: e.target.value })}
@@ -175,7 +175,7 @@ export default function BrandSettingsPage() {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
-                                <label className="block text-sm text-[#65676B] mb-2">Secteur</label>
+                                <label className="block text-sm text-[#6B6B6B] mb-2">Secteur</label>
                                 <input
                                     type="text"
                                     value={company.industry}
@@ -185,7 +185,7 @@ export default function BrandSettingsPage() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm text-[#65676B] mb-2">Taille</label>
+                                <label className="block text-sm text-[#6B6B6B] mb-2">Taille</label>
                                 <input
                                     type="text"
                                     value={company.company_size}
@@ -195,7 +195,7 @@ export default function BrandSettingsPage() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm text-[#65676B] mb-2">Adresse</label>
+                                <label className="block text-sm text-[#6B6B6B] mb-2">Adresse</label>
                                 <input
                                     type="text"
                                     value={company.address}
@@ -210,7 +210,7 @@ export default function BrandSettingsPage() {
                             <Button
                                 onClick={handleSaveCompany}
                                 disabled={saving}
-                                className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-full px-6"
+                                className="bg-[#1A1A1A] hover:bg-[#333333] text-white rounded-full px-6"
                             >
                                 {saving ? (
                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -223,7 +223,7 @@ export default function BrandSettingsPage() {
                                 <motion.span
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    className="text-sm text-[#0866FF] font-medium flex items-center gap-1"
+                                    className="text-sm text-[#1A1A1A] font-medium flex items-center gap-1"
                                 >
                                     <CheckCircle2 className="w-4 h-4" /> Sauvegardé
                                 </motion.span>
@@ -235,7 +235,7 @@ export default function BrandSettingsPage() {
             case 'notifications':
                 return (
                     <div className="space-y-8">
-                        <h3 className="text-lg font-semibold text-[#1C1E21] mb-4">Notifications par email</h3>
+                        <h3 className="text-lg font-semibold text-[#1A1A1A] mb-4">Notifications par email</h3>
                         <div className="space-y-4">
                             {[
                                 { key: 'emailNewApplicant', label: 'Propositions de créateurs', desc: 'Recevez un email quand un créateur est proposé pour une mission' },
@@ -244,10 +244,10 @@ export default function BrandSettingsPage() {
                                 { key: 'emailInvoice', label: 'Factures', desc: 'Notifications de facturation' },
                                 { key: 'emailMarketing', label: 'Actualités', desc: 'Nouveautés et conseils marketing' },
                             ].map(item => (
-                                <div key={item.key} className="flex items-center justify-between p-4 bg-[#F0F2F5] rounded-lg">
+                                <div key={item.key} className="flex items-center justify-between p-4 bg-[#F4F4F3] rounded-lg">
                                     <div>
-                                        <p className="text-[#1C1E21] font-medium">{item.label}</p>
-                                        <p className="text-sm text-[#8A8D91]">{item.desc}</p>
+                                        <p className="text-[#1A1A1A] font-medium">{item.label}</p>
+                                        <p className="text-sm text-[#9B9B9B]">{item.desc}</p>
                                     </div>
                                     <Switch
                                         checked={notifications[item.key as keyof typeof notifications] ?? false}
@@ -280,17 +280,17 @@ export default function BrandSettingsPage() {
                 return (
                     <div className="space-y-8">
                         <div>
-                            <h3 className="text-lg font-semibold text-[#1C1E21] mb-4">Mot de passe</h3>
+                            <h3 className="text-lg font-semibold text-[#1A1A1A] mb-4">Mot de passe</h3>
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm text-[#65676B] mb-2">Mot de passe actuel</label>
+                                    <label className="block text-sm text-[#6B6B6B] mb-2">Mot de passe actuel</label>
                                     <input type="password" placeholder="••••••••" className={INPUT_CLASS} />
                                 </div>
                                 <div>
-                                    <label className="block text-sm text-[#65676B] mb-2">Nouveau mot de passe</label>
+                                    <label className="block text-sm text-[#6B6B6B] mb-2">Nouveau mot de passe</label>
                                     <input type="password" placeholder="••••••••" className={INPUT_CLASS} />
                                 </div>
-                                <Button className="bg-[#0866FF] hover:bg-[#0653CC] text-white rounded-full px-6">
+                                <Button className="bg-[#1A1A1A] hover:bg-[#333333] text-white rounded-full px-6">
                                     Changer le mot de passe
                                 </Button>
                             </div>
@@ -307,8 +307,8 @@ export default function BrandSettingsPage() {
         <div className="space-y-8">
             {/* Header */}
             <div>
-                <h1 className="text-[28px] md:text-[34px] font-semibold text-[#1C1E21] tracking-[-0.02em]">Paramètres</h1>
-                <p className="text-[#65676B] mt-1">Gérez votre entreprise et préférences</p>
+                <h1 className="text-[28px] md:text-[34px] font-semibold text-[#1A1A1A] tracking-[-0.02em]">Paramètres</h1>
+                <p className="text-[#6B6B6B] mt-1">Gérez votre entreprise et préférences</p>
             </div>
 
             <div className="flex flex-col md:flex-row gap-6 md:gap-8">
@@ -321,8 +321,8 @@ export default function BrandSettingsPage() {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-2 md:gap-3 px-4 py-2.5 md:py-3 rounded-lg text-left transition-all whitespace-nowrap flex-shrink-0 md:w-full ${activeTab === tab.id
-                                    ? 'bg-[#1C1E21] text-white shadow-sm'
-                                    : 'text-[#65676B] hover:text-[#1C1E21] hover:bg-[#F0F2F5]'
+                                    ? 'bg-[#1A1A1A] text-white shadow-sm'
+                                    : 'text-[#6B6B6B] hover:text-[#1A1A1A] hover:bg-[#F4F4F3]'
                                     }`}
                             >
                                 <Icon className="w-4 h-4 md:w-5 md:h-5" />
@@ -340,7 +340,7 @@ export default function BrandSettingsPage() {
                     key={activeTab}
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="flex-1 bg-white border border-[#DADDE1] rounded-xl p-4 md:p-8"
+                    className="flex-1 bg-white border border-[#E2E2E1] rounded-xl p-4 md:p-8"
                 >
                     {renderTabContent()}
                 </motion.div>

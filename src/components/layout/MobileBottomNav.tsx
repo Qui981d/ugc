@@ -95,14 +95,14 @@ export function MobileBottomNav() {
                 href={item.href}
                 onClick={() => setMoreOpen(false)}
                 className={`relative flex flex-col items-center justify-center gap-1 px-3 py-2 min-w-[64px] transition-all duration-200 ${isActive
-                    ? 'text-[#0866FF]'
-                    : 'text-[#8A8D91] active:text-[#1C1E21]'
+                    ? 'text-[#1A1A1A]'
+                    : 'text-[#9B9B9B] active:text-[#1A1A1A]'
                     }`}
             >
                 <div className="relative">
                     <item.icon className="h-5 w-5" strokeWidth={1.5} />
                     {notifCount > 0 && (
-                        <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[9px] font-bold text-white border-2 border-white">
+                        <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-[#1A1A1A] rounded-full flex items-center justify-center text-[9px] font-bold text-white border-2 border-white">
                             {notifCount > 9 ? '9+' : notifCount}
                         </span>
                     )}
@@ -133,13 +133,13 @@ export function MobileBottomNav() {
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                        className="fixed bottom-16 left-2 right-2 z-[46] md:hidden bg-white border border-[#DADDE1] rounded-xl shadow-xl"
+                        className="fixed bottom-16 left-2 right-2 z-[46] md:hidden bg-white border border-[#E2E2E1] rounded-xl shadow-xl"
                         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
                     >
                         <div className="p-4 space-y-1">
                             <div className="flex items-center justify-between mb-2">
-                                <p className="text-xs font-semibold uppercase tracking-widest text-[#8A8D91]">Plus</p>
-                                <button onClick={() => setMoreOpen(false)} className="p-1 text-[#8A8D91] hover:text-[#1C1E21] transition-colors">
+                                <p className="text-xs font-semibold uppercase tracking-widest text-[#9B9B9B]">Plus</p>
+                                <button onClick={() => setMoreOpen(false)} className="p-1 text-[#9B9B9B] hover:text-[#1A1A1A] transition-colors">
                                     <X className="w-4 h-4" />
                                 </button>
                             </div>
@@ -151,8 +151,8 @@ export function MobileBottomNav() {
                                         href={item.href}
                                         onClick={() => setMoreOpen(false)}
                                         className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${isActive
-                                            ? 'bg-[#E7F0FF] text-[#0866FF]'
-                                            : 'text-[#8A8D91] hover:text-[#1C1E21] hover:bg-[#F0F2F5]'
+                                            ? 'bg-[#EDEDEC] text-[#1A1A1A]'
+                                            : 'text-[#9B9B9B] hover:text-[#1A1A1A] hover:bg-[#F4F4F3]'
                                             }`}
                                     >
                                         <item.icon className="w-5 h-5" strokeWidth={1.5} />
@@ -166,7 +166,7 @@ export function MobileBottomNav() {
             </AnimatePresence>
 
             {/* Bottom Navigation Bar - Dark theme matching sidebar */}
-            <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-[#DADDE1]"
+            <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-[#E2E2E1]"
                 style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
             >
                 <div className="flex items-center justify-around h-16">
@@ -180,8 +180,8 @@ export function MobileBottomNav() {
                             <button
                                 onClick={() => setMoreOpen(!moreOpen)}
                                 className={`relative flex flex-col items-center justify-center gap-1 px-3 py-2 min-w-[64px] transition-all duration-200 ${moreOpen || isMoreItemActive
-                                    ? 'text-[#0866FF]'
-                                    : 'text-[#8A8D91] active:text-[#1C1E21]'
+                                    ? 'text-[#1A1A1A]'
+                                    : 'text-[#9B9B9B] active:text-[#1A1A1A]'
                                     }`}
                             >
                                 <MoreHorizontal className="h-5 w-5" strokeWidth={1.5} />
