@@ -20,6 +20,7 @@ import {
 } from "lucide-react"
 import { useNotifications } from "@/contexts/NotificationContext"
 import { useActingBrandStore } from "@/stores/useActingBrandStore"
+import { MoshLogo } from "@/components/brand/MoshLogo"
 
 interface SidebarProps {
     role: 'brand' | 'creator' | 'admin'
@@ -119,6 +120,7 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
     // The workspace label is the one thing that tells you *where you are*.
     const workspaceName = isActingAsBrand ? actingBrandName! : (userName || 'MOSH')
     const workspaceInitial = workspaceName.charAt(0).toUpperCase()
+    const isMoshOwnSpace = role === 'admin' && !isActingAsBrand
 
     return (
         <aside
@@ -141,22 +143,30 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
                         ${expanded ? 'flex-1 px-2 py-1.5' : 'w-11 h-11 justify-center'}
                     `}
                 >
-                    {/* Acting on a brand's behalf inverts the badge — in a monochrome
-                        system, reversing the fill is the available way to say "not you". */}
-                    <span className={`
-                        w-7 h-7 rounded-md shrink-0 grid place-items-center
-                        text-[11px] font-bold
-                        ${isActingAsBrand
-                            ? 'bg-white text-[#1A1A1A] ring-[1.5px] ring-[#1A1A1A]'
-                            : 'bg-[#1A1A1A] text-white'}
-                    `}>
-                        {workspaceInitial}
-                    </span>
+                    {/* In MOSH's own space the workspace *is* the brand, so the wordmark
+                        carries it — no monogram tile. Acting on a client's behalf inverts
+                        the badge: reversing the fill is how a monochrome system says
+                        "this isn't you". */}
+                    {isMoshOwnSpace ? (
+                        <MoshLogo className={`shrink-0 text-[#1A1A1A] ${expanded ? 'h-4 w-auto' : 'h-3 w-auto'}`} />
+                    ) : (
+                        <span className={`
+                            w-7 h-7 rounded-md shrink-0 grid place-items-center
+                            text-[11px] font-bold
+                            ${isActingAsBrand
+                                ? 'bg-white text-[#1A1A1A] ring-[1.5px] ring-[#1A1A1A]'
+                                : 'bg-[#1A1A1A] text-white'}
+                        `}>
+                            {workspaceInitial}
+                        </span>
+                    )}
                     {expanded && (
                         <span className="min-w-0 flex-1 text-left">
-                            <span className="block text-[13px] font-semibold text-[#1A1A1A] truncate leading-tight">
-                                {workspaceName}
-                            </span>
+                            {!isMoshOwnSpace && (
+                                <span className="block text-[13px] font-semibold text-[#1A1A1A] truncate leading-tight">
+                                    {workspaceName}
+                                </span>
+                            )}
                             <span className="block text-[11px] text-[#9B9B9B] truncate leading-tight">
                                 {isActingAsBrand ? 'Piloté par MOSH' : ROLE_LABEL[role]}
                             </span>

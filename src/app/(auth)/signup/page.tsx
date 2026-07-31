@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Building2, User, Loader2, AlertCircle, ArrowLeft, CheckCircle2 } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { validateInviteCode, markInvitationUsed } from "@/lib/services/adminService"
+import { MoshLogo } from "@/components/brand/MoshLogo"
 
 function SignupForm() {
     const searchParams = useSearchParams()
@@ -112,9 +113,7 @@ function SignupForm() {
     return (
         <Card className="bg-white border-[#E2E2E1] shadow-xl">
             <CardHeader className="text-center">
-                <div className="text-2xl font-bold text-[#1A1A1A] mb-2">
-                    MOSH
-                </div>
+                <MoshLogo className="h-7 w-auto mx-auto mb-3 text-[#1A1A1A]" />
                 <CardTitle className="text-xl text-[#1A1A1A]">Créer un compte</CardTitle>
                 <CardDescription className="text-[#6B6B6B]">
                     Rejoignez la plateforme UGC de référence en Suisse

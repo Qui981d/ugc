@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2, AlertCircle, ArrowLeft } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
+import { MoshLogo } from "@/components/brand/MoshLogo"
 
 
 function LoginForm() {
@@ -75,9 +76,7 @@ function LoginForm() {
     return (
         <Card className="bg-white border-[#E2E2E1] shadow-xl">
             <CardHeader className="text-center">
-                <div className="text-2xl font-bold text-[#1A1A1A] mb-2">
-                    MOSH
-                </div>
+                <MoshLogo className="h-7 w-auto mx-auto mb-3 text-[#1A1A1A]" />
                 <CardTitle className="text-xl text-[#1A1A1A]">Connexion</CardTitle>
                 <CardDescription className="text-[#6B6B6B]">
                     Accédez à votre espace personnel
