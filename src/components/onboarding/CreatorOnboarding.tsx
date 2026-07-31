@@ -290,7 +290,7 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                                                     <span className="text-sm text-[#1A1A1A] truncate flex-1">{url}</span>
                                                     <button
                                                         onClick={() => handleRemoveUrl(index)}
-                                                        className="text-[#9B9B9B] hover:text-red-500 transition-colors text-xs"
+                                                        className="text-[#9B9B9B] hover:text-[#C0392B] transition-colors text-xs"
                                                     >
                                                         ✕
                                                     </button>

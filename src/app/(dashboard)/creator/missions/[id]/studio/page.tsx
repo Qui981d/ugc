@@ -331,7 +331,7 @@ export default function CreatorStudioPage() {
     if (isLoading || !campaign) {
         return (
             <div className="max-w-5xl mx-auto py-12 flex items-center justify-center">
-                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                <Loader2 className="w-6 h-6 animate-spin text-[#9B9B9B]" />
             </div>
         )
     }
@@ -350,8 +350,8 @@ export default function CreatorStudioPage() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Link href={`/creator/missions/${campaignId}`}
-                        className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">
-                        <ArrowLeft className="w-4 h-4 text-gray-600" />
+                        className="w-10 h-10 rounded-lg bg-white border border-[#E2E2E1] flex items-center justify-center hover:bg-[#FAFAF9] transition-colors">
+                        <ArrowLeft className="w-4 h-4 text-[#6B6B6B]" />
                     </Link>
                     <div>
                         <h1 className="text-xl font-bold text-[#1A1A1A] flex items-center gap-2">
@@ -363,8 +363,8 @@ export default function CreatorStudioPage() {
                 </div>
                 <div className="flex items-center gap-2">
                     {daysLeft !== null && (
-                        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${daysLeft <= 3 ? 'bg-red-100 text-red-700' :
-                            daysLeft <= 7 ? 'bg-amber-100 text-amber-700' :
+                        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${daysLeft <= 3 ? 'bg-[#FBEAE8] text-[#C0392B]' :
+                            daysLeft <= 7 ? 'bg-[#FBF3E2] text-[#8A6100]' :
                                 'bg-[#EDEDEC] text-[#1A1A1A]'
                             }`}>
                             <Calendar className="w-3.5 h-3.5" />
@@ -398,7 +398,7 @@ export default function CreatorStudioPage() {
 
                     {/* ===== VIDEO ZONE ===== */}
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                        className="bg-white border border-gray-200 rounded-lg p-6">
+                        className="bg-white border border-[#E2E2E1] rounded-lg p-6">
                         <h2 className="text-lg font-semibold text-[#1A1A1A] mb-4 flex items-center gap-2">
                             <Film className="w-5 h-5 text-[#1A1A1A]" />
                             {videoFile ? 'Éditeur vidéo' : 'Votre vidéo'}
@@ -406,12 +406,12 @@ export default function CreatorStudioPage() {
 
                         {/* QC Feedback banner */}
                         {campaign.mosh_qc_feedback && !isStepCompleted('video_validated') && (
-                            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+                            <div className="bg-[#FBF3E2] border border-[#F0E0BC] rounded-lg p-4 mb-4">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <RotateCcw className="w-4 h-4 text-amber-600" />
-                                    <p className="text-sm font-medium text-amber-800">Révision demandée par MOSH</p>
+                                    <RotateCcw className="w-4 h-4 text-[#8A6100]" />
+                                    <p className="text-sm font-medium text-[#8A6100]">Révision demandée par MOSH</p>
                                 </div>
-                                <p className="text-sm text-amber-700 whitespace-pre-wrap">{campaign.mosh_qc_feedback}</p>
+                                <p className="text-sm text-[#8A6100] whitespace-pre-wrap">{campaign.mosh_qc_feedback}</p>
                             </div>
                         )}
 
@@ -424,7 +424,7 @@ export default function CreatorStudioPage() {
                                         {isStepCompleted('video_validated') ? (
                                             <span className="text-xs bg-[#EDEDEC] text-[#1A1A1A] px-2 py-0.5 rounded-full font-medium">QC validé ✓</span>
                                         ) : (
-                                            <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                                            <span className="text-xs bg-[#FBF3E2] text-[#8A6100] px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
                                                 <Clock className="w-3 h-3" /> En vérification par MOSH
                                             </span>
                                         )}
@@ -485,7 +485,7 @@ export default function CreatorStudioPage() {
                                                 const file = e.dataTransfer.files[0]
                                                 if (file) validateAndSetVideo(file)
                                             }}
-                                            className={`border-2 border-dashed rounded-lg p-10 text-center cursor-pointer transition-all ${dragOver ? 'border-[#1A1A1A] bg-[#EDEDEC]' : 'border-gray-200 bg-gray-50/50 hover:bg-gray-50 hover:border-gray-300'
+                                            className={`border-2 border-dashed rounded-lg p-10 text-center cursor-pointer transition-all ${dragOver ? 'border-[#1A1A1A] bg-[#EDEDEC]' : 'border-[#E2E2E1] bg-[#FAFAF9]/50 hover:bg-[#FAFAF9] hover:border-[#C4C4C3]'
                                                 }`}
                                             onClick={() => {
                                                 const input = document.createElement('input')
@@ -498,13 +498,13 @@ export default function CreatorStudioPage() {
                                                 input.click()
                                             }}
                                         >
-                                            <Upload className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                                            <Upload className="w-10 h-10 text-[#C4C4C3] mx-auto mb-3" />
                                             <p className="text-sm font-medium text-[#1A1A1A]">Glissez votre vidéo ici</p>
                                             <p className="text-xs text-[#6B6B6B] mt-1">MP4, MOV, AVI, WebM • Max 500 MB</p>
                                         </div>
                                         {fileError && (
-                                            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-                                                <span className="text-red-600 text-sm">⚠️ {fileError}</span>
+                                            <div className="mt-3 p-3 bg-[#FBEAE8] border border-[#F2CFCB] rounded-lg flex items-center gap-2">
+                                                <span className="text-[#C0392B] text-sm">⚠️ {fileError}</span>
                                             </div>
                                         )}
                                     </div>
@@ -512,7 +512,7 @@ export default function CreatorStudioPage() {
                             </>
                         ) : (
                             <div className="text-center py-8 text-[#9B9B9B]">
-                                <Camera className="w-10 h-10 mx-auto mb-3 text-gray-200" />
+                                <Camera className="w-10 h-10 mx-auto mb-3 text-[#C4C4C3]" />
                                 <p className="text-sm">Commencez le tournage pour accéder à l&apos;éditeur</p>
                             </div>
                         )}
@@ -520,7 +520,7 @@ export default function CreatorStudioPage() {
 
                     {/* ===== NOTES ===== */}
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                        className="bg-white border border-gray-200 rounded-lg p-6">
+                        className="bg-white border border-[#E2E2E1] rounded-lg p-6">
                         <div className="flex items-center justify-between mb-3">
                             <h2 className="text-lg font-semibold text-[#1A1A1A] flex items-center gap-2">
                                 <StickyNote className="w-5 h-5 text-[#1A1A1A]" />
@@ -545,7 +545,7 @@ export default function CreatorStudioPage() {
 
                     {/* Checklist */}
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-                        className="bg-white border border-gray-200 rounded-lg p-5">
+                        className="bg-white border border-[#E2E2E1] rounded-lg p-5">
                         <h2 className="text-sm font-semibold text-[#1A1A1A] mb-3 flex items-center justify-between">
                             <span className="flex items-center gap-2">
                                 <ListChecks className="w-4 h-4 text-[#1A1A1A]" />
@@ -570,7 +570,7 @@ export default function CreatorStudioPage() {
                                     <span className={`text-sm flex-1 ${item.done ? 'line-through text-[#9B9B9B]' : 'text-[#1A1A1A]'}`}>{item.text}</span>
                                     <button onClick={() => removeCheckItem(i)}
                                         className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Trash2 className="w-3.5 h-3.5 text-[#9B9B9B] hover:text-red-500" />
+                                        <Trash2 className="w-3.5 h-3.5 text-[#9B9B9B] hover:text-[#C0392B]" />
                                     </button>
                                 </div>
                             ))}
@@ -594,7 +594,7 @@ export default function CreatorStudioPage() {
                     {/* Script — per-content (priority) or campaign-level fallback */}
                     {(contentData?.script_content || campaign.script_content) && missionReceived && (
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                            className="bg-white border border-gray-200 rounded-lg p-5">
+                            className="bg-white border border-[#E2E2E1] rounded-lg p-5">
                             <button onClick={() => setScriptExpanded(!scriptExpanded)}
                                 className="w-full flex items-center justify-between">
                                 <h2 className="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
@@ -615,7 +615,7 @@ export default function CreatorStudioPage() {
 
                     {/* Brief recap */}
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-                        className="bg-white border border-gray-200 rounded-lg p-5">
+                        className="bg-white border border-[#E2E2E1] rounded-lg p-5">
                         <button onClick={() => setBriefExpanded(!briefExpanded)}
                             className="w-full flex items-center justify-between">
                             <h2 className="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
@@ -626,34 +626,34 @@ export default function CreatorStudioPage() {
                         </button>
                         {briefExpanded && (
                             <div className="mt-3 space-y-2 text-xs">
-                                <div className="bg-gray-50 rounded-lg p-3">
+                                <div className="bg-[#FAFAF9] rounded-lg p-3">
                                     <p className="text-[#6B6B6B]">Produit</p>
                                     <p className="text-[#1A1A1A] font-medium">{campaign.product_name}</p>
                                 </div>
                                 {campaign.product_description && (
-                                    <div className="bg-gray-50 rounded-lg p-3">
+                                    <div className="bg-[#FAFAF9] rounded-lg p-3">
                                         <p className="text-[#6B6B6B]">Description produit</p>
                                         <p className="text-[#1A1A1A] whitespace-pre-wrap">{campaign.product_description}</p>
                                     </div>
                                 )}
                                 {campaign.description && (
-                                    <div className="bg-gray-50 rounded-lg p-3">
+                                    <div className="bg-[#FAFAF9] rounded-lg p-3">
                                         <p className="text-[#6B6B6B]">Brief</p>
                                         <p className="text-[#1A1A1A] whitespace-pre-wrap">{campaign.description}</p>
                                     </div>
                                 )}
                                 <div className="flex gap-2">
-                                    <div className="flex-1 bg-gray-50 rounded-lg p-3">
+                                    <div className="flex-1 bg-[#FAFAF9] rounded-lg p-3">
                                         <p className="text-[#6B6B6B]">Format</p>
                                         <p className="text-[#1A1A1A] font-medium">{campaign.format}</p>
                                     </div>
-                                    <div className="flex-1 bg-gray-50 rounded-lg p-3">
+                                    <div className="flex-1 bg-[#FAFAF9] rounded-lg p-3">
                                         <p className="text-[#6B6B6B]">Type</p>
                                         <p className="text-[#1A1A1A] font-medium">{campaign.script_type}</p>
                                     </div>
                                 </div>
                                 {campaign.script_notes && (
-                                    <div className="bg-gray-50 rounded-lg p-3">
+                                    <div className="bg-[#FAFAF9] rounded-lg p-3">
                                         <p className="text-[#6B6B6B]">Notes script</p>
                                         <p className="text-[#1A1A1A] whitespace-pre-wrap">{campaign.script_notes}</p>
                                     </div>
@@ -664,7 +664,7 @@ export default function CreatorStudioPage() {
 
                     {/* Pipeline status */}
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                        className="bg-white border border-gray-200 rounded-lg p-5">
+                        className="bg-white border border-[#E2E2E1] rounded-lg p-5">
                         <h2 className="text-sm font-semibold text-[#1A1A1A] mb-3 flex items-center gap-2">
                             <Clock className="w-4 h-4 text-[#6B6B6B]" />
                             Étape actuelle

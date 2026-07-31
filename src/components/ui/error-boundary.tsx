@@ -40,8 +40,8 @@ export class DashboardErrorBoundary extends Component<ErrorBoundaryProps, ErrorB
         if (this.state.hasError) {
             return (
                 <div className="max-w-md mx-auto py-16 text-center">
-                    <div className="w-16 h-16 rounded-lg bg-red-50 flex items-center justify-center mx-auto mb-4">
-                        <AlertTriangle className="w-8 h-8 text-red-500" />
+                    <div className="w-16 h-16 rounded-lg bg-[#FBEAE8] flex items-center justify-center mx-auto mb-4">
+                        <AlertTriangle className="w-8 h-8 text-[#C0392B]" />
                     </div>
                     <h2 className="text-lg font-semibold text-[#1A1A1A] mb-2">
                         {this.props.fallbackTitle || 'Quelque chose s\'est mal passé'}

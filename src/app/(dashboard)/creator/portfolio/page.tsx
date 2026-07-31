@@ -196,7 +196,7 @@ export default function CreatorPortfolioPage() {
                                 {/* Delete button — appears on hover */}
                                 <button
                                     onClick={() => handleDeleteVideo(index)}
-                                    className="absolute -top-2 -right-2 w-7 h-7 bg-[#1A1A1A] text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600 z-30"
+                                    className="absolute -top-2 -right-2 w-7 h-7 bg-[#1A1A1A] text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-[#C0392B] z-30"
                                 >
                                     <Trash2 className="w-3.5 h-3.5" />
                                 </button>

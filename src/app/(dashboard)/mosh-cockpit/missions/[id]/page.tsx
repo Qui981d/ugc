@@ -53,14 +53,14 @@ import { createClient } from '@/lib/supabase/client'
 import { getCampaignContents, updateContentField } from '@/lib/services/campaignService'
 
 const CONTENT_STATUS_LABELS: Record<ContentStatus, { label: string; color: string; bg: string }> = {
-    draft: { label: 'Brouillon', color: 'text-gray-600', bg: 'bg-gray-100' },
-    script_pending: { label: 'Script en attente', color: 'text-amber-700', bg: 'bg-amber-100' },
-    script_approved: { label: 'Script validé', color: 'text-blue-700', bg: 'bg-blue-100' },
-    shooting: { label: 'En tournage', color: 'text-purple-700', bg: 'bg-purple-100' },
-    uploaded: { label: 'Vidéo livrée', color: 'text-indigo-700', bg: 'bg-indigo-100' },
-    qc_approved: { label: 'QC validé', color: 'text-teal-700', bg: 'bg-teal-100' },
-    sent_to_brand: { label: 'Envoyée à la marque', color: 'text-orange-700', bg: 'bg-orange-100' },
-    brand_approved: { label: 'Validée ✓', color: 'text-emerald-700', bg: 'bg-emerald-100' },
+    draft: { label: 'Brouillon', color: 'text-[#6B6B6B]', bg: 'bg-[#F4F4F3]' },
+    script_pending: { label: 'Script en attente', color: 'text-[#8A6100]', bg: 'bg-[#FBF3E2]' },
+    script_approved: { label: 'Script validé', color: 'text-[#1A1A1A]', bg: 'bg-[#F4F4F3]' },
+    shooting: { label: 'En tournage', color: 'text-[#1A1A1A]', bg: 'bg-[#F4F4F3]' },
+    uploaded: { label: 'Vidéo livrée', color: 'text-[#1A1A1A]', bg: 'bg-[#F4F4F3]' },
+    qc_approved: { label: 'QC validé', color: 'text-[#1A7F37]', bg: 'bg-[#E8F3EA]' },
+    sent_to_brand: { label: 'Envoyée à la marque', color: 'text-[#8A6100]', bg: 'bg-[#FBF3E2]' },
+    brand_approved: { label: 'Validée ✓', color: 'text-[#1A7F37]', bg: 'bg-[#E8F3EA]' },
 }
 
 const WORKFLOW_STEPS = CENTRAL_STEPS.map(s => ({
@@ -673,15 +673,15 @@ export default function AdminMissionDetailPage() {
                     </div>
                 )}
                 {campaign.brief_feedback_notes && (
-                    <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
-                        <p className="text-amber-800 font-medium text-xs mb-1">Précisions demandées :</p>
-                        <p className="text-amber-700 whitespace-pre-wrap">{campaign.brief_feedback_notes}</p>
+                    <div className="mt-4 p-3 bg-[#FBF3E2] border border-[#F0E0BC] rounded-lg text-sm">
+                        <p className="text-[#8A6100] font-medium text-xs mb-1">Précisions demandées :</p>
+                        <p className="text-[#8A6100] whitespace-pre-wrap">{campaign.brief_feedback_notes}</p>
                     </div>
                 )}
                 {campaign.brief_brand_response && (
-                    <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm">
-                        <p className="text-emerald-800 font-medium text-xs mb-1">✅ Réponse de la marque :</p>
-                        <p className="text-emerald-700 whitespace-pre-wrap">{campaign.brief_brand_response}</p>
+                    <div className="mt-3 p-3 bg-[#E8F3EA] border border-[#C9E6D0] rounded-lg text-sm">
+                        <p className="text-[#1A7F37] font-medium text-xs mb-1">✅ Réponse de la marque :</p>
+                        <p className="text-[#1A7F37] whitespace-pre-wrap">{campaign.brief_brand_response}</p>
                     </div>
                 )}
             </motion.div>
@@ -777,17 +777,17 @@ export default function AdminMissionDetailPage() {
             {campaignContents.length <= 1 && (
                 isStepCompleted('brand_reviewing_profiles') && !isStepCompleted('creator_validated') ? (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}
-                        className="bg-white border border-amber-200 rounded-xl p-6"
+                        className="bg-white border border-[#F0E0BC] rounded-xl p-6"
                     >
                         <h2 className="text-sm font-semibold text-[#1A1A1A] mb-3 flex items-center gap-2">
                             <Pencil className="w-4 h-4 text-[#6B6B6B]" strokeWidth={1.5} />
                             Script
                         </h2>
-                        <div className="flex items-center gap-3 text-amber-700 bg-amber-50 rounded-lg p-4">
+                        <div className="flex items-center gap-3 text-[#8A6100] bg-[#FBF3E2] rounded-lg p-4">
                             <Clock className="w-5 h-5 shrink-0" />
                             <div>
                                 <p className="font-medium text-sm">En attente du choix de la marque</p>
-                                <p className="text-xs text-amber-600 mt-0.5">La marque doit d'abord valider un créateur parmi les profils proposés.</p>
+                                <p className="text-xs text-[#8A6100] mt-0.5">La marque doit d'abord valider un créateur parmi les profils proposés.</p>
                             </div>
                         </div>
                     </motion.div>
@@ -799,16 +799,16 @@ export default function AdminMissionDetailPage() {
                             <Pencil className="w-4 h-4 text-[#6B6B6B]" strokeWidth={1.5} />
                             Script
                             {campaign.script_status === 'brand_review' && (
-                                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">En attente marque</span>
+                                <span className="text-xs bg-[#F4F4F3] text-[#1A1A1A] px-2 py-0.5 rounded-full font-medium">En attente marque</span>
                             )}
                             {campaign.script_status === 'brand_approved' && (
-                                <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Validé par la marque ✓</span>
+                                <span className="text-xs bg-[#E8F3EA] text-[#1A7F37] px-2 py-0.5 rounded-full font-medium">Validé par la marque ✓</span>
                             )}
                         </h2>
                         {campaign.script_brand_feedback && (
-                            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
-                                <p className="text-amber-800 font-medium text-xs mb-1">Retour de la marque :</p>
-                                <p className="text-amber-700 whitespace-pre-wrap">{campaign.script_brand_feedback}</p>
+                            <div className="mb-4 p-3 bg-[#FBF3E2] border border-[#F0E0BC] rounded-lg text-sm">
+                                <p className="text-[#8A6100] font-medium text-xs mb-1">Retour de la marque :</p>
+                                <p className="text-[#8A6100] whitespace-pre-wrap">{campaign.script_brand_feedback}</p>
                             </div>
                         )}
                         <textarea
@@ -981,7 +981,7 @@ export default function AdminMissionDetailPage() {
                             <span className="text-xs bg-[#EDEDEC] text-[#1A1A1A] px-2 py-0.5 rounded-full font-medium">Signé ✓</span>
                         )}
                         {campaign.contract_mosh_status === 'pending_creator' && (
-                            <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">En attente de signature</span>
+                            <span className="text-xs bg-[#FBF3E2] text-[#8A6100] px-2 py-0.5 rounded-full font-medium">En attente de signature</span>
                         )}
                     </h2>
                     <div className="space-y-3">
@@ -997,14 +997,14 @@ export default function AdminMissionDetailPage() {
 
                         {/* Creator price counter-offer */}
                         {campaign.creator_price_status === 'counter' && campaign.contract_mosh_status === 'pending_creator' && (
-                            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                                <p className="text-sm text-amber-800 font-medium mb-1">💬 Le créateur demande un autre tarif</p>
-                                <p className="text-sm text-amber-700 mb-2">
+                            <div className="bg-[#FBF3E2] border border-[#F0E0BC] rounded-lg p-4">
+                                <p className="text-sm text-[#8A6100] font-medium mb-1">💬 Le créateur demande un autre tarif</p>
+                                <p className="text-sm text-[#8A6100] mb-2">
                                     Tarif demandé : <strong>CHF {campaign.creator_counter_amount_chf?.toLocaleString('fr-CH')}</strong>
                                     {' '}(actuel : CHF {campaign.creator_amount_chf?.toLocaleString('fr-CH')})
                                 </p>
                                 {campaign.creator_price_message && (
-                                    <p className="text-sm text-amber-800 bg-white/60 border border-amber-200 rounded-lg px-3 py-2 mb-3 whitespace-pre-wrap">
+                                    <p className="text-sm text-[#8A6100] bg-white/60 border border-[#F0E0BC] rounded-lg px-3 py-2 mb-3 whitespace-pre-wrap">
                                         « {campaign.creator_price_message} »
                                     </p>
                                 )}
@@ -1069,7 +1069,7 @@ export default function AdminMissionDetailPage() {
                             Contenus ({campaignContents.filter(c => c.status === 'brand_approved').length}/{campaignContents.length} validés)
                         </h2>
                         <div className="flex items-center gap-2">
-                            <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="w-24 h-1.5 bg-[#F4F4F3] rounded-full overflow-hidden">
                                 <div
                                     className="h-full bg-[#1A1A1A] rounded-full transition-all"
                                     style={{ width: `${(campaignContents.filter(c => c.status === 'brand_approved').length / campaignContents.length) * 100}%` }}
@@ -1124,21 +1124,21 @@ export default function AdminMissionDetailPage() {
                                                     {assignedCreator ? (
                                                         <div className={`p-3 rounded-lg border ${content.creator_status === 'brand_approved'
                                                             ? 'bg-[#EDEDEC] border-[#1A1A1A]/30'
-                                                            : 'bg-amber-50 border-amber-200'
+                                                            : 'bg-[#FBF3E2] border-[#F0E0BC]'
                                                         }`}>
                                                             <div className="flex items-center gap-3">
                                                                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs ${content.creator_status === 'brand_approved'
                                                                     ? 'bg-[#EDEDEC] text-[#1A1A1A]'
-                                                                    : 'bg-amber-100 text-amber-800'
+                                                                    : 'bg-[#FBF3E2] text-[#8A6100]'
                                                                 }`}>
                                                                     {assignedCreator.full_name?.[0] || '?'}
                                                                 </div>
                                                                 <div className="flex-1">
                                                                     <p className="text-sm font-medium text-[#1A1A1A]">{assignedCreator.full_name}</p>
                                                                     {content.creator_status === 'brand_approved' ? (
-                                                                        <p className="text-xs text-emerald-600 font-medium">Validé par la marque ✓</p>
+                                                                        <p className="text-xs text-[#1A7F37] font-medium">Validé par la marque ✓</p>
                                                                     ) : (
-                                                                        <p className="text-xs text-amber-600">Proposé — en attente validation marque</p>
+                                                                        <p className="text-xs text-[#8A6100]">Proposé — en attente validation marque</p>
                                                                     )}
                                                                 </div>
                                                                 <button
@@ -1146,7 +1146,7 @@ export default function AdminMissionDetailPage() {
                                                                         await updateContentField(content.id, { assigned_creator_id: null, creator_status: null } as any)
                                                                         setCampaignContents(prev => prev.map(c => c.id === content.id ? { ...c, assigned_creator_id: null, creator_status: null } : c))
                                                                     }}
-                                                                    className="text-xs text-[#9B9B9B] hover:text-red-500 transition-colors"
+                                                                    className="text-xs text-[#9B9B9B] hover:text-[#C0392B] transition-colors"
                                                                 >
                                                                     Changer
                                                                 </button>
@@ -1176,18 +1176,18 @@ export default function AdminMissionDetailPage() {
 
                                             {/* Script editor — locked until creator is brand_approved */}
                                             {(isMultiContent && (!assignedCreator || content.creator_status !== 'brand_approved')) ? (
-                                                <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-700">
+                                                <div className="flex items-center gap-3 p-4 bg-[#FBF3E2] border border-[#F0E0BC] rounded-lg text-[#8A6100]">
                                                     <Clock className="w-5 h-5 shrink-0" />
                                                     <div>
                                                         {!assignedCreator ? (
                                                             <>
                                                                 <p className="font-medium text-sm">En attente du créateur</p>
-                                                                <p className="text-xs text-amber-600 mt-0.5">Assignez un créateur à ce contenu avant de rédiger le script.</p>
+                                                                <p className="text-xs text-[#8A6100] mt-0.5">Assignez un créateur à ce contenu avant de rédiger le script.</p>
                                                             </>
                                                         ) : (
                                                             <>
                                                                 <p className="font-medium text-sm">En attente de validation marque</p>
-                                                                <p className="text-xs text-amber-600 mt-0.5">Le créateur {assignedCreator.full_name} a été proposé. La marque doit valider avant la rédaction du script.</p>
+                                                                <p className="text-xs text-[#8A6100] mt-0.5">Le créateur {assignedCreator.full_name} a été proposé. La marque doit valider avant la rédaction du script.</p>
                                                             </>
                                                         )}
                                                     </div>
@@ -1289,9 +1289,9 @@ export default function AdminMissionDetailPage() {
 
                                             {/* Brand feedback */}
                                             {content.brand_final_feedback && (
-                                                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                                                    <p className="text-xs text-amber-800 font-medium mb-1">Retour marque :</p>
-                                                    <p className="text-sm text-amber-700 whitespace-pre-wrap">{content.brand_final_feedback}</p>
+                                                <div className="p-3 bg-[#FBF3E2] border border-[#F0E0BC] rounded-lg">
+                                                    <p className="text-xs text-[#8A6100] font-medium mb-1">Retour marque :</p>
+                                                    <p className="text-sm text-[#8A6100] whitespace-pre-wrap">{content.brand_final_feedback}</p>
                                                 </div>
                                             )}
                                         </div>
@@ -1339,7 +1339,7 @@ export default function AdminMissionDetailPage() {
                             </button>
                             <button
                                 onClick={() => setShowQcFeedback(!showQcFeedback)}
-                                className="px-4 py-2.5 bg-amber-100 text-amber-800 font-medium rounded-lg hover:bg-amber-200 transition-colors flex items-center gap-2"
+                                className="px-4 py-2.5 bg-[#FBF3E2] text-[#8A6100] font-medium rounded-lg hover:bg-[#FBF3E2] transition-colors flex items-center gap-2"
                             >
                                 <RotateCcw className="w-4 h-4" strokeWidth={1.5} />
                                 Demander révision
@@ -1348,18 +1348,18 @@ export default function AdminMissionDetailPage() {
 
                         {/* QC Feedback form */}
                         {showQcFeedback && (
-                            <div className="space-y-3 bg-amber-50 border border-amber-200 rounded-lg p-4">
+                            <div className="space-y-3 bg-[#FBF3E2] border border-[#F0E0BC] rounded-lg p-4">
                                 <textarea
                                     value={qcFeedback}
                                     onChange={(e) => setQcFeedback(e.target.value)}
                                     placeholder="Décrivez ce qui doit être corrigé..."
                                     rows={3}
-                                    className="w-full px-3 py-2 bg-white border border-amber-200 rounded-lg text-sm placeholder:text-[#9B9B9B] focus:outline-none focus:border-amber-400"
+                                    className="w-full px-3 py-2 bg-white border border-[#F0E0BC] rounded-lg text-sm placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#F0E0BC]"
                                 />
                                 <button
                                     onClick={handleQcRevision}
                                     disabled={actionLoading || !qcFeedback.trim()}
-                                    className="w-full px-4 py-2 bg-amber-500 text-white font-medium rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                    className="w-full px-4 py-2 bg-[#8A6100] text-white font-medium rounded-lg hover:bg-[#8A6100] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                                 >
                                     {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" strokeWidth={1.5} />}
                                     Envoyer le feedback au créateur
@@ -1397,21 +1397,21 @@ export default function AdminMissionDetailPage() {
                 ) : (
                     <div className="space-y-3">
                         <p className="text-[#1A1A1A] text-sm font-medium flex items-center gap-1.5">
-                            <Clock className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
+                            <Clock className="w-4 h-4 text-[#8A6100]" strokeWidth={1.5} />
                             En attente de validation par la marque
                         </p>
                         {campaign.video_url && (
                             <video src={campaign.video_url} controls className="w-full rounded-lg bg-black max-h-[300px]" />
                         )}
                         {campaign.brand_revision_count > 0 && (
-                            <div className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
+                            <div className="text-xs text-[#8A6100] bg-[#FBF3E2] rounded-lg px-3 py-2">
                                 Révisions demandées par la marque : {campaign.brand_revision_count}/2
                             </div>
                         )}
                         {campaign.brand_final_feedback && (
-                            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
-                                <p className="text-amber-800 font-medium text-xs mb-1">Retour de la marque :</p>
-                                <p className="text-amber-700 whitespace-pre-wrap">{campaign.brand_final_feedback}</p>
+                            <div className="p-3 bg-[#FBF3E2] border border-[#F0E0BC] rounded-lg text-sm">
+                                <p className="text-[#8A6100] font-medium text-xs mb-1">Retour de la marque :</p>
+                                <p className="text-[#8A6100] whitespace-pre-wrap">{campaign.brand_final_feedback}</p>
                             </div>
                         )}
                     </div>
@@ -1535,8 +1535,8 @@ export default function AdminMissionDetailPage() {
                     className="bg-white border border-[#E2E2E1] rounded-xl p-5"
                 >
                     <div className="flex items-center gap-3 mb-3">
-                        <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
-                            <CheckCircle2 className="w-4 h-4 text-green-600" strokeWidth={2} />
+                        <div className="w-8 h-8 rounded-lg bg-[#E8F3EA] flex items-center justify-center">
+                            <CheckCircle2 className="w-4 h-4 text-[#1A7F37]" strokeWidth={2} />
                         </div>
                         <h3 className="text-sm font-bold text-[#1A1A1A]">Devis signé</h3>
                         <span className="text-xs font-mono text-[#6B6B6B] bg-[#F4F4F3] px-2 py-0.5 rounded-full">{campaign.quote_number}</span>

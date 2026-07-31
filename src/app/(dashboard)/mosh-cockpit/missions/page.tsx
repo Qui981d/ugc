@@ -97,7 +97,7 @@ export default function AdminMissionsPage() {
             if (isStepDone(CENTRAL_STEPS[i].type)) {
                 const next = CENTRAL_STEPS[i + 1]
                 if (!next) return { label: 'Terminée', color: 'text-[#1A1A1A]', bg: 'bg-[#1A1A1A]', icon: CheckCircle2 }
-                return { label: next.label, color: next.owner === 'brand' ? 'text-amber-700' : next.owner === 'creator' ? 'text-blue-700' : 'text-[#333333]', bg: next.owner === 'brand' ? 'bg-amber-100' : next.owner === 'creator' ? 'bg-blue-100' : 'bg-[#EDEDEC]', icon: next.icon }
+                return { label: next.label, color: next.owner === 'brand' ? 'text-[#8A6100]' : next.owner === 'creator' ? 'text-[#1A1A1A]' : 'text-[#333333]', bg: next.owner === 'brand' ? 'bg-[#FBF3E2]' : next.owner === 'creator' ? 'bg-[#F4F4F3]' : 'bg-[#EDEDEC]', icon: next.icon }
             }
         }
         return null

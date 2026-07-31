@@ -267,11 +267,11 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
 
     const getStatusBadge = () => {
         if (isMissionCompleted)
-            return { bg: 'bg-emerald-100 text-emerald-700', text: '✅ Mission terminée' }
+            return { bg: 'bg-[#E8F3EA] text-[#1A7F37]', text: '✅ Mission terminée' }
         if (activeOwner === 'brand')
             return { bg: 'bg-[#1A1A1A] text-white', text: userRole === 'brand' ? `⚡ ${activeStep?.label || 'Action requise'}` : `⏳ Marque : ${activeStep?.label || 'en attente'}` }
         if (activeOwner === 'creator')
-            return { bg: 'bg-blue-100 text-blue-700', text: userRole === 'creator' ? `⚡ ${activeStep?.label || 'Action requise'}` : `🎬 Créateur : ${activeStep?.label || 'en action'}` }
+            return { bg: 'bg-[#F4F4F3] text-[#1A1A1A]', text: userRole === 'creator' ? `⚡ ${activeStep?.label || 'Action requise'}` : `🎬 Créateur : ${activeStep?.label || 'en action'}` }
         return { bg: 'bg-[#1A1A1A] text-white', text: userRole === 'admin' ? `⚡ ${activeStep?.label || 'À traiter'}` : `⏳ MOSH : ${activeStep?.label || 'travaille'}` }
     }
 

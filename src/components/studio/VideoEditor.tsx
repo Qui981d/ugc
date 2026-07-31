@@ -387,7 +387,7 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
                     {subtitles.map(sub => (
                         <div
                             key={sub.id}
-                            className="absolute bottom-0 h-2 bg-amber-400/70 rounded-t z-[15]"
+                            className="absolute bottom-0 h-2 bg-[#8A6100]/70 rounded-t z-[15]"
                             style={{
                                 left: `${(sub.start / duration) * 100}%`,
                                 width: `${((sub.end - sub.start) / duration) * 100}%`,
@@ -411,10 +411,10 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
                     className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#F4F4F3] transition"
                 >
                     <div className="flex items-center gap-2 text-sm font-medium text-[#1A1A1A]">
-                        <Type className="w-4 h-4 text-amber-500" />
+                        <Type className="w-4 h-4 text-[#8A6100]" />
                         Sous-titres
                         {subtitles.length > 0 && (
-                            <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">{subtitles.length}</span>
+                            <span className="text-xs bg-[#FBF3E2] text-[#8A6100] px-1.5 py-0.5 rounded-full">{subtitles.length}</span>
                         )}
                     </div>
                     {showSubPanel ? <ChevronUp className="w-4 h-4 text-[#9B9B9B]" /> : <ChevronDown className="w-4 h-4 text-[#9B9B9B]" />}
@@ -428,7 +428,7 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
                                 <button
                                     onClick={handleGenerateSubtitles}
                                     disabled={transcribing}
-                                    className="w-full py-2.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg text-sm font-medium hover:from-violet-600 hover:to-purple-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm"
+                                    className="w-full py-2.5 bg-gradient-to-r from-[#1A1A1A] to-[#1A1A1A] text-white rounded-lg text-sm font-medium hover:from-[#1A1A1A] hover:to-[#1A1A1A] transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm"
                                 >
                                     {transcribing ? (
                                         <><Loader2 className="w-4 h-4 animate-spin" /> Transcription en cours...</>
@@ -463,7 +463,7 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
                                     </div>
                                 </div>
                                 <button onClick={() => removeSubtitle(sub.id)}
-                                    className="p-1 text-[#9B9B9B] hover:text-red-500 transition mt-1">
+                                    className="p-1 text-[#9B9B9B] hover:text-[#C0392B] transition mt-1">
                                     <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                             </div>
@@ -479,7 +479,7 @@ export default function VideoEditor({ file, onExport, onCancel }: VideoEditorPro
                                 <button
                                     onClick={handleGenerateSubtitles}
                                     disabled={transcribing}
-                                    className="py-2.5 px-4 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg text-xs font-medium hover:from-violet-600 hover:to-purple-700 transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
+                                    className="py-2.5 px-4 bg-gradient-to-r from-[#1A1A1A] to-[#1A1A1A] text-white rounded-lg text-xs font-medium hover:from-[#1A1A1A] hover:to-[#1A1A1A] transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
                                 >
                                     {transcribing ? (
                                         <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Transcription...</>

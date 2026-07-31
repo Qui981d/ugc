@@ -353,15 +353,15 @@ export default function NewCampaignPage() {
             {/* Header */}
             <div className="flex items-center gap-4">
                 <Link href="/brand/campaigns">
-                    <Button variant="ghost" size="sm" className="text-gray-500 hover:text-gray-900 hover:bg-gray-100">
+                    <Button variant="ghost" size="sm" className="text-[#6B6B6B] hover:text-[#1A1A1A] hover:bg-[#F4F4F3]">
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Retour
                     </Button>
                 </Link>
-                <div className="h-6 w-px bg-gray-100" />
+                <div className="h-6 w-px bg-[#F4F4F3]" />
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Nouvelle campagne UGC</h1>
-                    <p className="text-gray-500 text-sm">Décrivez votre besoin, MOSH s&apos;occupe du reste</p>
+                    <h1 className="text-2xl font-bold text-[#1A1A1A]">Nouvelle campagne UGC</h1>
+                    <p className="text-[#6B6B6B] text-sm">Décrivez votre besoin, MOSH s&apos;occupe du reste</p>
                 </div>
             </div>
 
@@ -371,14 +371,14 @@ export default function NewCampaignPage() {
                     <div key={s} className="flex items-center gap-2 flex-1">
                         <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium transition-all flex-shrink-0 ${step >= s
                             ? 'bg-[#1A1A1A] text-white'
-                            : 'bg-gray-100 text-gray-400'
+                            : 'bg-[#F4F4F3] text-[#9B9B9B]'
                             }`}>
                             {step > s ? <CheckCircle2 className="w-3.5 h-3.5" /> : s}
                         </div>
-                        <span className={`text-xs whitespace-nowrap ${step >= s ? 'text-gray-900' : 'text-gray-400'}`}>
+                        <span className={`text-xs whitespace-nowrap ${step >= s ? 'text-[#1A1A1A]' : 'text-[#9B9B9B]'}`}>
                             {s === 1 ? 'Détails' : s === 2 ? 'Contenus' : s === 3 ? 'Créateurs' : 'Offre'}
                         </span>
-                        {s < 4 && <div className={`flex-1 h-px ${step > s ? 'bg-[#1A1A1A]' : 'bg-gray-100'}`} />}
+                        {s < 4 && <div className={`flex-1 h-px ${step > s ? 'bg-[#1A1A1A]' : 'bg-[#F4F4F3]'}`} />}
                     </div>
                 ))}
             </div>
@@ -394,49 +394,49 @@ export default function NewCampaignPage() {
                 {/* ═══════════ STEP 1: DÉTAILS ═══════════ */}
                 {step === 1 && (
                     <div className="space-y-6">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-6">Informations de base</h2>
+                        <h2 className="text-xl font-semibold text-[#1A1A1A] mb-6">Informations de base</h2>
 
                         {/* Title */}
                         <div>
-                            <label className="block text-sm text-gray-500 mb-2">Titre de la campagne *</label>
+                            <label className="block text-sm text-[#6B6B6B] mb-2">Titre de la campagne *</label>
                             <input
                                 type="text"
                                 value={campaign.title}
                                 onChange={(e) => { setCampaign({ ...campaign, title: e.target.value }); setErrors(prev => ({ ...prev, title: '' })) }}
                                 placeholder="Ex: Lancement collection été 2026"
-                                className={`w-full bg-gray-50 border rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 ${errors.title ? 'border-red-400' : 'border-gray-200'}`}
+                                className={`w-full bg-[#FAFAF9] border rounded-lg px-4 py-3 text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 ${errors.title ? 'border-[#F2CFCB]' : 'border-[#E2E2E1]'}`}
                             />
-                            {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title}</p>}
+                            {errors.title && <p className="text-xs text-[#C0392B] mt-1">{errors.title}</p>}
                         </div>
 
                         {/* Description */}
                         <div>
-                            <label className="block text-sm text-gray-500 mb-2">Description de la campagne *</label>
+                            <label className="block text-sm text-[#6B6B6B] mb-2">Description de la campagne *</label>
                             <textarea
                                 value={campaign.description}
                                 onChange={(e) => { setCampaign({ ...campaign, description: e.target.value }); setErrors(prev => ({ ...prev, description: '' })) }}
                                 rows={4}
                                 placeholder="Décrivez votre campagne, le produit/service, et ce que vous attendez des créateurs..."
-                                className={`w-full bg-gray-50 border rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 resize-none ${errors.description ? 'border-red-400' : 'border-gray-200'}`}
+                                className={`w-full bg-[#FAFAF9] border rounded-lg px-4 py-3 text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 resize-none ${errors.description ? 'border-[#F2CFCB]' : 'border-[#E2E2E1]'}`}
                             />
-                            {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description}</p>}
+                            {errors.description && <p className="text-xs text-[#C0392B] mt-1">{errors.description}</p>}
                         </div>
 
                         {/* Product Name */}
                         <div>
-                            <label className="block text-sm text-gray-500 mb-2">Nom du produit / service</label>
+                            <label className="block text-sm text-[#6B6B6B] mb-2">Nom du produit / service</label>
                             <input
                                 type="text"
                                 value={campaign.productName}
                                 onChange={(e) => setCampaign({ ...campaign, productName: e.target.value })}
                                 placeholder="Ex: Montre Alpine Pro X"
-                                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15"
+                                className="w-full bg-[#FAFAF9] border border-[#E2E2E1] rounded-lg px-4 py-3 text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15"
                             />
                         </div>
 
                         {/* Category */}
                         <div>
-                            <label className="block text-sm text-gray-500 mb-2">Tags de la campagne</label>
+                            <label className="block text-sm text-[#6B6B6B] mb-2">Tags de la campagne</label>
                             <div className="flex flex-wrap gap-2">
                                 {SPECIALTIES.map(specialty => (
                                     <button
@@ -444,7 +444,7 @@ export default function NewCampaignPage() {
                                         onClick={() => toggleSpecialty(specialty.id)}
                                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedSpecialties.includes(specialty.id)
                                             ? 'bg-[#1A1A1A] text-white'
-                                            : 'bg-gray-50 text-gray-500 hover:bg-gray-100 border border-gray-200'
+                                            : 'bg-[#FAFAF9] text-[#6B6B6B] hover:bg-[#F4F4F3] border border-[#E2E2E1]'
                                             }`}
                                     >
                                         {specialty.label}
@@ -455,9 +455,9 @@ export default function NewCampaignPage() {
 
                         {/* Brief Images */}
                         <div>
-                            <label className="block text-sm text-gray-500 mb-2">
+                            <label className="block text-sm text-[#6B6B6B] mb-2">
                                 Images d&apos;illustration
-                                <span className="text-gray-400 ml-1">(optionnel)</span>
+                                <span className="text-[#9B9B9B] ml-1">(optionnel)</span>
                             </label>
                             <input
                                 type="file"
@@ -474,7 +474,7 @@ export default function NewCampaignPage() {
                                             <img
                                                 src={URL.createObjectURL(file)}
                                                 alt={`Image ${i + 1}`}
-                                                className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                                                className="w-full h-24 object-cover rounded-lg border border-[#E2E2E1]"
                                             />
                                             <button
                                                 onClick={() => removeBriefImage(i)}
@@ -488,13 +488,13 @@ export default function NewCampaignPage() {
                             )}
                             <label
                                 htmlFor="brief-images-upload"
-                                className="block border-2 border-dashed border-gray-200 rounded-lg p-6 text-center hover:border-gray-300 transition-colors cursor-pointer"
+                                className="block border-2 border-dashed border-[#E2E2E1] rounded-lg p-6 text-center hover:border-[#C4C4C3] transition-colors cursor-pointer"
                             >
-                                <Upload className="w-6 h-6 text-gray-400 mx-auto mb-2" />
-                                <p className="text-sm text-gray-500">
+                                <Upload className="w-6 h-6 text-[#9B9B9B] mx-auto mb-2" />
+                                <p className="text-sm text-[#6B6B6B]">
                                     {briefImages.length > 0 ? 'Ajouter d\'autres images' : 'Glissez des images ou cliquez pour parcourir'}
                                 </p>
-                                <p className="text-xs text-gray-400 mt-1">JPG, PNG, WebP • Max 5MB par image</p>
+                                <p className="text-xs text-[#9B9B9B] mt-1">JPG, PNG, WebP • Max 5MB par image</p>
                             </label>
                         </div>
                     </div>
@@ -504,11 +504,11 @@ export default function NewCampaignPage() {
                 {step === 2 && (
                     <div className="space-y-6">
                         <div>
-                            <h2 className="text-xl font-semibold text-gray-900">Quelles vidéos souhaitez-vous ?</h2>
-                            <p className="text-sm text-gray-500 mt-1">Chaque bloc ci-dessous correspond à une vidéo à produire dans le cadre de cette campagne. Ajoutez autant de vidéos que nécessaire.</p>
+                            <h2 className="text-xl font-semibold text-[#1A1A1A]">Quelles vidéos souhaitez-vous ?</h2>
+                            <p className="text-sm text-[#6B6B6B] mt-1">Chaque bloc ci-dessous correspond à une vidéo à produire dans le cadre de cette campagne. Ajoutez autant de vidéos que nécessaire.</p>
                             <div className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-[#1A1A1A]/5 rounded-full">
                                 <span className="text-base">🎬</span>
-                                <span className="text-sm font-medium text-gray-700">{contentBlocks.length} vidéo{contentBlocks.length > 1 ? 's' : ''} dans cette campagne</span>
+                                <span className="text-sm font-medium text-[#1A1A1A]">{contentBlocks.length} vidéo{contentBlocks.length > 1 ? 's' : ''} dans cette campagne</span>
                             </div>
                         </div>
 
@@ -520,17 +520,17 @@ export default function NewCampaignPage() {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -10 }}
-                                    className="bg-gray-50 border border-gray-200 rounded-lg p-5 relative"
+                                    className="bg-[#FAFAF9] border border-[#E2E2E1] rounded-lg p-5 relative"
                                 >
                                     {/* Block header */}
                                     <div className="flex items-center justify-between mb-4">
-                                        <span className="text-sm font-medium text-gray-700">
+                                        <span className="text-sm font-medium text-[#1A1A1A]">
                                             {block.contentType === 'photo' ? 'Photo' : 'Vidéo'} {index + 1}
                                         </span>
                                         {contentBlocks.length > 1 && (
                                             <button
                                                 onClick={() => removeContentBlock(block.id)}
-                                                className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                                                className="text-[#9B9B9B] hover:text-[#C0392B] transition-colors p-1"
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
@@ -539,7 +539,7 @@ export default function NewCampaignPage() {
 
                                     {/* Content Type: Video / Photo */}
                                     <div className="mb-4">
-                                        <label className="block text-xs text-gray-500 mb-2">Type de contenu</label>
+                                        <label className="block text-xs text-[#6B6B6B] mb-2">Type de contenu</label>
                                         <div className="flex gap-2">
                                             {CONTENT_TYPES.map(type => (
                                                 <button
@@ -547,7 +547,7 @@ export default function NewCampaignPage() {
                                                     onClick={() => updateBlock(block.id, { contentType: type.id as 'video' | 'photo' })}
                                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${block.contentType === type.id
                                                         ? 'bg-[#1A1A1A] text-white'
-                                                        : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300'
+                                                        : 'bg-white text-[#6B6B6B] border border-[#E2E2E1] hover:border-[#C4C4C3]'
                                                         }`}
                                                 >
                                                     {type.label}
@@ -558,7 +558,7 @@ export default function NewCampaignPage() {
 
                                     {/* Format */}
                                     <div className="mb-4">
-                                        <label className="block text-xs text-gray-500 mb-2">Format</label>
+                                        <label className="block text-xs text-[#6B6B6B] mb-2">Format</label>
                                         <div className="flex gap-2 flex-wrap">
                                             {FORMAT_OPTIONS.map(fmt => (
                                                 <button
@@ -566,7 +566,7 @@ export default function NewCampaignPage() {
                                                     onClick={() => updateBlock(block.id, { format: fmt.id })}
                                                     className={`px-3 py-1.5 rounded-lg text-sm transition-all ${block.format === fmt.id
                                                         ? 'bg-[#1A1A1A] text-white'
-                                                        : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300'
+                                                        : 'bg-white text-[#6B6B6B] border border-[#E2E2E1] hover:border-[#C4C4C3]'
                                                         }`}
                                                 >
                                                     {fmt.label}
@@ -578,7 +578,7 @@ export default function NewCampaignPage() {
 
                                     {/* Script Type / Category */}
                                     <div className="mb-4">
-                                        <label className="block text-xs text-gray-500 mb-2">Catégorie *</label>
+                                        <label className="block text-xs text-[#6B6B6B] mb-2">Catégorie *</label>
                                         <div className="flex gap-2 flex-wrap">
                                             {SPECIALTIES.map(spec => (
                                                 <button
@@ -586,7 +586,7 @@ export default function NewCampaignPage() {
                                                     onClick={() => updateBlock(block.id, { scriptType: spec.id })}
                                                     className={`px-3 py-1.5 rounded-lg text-sm transition-all ${block.scriptType === spec.id
                                                         ? 'bg-[#1A1A1A] text-white'
-                                                        : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300'
+                                                        : 'bg-white text-[#6B6B6B] border border-[#E2E2E1] hover:border-[#C4C4C3]'
                                                         }`}
                                                 >
                                                     {spec.label}
@@ -597,20 +597,20 @@ export default function NewCampaignPage() {
 
                                     {/* Description */}
                                     <div className="mb-4">
-                                        <label className="block text-xs text-gray-500 mb-2">Description détaillée</label>
+                                        <label className="block text-xs text-[#6B6B6B] mb-2">Description détaillée</label>
                                         <textarea
                                             value={block.description}
                                             onChange={(e) => updateBlock(block.id, { description: e.target.value })}
                                             rows={3}
                                             placeholder="Décrivez ce que vous attendez pour ce contenu..."
-                                            className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 resize-none"
+                                            className="w-full bg-white border border-[#E2E2E1] rounded-lg px-4 py-2.5 text-[#1A1A1A] text-sm placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 resize-none"
                                         />
                                     </div>
 
                                     {/* Per-block Do's */}
                                     <div className="mb-3">
-                                        <label className="block text-xs text-gray-500 mb-1.5 flex items-center gap-1.5">
-                                            <CheckCircle2 className="w-3 h-3 text-emerald-700" />
+                                        <label className="block text-xs text-[#6B6B6B] mb-1.5 flex items-center gap-1.5">
+                                            <CheckCircle2 className="w-3 h-3 text-[#1A7F37]" />
                                             À faire
                                         </label>
                                         <div className="space-y-1.5">
@@ -621,16 +621,16 @@ export default function NewCampaignPage() {
                                                         value={d}
                                                         onChange={(e) => updateBlockDo(block.id, i, e.target.value)}
                                                         placeholder="Ex: Montrer le produit en utilisation"
-                                                        className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#1A1A1A]/15"
+                                                        className="flex-1 bg-white border border-[#E2E2E1] rounded-lg px-3 py-2 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-1 focus:ring-[#1A1A1A]/15"
                                                     />
                                                     {block.dos.length > 1 && (
-                                                        <button onClick={() => removeBlockDo(block.id, i)} className="text-gray-400 hover:text-red-500 px-1">
+                                                        <button onClick={() => removeBlockDo(block.id, i)} className="text-[#9B9B9B] hover:text-[#C0392B] px-1">
                                                             <X className="w-3.5 h-3.5" />
                                                         </button>
                                                     )}
                                                 </div>
                                             ))}
-                                            <button onClick={() => addBlockDo(block.id)} className="text-xs text-gray-500 hover:text-gray-900 flex items-center gap-1 mt-1">
+                                            <button onClick={() => addBlockDo(block.id)} className="text-xs text-[#6B6B6B] hover:text-[#1A1A1A] flex items-center gap-1 mt-1">
                                                 <Plus className="w-3 h-3" /> Ajouter
                                             </button>
                                         </div>
@@ -638,8 +638,8 @@ export default function NewCampaignPage() {
 
                                     {/* Per-block Don'ts */}
                                     <div>
-                                        <label className="block text-xs text-gray-500 mb-1.5 flex items-center gap-1.5">
-                                            <X className="w-3 h-3 text-red-700" />
+                                        <label className="block text-xs text-[#6B6B6B] mb-1.5 flex items-center gap-1.5">
+                                            <X className="w-3 h-3 text-[#C0392B]" />
                                             À éviter
                                         </label>
                                         <div className="space-y-1.5">
@@ -650,16 +650,16 @@ export default function NewCampaignPage() {
                                                         value={d}
                                                         onChange={(e) => updateBlockDont(block.id, i, e.target.value)}
                                                         placeholder="Ex: Ne pas mentionner les concurrents"
-                                                        className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#1A1A1A]/15"
+                                                        className="flex-1 bg-white border border-[#E2E2E1] rounded-lg px-3 py-2 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-1 focus:ring-[#1A1A1A]/15"
                                                     />
                                                     {block.donts.length > 1 && (
-                                                        <button onClick={() => removeBlockDont(block.id, i)} className="text-gray-400 hover:text-red-500 px-1">
+                                                        <button onClick={() => removeBlockDont(block.id, i)} className="text-[#9B9B9B] hover:text-[#C0392B] px-1">
                                                             <X className="w-3.5 h-3.5" />
                                                         </button>
                                                     )}
                                                 </div>
                                             ))}
-                                            <button onClick={() => addBlockDont(block.id)} className="text-xs text-gray-500 hover:text-gray-900 flex items-center gap-1 mt-1">
+                                            <button onClick={() => addBlockDont(block.id)} className="text-xs text-[#6B6B6B] hover:text-[#1A1A1A] flex items-center gap-1 mt-1">
                                                 <Plus className="w-3 h-3" /> Ajouter
                                             </button>
                                         </div>
@@ -668,12 +668,12 @@ export default function NewCampaignPage() {
                             ))}
                         </div>
 
-                        {errors.contentBlocks && <p className="text-xs text-red-500">{errors.contentBlocks}</p>}
+                        {errors.contentBlocks && <p className="text-xs text-[#C0392B]">{errors.contentBlocks}</p>}
 
                         {/* Add content button */}
                         <button
                             onClick={addContentBlock}
-                            className="w-full border-2 border-dashed border-gray-200 rounded-lg py-3 text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-all flex items-center justify-center gap-2"
+                            className="w-full border-2 border-dashed border-[#E2E2E1] rounded-lg py-3 text-sm text-[#6B6B6B] hover:border-[#C4C4C3] hover:text-[#1A1A1A] transition-all flex items-center justify-center gap-2"
                         >
                             <Plus className="w-4 h-4" />
                             Ajouter une vidéo
@@ -684,27 +684,27 @@ export default function NewCampaignPage() {
                 {/* ═══════════ STEP 3: CRÉATEURS & DÉLAI ═══════════ */}
                 {step === 3 && (
                     <div className="space-y-6">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-6">Créateurs & Délai</h2>
+                        <h2 className="text-xl font-semibold text-[#1A1A1A] mb-6">Créateurs & Délai</h2>
 
                         {/* Creator Preference */}
                         <div>
-                            <label className="block text-sm text-gray-500 mb-3">Combien de créateurs souhaitez-vous ?</label>
+                            <label className="block text-sm text-[#6B6B6B] mb-3">Combien de créateurs souhaitez-vous ?</label>
                             <div className="space-y-3">
                                 <button
                                     onClick={() => setCreatorPreference('single')}
                                     className={`w-full p-4 rounded-lg text-left transition-all flex items-center gap-4 ${creatorPreference === 'single'
                                         ? 'bg-[#1A1A1A]/10 border-[#1A1A1A]/50 border-2'
-                                        : 'bg-gray-50 border border-gray-200 hover:border-gray-300'
+                                        : 'bg-[#FAFAF9] border border-[#E2E2E1] hover:border-[#C4C4C3]'
                                         }`}
                                 >
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${creatorPreference === 'single' ? 'bg-[#1A1A1A] text-white' : 'bg-gray-200 text-gray-500'}`}>
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${creatorPreference === 'single' ? 'bg-[#1A1A1A] text-white' : 'bg-[#E2E2E1] text-[#6B6B6B]'}`}>
                                         <User className="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <p className={`font-medium ${creatorPreference === 'single' ? 'text-gray-900' : 'text-gray-700'}`}>
+                                        <p className={`text-[#1A1A1A] ${creatorPreference === 'single' ? 'font-semibold' : 'font-medium'}`}>
                                             Un seul créateur pour toutes les vidéos
                                         </p>
-                                        <p className="text-xs text-gray-400 mt-0.5">MOSH trouvera un créateur polyvalent pour l&apos;ensemble de votre campagne</p>
+                                        <p className="text-xs text-[#9B9B9B] mt-0.5">MOSH trouvera un créateur polyvalent pour l&apos;ensemble de votre campagne</p>
                                     </div>
                                 </button>
 
@@ -712,17 +712,17 @@ export default function NewCampaignPage() {
                                     onClick={() => setCreatorPreference('per_video')}
                                     className={`w-full p-4 rounded-lg text-left transition-all flex items-center gap-4 ${creatorPreference === 'per_video'
                                         ? 'bg-[#1A1A1A]/10 border-[#1A1A1A]/50 border-2'
-                                        : 'bg-gray-50 border border-gray-200 hover:border-gray-300'
+                                        : 'bg-[#FAFAF9] border border-[#E2E2E1] hover:border-[#C4C4C3]'
                                         }`}
                                 >
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${creatorPreference === 'per_video' ? 'bg-[#1A1A1A] text-white' : 'bg-gray-200 text-gray-500'}`}>
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${creatorPreference === 'per_video' ? 'bg-[#1A1A1A] text-white' : 'bg-[#E2E2E1] text-[#6B6B6B]'}`}>
                                         <Users className="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <p className={`font-medium ${creatorPreference === 'per_video' ? 'text-gray-900' : 'text-gray-700'}`}>
+                                        <p className={`text-[#1A1A1A] ${creatorPreference === 'per_video' ? 'font-semibold' : 'font-medium'}`}>
                                             Un créateur différent par vidéo
                                         </p>
-                                        <p className="text-xs text-gray-400 mt-0.5">Chaque vidéo sera réalisée par un créateur spécialisé</p>
+                                        <p className="text-xs text-[#9B9B9B] mt-0.5">Chaque vidéo sera réalisée par un créateur spécialisé</p>
                                     </div>
                                 </button>
                             </div>
@@ -730,14 +730,14 @@ export default function NewCampaignPage() {
 
                         {/* Deadline */}
                         <div className="mt-6">
-                            <label className="block text-sm text-gray-500 mb-2">Date souhaitée de livraison</label>
+                            <label className="block text-sm text-[#6B6B6B] mb-2">Date souhaitée de livraison</label>
                             <div className="relative">
-                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9B9B9B]" />
                                 <input
                                     type="date"
                                     value={campaign.deadline}
                                     onChange={(e) => setCampaign({ ...campaign, deadline: e.target.value })}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-10 pr-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 [color-scheme:dark]"
+                                    className="w-full bg-[#FAFAF9] border border-[#E2E2E1] rounded-lg pl-10 pr-4 py-3 text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 [color-scheme:dark]"
                                 />
                             </div>
                         </div>
@@ -748,8 +748,8 @@ export default function NewCampaignPage() {
                 {step === 4 && (
                     <div className="space-y-6">
                         <div className="text-center">
-                            <h2 className="text-xl font-semibold text-gray-900">Choisissez votre offre</h2>
-                            <p className="text-sm text-gray-500 mt-1">
+                            <h2 className="text-xl font-semibold text-[#1A1A1A]">Choisissez votre offre</h2>
+                            <p className="text-sm text-[#6B6B6B] mt-1">
                                 {contentBlocks.length} contenu{contentBlocks.length > 1 ? 's' : ''} × {PRICE_PER_VIDEO} CHF par contenu
                             </p>
                         </div>
@@ -769,7 +769,7 @@ export default function NewCampaignPage() {
                                         className={`relative text-left p-5 rounded-lg transition-all ${
                                             isSelected
                                                 ? 'bg-[#1A1A1A] text-white ring-2 ring-[#1A1A1A] scale-[1.02]'
-                                                : 'bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                                                : 'bg-white border border-[#E2E2E1] hover:border-[#C4C4C3] hover:shadow-sm'
                                         }`}
                                     >
                                         {/* Popular badge */}
@@ -788,7 +788,7 @@ export default function NewCampaignPage() {
                                                 {tier.name}
                                             </span>
                                         </div>
-                                        <p className={`text-xs mb-4 ${isSelected ? 'text-gray-400' : 'text-gray-500'}`}>
+                                        <p className={`text-xs mb-4 ${isSelected ? 'text-[#9B9B9B]' : 'text-[#6B6B6B]'}`}>
                                             {tier.subtitle}
                                         </p>
 
@@ -803,8 +803,8 @@ export default function NewCampaignPage() {
                                         <div className="space-y-2">
                                             {tier.features.map((feature, fi) => (
                                                 <div key={fi} className="flex items-start gap-2">
-                                                    <Check className={`w-3.5 h-3.5 mt-0.5 flex-shrink-0 ${isSelected ? 'text-[#1A1A1A]' : 'text-emerald-600'}`} />
-                                                    <span className={`text-xs ${isSelected ? 'text-gray-300' : 'text-gray-600'}`}>
+                                                    <Check className={`w-3.5 h-3.5 mt-0.5 flex-shrink-0 ${isSelected ? 'text-[#1A1A1A]' : 'text-[#1A7F37]'}`} />
+                                                    <span className={`text-xs ${isSelected ? 'text-[#C4C4C3]' : 'text-[#6B6B6B]'}`}>
                                                         {feature}
                                                     </span>
                                                 </div>
@@ -815,7 +815,7 @@ export default function NewCampaignPage() {
                                         <div className={`mt-4 py-2 rounded-lg text-center text-sm font-medium transition-all ${
                                             isSelected
                                                 ? 'bg-[#1A1A1A] text-white'
-                                                : 'bg-gray-100 text-gray-600'
+                                                : 'bg-[#F4F4F3] text-[#6B6B6B]'
                                         }`}>
                                             {isSelected ? 'Sélectionné' : `Choisir ${tier.name}`}
                                         </div>
@@ -825,39 +825,39 @@ export default function NewCampaignPage() {
                         </div>
 
                         {/* Summary Card */}
-                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 mt-4">
+                        <div className="bg-[#FAFAF9] border border-[#E2E2E1] rounded-lg p-5 mt-4">
                             <div className="flex items-center gap-2 mb-4">
                                 <Sparkles className="w-4 h-4 text-[#1A1A1A]" />
-                                <span className="text-gray-900 font-medium">Résumé de la campagne</span>
+                                <span className="text-[#1A1A1A] font-medium">Résumé de la campagne</span>
                             </div>
                             <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
-                                    <span className="text-gray-500">Titre</span>
-                                    <span className="text-gray-900">{campaign.title || '—'}</span>
+                                    <span className="text-[#6B6B6B]">Titre</span>
+                                    <span className="text-[#1A1A1A]">{campaign.title || '—'}</span>
                                 </div>
                                 {campaign.productName && (
                                     <div className="flex justify-between">
-                                        <span className="text-gray-500">Produit</span>
-                                        <span className="text-gray-900">{campaign.productName}</span>
+                                        <span className="text-[#6B6B6B]">Produit</span>
+                                        <span className="text-[#1A1A1A]">{campaign.productName}</span>
                                     </div>
                                 )}
                                 <div className="flex justify-between">
-                                    <span className="text-gray-500">Contenus</span>
-                                    <span className="text-gray-900 font-medium">{contentBlocks.length}</span>
+                                    <span className="text-[#6B6B6B]">Contenus</span>
+                                    <span className="text-[#1A1A1A] font-medium">{contentBlocks.length}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-gray-500">Créateurs</span>
-                                    <span className="text-gray-900">
+                                    <span className="text-[#6B6B6B]">Créateurs</span>
+                                    <span className="text-[#1A1A1A]">
                                         {creatorPreference === 'single' ? 'Un seul pour tout' : 'Un par vidéo'}
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-gray-500">Offre</span>
-                                    <span className="text-gray-900 font-medium">{PRICING_TIERS.find(t => t.id === selectedPlan)?.name}</span>
+                                    <span className="text-[#6B6B6B]">Offre</span>
+                                    <span className="text-[#1A1A1A] font-medium">{PRICING_TIERS.find(t => t.id === selectedPlan)?.name}</span>
                                 </div>
-                                <div className="flex justify-between pt-2 border-t border-gray-100">
-                                    <span className="text-gray-900 font-semibold">Total</span>
-                                    <span className="text-gray-900 font-bold text-lg">
+                                <div className="flex justify-between pt-2 border-t border-[#E2E2E1]">
+                                    <span className="text-[#1A1A1A] font-semibold">Total</span>
+                                    <span className="text-[#1A1A1A] font-bold text-lg">
                                         {(PRICING_TIERS.find(t => t.id === selectedPlan)?.getPrice(contentBlocks.length) || 0).toLocaleString('fr-CH')} CHF
                                     </span>
                                 </div>
@@ -867,12 +867,12 @@ export default function NewCampaignPage() {
                 )}
 
                 {/* Actions */}
-                <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
+                <div className="flex justify-between mt-8 pt-6 border-t border-[#E2E2E1]">
                     {step > 1 ? (
                         <Button
                             variant="ghost"
                             onClick={() => setStep(step - 1)}
-                            className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                            className="text-[#6B6B6B] hover:text-[#1A1A1A] hover:bg-[#F4F4F3]"
                         >
                             Retour
                         </Button>
@@ -924,8 +924,8 @@ export default function NewCampaignPage() {
                                         <FileSignature className="w-5 h-5 text-[#1A1A1A]" />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-bold text-gray-900">Signature du devis</h3>
-                                        <p className="text-xs text-gray-500">Validez votre offre pour envoyer le brief</p>
+                                        <h3 className="text-lg font-bold text-[#1A1A1A]">Signature du devis</h3>
+                                        <p className="text-xs text-[#6B6B6B]">Validez votre offre pour envoyer le brief</p>
                                     </div>
                                 </div>
                             </div>
@@ -933,42 +933,42 @@ export default function NewCampaignPage() {
                             {/* Devis content */}
                             <div className="p-6 space-y-4">
                                 {/* Summary */}
-                                <div className="bg-gray-50 rounded-lg p-4 space-y-2.5 text-sm">
+                                <div className="bg-[#FAFAF9] rounded-lg p-4 space-y-2.5 text-sm">
                                     <div className="flex justify-between">
-                                        <span className="text-gray-500">Campagne</span>
-                                        <span className="text-gray-900 font-medium">{campaign.title || '—'}</span>
+                                        <span className="text-[#6B6B6B]">Campagne</span>
+                                        <span className="text-[#1A1A1A] font-medium">{campaign.title || '—'}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-gray-500">Offre</span>
-                                        <span className="text-gray-900 font-medium">{PRICING_TIERS.find(t => t.id === selectedPlan)?.name}</span>
+                                        <span className="text-[#6B6B6B]">Offre</span>
+                                        <span className="text-[#1A1A1A] font-medium">{PRICING_TIERS.find(t => t.id === selectedPlan)?.name}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-gray-500">Contenus</span>
-                                        <span className="text-gray-900">{contentBlocks.length} × {PRICE_PER_VIDEO} CHF</span>
+                                        <span className="text-[#6B6B6B]">Contenus</span>
+                                        <span className="text-[#1A1A1A]">{contentBlocks.length} × {PRICE_PER_VIDEO} CHF</span>
                                     </div>
                                     {selectedPlan !== 'essentiel' && (
                                         <div className="flex justify-between">
-                                            <span className="text-gray-500">Accompagnement</span>
-                                            <span className="text-gray-900">+ {ACCOMPANIMENT_FEE} CHF</span>
+                                            <span className="text-[#6B6B6B]">Accompagnement</span>
+                                            <span className="text-[#1A1A1A]">+ {ACCOMPANIMENT_FEE} CHF</span>
                                         </div>
                                     )}
                                     {selectedPlan === 'platinum' && (
                                         <div className="flex justify-between">
-                                            <span className="text-gray-500">Reporting</span>
-                                            <span className="text-gray-900">+ {REPORTING_FEE} CHF</span>
+                                            <span className="text-[#6B6B6B]">Reporting</span>
+                                            <span className="text-[#1A1A1A]">+ {REPORTING_FEE} CHF</span>
                                         </div>
                                     )}
-                                    <div className="flex justify-between pt-2 border-t border-gray-200">
-                                        <span className="text-gray-900 font-bold">Total TTC</span>
-                                        <span className="text-gray-900 font-bold text-lg">
+                                    <div className="flex justify-between pt-2 border-t border-[#E2E2E1]">
+                                        <span className="text-[#1A1A1A] font-bold">Total TTC</span>
+                                        <span className="text-[#1A1A1A] font-bold text-lg">
                                             {(PRICING_TIERS.find(t => t.id === selectedPlan)?.getPrice(contentBlocks.length) || 0).toLocaleString('fr-CH')} CHF
                                         </span>
                                     </div>
                                 </div>
 
                                 {/* Legal text */}
-                                <div className="bg-gray-50 rounded-lg p-4">
-                                    <p className="text-xs text-gray-500 leading-relaxed">
+                                <div className="bg-[#FAFAF9] rounded-lg p-4">
+                                    <p className="text-xs text-[#6B6B6B] leading-relaxed">
                                         En signant ce devis, vous confirmez avoir pris connaissance de l&apos;offre sélectionnée 
                                         et acceptez les conditions générales de MOSH. Ce devis fait foi comme engagement 
                                         de commande pour la prestation décrite ci-dessus. Le paiement sera exigible selon 
@@ -982,13 +982,13 @@ export default function NewCampaignPage() {
                                         className={`w-5 h-5 mt-0.5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                                             acceptedTerms
                                                 ? 'bg-[#1A1A1A] border-[#1A1A1A]'
-                                                : 'border-gray-300 group-hover:border-gray-400'
+                                                : 'border-[#C4C4C3] group-hover:border-[#C4C4C3]'
                                         }`}
                                         onClick={() => setAcceptedTerms(!acceptedTerms)}
                                     >
                                         {acceptedTerms && <Check className="w-3.5 h-3.5 text-[#1A1A1A]" />}
                                     </div>
-                                    <span className="text-sm text-gray-700">
+                                    <span className="text-sm text-[#1A1A1A]">
                                         J&apos;accepte les conditions générales et je confirme cette commande
                                     </span>
                                 </label>

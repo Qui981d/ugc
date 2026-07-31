@@ -37,14 +37,14 @@ import { isStepCompletedOrPassed } from '@/lib/constants/workflowSteps'
 
 // Creator-centric content status (they don't care about script stages)
 const CREATOR_CONTENT_STATUS: Record<string, { label: string; color: string; bg: string; canDeliver: boolean }> = {
-    draft: { label: 'À livrer', color: 'text-[#6B6B6B]', bg: 'bg-gray-100', canDeliver: true },
-    script_pending: { label: 'À livrer', color: 'text-[#6B6B6B]', bg: 'bg-gray-100', canDeliver: true },
-    script_approved: { label: 'À livrer', color: 'text-[#6B6B6B]', bg: 'bg-gray-100', canDeliver: true },
-    shooting: { label: 'À livrer', color: 'text-[#6B6B6B]', bg: 'bg-gray-100', canDeliver: true },
-    uploaded: { label: 'Livrée', color: 'text-indigo-700', bg: 'bg-indigo-100', canDeliver: false },
-    qc_approved: { label: 'QC validé ✓', color: 'text-teal-700', bg: 'bg-teal-100', canDeliver: false },
-    sent_to_brand: { label: 'Chez la marque', color: 'text-orange-700', bg: 'bg-orange-100', canDeliver: false },
-    brand_approved: { label: 'Validée ✓', color: 'text-emerald-700', bg: 'bg-emerald-100', canDeliver: false },
+    draft: { label: 'À livrer', color: 'text-[#6B6B6B]', bg: 'bg-[#F4F4F3]', canDeliver: true },
+    script_pending: { label: 'À livrer', color: 'text-[#6B6B6B]', bg: 'bg-[#F4F4F3]', canDeliver: true },
+    script_approved: { label: 'À livrer', color: 'text-[#6B6B6B]', bg: 'bg-[#F4F4F3]', canDeliver: true },
+    shooting: { label: 'À livrer', color: 'text-[#6B6B6B]', bg: 'bg-[#F4F4F3]', canDeliver: true },
+    uploaded: { label: 'Livrée', color: 'text-[#1A1A1A]', bg: 'bg-[#F4F4F3]', canDeliver: false },
+    qc_approved: { label: 'QC validé ✓', color: 'text-[#1A7F37]', bg: 'bg-[#E8F3EA]', canDeliver: false },
+    sent_to_brand: { label: 'Chez la marque', color: 'text-[#8A6100]', bg: 'bg-[#FBF3E2]', canDeliver: false },
+    brand_approved: { label: 'Validée ✓', color: 'text-[#1A7F37]', bg: 'bg-[#E8F3EA]', canDeliver: false },
 }
 
 // ================================================
@@ -252,7 +252,7 @@ export default function CreatorMissionDetailPage() {
                             <Film className="w-4 h-4 text-[#6B6B6B]" />
                             Contenus à produire ({campaignContents.filter(c => ['uploaded', 'qc_approved', 'sent_to_brand', 'brand_approved'].includes(c.status)).length}/{campaignContents.length})
                         </h2>
-                        <div className="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="w-20 h-1.5 bg-[#F4F4F3] rounded-full overflow-hidden">
                             <div className="h-full bg-[#1A1A1A] rounded-full transition-all" style={{ width: `${(campaignContents.filter(c => ['uploaded', 'qc_approved', 'sent_to_brand', 'brand_approved'].includes(c.status)).length / campaignContents.length) * 100}%` }} />
                         </div>
                     </div>
@@ -322,11 +322,11 @@ export default function CreatorMissionDetailPage() {
             {/* 2) Contract step — first thing the creator sees */}
             {(isFirstAction || nextStep?.type === 'contract_signed') && !contractSigned && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className={`border-2 rounded-lg p-5 ${campaign.contract_mosh_status === 'pending_creator' ? 'bg-amber-50 border-amber-200' : 'bg-[#F4F4F3] border-[#E2E2E1]'}`}
+                    className={`border-2 rounded-lg p-5 ${campaign.contract_mosh_status === 'pending_creator' ? 'bg-[#FBF3E2] border-[#F0E0BC]' : 'bg-[#F4F4F3] border-[#E2E2E1]'}`}
                 >
                     <div className="flex items-center gap-3 mb-3">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${campaign.contract_mosh_status === 'pending_creator' ? 'bg-amber-100' : 'bg-white'}`}>
-                            <ScrollText className={`w-5 h-5 ${campaign.contract_mosh_status === 'pending_creator' ? 'text-amber-600' : 'text-[#6B6B6B]'}`} />
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${campaign.contract_mosh_status === 'pending_creator' ? 'bg-[#FBF3E2]' : 'bg-white'}`}>
+                            <ScrollText className={`w-5 h-5 ${campaign.contract_mosh_status === 'pending_creator' ? 'text-[#8A6100]' : 'text-[#6B6B6B]'}`} />
                         </div>
                         <div>
                             {campaign.contract_mosh_status === 'pending_creator' ? (
@@ -353,13 +353,13 @@ export default function CreatorMissionDetailPage() {
                     {campaign.contract_mosh_status === 'pending_creator' && (
                         <div className="space-y-2">
                             {campaign.creator_price_status === 'counter' && (
-                                <div className="bg-white border border-amber-200 rounded-lg px-3 py-2 text-sm text-amber-700">
+                                <div className="bg-white border border-[#F0E0BC] rounded-lg px-3 py-2 text-sm text-[#8A6100]">
                                     💬 Tarif demandé : <strong>CHF {campaign.creator_counter_amount_chf?.toLocaleString('fr-CH')}</strong> — en attente de la réponse de MOSH.
                                 </div>
                             )}
                             <button
                                 onClick={handleViewContract}
-                                className="w-full py-2.5 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600 transition-colors flex items-center justify-center gap-2"
+                                className="w-full py-2.5 bg-[#8A6100] text-white rounded-lg text-sm font-medium hover:bg-[#8A6100] transition-colors flex items-center justify-center gap-2"
                             >
                                 <ScrollText className="w-4 h-4" />
                                 Lire &amp; signer le contrat
@@ -419,7 +419,7 @@ export default function CreatorMissionDetailPage() {
             {/* Video already uploaded — show preview */}
             {campaign.video_url && isStepCompleted('video_uploaded_by_creator') && !isStepCompleted('brand_final_approved') && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-white border border-gray-200 rounded-lg p-6">
+                    className="bg-white border border-[#E2E2E1] rounded-lg p-6">
                     <h2 className="text-lg font-semibold text-[#1A1A1A] mb-3 flex items-center gap-2">
                         <Play className="w-4 h-4 text-[#1A1A1A]" />
                         Votre vidéo
@@ -476,7 +476,7 @@ export default function CreatorMissionDetailPage() {
             {/* TIMELINE */}
             {/* ========================================================== */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                className="bg-white border border-gray-200 rounded-lg p-6"
+                className="bg-white border border-[#E2E2E1] rounded-lg p-6"
             >
                 <h2 className="text-lg font-semibold text-[#1A1A1A] mb-6">Suivi de votre mission</h2>
                 <div className="space-y-0">
@@ -491,12 +491,12 @@ export default function CreatorMissionDetailPage() {
                         return (
                             <div key={step.type} className="relative flex gap-4">
                                 {i < TIMELINE_STEPS.length - 1 && (
-                                    <div className={`absolute left-5 top-10 w-0.5 h-full ${isPast ? 'bg-[#1A1A1A]/30' : 'bg-gray-100'}`} />
+                                    <div className={`absolute left-5 top-10 w-0.5 h-full ${isPast ? 'bg-[#1A1A1A]/30' : 'bg-[#F4F4F3]'}`} />
                                 )}
                                 <div className={`relative z-10 w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${completed ? 'bg-[#EDEDEC] text-[#1A1A1A]' :
                                     isAction ? 'bg-[#1A1A1A] text-white ring-2 ring-[#1A1A1A]/40 animate-pulse' :
                                         isCurrent ? 'bg-[#EDEDEC] text-[#1A1A1A] ring-2 ring-[#1A1A1A]/15' :
-                                            'bg-gray-50 text-gray-300'
+                                            'bg-[#FAFAF9] text-[#C4C4C3]'
                                     }`}>
                                     {completed ? (
                                         <CheckCircle2 className="w-5 h-5" />
@@ -507,10 +507,10 @@ export default function CreatorMissionDetailPage() {
                                     )}
                                 </div>
                                 <div className="pb-8 flex-1 min-w-0">
-                                    <p className={`font-medium ${completed ? 'text-gray-900' :
+                                    <p className={`font-medium ${completed ? 'text-[#1A1A1A]' :
                                         isAction ? 'text-[#1A1A1A]' :
                                             isCurrent ? 'text-[#1A1A1A]' :
-                                                'text-gray-400'
+                                                'text-[#9B9B9B]'
                                         }`}>
                                         {step.label}
                                         {isAction && (
@@ -520,17 +520,17 @@ export default function CreatorMissionDetailPage() {
                                             </span>
                                         )}
                                         {isCurrent && !isAction && (
-                                            <span className="ml-2 inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+                                            <span className="ml-2 inline-flex items-center gap-1 text-xs bg-[#F4F4F3] text-[#6B6B6B] px-2 py-0.5 rounded-full">
                                                 <Clock className="w-3 h-3" />
                                                 En attente
                                             </span>
                                         )}
                                     </p>
-                                    <p className={`text-sm mt-0.5 ${completed || isCurrent ? 'text-gray-500' : 'text-gray-300'}`}>
+                                    <p className={`text-sm mt-0.5 ${completed || isCurrent ? 'text-[#6B6B6B]' : 'text-[#C4C4C3]'}`}>
                                         {completed ? step.doneDesc : isCurrent ? step.waitingDesc : step.waitingDesc}
                                     </p>
                                     {completedStep?.completed_at && (
-                                        <p className="text-xs text-gray-400 mt-1">
+                                        <p className="text-xs text-[#9B9B9B] mt-1">
                                             {new Date(completedStep.completed_at).toLocaleDateString('fr-CH', {
                                                 day: 'numeric', month: 'long', year: 'numeric'
                                             })}
@@ -548,7 +548,7 @@ export default function CreatorMissionDetailPage() {
             {/* ========================================================== */}
             {(campaign.description || campaign.product_name) && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-white border border-gray-200 rounded-lg p-6"
+                    className="bg-white border border-[#E2E2E1] rounded-lg p-6"
                 >
                     <h2 className="text-lg font-semibold text-[#1A1A1A] mb-4">Brief de la mission</h2>
                     <div className="space-y-4">
@@ -587,13 +587,13 @@ export default function CreatorMissionDetailPage() {
             {/* Video feedback section */}
             {campaign.brand_final_feedback && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-amber-50 border border-amber-200 rounded-lg p-6"
+                    className="bg-[#FBF3E2] border border-[#F0E0BC] rounded-lg p-6"
                 >
-                    <h2 className="text-sm font-semibold text-amber-800 mb-2 flex items-center gap-2">
+                    <h2 className="text-sm font-semibold text-[#8A6100] mb-2 flex items-center gap-2">
                         <AlertCircle className="w-4 h-4" />
                         Retour de la marque {campaign.brand_revision_count ? `(Révision ${campaign.brand_revision_count}/2)` : ''}
                     </h2>
-                    <p className="text-sm text-amber-700 whitespace-pre-wrap">{campaign.brand_final_feedback}</p>
+                    <p className="text-sm text-[#8A6100] whitespace-pre-wrap">{campaign.brand_final_feedback}</p>
                 </motion.div>
             )}
 

@@ -249,7 +249,7 @@ export function Header() {
 
                             <DropdownMenuItem
                                 onClick={handleSignOut}
-                                className="text-red-500 focus:bg-[#F4F4F3] cursor-pointer flex items-center gap-2"
+                                className="text-[#C0392B] focus:bg-[#F4F4F3] cursor-pointer flex items-center gap-2"
                             >
                                 <LogOut className="h-4 w-4" />
                                 Déconnexion

@@ -46,14 +46,14 @@ import { createClient } from '@/lib/supabase/client'
 import { getCampaignContents } from '@/lib/services/campaignService'
 
 const CONTENT_STATUS_LABELS: Record<ContentStatus, { label: string; color: string; bg: string }> = {
-    draft: { label: 'En préparation', color: 'text-gray-600', bg: 'bg-gray-100' },
-    script_pending: { label: 'Script en cours', color: 'text-amber-700', bg: 'bg-amber-100' },
-    script_approved: { label: 'Script validé', color: 'text-blue-700', bg: 'bg-blue-100' },
-    shooting: { label: 'En tournage', color: 'text-purple-700', bg: 'bg-purple-100' },
-    uploaded: { label: 'Vidéo livrée', color: 'text-indigo-700', bg: 'bg-indigo-100' },
-    qc_approved: { label: 'Contrôle qualité ✓', color: 'text-teal-700', bg: 'bg-teal-100' },
-    sent_to_brand: { label: 'À valider', color: 'text-orange-700', bg: 'bg-orange-100' },
-    brand_approved: { label: 'Validée ✓', color: 'text-emerald-700', bg: 'bg-emerald-100' },
+    draft: { label: 'En préparation', color: 'text-[#6B6B6B]', bg: 'bg-[#F4F4F3]' },
+    script_pending: { label: 'Script en cours', color: 'text-[#8A6100]', bg: 'bg-[#FBF3E2]' },
+    script_approved: { label: 'Script validé', color: 'text-[#1A1A1A]', bg: 'bg-[#F4F4F3]' },
+    shooting: { label: 'En tournage', color: 'text-[#1A1A1A]', bg: 'bg-[#F4F4F3]' },
+    uploaded: { label: 'Vidéo livrée', color: 'text-[#1A1A1A]', bg: 'bg-[#F4F4F3]' },
+    qc_approved: { label: 'Contrôle qualité ✓', color: 'text-[#1A7F37]', bg: 'bg-[#E8F3EA]' },
+    sent_to_brand: { label: 'À valider', color: 'text-[#8A6100]', bg: 'bg-[#FBF3E2]' },
+    brand_approved: { label: 'Validée ✓', color: 'text-[#1A7F37]', bg: 'bg-[#E8F3EA]' },
 }
 
 // ================================================
@@ -94,20 +94,20 @@ function CreatorCard({ creator, onSelect }: {
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="border border-gray-200 rounded-lg p-4 hover:border-[#1A1A1A]/40 hover:shadow-md transition-all"
+            className="border border-[#E2E2E1] rounded-lg p-4 hover:border-[#1A1A1A]/40 hover:shadow-md transition-all"
         >
             <div className="flex items-start gap-3">
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#1A1A1A]/20 to-[#1A1A1A]/5 flex items-center justify-center text-[#1A1A1A] font-bold text-lg shrink-0">
                     {creator.full_name?.charAt(0) || '?'}
                 </div>
                 <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-gray-900">{creator.full_name}</h4>
+                    <h4 className="font-semibold text-[#1A1A1A]">{creator.full_name}</h4>
                     {profile?.bio && (
-                        <p className="text-sm text-gray-500 mt-1 line-clamp-2">{profile.bio}</p>
+                        <p className="text-sm text-[#6B6B6B] mt-1 line-clamp-2">{profile.bio}</p>
                     )}
                     <div className="flex flex-wrap gap-2 mt-2">
                         {profile?.specialties?.slice(0, 3).map((s: string) => (
-                            <span key={s} className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-600">{s}</span>
+                            <span key={s} className="px-2 py-0.5 text-xs rounded-full bg-[#F4F4F3] text-[#6B6B6B]">{s}</span>
                         ))}
                     </div>
                     {(profile?.portfolio_video_urls?.length ?? 0) > 0 && profile && (
@@ -320,11 +320,11 @@ export default function BrandCampaignDetailPage() {
     }
 
     if (isLoading) {
-        return <div className="max-w-3xl mx-auto py-12 text-center text-gray-400">Chargement...</div>
+        return <div className="max-w-3xl mx-auto py-12 text-center text-[#9B9B9B]">Chargement...</div>
     }
 
     if (!campaign) {
-        return <div className="max-w-3xl mx-auto py-12 text-center text-gray-400">Brief introuvable</div>
+        return <div className="max-w-3xl mx-auto py-12 text-center text-[#9B9B9B]">Brief introuvable</div>
     }
 
     const currentStep = getCurrentStepIndex()
@@ -341,24 +341,24 @@ export default function BrandCampaignDetailPage() {
     return (
         <div className="max-w-3xl mx-auto space-y-8">
             {/* Breadcrumb */}
-            <div className="flex items-center gap-2 text-sm text-gray-400">
+            <div className="flex items-center gap-2 text-sm text-[#9B9B9B]">
                 <Link href="/brand/campaigns" className="hover:text-[#1A1A1A] transition-colors flex items-center gap-1">
                     <ArrowLeft className="w-4 h-4" />
                     Mes briefs
                 </Link>
                 <ChevronRight className="w-3 h-3" />
-                <span className="text-gray-900">{campaign.title}</span>
+                <span className="text-[#1A1A1A]">{campaign.title}</span>
             </div>
 
             {/* Title & Status */}
             <div>
                 <div className="flex items-center gap-3 mb-2">
-                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{campaign.title}</h1>
+                    <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">{campaign.title}</h1>
                     <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${statusCfg.bg} ${statusCfg.color}`}>
                         {statusCfg.label}
                     </span>
                 </div>
-                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                <div className="flex flex-wrap items-center gap-4 text-sm text-[#6B6B6B]">
                     <span className="flex items-center gap-1.5">
                         <Target className="w-4 h-4" />
                         {campaign.script_type}
@@ -369,7 +369,7 @@ export default function BrandCampaignDetailPage() {
                             {new Date(campaign.deadline).toLocaleDateString('fr-CH')}
                         </span>
                     )}
-                    <span className="font-semibold text-gray-900">{formatCHF(campaign.budget_chf)}</span>
+                    <span className="font-semibold text-[#1A1A1A]">{formatCHF(campaign.budget_chf)}</span>
                     <Link href="/brand/messages" className="ml-auto text-sm text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors flex items-center gap-1.5">
                         <MessageSquare className="w-4 h-4" />
                         Contacter MOSH
@@ -382,14 +382,14 @@ export default function BrandCampaignDetailPage() {
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white border border-gray-200 rounded-lg p-5"
+                    className="bg-white border border-[#E2E2E1] rounded-lg p-5"
                 >
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                            <Video className="w-4 h-4 text-gray-500" />
+                        <h2 className="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
+                            <Video className="w-4 h-4 text-[#6B6B6B]" />
                             Vos contenus ({campaignContents.filter(c => c.status === 'brand_approved').length}/{campaignContents.length})
                         </h2>
-                        <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="w-24 h-1.5 bg-[#F4F4F3] rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-[#1A1A1A] rounded-full transition-all"
                                 style={{ width: `${(campaignContents.filter(c => c.status === 'brand_approved').length / campaignContents.length) * 100}%` }}
@@ -400,11 +400,11 @@ export default function BrandCampaignDetailPage() {
                         {campaignContents.map((content, idx) => {
                             const statusCfg = CONTENT_STATUS_LABELS[content.status as ContentStatus] || CONTENT_STATUS_LABELS.draft
                             return (
-                                <div key={content.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                <div key={content.id} className="flex items-center gap-3 p-3 bg-[#FAFAF9] rounded-lg border border-[#E2E2E1]">
                                     <span className="text-sm">{content.content_type === 'video' ? '📹' : '📷'}</span>
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium text-gray-900 truncate">Contenu {idx + 1} — {content.script_type}</p>
-                                        <p className="text-xs text-gray-500">{content.format}</p>
+                                        <p className="text-sm font-medium text-[#1A1A1A] truncate">Contenu {idx + 1} — {content.script_type}</p>
+                                        <p className="text-xs text-[#6B6B6B]">{content.format}</p>
                                     </div>
                                     <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusCfg.bg} ${statusCfg.color}`}>
                                         {statusCfg.label}
@@ -425,14 +425,14 @@ export default function BrandCampaignDetailPage() {
                 >
                     <div className="flex items-center gap-2 mb-1">
                         <Users className="w-5 h-5 text-[#1A1A1A]" />
-                        <h2 className="text-lg font-semibold text-gray-900">Validation des créateurs</h2>
+                        <h2 className="text-lg font-semibold text-[#1A1A1A]">Validation des créateurs</h2>
                         {campaignContents.some(c => c.creator_status === 'proposed') && (
-                            <span className="ml-auto px-2.5 py-0.5 text-xs rounded-full bg-amber-100 text-amber-700 font-medium">
+                            <span className="ml-auto px-2.5 py-0.5 text-xs rounded-full bg-[#FBF3E2] text-[#8A6100] font-medium">
                                 Action requise
                             </span>
                         )}
                     </div>
-                    <p className="text-sm text-gray-500 mb-4">
+                    <p className="text-sm text-[#6B6B6B] mb-4">
                         Validez le créateur proposé pour chaque contenu afin de lancer la rédaction des scripts.
                     </p>
                     <div className="space-y-3">
@@ -445,31 +445,31 @@ export default function BrandCampaignDetailPage() {
                             const profile = (creator as any)?.profiles_creator
 
                             return (
-                                <div key={content.id} className={`rounded-lg border p-4 ${isPending ? 'border-amber-300 bg-amber-50/50' : isApproved ? 'border-emerald-200 bg-emerald-50/30' : 'border-gray-100 bg-gray-50'}`}>
+                                <div key={content.id} className={`rounded-lg border p-4 ${isPending ? 'border-[#F0E0BC] bg-[#FBF3E2]/50' : isApproved ? 'border-[#C9E6D0] bg-[#E8F3EA]/30' : 'border-[#E2E2E1] bg-[#FAFAF9]'}`}>
                                     {/* Content header */}
                                     <div className="flex items-center gap-2 mb-3">
                                         <span className="text-sm">{content.content_type === 'video' ? '📹' : '📷'}</span>
-                                        <span className="text-sm font-medium text-gray-900">Contenu {idx + 1} — {content.script_type}</span>
-                                        <span className="text-xs text-gray-400">{content.format}</span>
+                                        <span className="text-sm font-medium text-[#1A1A1A]">Contenu {idx + 1} — {content.script_type}</span>
+                                        <span className="text-xs text-[#9B9B9B]">{content.format}</span>
                                     </div>
 
                                     {/* Creator assigned */}
                                     {creator ? (
                                         <div className="flex items-center gap-3">
-                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm shrink-0 ${isPending ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}`}>
+                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm shrink-0 ${isPending ? 'bg-[#FBF3E2] text-[#8A6100]' : 'bg-[#E8F3EA] text-[#1A7F37]'}`}>
                                                 {(creator as any)?.full_name?.[0] || '?'}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-semibold text-gray-900">{(creator as any)?.full_name || 'Créateur'}</p>
+                                                <p className="text-sm font-semibold text-[#1A1A1A]">{(creator as any)?.full_name || 'Créateur'}</p>
                                                 {profile?.bio && (
-                                                    <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">{profile.bio}</p>
+                                                    <p className="text-xs text-[#6B6B6B] line-clamp-1 mt-0.5">{profile.bio}</p>
                                                 )}
                                                 <div className="flex flex-wrap gap-1.5 mt-1">
                                                     {profile?.specialties?.slice(0, 3).map((s: string) => (
-                                                        <span key={s} className="px-2 py-0.5 text-[10px] rounded-full bg-gray-100 text-gray-500">{s}</span>
+                                                        <span key={s} className="px-2 py-0.5 text-[10px] rounded-full bg-[#F4F4F3] text-[#6B6B6B]">{s}</span>
                                                     ))}
                                                     {profile?.location_canton && (
-                                                        <span className="px-2 py-0.5 text-[10px] rounded-full bg-gray-100 text-gray-500">{profile.location_canton}</span>
+                                                        <span className="px-2 py-0.5 text-[10px] rounded-full bg-[#F4F4F3] text-[#6B6B6B]">{profile.location_canton}</span>
                                                     )}
                                                 </div>
                                             </div>
@@ -477,7 +477,7 @@ export default function BrandCampaignDetailPage() {
                                                 {/* View profile button */}
                                                 <button
                                                     onClick={() => setProfileCreator(creator)}
-                                                    className="px-3 py-1.5 text-xs font-medium text-[#1A1A1A] border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                                                    className="px-3 py-1.5 text-xs font-medium text-[#1A1A1A] border border-[#E2E2E1] rounded-lg hover:bg-[#FAFAF9] transition-colors"
                                                 >
                                                     Voir le profil
                                                 </button>
@@ -513,7 +513,7 @@ export default function BrandCampaignDetailPage() {
                                                         Valider
                                                     </button>
                                                 ) : isApproved ? (
-                                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-100 rounded-full">
+                                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#1A7F37] bg-[#E8F3EA] rounded-full">
                                                         <CheckCircle2 className="w-3.5 h-3.5" />
                                                         Validé ✓
                                                     </span>
@@ -521,7 +521,7 @@ export default function BrandCampaignDetailPage() {
                                             </div>
                                         </div>
                                     ) : (
-                                        <p className="text-xs text-gray-400 italic">Aucun créateur assigné pour le moment</p>
+                                        <p className="text-xs text-[#9B9B9B] italic">Aucun créateur assigné pour le moment</p>
                                     )}
                                 </div>
                             )
@@ -536,13 +536,13 @@ export default function BrandCampaignDetailPage() {
 
             {needsBriefUpdate && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-amber-50 border border-amber-200 rounded-lg p-4"
+                    className="bg-[#FBF3E2] border border-[#F0E0BC] rounded-lg p-4"
                 >
                     <div className="flex items-start gap-3">
-                        <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+                        <AlertCircle className="w-5 h-5 text-[#8A6100] mt-0.5 shrink-0" />
                         <div className="flex-1">
-                            <h3 className="text-sm font-semibold text-amber-800">Précisions requises sur votre brief</h3>
-                            <p className="text-sm text-amber-700 mt-1 whitespace-pre-wrap">{campaign.brief_feedback_notes}</p>
+                            <h3 className="text-sm font-semibold text-[#8A6100]">Précisions requises sur votre brief</h3>
+                            <p className="text-sm text-[#8A6100] mt-1 whitespace-pre-wrap">{campaign.brief_feedback_notes}</p>
                         </div>
                     </div>
                     {/* Response form */}
@@ -552,7 +552,7 @@ export default function BrandCampaignDetailPage() {
                             onChange={(e) => setBriefResponse(e.target.value)}
                             placeholder="Répondez aux demandes de précisions de MOSH..."
                             rows={3}
-                            className="w-full bg-white border border-amber-200 rounded-lg px-4 py-3 text-sm text-[#1A1A1A] focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/25 resize-none placeholder:text-amber-400"
+                            className="w-full bg-white border border-[#F0E0BC] rounded-lg px-4 py-3 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#F0E0BC] focus:ring-1 focus:ring-[#F0E0BC]/25 resize-none placeholder:text-[#8A6100]"
                         />
                         <button
                             onClick={async () => {
@@ -567,7 +567,7 @@ export default function BrandCampaignDetailPage() {
                                 setActionLoading(false)
                             }}
                             disabled={!briefResponse.trim() || actionLoading}
-                            className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 bg-[#8A6100] hover:bg-[#8A6100] disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
                         >
                             <Send className="w-4 h-4" />
                             Envoyer mes précisions
@@ -579,13 +579,13 @@ export default function BrandCampaignDetailPage() {
             {/* Brand has already responded to brief feedback */}
             {hasBriefResponse && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 space-y-3"
+                    className="bg-[#E8F3EA] border border-[#C9E6D0] rounded-lg p-4 space-y-3"
                 >
                     <div className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
+                        <CheckCircle2 className="w-5 h-5 text-[#1A7F37] mt-0.5 shrink-0" />
                         <div className="flex-1">
-                            <h3 className="text-sm font-semibold text-emerald-800">Précisions envoyées ✓</h3>
-                            <p className="text-xs text-emerald-600 mt-0.5">MOSH a bien reçu vos précisions et va revoir votre brief.</p>
+                            <h3 className="text-sm font-semibold text-[#1A7F37]">Précisions envoyées ✓</h3>
+                            <p className="text-xs text-[#1A7F37] mt-0.5">MOSH a bien reçu vos précisions et va revoir votre brief.</p>
                         </div>
                     </div>
                     <div className="bg-white/60 rounded-lg p-3 text-sm">
@@ -593,7 +593,7 @@ export default function BrandCampaignDetailPage() {
                         <p className="text-[#1A1A1A] whitespace-pre-wrap text-sm">{campaign.brief_feedback_notes}</p>
                     </div>
                     <div className="bg-white/60 rounded-lg p-3 text-sm">
-                        <p className="text-xs text-emerald-700 font-medium mb-1">Votre réponse :</p>
+                        <p className="text-xs text-[#1A7F37] font-medium mb-1">Votre réponse :</p>
                         <p className="text-[#1A1A1A] whitespace-pre-wrap text-sm">{campaign.brief_brand_response}</p>
                     </div>
                 </motion.div>
@@ -606,12 +606,12 @@ export default function BrandCampaignDetailPage() {
                 >
                     <div className="flex items-center gap-2 mb-4">
                         <Users className="w-5 h-5 text-[#1A1A1A]" />
-                        <h3 className="text-lg font-semibold text-gray-900">Choisissez votre créateur</h3>
+                        <h3 className="text-lg font-semibold text-[#1A1A1A]">Choisissez votre créateur</h3>
                         <span className="ml-auto px-2 py-0.5 text-xs rounded-full bg-[#1A1A1A]/10 text-[#1A1A1A] font-medium">
                             Action requise
                         </span>
                     </div>
-                    <p className="text-sm text-gray-500 mb-4">
+                    <p className="text-sm text-[#6B6B6B] mb-4">
                         MOSH a sélectionné {proposedCreators.length} profil{proposedCreators.length > 1 ? 's' : ''} pour votre projet. Consultez-les et choisissez votre favori.
                     </p>
                     <div className="grid gap-4 md:grid-cols-2">
@@ -622,7 +622,7 @@ export default function BrandCampaignDetailPage() {
                     <button
                         onClick={() => setShowRejectModal(true)}
                         disabled={actionLoading}
-                        className="mt-4 py-2 px-4 text-sm text-gray-500 hover:text-red-600 transition-colors flex items-center gap-2"
+                        className="mt-4 py-2 px-4 text-sm text-[#6B6B6B] hover:text-[#C0392B] transition-colors flex items-center gap-2"
                     >
                         <ThumbsDown className="w-4 h-4" />
                         Aucun profil ne convient
@@ -637,19 +637,19 @@ export default function BrandCampaignDetailPage() {
                 >
                     <div className="flex items-center gap-2 mb-4">
                         <Pen className="w-5 h-5 text-[#1A1A1A]" />
-                        <h3 className="text-lg font-semibold text-gray-900">Script à valider</h3>
+                        <h3 className="text-lg font-semibold text-[#1A1A1A]">Script à valider</h3>
                         <span className="ml-auto px-2 py-0.5 text-xs rounded-full bg-[#1A1A1A]/10 text-[#1A1A1A] font-medium">
                             Action requise
                         </span>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-4 mb-4 max-h-64 overflow-y-auto">
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{campaign.script_content}</p>
+                    <div className="bg-[#FAFAF9] rounded-lg p-4 mb-4 max-h-64 overflow-y-auto">
+                        <p className="text-sm text-[#1A1A1A] whitespace-pre-wrap">{campaign.script_content}</p>
                     </div>
                     <div className="flex gap-3">
                         <button
                             onClick={handleApproveScript}
                             disabled={actionLoading}
-                            className="flex-1 py-2.5 px-4 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                            className="flex-1 py-2.5 px-4 bg-[#1A7F37] text-white rounded-lg text-sm font-medium hover:bg-[#1A7F37] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                             <ThumbsUp className="w-4 h-4" />
                             Valider le script
@@ -657,7 +657,7 @@ export default function BrandCampaignDetailPage() {
                         <button
                             onClick={() => setShowScriptModal(true)}
                             disabled={actionLoading}
-                            className="flex-1 py-2.5 px-4 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                            className="flex-1 py-2.5 px-4 border border-[#C4C4C3] text-[#1A1A1A] rounded-lg text-sm font-medium hover:bg-[#FAFAF9] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                             <MessageSquare className="w-4 h-4" />
                             Proposer des modifications
@@ -673,23 +673,23 @@ export default function BrandCampaignDetailPage() {
                 >
                     <div className="flex items-center gap-2 mb-1">
                         <Pen className="w-5 h-5 text-[#1A1A1A]" />
-                        <h2 className="text-lg font-semibold text-gray-900">Scripts à valider</h2>
-                        <span className="ml-auto px-2.5 py-0.5 text-xs rounded-full bg-amber-100 text-amber-700 font-medium">
+                        <h2 className="text-lg font-semibold text-[#1A1A1A]">Scripts à valider</h2>
+                        <span className="ml-auto px-2.5 py-0.5 text-xs rounded-full bg-[#FBF3E2] text-[#8A6100] font-medium">
                             Action requise
                         </span>
                     </div>
-                    <p className="text-sm text-gray-500 mb-4">Relisez les scripts proposés par MOSH et validez-les pour lancer la production.</p>
+                    <p className="text-sm text-[#6B6B6B] mb-4">Relisez les scripts proposés par MOSH et validez-les pour lancer la production.</p>
                     <div className="space-y-4">
                         {campaignContents.filter(c => c.status === 'script_pending' && c.script_content).map((content, idx) => (
-                            <div key={content.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div key={content.id} className="bg-[#FAFAF9] rounded-lg p-4 border border-[#E2E2E1]">
                                 <div className="flex items-center gap-2 mb-3">
                                     <span className="text-sm">📹</span>
-                                    <p className="text-sm font-semibold text-gray-900">
+                                    <p className="text-sm font-semibold text-[#1A1A1A]">
                                         Contenu {campaignContents.findIndex(c => c.id === content.id) + 1} — {content.script_type}
                                     </p>
                                 </div>
-                                <div className="bg-white rounded-lg p-4 mb-4 max-h-48 overflow-y-auto border border-gray-100">
-                                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{content.script_content}</p>
+                                <div className="bg-white rounded-lg p-4 mb-4 max-h-48 overflow-y-auto border border-[#E2E2E1]">
+                                    <p className="text-sm text-[#1A1A1A] whitespace-pre-wrap">{content.script_content}</p>
                                 </div>
                                 <div className="flex gap-3">
                                     <button
@@ -715,7 +715,7 @@ export default function BrandCampaignDetailPage() {
                                             setActionLoading(false)
                                         }}
                                         disabled={actionLoading}
-                                        className="flex-1 py-2.5 px-4 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                                        className="flex-1 py-2.5 px-4 bg-[#1A7F37] text-white rounded-lg text-sm font-medium hover:bg-[#1A7F37] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                                     >
                                         <ThumbsUp className="w-4 h-4" />
                                         Valider le script
@@ -723,7 +723,7 @@ export default function BrandCampaignDetailPage() {
                                     <button
                                         onClick={() => setShowScriptModal(true)}
                                         disabled={actionLoading}
-                                        className="flex-1 py-2.5 px-4 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                                        className="flex-1 py-2.5 px-4 border border-[#C4C4C3] text-[#1A1A1A] rounded-lg text-sm font-medium hover:bg-[#FAFAF9] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                                     >
                                         <MessageSquare className="w-4 h-4" />
                                         Proposer des modifications
@@ -745,16 +745,16 @@ export default function BrandCampaignDetailPage() {
                     className={`bg-white rounded-lg p-6 ${
                         !isStepCompleted('brand_final_approved')
                             ? 'border-2 border-[#1A1A1A]/20 shadow-lg'
-                            : 'border border-gray-200'
+                            : 'border border-[#E2E2E1]'
                     }`}
                 >
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <h2 className="text-lg font-semibold text-[#1A1A1A] mb-4 flex items-center gap-2">
                         <Video className="w-5 h-5 text-[#1A1A1A]" />
                         Vidéo UGC
                         {isStepCompleted('brand_final_approved') ? (
-                            <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Approuvée ✓</span>
+                            <span className="text-xs bg-[#E8F3EA] text-[#1A7F37] px-2 py-0.5 rounded-full font-medium">Approuvée ✓</span>
                         ) : (
-                            <span className="ml-auto px-2.5 py-0.5 text-xs rounded-full bg-amber-100 text-amber-700 font-semibold">
+                            <span className="ml-auto px-2.5 py-0.5 text-xs rounded-full bg-[#FBF3E2] text-[#8A6100] font-semibold">
                                 Action requise
                             </span>
                         )}
@@ -774,7 +774,7 @@ export default function BrandCampaignDetailPage() {
                     {!isStepCompleted('brand_final_approved') && (
                         <div className="space-y-3">
                             {campaign.brand_revision_count > 0 && (
-                                <div className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
+                                <div className="text-xs text-[#8A6100] bg-[#FBF3E2] rounded-lg px-3 py-2">
                                     Révisions utilisées : {campaign.brand_revision_count}/2
                                 </div>
                             )}
@@ -782,7 +782,7 @@ export default function BrandCampaignDetailPage() {
                                 <button
                                     onClick={handleApproveVideo}
                                     disabled={actionLoading}
-                                    className="flex-1 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                                    className="flex-1 py-2.5 bg-[#1A7F37] text-white rounded-lg text-sm font-medium hover:bg-[#1A7F37] disabled:opacity-50 flex items-center justify-center gap-2"
                                 >
                                     <CheckCircle2 className="w-4 h-4" />
                                     Approuver la vidéo
@@ -790,7 +790,7 @@ export default function BrandCampaignDetailPage() {
                                 {(campaign.brand_revision_count || 0) < 2 && (
                                     <button
                                         onClick={() => setShowVideoModal(true)}
-                                        className="flex-1 py-2.5 bg-amber-100 text-amber-800 rounded-lg text-sm font-medium hover:bg-amber-200 flex items-center justify-center gap-2"
+                                        className="flex-1 py-2.5 bg-[#FBF3E2] text-[#8A6100] rounded-lg text-sm font-medium hover:bg-[#FBF3E2] flex items-center justify-center gap-2"
                                     >
                                         <Send className="w-4 h-4" />
                                         Demander une révision
@@ -802,9 +802,9 @@ export default function BrandCampaignDetailPage() {
 
                     {isStepCompleted('brand_final_approved') && (
                         <div className="space-y-3 mt-2">
-                            <div className="text-center bg-emerald-50 rounded-lg p-4">
-                                <p className="text-emerald-700 font-medium">🎉 Vidéo approuvée — Mission terminée !</p>
-                                <p className="text-emerald-600 text-sm mt-1">Merci pour votre confiance. Votre contenu UGC est prêt à être téléchargé.</p>
+                            <div className="text-center bg-[#E8F3EA] rounded-lg p-4">
+                                <p className="text-[#1A7F37] font-medium">🎉 Vidéo approuvée — Mission terminée !</p>
+                                <p className="text-[#1A7F37] text-sm mt-1">Merci pour votre confiance. Votre contenu UGC est prêt à être téléchargé.</p>
                             </div>
                             <button
                                 onClick={handleDownloadVideo}
@@ -823,7 +823,7 @@ export default function BrandCampaignDetailPage() {
                                     </>
                                 )}
                             </button>
-                            <p className="text-center text-xs text-gray-400">
+                            <p className="text-center text-xs text-[#9B9B9B]">
                                 Fichier original sans compression — qualité identique à la source
                             </p>
                         </div>
@@ -836,9 +836,9 @@ export default function BrandCampaignDetailPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="bg-white border border-gray-200 rounded-lg p-6"
+                className="bg-white border border-[#E2E2E1] rounded-lg p-6"
             >
-                <h2 className="text-lg font-semibold text-gray-900 mb-6">Avancement de votre projet</h2>
+                <h2 className="text-lg font-semibold text-[#1A1A1A] mb-6">Avancement de votre projet</h2>
                 <div className="space-y-0">
                     {TIMELINE_STEPS.map((step, i) => {
                         const completed = isStepCompleted(step.type)
@@ -853,14 +853,14 @@ export default function BrandCampaignDetailPage() {
                             <div key={step.type} className="relative flex gap-4">
                                 {/* Timeline line */}
                                 {i < TIMELINE_STEPS.length - 1 && (
-                                    <div className={`absolute left-5 top-10 w-0.5 h-full ${isPast ? 'bg-emerald-200' : 'bg-gray-100'}`} />
+                                    <div className={`absolute left-5 top-10 w-0.5 h-full ${isPast ? 'bg-[#E8F3EA]' : 'bg-[#F4F4F3]'}`} />
                                 )}
 
                                 {/* Step icon */}
-                                <div className={`relative z-10 w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${completed ? 'bg-emerald-100 text-emerald-600' :
-                                    isAction ? 'bg-amber-100 text-amber-600 ring-2 ring-amber-300 animate-pulse' :
+                                <div className={`relative z-10 w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${completed ? 'bg-[#E8F3EA] text-[#1A7F37]' :
+                                    isAction ? 'bg-[#FBF3E2] text-[#8A6100] ring-2 ring-[#F0E0BC] animate-pulse' :
                                         isCurrent ? 'bg-[#1A1A1A]/10 text-[#1A1A1A] ring-2 ring-[#1A1A1A]/15' :
-                                            'bg-gray-50 text-gray-300'
+                                            'bg-[#FAFAF9] text-[#C4C4C3]'
                                     }`}>
                                     {completed ? (
                                         <CheckCircle2 className="w-5 h-5" />
@@ -873,14 +873,14 @@ export default function BrandCampaignDetailPage() {
 
                                 {/* Content */}
                                 <div className="pb-8 flex-1 min-w-0">
-                                    <p className={`font-medium ${completed ? 'text-gray-900' :
-                                        isAction ? 'text-amber-700' :
+                                    <p className={`font-medium ${completed ? 'text-[#1A1A1A]' :
+                                        isAction ? 'text-[#8A6100]' :
                                             isCurrent ? 'text-[#1A1A1A]' :
-                                                'text-gray-400'
+                                                'text-[#9B9B9B]'
                                         }`}>
                                         {step.label}
                                         {isAction && (
-                                            <span className="ml-2 inline-flex items-center gap-1 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">
+                                            <span className="ml-2 inline-flex items-center gap-1 text-xs bg-[#FBF3E2] text-[#8A6100] px-2 py-0.5 rounded-full font-semibold">
                                                 <AlertCircle className="w-3 h-3" />
                                                 Action requise
                                             </span>
@@ -892,11 +892,11 @@ export default function BrandCampaignDetailPage() {
                                             </span>
                                         )}
                                     </p>
-                                    <p className={`text-sm mt-0.5 ${completed || isCurrent ? 'text-gray-500' : 'text-gray-300'}`}>
+                                    <p className={`text-sm mt-0.5 ${completed || isCurrent ? 'text-[#6B6B6B]' : 'text-[#C4C4C3]'}`}>
                                         {step.description}
                                     </p>
                                     {completedStep?.completed_at && (
-                                        <p className="text-xs text-gray-400 mt-1">
+                                        <p className="text-xs text-[#9B9B9B] mt-1">
                                             {new Date(completedStep.completed_at).toLocaleDateString('fr-CH', {
                                                 day: 'numeric', month: 'long', year: 'numeric'
                                             })}
@@ -915,36 +915,36 @@ export default function BrandCampaignDetailPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-white border border-gray-200 rounded-lg p-6"
+                className="bg-white border border-[#E2E2E1] rounded-lg p-6"
             >
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Récapitulatif du brief</h2>
+                <h2 className="text-lg font-semibold text-[#1A1A1A] mb-4">Récapitulatif du brief</h2>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                        <p className="text-gray-400 mb-1">Produit</p>
-                        <p className="text-gray-900">{campaign.product_name || '—'}</p>
+                        <p className="text-[#9B9B9B] mb-1">Produit</p>
+                        <p className="text-[#1A1A1A]">{campaign.product_name || '—'}</p>
                     </div>
                     <div>
-                        <p className="text-gray-400 mb-1">Format</p>
-                        <p className="text-gray-900">{campaign.format || '—'}</p>
+                        <p className="text-[#9B9B9B] mb-1">Format</p>
+                        <p className="text-[#1A1A1A]">{campaign.format || '—'}</p>
                     </div>
                     <div>
-                        <p className="text-gray-400 mb-1">Type de script</p>
-                        <p className="text-gray-900">{campaign.script_type || '—'}</p>
+                        <p className="text-[#9B9B9B] mb-1">Type de script</p>
+                        <p className="text-[#1A1A1A]">{campaign.script_type || '—'}</p>
                     </div>
                     <div>
-                        <p className="text-gray-400 mb-1">Droits d&apos;usage</p>
-                        <p className="text-gray-900">{campaign.rights_usage || '—'}</p>
+                        <p className="text-[#9B9B9B] mb-1">Droits d&apos;usage</p>
+                        <p className="text-[#1A1A1A]">{campaign.rights_usage || '—'}</p>
                     </div>
                     {campaign.description && (
                         <div className="col-span-2">
-                            <p className="text-gray-400 mb-1">Description</p>
-                            <p className="text-gray-900 whitespace-pre-wrap">{campaign.description}</p>
+                            <p className="text-[#9B9B9B] mb-1">Description</p>
+                            <p className="text-[#1A1A1A] whitespace-pre-wrap">{campaign.description}</p>
                         </div>
                     )}
                     {campaign.product_description && (
                         <div className="col-span-2">
-                            <p className="text-gray-400 mb-1">Description du produit</p>
-                            <p className="text-gray-900 whitespace-pre-wrap">{campaign.product_description}</p>
+                            <p className="text-[#9B9B9B] mb-1">Description du produit</p>
+                            <p className="text-[#1A1A1A] whitespace-pre-wrap">{campaign.product_description}</p>
                         </div>
                     )}
                 </div>
@@ -970,8 +970,8 @@ export default function BrandCampaignDetailPage() {
                             onClick={e => e.stopPropagation()}
                         >
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-semibold text-gray-900">Vos retours sur le script</h3>
-                                <button onClick={() => setShowScriptModal(false)} className="text-gray-400 hover:text-gray-600">
+                                <h3 className="text-lg font-semibold text-[#1A1A1A]">Vos retours sur le script</h3>
+                                <button onClick={() => setShowScriptModal(false)} className="text-[#9B9B9B] hover:text-[#6B6B6B]">
                                     <X className="w-5 h-5" />
                                 </button>
                             </div>
@@ -979,11 +979,11 @@ export default function BrandCampaignDetailPage() {
                                 value={feedback}
                                 onChange={e => setFeedback(e.target.value)}
                                 placeholder="Décrivez les modifications que vous souhaitez..."
-                                className="w-full h-32 border border-gray-200 rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 focus:border-[#1A1A1A]"
+                                className="w-full h-32 border border-[#E2E2E1] rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 focus:border-[#1A1A1A]"
                             />
                             <div className="flex gap-3 mt-4">
                                 <button onClick={() => setShowScriptModal(false)}
-                                    className="flex-1 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
+                                    className="flex-1 py-2.5 border border-[#E2E2E1] rounded-lg text-sm text-[#6B6B6B] hover:bg-[#FAFAF9]">
                                     Annuler
                                 </button>
                                 <button onClick={handleScriptFeedback}
@@ -1016,28 +1016,28 @@ export default function BrandCampaignDetailPage() {
                             onClick={e => e.stopPropagation()}
                         >
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-semibold text-gray-900">Demander une révision</h3>
-                                <button onClick={() => setShowVideoModal(false)} className="text-gray-400 hover:text-gray-600">
+                                <h3 className="text-lg font-semibold text-[#1A1A1A]">Demander une révision</h3>
+                                <button onClick={() => setShowVideoModal(false)} className="text-[#9B9B9B] hover:text-[#6B6B6B]">
                                     <X className="w-5 h-5" />
                                 </button>
                             </div>
-                            <div className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2 mb-4">
+                            <div className="text-xs text-[#8A6100] bg-[#FBF3E2] rounded-lg px-3 py-2 mb-4">
                                 Révision {revisionCount + 1}/2 — {revisionCount >= 1 ? 'Dernière révision disponible' : 'Encore 1 révision possible après celle-ci'}
                             </div>
                             <textarea
                                 value={feedback}
                                 onChange={e => setFeedback(e.target.value)}
                                 placeholder="Décrivez précisément ce que vous souhaitez modifier..."
-                                className="w-full h-32 border border-gray-200 rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 focus:border-[#1A1A1A]"
+                                className="w-full h-32 border border-[#E2E2E1] rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 focus:border-[#1A1A1A]"
                             />
                             <div className="flex gap-3 mt-4">
                                 <button onClick={() => setShowVideoModal(false)}
-                                    className="flex-1 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
+                                    className="flex-1 py-2.5 border border-[#E2E2E1] rounded-lg text-sm text-[#6B6B6B] hover:bg-[#FAFAF9]">
                                     Annuler
                                 </button>
                                 <button onClick={handleRequestRevision}
                                     disabled={!feedback.trim() || actionLoading}
-                                    className="flex-1 py-2.5 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 disabled:opacity-50 flex items-center justify-center gap-2">
+                                    className="flex-1 py-2.5 bg-[#8A6100] text-white rounded-lg text-sm font-medium hover:bg-[#8A6100] disabled:opacity-50 flex items-center justify-center gap-2">
                                     <Send className="w-4 h-4" />
                                     Demander la révision
                                 </button>
@@ -1065,28 +1065,28 @@ export default function BrandCampaignDetailPage() {
                             onClick={e => e.stopPropagation()}
                         >
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-semibold text-gray-900">Aucun profil ne convient ?</h3>
-                                <button onClick={() => setShowRejectModal(false)} className="text-gray-400 hover:text-gray-600">
+                                <h3 className="text-lg font-semibold text-[#1A1A1A]">Aucun profil ne convient ?</h3>
+                                <button onClick={() => setShowRejectModal(false)} className="text-[#9B9B9B] hover:text-[#6B6B6B]">
                                     <X className="w-5 h-5" />
                                 </button>
                             </div>
-                            <p className="text-sm text-gray-500 mb-4">
+                            <p className="text-sm text-[#6B6B6B] mb-4">
                                 Dites-nous pourquoi et nous vous proposerons de nouveaux profils.
                             </p>
                             <textarea
                                 value={rejectReason}
                                 onChange={e => setRejectReason(e.target.value)}
                                 placeholder="Quel type de profil recherchez-vous ? (optionnel)"
-                                className="w-full h-24 border border-gray-200 rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400"
+                                className="w-full h-24 border border-[#E2E2E1] rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#F2CFCB] focus:border-[#F2CFCB]"
                             />
                             <div className="flex gap-3 mt-4">
                                 <button onClick={() => setShowRejectModal(false)}
-                                    className="flex-1 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
+                                    className="flex-1 py-2.5 border border-[#E2E2E1] rounded-lg text-sm text-[#6B6B6B] hover:bg-[#FAFAF9]">
                                     Annuler
                                 </button>
                                 <button onClick={handleRejectProfiles}
                                     disabled={actionLoading}
-                                    className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2">
+                                    className="flex-1 py-2.5 bg-[#C0392B] text-white rounded-lg text-sm font-medium hover:bg-[#C0392B] disabled:opacity-50 flex items-center justify-center gap-2">
                                     <ThumbsDown className="w-4 h-4" />
                                     Refuser ces profils
                                 </button>
@@ -1117,16 +1117,16 @@ export default function BrandCampaignDetailPage() {
                                 <div className="w-14 h-14 rounded-lg bg-[#1A1A1A]/10 flex items-center justify-center mx-auto mb-4">
                                     <CheckCircle2 className="w-7 h-7 text-[#1A1A1A]" />
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900">Confirmer la sélection</h3>
-                                <p className="text-sm text-gray-500 mt-2">
+                                <h3 className="text-lg font-semibold text-[#1A1A1A]">Confirmer la sélection</h3>
+                                <p className="text-sm text-[#6B6B6B] mt-2">
                                     Êtes-vous sûr de vouloir sélectionner ce créateur ?<br />
-                                    <span className="text-amber-600 font-medium">Ce choix est définitif.</span>
+                                    <span className="text-[#8A6100] font-medium">Ce choix est définitif.</span>
                                 </p>
                             </div>
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setConfirmCreatorId(null)}
-                                    className="flex-1 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                                    className="flex-1 py-2.5 border border-[#E2E2E1] rounded-lg text-sm text-[#6B6B6B] hover:bg-[#FAFAF9] transition-colors"
                                 >
                                     Annuler
                                 </button>
@@ -1168,15 +1168,15 @@ export default function BrandCampaignDetailPage() {
                             onClick={e => e.stopPropagation()}
                         >
                             {/* Header */}
-                            <div className="p-6 border-b border-gray-100">
+                            <div className="p-6 border-b border-[#E2E2E1]">
                                 <div className="flex items-center gap-4">
                                     <div className="w-16 h-16 rounded-lg bg-[#1A1A1A]/10 flex items-center justify-center text-[#1A1A1A] font-bold text-xl">
                                         {profileCreator.full_name?.[0] || '?'}
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-semibold text-gray-900">{profileCreator.full_name}</h3>
+                                        <h3 className="text-lg font-semibold text-[#1A1A1A]">{profileCreator.full_name}</h3>
                                         {profileCreator.profiles_creator?.location_canton && (
-                                            <p className="text-sm text-gray-500">{profileCreator.profiles_creator.location_canton}, Suisse</p>
+                                            <p className="text-sm text-[#6B6B6B]">{profileCreator.profiles_creator.location_canton}, Suisse</p>
                                         )}
                                     </div>
                                 </div>
@@ -1185,53 +1185,53 @@ export default function BrandCampaignDetailPage() {
                             <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
                                 {profileCreator.profiles_creator?.bio && (
                                     <div>
-                                        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Bio</h4>
-                                        <p className="text-sm text-gray-700">{profileCreator.profiles_creator.bio}</p>
+                                        <h4 className="text-xs font-semibold text-[#9B9B9B] uppercase tracking-wider mb-1">Bio</h4>
+                                        <p className="text-sm text-[#1A1A1A]">{profileCreator.profiles_creator.bio}</p>
                                     </div>
                                 )}
                                 {profileCreator.profiles_creator?.specialties?.length > 0 && (
                                     <div>
-                                        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Spécialités</h4>
+                                        <h4 className="text-xs font-semibold text-[#9B9B9B] uppercase tracking-wider mb-2">Spécialités</h4>
                                         <div className="flex flex-wrap gap-2">
                                             {profileCreator.profiles_creator.specialties.map((s: string) => (
-                                                <span key={s} className="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600">{s}</span>
+                                                <span key={s} className="px-3 py-1 text-xs rounded-full bg-[#F4F4F3] text-[#6B6B6B]">{s}</span>
                                             ))}
                                         </div>
                                     </div>
                                 )}
                                 {profileCreator.profiles_creator?.instagram_url && (
                                     <div>
-                                        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Instagram</h4>
-                                        <a href={profileCreator.profiles_creator.instagram_url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+                                        <h4 className="text-xs font-semibold text-[#9B9B9B] uppercase tracking-wider mb-1">Instagram</h4>
+                                        <a href={profileCreator.profiles_creator.instagram_url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#1A1A1A] hover:underline">
                                             {profileCreator.profiles_creator.instagram_url}
                                         </a>
                                     </div>
                                 )}
                                 {profileCreator.profiles_creator?.tiktok_url && (
                                     <div>
-                                        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">TikTok</h4>
-                                        <a href={profileCreator.profiles_creator.tiktok_url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+                                        <h4 className="text-xs font-semibold text-[#9B9B9B] uppercase tracking-wider mb-1">TikTok</h4>
+                                        <a href={profileCreator.profiles_creator.tiktok_url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#1A1A1A] hover:underline">
                                             {profileCreator.profiles_creator.tiktok_url}
                                         </a>
                                     </div>
                                 )}
                                 {profileCreator.profiles_creator?.portfolio_url && (
                                     <div>
-                                        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Portfolio</h4>
-                                        <a href={profileCreator.profiles_creator.portfolio_url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+                                        <h4 className="text-xs font-semibold text-[#9B9B9B] uppercase tracking-wider mb-1">Portfolio</h4>
+                                        <a href={profileCreator.profiles_creator.portfolio_url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#1A1A1A] hover:underline">
                                             {profileCreator.profiles_creator.portfolio_url}
                                         </a>
                                     </div>
                                 )}
                                 {profileCreator.profiles_creator?.experience_level && (
                                     <div>
-                                        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Expérience</h4>
-                                        <p className="text-sm text-gray-700 capitalize">{profileCreator.profiles_creator.experience_level}</p>
+                                        <h4 className="text-xs font-semibold text-[#9B9B9B] uppercase tracking-wider mb-1">Expérience</h4>
+                                        <p className="text-sm text-[#1A1A1A] capitalize">{profileCreator.profiles_creator.experience_level}</p>
                                     </div>
                                 )}
                             </div>
                             {/* Footer */}
-                            <div className="p-6 border-t border-gray-100">
+                            <div className="p-6 border-t border-[#E2E2E1]">
                                 <button
                                     onClick={() => setProfileCreator(null)}
                                     className="w-full py-2.5 bg-[#1A1A1A] text-white rounded-lg text-sm font-medium hover:bg-[#1A1A1A] transition-colors"

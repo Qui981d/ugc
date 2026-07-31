@@ -205,7 +205,7 @@ export default function AidePage() {
                     {/* Subtle grid pattern like homepage */}
                     <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:64px_64px]" />
                     <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] bg-[#6C3FA0]/8 rounded-full blur-[150px]" />
-                    <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-purple-300/20 rounded-full blur-[130px]" />
+                    <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-[#E2E2E1]/20 rounded-full blur-[130px]" />
 
                     <div className="max-w-5xl mx-auto relative">
                         <motion.div
@@ -215,7 +215,7 @@ export default function AidePage() {
                             className="text-center"
                         >
                             <h1 className="text-5xl md:text-6xl lg:text-8xl font-bold leading-[1.05] mb-8">
-                                <span className="text-gray-900">On répond à</span>
+                                <span className="text-[#1A1A1A]">On répond à</span>
                                 <br />
                                 <span className="relative inline-block">
                                     <span className="bg-gradient-to-r from-[#6C3FA0] via-[#A855F7] to-[#6C3FA0] bg-clip-text text-transparent">toutes vos questions.</span>
@@ -235,7 +235,7 @@ export default function AidePage() {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.3, duration: 0.6 }}
-                                className="text-lg md:text-xl text-gray-500 max-w-xl mx-auto"
+                                className="text-lg md:text-xl text-[#6B6B6B] max-w-xl mx-auto"
                             >
                                 Guide complet, FAQ et support pour créateurs et marques sur UGC Suisse.
                             </motion.p>
@@ -249,13 +249,13 @@ export default function AidePage() {
                             className="mt-12 max-w-lg mx-auto"
                         >
                             <div className="relative group">
-                                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#6C3FA0]/60 transition-colors" />
+                                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9B9B9B] group-focus-within:text-[#6C3FA0]/60 transition-colors" />
                                 <input
                                     type="text"
                                     placeholder="Rechercher une question..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-14 pr-6 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-gray-50 focus:border-gray-300 transition-all text-base"
+                                    className="w-full bg-[#FAFAF9] border border-[#E2E2E1] rounded-lg pl-14 pr-6 py-4 text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:bg-[#FAFAF9] focus:border-[#C4C4C3] transition-all text-base"
                                 />
                             </div>
                         </motion.div>
@@ -271,7 +271,7 @@ export default function AidePage() {
                             viewport={{ once: true }}
                             className="text-center mb-24"
                         >
-                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#1A1A1A] leading-tight">
                                 Simple comme <span className="italic">1, 2, 3.</span>
                             </h2>
                         </motion.div>
@@ -286,7 +286,7 @@ export default function AidePage() {
                                 transition={{ duration: 0.6 }}
                             >
                                 <div className="flex items-center gap-3 mb-12">
-                                    <span className="text-xs font-semibold tracking-[0.2em] uppercase text-gray-400">Pour les</span>
+                                    <span className="text-xs font-semibold tracking-[0.2em] uppercase text-[#9B9B9B]">Pour les</span>
                                     <span className="text-xs font-bold tracking-[0.2em] uppercase text-[#6C3FA0]">Marques</span>
                                 </div>
 
@@ -304,9 +304,9 @@ export default function AidePage() {
                                             transition={{ delay: i * 0.15 }}
                                             className="relative pl-16"
                                         >
-                                            <span className="absolute left-0 top-0 text-4xl font-black text-gray-200">{step.num}</span>
-                                            <h3 className="text-2xl font-bold text-gray-900 mb-2">{step.title}</h3>
-                                            <p className="text-gray-500 leading-relaxed">{step.desc}</p>
+                                            <span className="absolute left-0 top-0 text-4xl font-black text-[#C4C4C3]">{step.num}</span>
+                                            <h3 className="text-2xl font-bold text-[#1A1A1A] mb-2">{step.title}</h3>
+                                            <p className="text-[#6B6B6B] leading-relaxed">{step.desc}</p>
                                         </motion.div>
                                     ))}
                                 </div>
@@ -331,7 +331,7 @@ export default function AidePage() {
                                 transition={{ duration: 0.6, delay: 0.2 }}
                             >
                                 <div className="flex items-center gap-3 mb-12">
-                                    <span className="text-xs font-semibold tracking-[0.2em] uppercase text-gray-400">Pour les</span>
+                                    <span className="text-xs font-semibold tracking-[0.2em] uppercase text-[#9B9B9B]">Pour les</span>
                                     <span className="text-xs font-bold tracking-[0.2em] uppercase text-[#6C3FA0]">Créateurs</span>
                                 </div>
 
@@ -349,9 +349,9 @@ export default function AidePage() {
                                             transition={{ delay: 0.2 + i * 0.15 }}
                                             className="relative pl-16"
                                         >
-                                            <span className="absolute left-0 top-0 text-4xl font-black text-gray-200">{step.num}</span>
-                                            <h3 className="text-2xl font-bold text-gray-900 mb-2">{step.title}</h3>
-                                            <p className="text-gray-500 leading-relaxed">{step.desc}</p>
+                                            <span className="absolute left-0 top-0 text-4xl font-black text-[#C4C4C3]">{step.num}</span>
+                                            <h3 className="text-2xl font-bold text-[#1A1A1A] mb-2">{step.title}</h3>
+                                            <p className="text-[#6B6B6B] leading-relaxed">{step.desc}</p>
                                         </motion.div>
                                     ))}
                                 </div>
@@ -372,7 +372,7 @@ export default function AidePage() {
                 </section>
 
                 {/* ===== KEY NUMBERS — Raw typography, no boxes ===== */}
-                <section className="py-24 md:py-32 px-6 border-t border-gray-200">
+                <section className="py-24 md:py-32 px-6 border-t border-[#E2E2E1]">
                     <div className="max-w-5xl mx-auto">
                         <motion.div
                             initial={{ opacity: 0, y: 30 }}
@@ -380,7 +380,7 @@ export default function AidePage() {
                             viewport={{ once: true }}
                             className="text-center mb-20"
                         >
-                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#1A1A1A] leading-tight">
                                 Pourquoi <span className="bg-gradient-to-r from-[#6C3FA0] via-[#A855F7] to-[#6C3FA0] bg-clip-text text-transparent">UGC Suisse</span> ?
                             </h2>
                         </motion.div>
@@ -389,15 +389,15 @@ export default function AidePage() {
                             {[
                                 {
                                     headline: 'Clé en main',
-                                    text: <>MOSH gère <span className="text-gray-900">tout de A à Z</span> : sélection du créateur, contrats, production, révisions et livraison. Zéro charge pour vous.</>
+                                    text: <>MOSH gère <span className="text-[#1A1A1A]">tout de A à Z</span> : sélection du créateur, contrats, production, révisions et livraison. Zéro charge pour vous.</>
                                 },
                                 {
                                     headline: '100% suisse',
-                                    text: <>Agence basée en Suisse, créateurs locaux, contrats conformes au <span className="text-gray-900">Code des Obligations</span> et paiements en CHF.</>
+                                    text: <>Agence basée en Suisse, créateurs locaux, contrats conformes au <span className="text-[#1A1A1A]">Code des Obligations</span> et paiements en CHF.</>
                                 },
                                 {
                                     headline: 'LPD & RGPD',
-                                    text: <>Vos données et briefs sont <span className="text-gray-900">protégés et chiffrés</span>. Conforme à la loi suisse et aux normes européennes.</>
+                                    text: <>Vos données et briefs sont <span className="text-[#1A1A1A]">protégés et chiffrés</span>. Conforme à la loi suisse et aux normes européennes.</>
                                 },
                             ].map((item, i) => (
                                 <motion.div
@@ -407,26 +407,26 @@ export default function AidePage() {
                                     viewport={{ once: true }}
                                     transition={{ delay: i * 0.12 }}
                                 >
-                                    <h3 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">{item.headline}</h3>
-                                    <p className="text-gray-500 leading-relaxed">{item.text}</p>
+                                    <h3 className="text-4xl md:text-5xl font-bold text-[#1A1A1A] mb-4">{item.headline}</h3>
+                                    <p className="text-[#6B6B6B] leading-relaxed">{item.text}</p>
                                 </motion.div>
                             ))}
                         </div>
 
                         {/* Second row — more editorial */}
-                        <div className="grid md:grid-cols-3 gap-12 md:gap-16 mt-16 pt-16 border-t border-gray-100">
+                        <div className="grid md:grid-cols-3 gap-12 md:gap-16 mt-16 pt-16 border-t border-[#E2E2E1]">
                             {[
                                 {
                                     headline: 'Contrats auto',
-                                    text: <>Contrats de mandat et factures <span className="text-gray-900">générés automatiquement</span> avec TVA suisse (8.1%) et cession de droits.</>
+                                    text: <>Contrats de mandat et factures <span className="text-[#1A1A1A]">générés automatiquement</span> avec TVA suisse (8.1%) et cession de droits.</>
                                 },
                                 {
                                     headline: 'Qualité garantie',
-                                    text: <>Chaque créateur est <span className="text-gray-900">vérifié par notre équipe</span>. Révisions incluses dans chaque mission pour un résultat parfait.</>
+                                    text: <>Chaque créateur est <span className="text-[#1A1A1A]">vérifié par notre équipe</span>. Révisions incluses dans chaque mission pour un résultat parfait.</>
                                 },
                                 {
                                     headline: '< 24h',
-                                    text: <>Notre équipe <span className="text-gray-900">répond sous 24 heures</span> et vous accompagne à chaque étape de votre projet.</>
+                                    text: <>Notre équipe <span className="text-[#1A1A1A]">répond sous 24 heures</span> et vous accompagne à chaque étape de votre projet.</>
                                 },
                             ].map((item, i) => (
                                 <motion.div
@@ -436,8 +436,8 @@ export default function AidePage() {
                                     viewport={{ once: true }}
                                     transition={{ delay: i * 0.12 }}
                                 >
-                                    <h3 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">{item.headline}</h3>
-                                    <p className="text-gray-500 leading-relaxed">{item.text}</p>
+                                    <h3 className="text-4xl md:text-5xl font-bold text-[#1A1A1A] mb-4">{item.headline}</h3>
+                                    <p className="text-[#6B6B6B] leading-relaxed">{item.text}</p>
                                 </motion.div>
                             ))}
                         </div>
@@ -445,7 +445,7 @@ export default function AidePage() {
                 </section>
 
                 {/* ===== FAQ — Clean, minimal accordion ===== */}
-                <section className="py-24 md:py-32 px-6 border-t border-gray-200" id="faq">
+                <section className="py-24 md:py-32 px-6 border-t border-[#E2E2E1]" id="faq">
                     <div className="max-w-3xl mx-auto">
                         <motion.div
                             initial={{ opacity: 0, y: 30 }}
@@ -453,10 +453,10 @@ export default function AidePage() {
                             viewport={{ once: true }}
                             className="text-center mb-16"
                         >
-                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-4">
+                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#1A1A1A] leading-tight mb-4">
                                 FAQ
                             </h2>
-                            <p className="text-gray-400 text-lg">Les réponses aux questions les plus posées</p>
+                            <p className="text-[#9B9B9B] text-lg">Les réponses aux questions les plus posées</p>
                         </motion.div>
 
                         {/* Category Pills */}
@@ -471,8 +471,8 @@ export default function AidePage() {
                                     key={cat.id}
                                     onClick={() => { setActiveCategory(cat.id); setOpenFAQ(null) }}
                                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${activeCategory === cat.id
-                                        ? 'bg-gray-100 text-gray-900'
-                                        : 'text-gray-400 hover:text-gray-500 hover:bg-gray-50'
+                                        ? 'bg-[#F4F4F3] text-[#1A1A1A]'
+                                        : 'text-[#9B9B9B] hover:text-[#6B6B6B] hover:bg-[#FAFAF9]'
                                         }`}
                                 >
                                     {cat.label}
@@ -481,14 +481,14 @@ export default function AidePage() {
                         </motion.div>
 
                         {/* Accordion */}
-                        <div className="divide-y divide-gray-200">
+                        <div className="divide-y divide-[#E2E2E1]">
                             <AnimatePresence mode="wait">
                                 <motion.div
                                     key={activeCategory + searchQuery}
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    className="divide-y divide-gray-200"
+                                    className="divide-y divide-[#E2E2E1]"
                                 >
                                     {filteredFAQ.length > 0 ? (
                                         filteredFAQ.map((item, index) => (
@@ -502,7 +502,7 @@ export default function AidePage() {
                                                     onClick={() => setOpenFAQ(openFAQ === index ? null : index)}
                                                     className="w-full py-6 flex items-start justify-between gap-4 text-left group"
                                                 >
-                                                    <span className={`text-base md:text-lg font-medium transition-colors ${openFAQ === index ? 'text-gray-900' : 'text-gray-600 group-hover:text-gray-900'
+                                                    <span className={`text-base md:text-lg font-medium transition-colors ${openFAQ === index ? 'text-[#1A1A1A]' : 'text-[#6B6B6B] group-hover:text-[#1A1A1A]'
                                                         }`}>
                                                         {item.question}
                                                     </span>
@@ -511,7 +511,7 @@ export default function AidePage() {
                                                         transition={{ duration: 0.25 }}
                                                         className="flex-shrink-0 mt-1"
                                                     >
-                                                        <ChevronDown className={`w-5 h-5 ${openFAQ === index ? 'text-[#6C3FA0]' : 'text-gray-300'}`} />
+                                                        <ChevronDown className={`w-5 h-5 ${openFAQ === index ? 'text-[#6C3FA0]' : 'text-[#C4C4C3]'}`} />
                                                     </motion.div>
                                                 </button>
                                                 <AnimatePresence>
@@ -523,7 +523,7 @@ export default function AidePage() {
                                                             transition={{ duration: 0.25 }}
                                                             className="overflow-hidden"
                                                         >
-                                                            <p className="pb-6 text-gray-500 leading-relaxed text-[15px] pr-8">
+                                                            <p className="pb-6 text-[#6B6B6B] leading-relaxed text-[15px] pr-8">
                                                                 {item.answer}
                                                             </p>
                                                         </motion.div>
@@ -532,7 +532,7 @@ export default function AidePage() {
                                             </motion.div>
                                         ))
                                     ) : (
-                                        <div className="text-center py-16 text-gray-400">
+                                        <div className="text-center py-16 text-[#9B9B9B]">
                                             <p className="text-lg">Aucun résultat pour &quot;{searchQuery}&quot;</p>
                                             <p className="text-sm mt-2">Essayez d&apos;autres termes ou contactez-nous</p>
                                         </div>
@@ -544,7 +544,7 @@ export default function AidePage() {
                 </section>
 
                 {/* ===== CONTACT — Two-column editorial ===== */}
-                <section className="py-24 md:py-32 px-6 border-t border-gray-200" id="contact">
+                <section className="py-24 md:py-32 px-6 border-t border-[#E2E2E1]" id="contact">
                     <div className="max-w-5xl mx-auto">
                         <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
                             {/* Left — Text */}
@@ -553,11 +553,11 @@ export default function AidePage() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                             >
-                                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-6">
+                                <h2 className="text-4xl md:text-5xl font-bold text-[#1A1A1A] leading-tight mb-6">
                                     Besoin d&apos;aide<br />
-                                    <span className="text-gray-400">supplémentaire ?</span>
+                                    <span className="text-[#9B9B9B]">supplémentaire ?</span>
                                 </h2>
-                                <p className="text-gray-500 leading-relaxed mb-10 text-lg">
+                                <p className="text-[#6B6B6B] leading-relaxed mb-10 text-lg">
                                     Notre équipe est là pour vous accompagner. Envoyez-nous un message et nous vous répondrons dans les 24 heures.
                                 </p>
 
@@ -565,8 +565,8 @@ export default function AidePage() {
                                     <div className="flex items-center gap-4">
                                         <div className="w-px h-8 bg-[#6C3FA0]/40" />
                                         <div>
-                                            <p className="text-sm text-gray-400">Email</p>
-                                            <a href="mailto:contact@ugcsuisse.ch" className="text-gray-900 hover:text-[#6C3FA0] transition-colors">
+                                            <p className="text-sm text-[#9B9B9B]">Email</p>
+                                            <a href="mailto:contact@ugcsuisse.ch" className="text-[#1A1A1A] hover:text-[#6C3FA0] transition-colors">
                                                 contact@ugcsuisse.ch
                                             </a>
                                         </div>
@@ -574,26 +574,26 @@ export default function AidePage() {
                                     <div className="flex items-center gap-4">
                                         <div className="w-px h-8 bg-[#6C3FA0]/40" />
                                         <div>
-                                            <p className="text-sm text-gray-400">Localisation</p>
-                                            <p className="text-gray-900">Suisse romande</p>
+                                            <p className="text-sm text-[#9B9B9B]">Localisation</p>
+                                            <p className="text-[#1A1A1A]">Suisse romande</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-4">
                                         <div className="w-px h-8 bg-[#6C3FA0]/40" />
                                         <div>
-                                            <p className="text-sm text-gray-400">Temps de réponse</p>
-                                            <p className="text-gray-900">Sous 24 heures</p>
+                                            <p className="text-sm text-[#9B9B9B]">Temps de réponse</p>
+                                            <p className="text-[#1A1A1A]">Sous 24 heures</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Quick links */}
-                                <div className="mt-12 pt-8 border-t border-gray-200 space-y-3">
+                                <div className="mt-12 pt-8 border-t border-[#E2E2E1] space-y-3">
                                     {[
                                         { label: 'Demander un devis', href: '/signup?role=brand' },
                                         { label: 'Rejoindre le réseau créateurs', href: '/signup?role=creator' },
                                     ].map((link) => (
-                                        <Link key={link.href} href={link.href} className="flex items-center gap-3 text-gray-400 hover:text-gray-900 transition-colors group text-sm">
+                                        <Link key={link.href} href={link.href} className="flex items-center gap-3 text-[#9B9B9B] hover:text-[#1A1A1A] transition-colors group text-sm">
                                             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                                             {link.label}
                                         </Link>
@@ -614,9 +614,9 @@ export default function AidePage() {
                                         animate={{ opacity: 1, scale: 1 }}
                                         className="text-center py-20"
                                     >
-                                        <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto mb-6" />
-                                        <h3 className="text-2xl font-bold text-gray-900 mb-3">Message envoyé</h3>
-                                        <p className="text-gray-500 mb-8">
+                                        <CheckCircle2 className="w-12 h-12 text-[#1A7F37] mx-auto mb-6" />
+                                        <h3 className="text-2xl font-bold text-[#1A1A1A] mb-3">Message envoyé</h3>
+                                        <p className="text-[#6B6B6B] mb-8">
                                             Nous vous répondrons dans les 24 heures.
                                         </p>
                                         <button
@@ -630,36 +630,36 @@ export default function AidePage() {
                                     <form onSubmit={handleSubmit} className="space-y-6">
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-xs text-gray-400 mb-2 uppercase tracking-wider">Nom</label>
+                                                <label className="block text-xs text-[#9B9B9B] mb-2 uppercase tracking-wider">Nom</label>
                                                 <input
                                                     type="text"
                                                     required
                                                     value={contactForm.name}
                                                     onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))}
-                                                    className="w-full bg-transparent border-b border-gray-200 pb-3 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-[#6C3FA0]/50 transition-colors"
+                                                    className="w-full bg-transparent border-b border-[#E2E2E1] pb-3 text-[#1A1A1A] placeholder:text-[#C4C4C3] focus:outline-none focus:border-[#6C3FA0]/50 transition-colors"
                                                     placeholder="Votre nom"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs text-gray-400 mb-2 uppercase tracking-wider">Email</label>
+                                                <label className="block text-xs text-[#9B9B9B] mb-2 uppercase tracking-wider">Email</label>
                                                 <input
                                                     type="email"
                                                     required
                                                     value={contactForm.email}
                                                     onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
-                                                    className="w-full bg-transparent border-b border-gray-200 pb-3 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-[#6C3FA0]/50 transition-colors"
+                                                    className="w-full bg-transparent border-b border-[#E2E2E1] pb-3 text-[#1A1A1A] placeholder:text-[#C4C4C3] focus:outline-none focus:border-[#6C3FA0]/50 transition-colors"
                                                     placeholder="votre@email.ch"
                                                 />
                                             </div>
                                         </div>
 
                                         <div>
-                                            <label className="block text-xs text-gray-400 mb-2 uppercase tracking-wider">Sujet</label>
+                                            <label className="block text-xs text-[#9B9B9B] mb-2 uppercase tracking-wider">Sujet</label>
                                             <select
                                                 required
                                                 value={contactForm.subject}
                                                 onChange={(e) => setContactForm(prev => ({ ...prev, subject: e.target.value }))}
-                                                className="w-full bg-transparent border-b border-gray-200 pb-3 text-gray-900 focus:outline-none focus:border-[#6C3FA0]/50 transition-colors appearance-none cursor-pointer"
+                                                className="w-full bg-transparent border-b border-[#E2E2E1] pb-3 text-[#1A1A1A] focus:outline-none focus:border-[#6C3FA0]/50 transition-colors appearance-none cursor-pointer"
                                             >
                                                 <option value="" className="bg-white">Sélectionnez un sujet</option>
                                                 <option value="general" className="bg-white">Question générale</option>
@@ -672,13 +672,13 @@ export default function AidePage() {
                                         </div>
 
                                         <div>
-                                            <label className="block text-xs text-gray-400 mb-2 uppercase tracking-wider">Message</label>
+                                            <label className="block text-xs text-[#9B9B9B] mb-2 uppercase tracking-wider">Message</label>
                                             <textarea
                                                 required
                                                 rows={4}
                                                 value={contactForm.message}
                                                 onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
-                                                className="w-full bg-transparent border-b border-gray-200 pb-3 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-[#6C3FA0]/50 transition-colors resize-none"
+                                                className="w-full bg-transparent border-b border-[#E2E2E1] pb-3 text-[#1A1A1A] placeholder:text-[#C4C4C3] focus:outline-none focus:border-[#6C3FA0]/50 transition-colors resize-none"
                                                 placeholder="Décrivez votre question..."
                                             />
                                         </div>
@@ -699,17 +699,17 @@ export default function AidePage() {
                 </section>
 
                 {/* ===== CTA — Minimal, impactful ===== */}
-                <section className="py-24 md:py-32 px-6 border-t border-gray-200">
+                <section className="py-24 md:py-32 px-6 border-t border-[#E2E2E1]">
                     <div className="max-w-4xl mx-auto text-center">
                         <motion.div
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                         >
-                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
+                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#1A1A1A] leading-tight mb-6">
                                 Prêt à commencer ?
                             </h2>
-                            <p className="text-gray-400 text-lg mb-10 max-w-lg mx-auto">
+                            <p className="text-[#9B9B9B] text-lg mb-10 max-w-lg mx-auto">
                                 Confiez votre contenu UGC à l&apos;agence de référence en Suisse romande.
                             </p>
 

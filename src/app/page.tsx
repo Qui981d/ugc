@@ -111,19 +111,19 @@ function Navbar({ persona, setPersona }: { persona: Persona; setPersona: (p: Per
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="text-3xl font-black text-gray-900 tracking-tight">
+        <Link href="/" className="text-3xl font-black text-[#1A1A1A] tracking-tight">
           MOSH
         </Link>
 
         {/* Center links */}
-        <div className="hidden md:flex items-center bg-white rounded-full border border-gray-200/50 px-1 py-1">
-          <a href="#form-section" onClick={() => setPersona('creator')} className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${persona === 'creator' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}>
+        <div className="hidden md:flex items-center bg-white rounded-full border border-[#E2E2E1]/50 px-1 py-1">
+          <a href="#form-section" onClick={() => setPersona('creator')} className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${persona === 'creator' ? 'bg-white text-[#1A1A1A] shadow-sm' : 'text-[#6B6B6B] hover:text-[#1A1A1A]'}`}>
             Créateur
           </a>
-          <a href="#form-section" onClick={() => setPersona('brand')} className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${persona === 'brand' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}>
+          <a href="#form-section" onClick={() => setPersona('brand')} className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${persona === 'brand' ? 'bg-white text-[#1A1A1A] shadow-sm' : 'text-[#6B6B6B] hover:text-[#1A1A1A]'}`}>
             Marque
           </a>
-          <Link href="/aide" className="px-5 py-2.5 rounded-full text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors">
+          <Link href="/aide" className="px-5 py-2.5 rounded-full text-sm font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors">
             Aide
           </Link>
         </div>
@@ -235,7 +235,7 @@ function HeroSection({ persona, setPersona }: { persona: Persona; setPersona: (p
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="text-[clamp(3rem,8vw,7rem)] font-black leading-[0.95] text-gray-900 mb-6"
+          className="text-[clamp(3rem,8vw,7rem)] font-black leading-[0.95] text-[#1A1A1A] mb-6"
         >
           La plateforme{' '}
           <em className="not-italic font-black" style={{ fontStyle: 'italic', color: '#6C3FA0' }}>UGC</em>
@@ -248,7 +248,7 @@ function HeroSection({ persona, setPersona }: { persona: Persona; setPersona: (p
           transition={{ duration: 0.6, delay: 0.3 }}
           className="flex items-center justify-center gap-4 mb-10"
         >
-          <span className={`text-lg font-semibold transition-colors ${persona === 'creator' ? 'text-gray-900' : 'text-gray-400'}`}>
+          <span className={`text-lg font-semibold transition-colors ${persona === 'creator' ? 'text-[#1A1A1A]' : 'text-[#9B9B9B]'}`}>
             Je suis créateur·rice
           </span>
           <button
@@ -263,7 +263,7 @@ function HeroSection({ persona, setPersona }: { persona: Persona; setPersona: (p
               transition={{ type: 'spring', stiffness: 500, damping: 30 }}
             />
           </button>
-          <span className={`text-lg font-semibold transition-colors ${persona === 'brand' ? 'text-gray-900' : 'text-gray-400'}`}>
+          <span className={`text-lg font-semibold transition-colors ${persona === 'brand' ? 'text-[#1A1A1A]' : 'text-[#9B9B9B]'}`}>
             Je suis une marque
           </span>
         </motion.div>
@@ -274,7 +274,7 @@ function HeroSection({ persona, setPersona }: { persona: Persona; setPersona: (p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-[clamp(2rem,6vw,5rem)] font-black leading-[1] text-gray-900 mb-8"
+          className="text-[clamp(2rem,6vw,5rem)] font-black leading-[1] text-[#1A1A1A] mb-8"
         >
           {persona === 'creator' ? (
             <>Pour collaborer avec{' '}
@@ -393,7 +393,7 @@ function CategoryBadgesSection() {
         transition={{ duration: 0.7 }}
         className="relative z-10 text-center max-w-5xl mx-auto"
       >
-        <h2 className="text-[clamp(2.5rem,6vw,5.5rem)] font-black leading-[1] text-gray-900">
+        <h2 className="text-[clamp(2.5rem,6vw,5.5rem)] font-black leading-[1] text-[#1A1A1A]">
           Dans ton secteur{' '}
           <em className="not-italic" style={{ fontStyle: 'italic', color: '#6C3FA0' }}>d&apos;activité</em>
         </h2>
@@ -441,7 +441,7 @@ function StatsSection() {
           viewport={{ margin: '-80px' }}
           transition={{ duration: 0.7 }}
         >
-          <h2 className="text-[clamp(2rem,5vw,4rem)] font-black text-gray-900 leading-tight mb-4">
+          <h2 className="text-[clamp(2rem,5vw,4rem)] font-black text-[#1A1A1A] leading-tight mb-4">
             On est déjà{' '}
             <span className="text-[#6C3FA0]">+250</span>
             <br />
@@ -479,14 +479,14 @@ function HowItWorksSection({ persona, setPersona }: { persona: Persona; setPerso
           viewport={{ margin: '-80px' }}
           className="mb-16"
         >
-          <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-black text-gray-900 mb-6">
+          <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-black text-[#1A1A1A] mb-6">
             Comment ça{' '}
             <em style={{ fontStyle: 'italic', color: '#6C3FA0' }}>marche ?</em>
           </h2>
 
           {/* Toggle */}
           <div className="flex items-center gap-4">
-            <span className={`text-base font-semibold transition-colors ${persona === 'creator' ? 'text-gray-900' : 'text-gray-400'}`}>
+            <span className={`text-base font-semibold transition-colors ${persona === 'creator' ? 'text-[#1A1A1A]' : 'text-[#9B9B9B]'}`}>
               Créateur
             </span>
             <button
@@ -501,7 +501,7 @@ function HowItWorksSection({ persona, setPersona }: { persona: Persona; setPerso
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             </button>
-            <span className={`text-base font-semibold transition-colors ${persona === 'brand' ? 'text-gray-900' : 'text-gray-400'}`}>
+            <span className={`text-base font-semibold transition-colors ${persona === 'brand' ? 'text-[#1A1A1A]' : 'text-[#9B9B9B]'}`}>
               Marque
             </span>
           </div>
@@ -518,8 +518,8 @@ function HowItWorksSection({ persona, setPersona }: { persona: Persona; setPerso
               className="relative"
             >
               <div className="text-6xl font-black text-[#6C3FA0]/10 mb-3">{step.step}</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{step.title}</h3>
-              <p className="text-gray-500 leading-relaxed">{step.desc}</p>
+              <h3 className="text-xl font-bold text-[#1A1A1A] mb-2">{step.title}</h3>
+              <p className="text-[#6B6B6B] leading-relaxed">{step.desc}</p>
             </motion.div>
           ))}
         </div>
@@ -541,7 +541,7 @@ function FormSection({ persona, setPersona }: { persona: Persona; setPersona: (p
           viewport={{ margin: '-80px' }}
           className="text-center mb-12"
         >
-          <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-black text-gray-900 mb-4">
+          <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-black text-[#1A1A1A] mb-4">
             {persona === 'creator' ? (
               <>Prêt·e à <em style={{ fontStyle: 'italic', color: '#6C3FA0' }}>créer</em> ?</>
             ) : (
@@ -551,7 +551,7 @@ function FormSection({ persona, setPersona }: { persona: Persona; setPersona: (p
 
           {/* Toggle */}
           <div className="flex items-center justify-center gap-4 mb-8">
-            <span className={`text-sm font-semibold transition-colors ${persona === 'creator' ? 'text-gray-900' : 'text-gray-400'}`}>
+            <span className={`text-sm font-semibold transition-colors ${persona === 'creator' ? 'text-[#1A1A1A]' : 'text-[#9B9B9B]'}`}>
               Créateur
             </span>
             <button
@@ -566,7 +566,7 @@ function FormSection({ persona, setPersona }: { persona: Persona; setPersona: (p
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             </button>
-            <span className={`text-sm font-semibold transition-colors ${persona === 'brand' ? 'text-gray-900' : 'text-gray-400'}`}>
+            <span className={`text-sm font-semibold transition-colors ${persona === 'brand' ? 'text-[#1A1A1A]' : 'text-[#9B9B9B]'}`}>
               Marque
             </span>
           </div>
@@ -605,37 +605,37 @@ function CreatorSignupForm() {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="bg-white rounded-xl border-2 border-gray-100 p-8 md:p-12 shadow-xl max-w-lg mx-auto"
+      className="bg-white rounded-xl border-2 border-[#E2E2E1] p-8 md:p-12 shadow-xl max-w-lg mx-auto"
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm font-bold text-gray-900 mb-2">Nom complet</label>
+          <label className="block text-sm font-bold text-[#1A1A1A] mb-2">Nom complet</label>
           <input
             type="text" required value={form.fullName}
             onChange={(e) => setForm(f => ({ ...f, fullName: e.target.value }))}
-            className="w-full px-5 py-4 rounded-lg border-2 border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors text-base"
+            className="w-full px-5 py-4 rounded-lg border-2 border-[#E2E2E1] bg-[#FAFAF9] text-[#1A1A1A] placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors text-base"
             placeholder="Ton nom et prénom"
           />
         </div>
         <div>
-          <label className="block text-sm font-bold text-gray-900 mb-2">Email</label>
+          <label className="block text-sm font-bold text-[#1A1A1A] mb-2">Email</label>
           <input
             type="email" required value={form.email}
             onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
-            className="w-full px-5 py-4 rounded-lg border-2 border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors text-base"
+            className="w-full px-5 py-4 rounded-lg border-2 border-[#E2E2E1] bg-[#FAFAF9] text-[#1A1A1A] placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors text-base"
             placeholder="ton@email.com"
           />
         </div>
         <div>
-          <label className="block text-sm font-bold text-gray-900 mb-2">Mot de passe</label>
+          <label className="block text-sm font-bold text-[#1A1A1A] mb-2">Mot de passe</label>
           <input
             type="password" required minLength={6} value={form.password}
             onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
-            className="w-full px-5 py-4 rounded-lg border-2 border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors text-base"
+            className="w-full px-5 py-4 rounded-lg border-2 border-[#E2E2E1] bg-[#FAFAF9] text-[#1A1A1A] placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors text-base"
             placeholder="Minimum 6 caractères"
           />
         </div>
-        {error && <p className="text-sm text-red-500 bg-red-50 px-4 py-2 rounded-lg">{error}</p>}
+        {error && <p className="text-sm text-[#C0392B] bg-[#FBEAE8] px-4 py-2 rounded-lg">{error}</p>}
         <button
           type="submit" disabled={loading}
           className="w-full py-4 rounded-full text-white font-bold text-lg bg-[#6C3FA0] hover:bg-[#5A2D8C] transition-colors flex items-center justify-center gap-2 shadow-lg"
@@ -643,7 +643,7 @@ function CreatorSignupForm() {
           {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Créer mon compte <ArrowRight className="w-5 h-5" /></>}
         </button>
       </form>
-      <p className="text-center text-sm text-gray-400 mt-6">
+      <p className="text-center text-sm text-[#9B9B9B] mt-6">
         Déjà inscrit ? <Link href="/login" className="text-[#6C3FA0] font-semibold hover:underline">Se connecter</Link>
       </p>
     </motion.div>
@@ -709,66 +709,66 @@ function BrandContactForm() {
   if (sent) {
     return (
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-xl border-2 border-gray-100 p-8 md:p-12 shadow-xl max-w-lg mx-auto text-center"
+        className="bg-white rounded-xl border-2 border-[#E2E2E1] p-8 md:p-12 shadow-xl max-w-lg mx-auto text-center"
       >
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <CheckCircle2 className="w-8 h-8 text-green-600" />
+        <div className="w-16 h-16 bg-[#E8F3EA] rounded-full flex items-center justify-center mx-auto mb-6">
+          <CheckCircle2 className="w-8 h-8 text-[#1A7F37]" />
         </div>
-        <h3 className="text-2xl font-bold text-gray-900 mb-3">Demande envoyée !</h3>
-        <p className="text-gray-500">Notre équipe vous contacte dans les 24h.</p>
+        <h3 className="text-2xl font-bold text-[#1A1A1A] mb-3">Demande envoyée !</h3>
+        <p className="text-[#6B6B6B]">Notre équipe vous contacte dans les 24h.</p>
       </motion.div>
     )
   }
 
-  const inputClass = "w-full px-5 py-4 rounded-lg border-2 border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors"
+  const inputClass = "w-full px-5 py-4 rounded-lg border-2 border-[#E2E2E1] bg-[#FAFAF9] text-[#1A1A1A] placeholder-gray-400 focus:outline-none focus:border-[#6C3FA0] transition-colors"
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="bg-white rounded-xl border-2 border-gray-100 p-8 md:p-12 shadow-xl max-w-lg mx-auto"
+      className="bg-white rounded-xl border-2 border-[#E2E2E1] p-8 md:p-12 shadow-xl max-w-lg mx-auto"
     >
       {/* Mode toggle */}
-      <div className="flex rounded-lg bg-gray-100 p-1 mb-8">
+      <div className="flex rounded-lg bg-[#F4F4F3] p-1 mb-8">
         <button
           onClick={() => setMode('signup')}
-          className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${mode === 'signup' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+          className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${mode === 'signup' ? 'bg-white text-[#1A1A1A] shadow-sm' : 'text-[#6B6B6B]'}`}
         >
           Créer un compte
         </button>
         <button
           onClick={() => setMode('rdv')}
-          className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${mode === 'rdv' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+          className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${mode === 'rdv' ? 'bg-white text-[#1A1A1A] shadow-sm' : 'text-[#6B6B6B]'}`}
         >
           Prendre un RDV
         </button>
       </div>
 
-      {error && <p className="text-sm text-red-500 bg-red-50 px-4 py-2 rounded-lg mb-4">{error}</p>}
+      {error && <p className="text-sm text-[#C0392B] bg-[#FBEAE8] px-4 py-2 rounded-lg mb-4">{error}</p>}
 
       {mode === 'signup' ? (
         <form onSubmit={handleSignup} className="space-y-5">
           <div>
-            <label className="block text-sm font-bold text-gray-900 mb-2">Nom de l&apos;entreprise</label>
+            <label className="block text-sm font-bold text-[#1A1A1A] mb-2">Nom de l&apos;entreprise</label>
             <input type="text" required value={signupForm.company}
               onChange={(e) => setSignupForm(f => ({ ...f, company: e.target.value }))}
               className={inputClass} placeholder="Ma Marque SA" />
           </div>
           <div>
-            <label className="block text-sm font-bold text-gray-900 mb-2">Nom complet</label>
+            <label className="block text-sm font-bold text-[#1A1A1A] mb-2">Nom complet</label>
             <input type="text" required value={signupForm.fullName}
               onChange={(e) => setSignupForm(f => ({ ...f, fullName: e.target.value }))}
               className={inputClass} placeholder="Votre nom et prénom" />
           </div>
           <div>
-            <label className="block text-sm font-bold text-gray-900 mb-2">Email professionnel</label>
+            <label className="block text-sm font-bold text-[#1A1A1A] mb-2">Email professionnel</label>
             <input type="email" required value={signupForm.email}
               onChange={(e) => setSignupForm(f => ({ ...f, email: e.target.value }))}
               className={inputClass} placeholder="email@entreprise.ch" />
           </div>
           <div>
-            <label className="block text-sm font-bold text-gray-900 mb-2">Mot de passe</label>
+            <label className="block text-sm font-bold text-[#1A1A1A] mb-2">Mot de passe</label>
             <input type="password" required minLength={6} value={signupForm.password}
               onChange={(e) => setSignupForm(f => ({ ...f, password: e.target.value }))}
               className={inputClass} placeholder="Minimum 6 caractères" />
@@ -778,7 +778,7 @@ function BrandContactForm() {
           >
             {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Créer mon compte marque <ArrowRight className="w-5 h-5" /></>}
           </button>
-          <p className="text-center text-sm text-gray-400 mt-4">
+          <p className="text-center text-sm text-[#9B9B9B] mt-4">
             Déjà inscrit ? <Link href="/login" className="text-[#6C3FA0] font-semibold hover:underline">Se connecter</Link>
           </p>
         </form>
@@ -786,13 +786,13 @@ function BrandContactForm() {
         <form onSubmit={handleRdv} className="space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">Entreprise</label>
+              <label className="block text-sm font-bold text-[#1A1A1A] mb-2">Entreprise</label>
               <input type="text" required value={rdvForm.company}
                 onChange={(e) => setRdvForm(f => ({ ...f, company: e.target.value }))}
                 className={inputClass} placeholder="Votre entreprise" />
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">Nom complet</label>
+              <label className="block text-sm font-bold text-[#1A1A1A] mb-2">Nom complet</label>
               <input type="text" required value={rdvForm.fullName}
                 onChange={(e) => setRdvForm(f => ({ ...f, fullName: e.target.value }))}
                 className={inputClass} placeholder="Votre nom" />
@@ -800,20 +800,20 @@ function BrandContactForm() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">Email</label>
+              <label className="block text-sm font-bold text-[#1A1A1A] mb-2">Email</label>
               <input type="email" required value={rdvForm.email}
                 onChange={(e) => setRdvForm(f => ({ ...f, email: e.target.value }))}
                 className={inputClass} placeholder="email@entreprise.ch" />
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">Téléphone</label>
+              <label className="block text-sm font-bold text-[#1A1A1A] mb-2">Téléphone</label>
               <input type="tel" value={rdvForm.phone}
                 onChange={(e) => setRdvForm(f => ({ ...f, phone: e.target.value }))}
                 className={inputClass} placeholder="+41 79 ..." />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-bold text-gray-900 mb-2">Votre projet</label>
+            <label className="block text-sm font-bold text-[#1A1A1A] mb-2">Votre projet</label>
             <textarea rows={3} value={rdvForm.message}
               onChange={(e) => setRdvForm(f => ({ ...f, message: e.target.value }))}
               className={`${inputClass} resize-none`}
@@ -841,7 +841,7 @@ function FaqSection({ openFaq, setOpenFaq }: { openFaq: number | null; setOpenFa
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-[clamp(2rem,4vw,3.5rem)] font-black text-gray-900 mb-12"
+          className="text-[clamp(2rem,4vw,3.5rem)] font-black text-[#1A1A1A] mb-12"
         >
           Questions <em style={{ fontStyle: 'italic', color: '#6C3FA0' }}>fréquentes</em>
         </motion.h2>
@@ -857,14 +857,14 @@ function FaqSection({ openFaq, setOpenFaq }: { openFaq: number | null; setOpenFa
             >
               <button
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                className="w-full flex items-center justify-between p-5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+                className="w-full flex items-center justify-between p-5 rounded-lg bg-[#FAFAF9] hover:bg-[#F4F4F3] transition-colors text-left"
               >
-                <span className="font-bold text-gray-900 pr-4">{item.q}</span>
-                <ChevronDown className={`w-5 h-5 text-gray-400 flex-shrink-0 transition-transform duration-300 ${openFaq === i ? 'rotate-180' : ''}`} />
+                <span className="font-bold text-[#1A1A1A] pr-4">{item.q}</span>
+                <ChevronDown className={`w-5 h-5 text-[#9B9B9B] flex-shrink-0 transition-transform duration-300 ${openFaq === i ? 'rotate-180' : ''}`} />
               </button>
               {openFaq === i && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="overflow-hidden">
-                  <p className="px-5 py-4 text-gray-500 leading-relaxed">{item.a}</p>
+                  <p className="px-5 py-4 text-[#6B6B6B] leading-relaxed">{item.a}</p>
                 </motion.div>
               )}
             </motion.div>
@@ -880,7 +880,7 @@ function FaqSection({ openFaq, setOpenFaq }: { openFaq: number | null; setOpenFa
 // ================================================
 function Footer() {
   return (
-    <footer className="py-12 px-6 bg-gray-900 text-white">
+    <footer className="py-12 px-6 bg-[#1A1A1A] text-white">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
         <span className="text-xl font-black">MOSH</span>
         <div className="flex gap-8 text-sm text-white/60">

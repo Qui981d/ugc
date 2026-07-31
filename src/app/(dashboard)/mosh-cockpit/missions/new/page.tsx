@@ -281,7 +281,7 @@ function NewMissionForm() {
                 </div>
 
                 {error && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+                    <div className="p-3 bg-[#FBEAE8] border border-[#F2CFCB] rounded-lg text-sm text-[#C0392B]">
                         {error}
                     </div>
                 )}

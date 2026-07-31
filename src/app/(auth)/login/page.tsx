@@ -52,9 +52,9 @@ function LoginForm() {
     // Show loading while checking auth
     if (!mounted || authLoading) {
         return (
-            <Card className="bg-white border-gray-200 shadow-xl">
+            <Card className="bg-white border-[#E2E2E1] shadow-xl">
                 <CardContent className="py-12 flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                    <Loader2 className="w-8 h-8 animate-spin text-[#9B9B9B]" />
                 </CardContent>
             </Card>
         )
@@ -63,37 +63,37 @@ function LoginForm() {
     // If user is logged in, show loading while redirecting
     if (user) {
         return (
-            <Card className="bg-white border-gray-200 shadow-xl">
+            <Card className="bg-white border-[#E2E2E1] shadow-xl">
                 <CardContent className="py-12 flex flex-col items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-gray-400 mb-4" />
-                    <p className="text-gray-500">Redirection en cours...</p>
+                    <Loader2 className="w-8 h-8 animate-spin text-[#9B9B9B] mb-4" />
+                    <p className="text-[#6B6B6B]">Redirection en cours...</p>
                 </CardContent>
             </Card>
         )
     }
 
     return (
-        <Card className="bg-white border-gray-200 shadow-xl">
+        <Card className="bg-white border-[#E2E2E1] shadow-xl">
             <CardHeader className="text-center">
-                <div className="text-2xl font-bold text-gray-900 mb-2">
+                <div className="text-2xl font-bold text-[#1A1A1A] mb-2">
                     MOSH
                 </div>
-                <CardTitle className="text-xl text-gray-900">Connexion</CardTitle>
-                <CardDescription className="text-gray-500">
+                <CardTitle className="text-xl text-[#1A1A1A]">Connexion</CardTitle>
+                <CardDescription className="text-[#6B6B6B]">
                     Accédez à votre espace personnel
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <form className="space-y-4" onSubmit={handleSubmit}>
                     {error && (
-                        <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm">
+                        <div className="flex items-center gap-2 p-3 rounded-lg bg-[#FBEAE8] border border-[#F2CFCB] text-[#C0392B] text-sm">
                             <AlertCircle className="w-4 h-4 shrink-0" />
                             <span>{error}</span>
                         </div>
                     )}
 
                     <div className="space-y-2">
-                        <Label htmlFor="email" className="text-gray-700">Email</Label>
+                        <Label htmlFor="email" className="text-[#1A1A1A]">Email</Label>
                         <Input
                             id="email"
                             type="email"
@@ -101,16 +101,16 @@ function LoginForm() {
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="vous@exemple.ch"
                             required
-                            className="bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:ring-red-200 focus:border-red-300"
+                            className="bg-[#FAFAF9] border-[#E2E2E1] text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:ring-[#F2CFCB] focus:border-[#F2CFCB]"
                         />
                     </div>
 
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                            <Label htmlFor="password" className="text-gray-700">Mot de passe</Label>
+                            <Label htmlFor="password" className="text-[#1A1A1A]">Mot de passe</Label>
                             <Link
                                 href="/forgot-password"
-                                className="text-xs text-gray-400 hover:text-gray-600"
+                                className="text-xs text-[#9B9B9B] hover:text-[#6B6B6B]"
                             >
                                 Mot de passe oublié?
                             </Link>
@@ -122,7 +122,7 @@ function LoginForm() {
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="••••••••"
                             required
-                            className="bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:ring-red-200 focus:border-red-300"
+                            className="bg-[#FAFAF9] border-[#E2E2E1] text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:ring-[#F2CFCB] focus:border-[#F2CFCB]"
                         />
                     </div>
 
@@ -142,9 +142,9 @@ function LoginForm() {
                     </Button>
                 </form>
 
-                <div className="mt-6 text-center text-sm text-gray-400">
+                <div className="mt-6 text-center text-sm text-[#9B9B9B]">
                     Pas encore de compte?{" "}
-                    <Link href="/signup" className="text-red-500 font-medium hover:text-red-600">
+                    <Link href="/signup" className="text-[#C0392B] font-medium hover:text-[#C0392B]">
                         S&apos;inscrire
                     </Link>
                 </div>
@@ -155,10 +155,10 @@ function LoginForm() {
 
 export default function LoginPage() {
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-[#FAFAF9]">
             {/* Simple back link */}
             <div className="fixed top-6 left-6 z-50">
-                <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
+                <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors">
                     <ArrowLeft className="w-4 h-4" />
                     Retour
                 </Link>
@@ -166,7 +166,7 @@ export default function LoginPage() {
 
             <div className="flex items-center justify-center min-h-screen px-6">
                 <div className="w-full max-w-md">
-                    <Suspense fallback={<div className="text-gray-500 text-center">Chargement...</div>}>
+                    <Suspense fallback={<div className="text-[#6B6B6B] text-center">Chargement...</div>}>
                         <LoginForm />
                     </Suspense>
                 </div>

@@ -42,20 +42,20 @@ export default function ContractViewer({
     const statusConfig = {
         pending_creator: {
             label: 'En attente de signature du créateur',
-            color: 'text-amber-400',
-            bgColor: 'bg-amber-500/10 border-amber-500/20',
+            color: 'text-[#8A6100]',
+            bgColor: 'bg-[#8A6100]/10 border-[#F0E0BC]/20',
             icon: Clock,
         },
         active: {
             label: 'Contrat signé par les deux parties',
-            color: 'text-emerald-400',
-            bgColor: 'bg-emerald-500/10 border-emerald-500/20',
+            color: 'text-[#1A7F37]',
+            bgColor: 'bg-[#1A7F37]/10 border-[#C9E6D0]/20',
             icon: CheckCircle2,
         },
         cancelled: {
             label: 'Contrat résilié',
-            color: 'text-red-400',
-            bgColor: 'bg-[#1A1A1A]/10 border-red-500/20',
+            color: 'text-[#C0392B]',
+            bgColor: 'bg-[#1A1A1A]/10 border-[#F2CFCB]/20',
             icon: X,
         },
     }

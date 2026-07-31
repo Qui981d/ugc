@@ -88,7 +88,7 @@ export default function ForgotPasswordPage() {
                                 </div>
 
                                 {error && (
-                                    <p className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2">{error}</p>
+                                    <p className="text-sm text-[#C0392B] bg-[#FBEAE8] rounded-lg px-4 py-2">{error}</p>
                                 )}
 
                                 <Button

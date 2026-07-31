@@ -34,8 +34,8 @@ interface Transaction {
 
 const statusConfig: Record<string, { label: string; class: string }> = {
     completed: { label: "Payé", class: "bg-[#EDEDEC] text-[#1A1A1A] border-[#1A1A1A]/30" },
-    pending: { label: "En attente", class: "bg-amber-500/20 text-amber-700 border-amber-500/30" },
-    failed: { label: "Échoué", class: "bg-[#1A1A1A]/20 text-red-700 border-red-500/30" },
+    pending: { label: "En attente", class: "bg-[#8A6100]/20 text-[#8A6100] border-[#F0E0BC]/30" },
+    failed: { label: "Échoué", class: "bg-[#1A1A1A]/20 text-[#C0392B] border-[#F2CFCB]/30" },
 }
 
 export default function CreatorEarningsPage() {
@@ -152,8 +152,8 @@ export default function CreatorEarningsPage() {
                     className="bg-white border border-[#E2E2E1] rounded-xl p-5"
                 >
                     <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 rounded-lg bg-amber-500/15 flex items-center justify-center">
-                            <Clock className="w-5 h-5 text-amber-700" strokeWidth={1.5} />
+                        <div className="w-10 h-10 rounded-lg bg-[#8A6100]/15 flex items-center justify-center">
+                            <Clock className="w-5 h-5 text-[#8A6100]" strokeWidth={1.5} />
                         </div>
                     </div>
                     <p className="text-2xl font-bold text-[#1A1A1A]">{formatCHF(pendingAmount)}</p>
@@ -233,7 +233,7 @@ export default function CreatorEarningsPage() {
                                 className="flex items-center justify-between p-5 hover:bg-[#F4F4F3]/40 transition-colors"
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${tx.type === 'payment' ? 'bg-[#EDEDEC]' : 'bg-[#EDEDEC]'
+                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${tx.type === 'payment' ? 'bg-[#E8F3EA]' : 'bg-[#F4F4F3]'
                                         }`}>
                                         {tx.type === 'payment' ? (
                                             <ArrowDownRight className="w-5 h-5 text-[#1A1A1A]" />

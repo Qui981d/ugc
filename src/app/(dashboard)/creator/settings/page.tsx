@@ -480,10 +480,10 @@ export default function CreatorSettingsPage() {
                         {/* Delete Account */}
                         <div>
                             <h3 className="text-lg font-semibold text-[#1A1A1A] mb-4">Supprimer le compte</h3>
-                            <div className="p-5 bg-[#1A1A1A]/10 border border-red-500/20 rounded-lg">
+                            <div className="p-5 bg-[#1A1A1A]/10 border border-[#F2CFCB]/20 rounded-lg">
                                 <div className="flex items-start gap-4">
                                     <div className="w-10 h-10 rounded-lg bg-[#1A1A1A]/20 flex items-center justify-center flex-shrink-0">
-                                        <AlertTriangle className="w-5 h-5 text-red-700" />
+                                        <AlertTriangle className="w-5 h-5 text-[#C0392B]" />
                                     </div>
                                     <div>
                                         <p className="text-[#1A1A1A] font-medium mb-1">Action irréversible</p>
@@ -492,7 +492,7 @@ export default function CreatorSettingsPage() {
                                             incluant votre profil, portfolio, et historique de missions.
                                             Cette action ne peut pas être annulée.
                                         </p>
-                                        <Button variant="outline" className="border-red-500/30 text-red-700 hover:bg-[#1A1A1A]/20">
+                                        <Button variant="outline" className="border-[#F2CFCB]/30 text-[#C0392B] hover:bg-[#1A1A1A]/20">
                                             <Trash2 className="w-4 h-4 mr-2" />
                                             Supprimer mon compte
                                         </Button>

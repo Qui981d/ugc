@@ -161,7 +161,9 @@ export function WatermarkedPlayer({
             {/* Watermark Badge */}
             {isWatermarked && (
                 <div className="absolute top-3 right-3">
-                    <span className="px-2 py-1 bg-yellow-500 text-yellow-900 text-xs font-medium rounded">
+                    {/* Sits over arbitrary video frames, so it needs its own contrast
+                        rather than a tinted background. */}
+                    <span className="px-2 py-1 bg-[#1A1A1A]/85 text-white text-xs font-medium rounded backdrop-blur-sm">
                         EN ATTENTE DE VALIDATION
                     </span>
                 </div>

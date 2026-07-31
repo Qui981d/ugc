@@ -262,14 +262,14 @@ export default function BrandSettingsPage() {
             case 'billing':
                 return (
                     <div className="space-y-8">
-                        <div className="p-6 bg-amber-50 border border-amber-200 rounded-lg">
+                        <div className="p-6 bg-[#FBF3E2] border border-[#F0E0BC] rounded-lg">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                                    <CreditCard className="w-5 h-5 text-amber-700" />
+                                <div className="w-10 h-10 rounded-lg bg-[#FBF3E2] flex items-center justify-center">
+                                    <CreditCard className="w-5 h-5 text-[#8A6100]" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-amber-900">Facturation à venir</p>
-                                    <p className="text-xs text-amber-700">Les options de facturation seront bientôt disponibles. Contactez MOSH pour toute question.</p>
+                                    <p className="text-sm font-medium text-[#8A6100]">Facturation à venir</p>
+                                    <p className="text-xs text-[#8A6100]">Les options de facturation seront bientôt disponibles. Contactez MOSH pour toute question.</p>
                                 </div>
                             </div>
                         </div>

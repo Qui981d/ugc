@@ -194,7 +194,7 @@ export default function ContractModal({
                                         </div>
                                         <div className="h-px bg-white/[0.06]" />
                                         <div className="flex items-center gap-3">
-                                            <User className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                                            <User className="w-4 h-4 text-[#1A7F37] flex-shrink-0" />
                                             <div>
                                                 <p className="text-sm text-white font-medium">
                                                     {data.creatorName}
@@ -234,7 +234,7 @@ export default function ContractModal({
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="bg-white/[0.04] border border-white/[0.08] rounded-lg p-4">
                                         <div className="flex items-center gap-2 mb-1">
-                                            <Banknote className="w-3.5 h-3.5 text-emerald-400" />
+                                            <Banknote className="w-3.5 h-3.5 text-[#1A7F37]" />
                                             <span className="text-xs text-white/40">Montant</span>
                                         </div>
                                         <p className="text-lg font-bold text-white">

@@ -107,34 +107,34 @@ function SignupForm() {
         }
     }
 
-    const inputClass = "bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:ring-red-200 focus:border-red-300"
+    const inputClass = "bg-[#FAFAF9] border-[#E2E2E1] text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:ring-[#F2CFCB] focus:border-[#F2CFCB]"
 
     return (
-        <Card className="bg-white border-gray-200 shadow-xl">
+        <Card className="bg-white border-[#E2E2E1] shadow-xl">
             <CardHeader className="text-center">
-                <div className="text-2xl font-bold text-gray-900 mb-2">
+                <div className="text-2xl font-bold text-[#1A1A1A] mb-2">
                     MOSH
                 </div>
-                <CardTitle className="text-xl text-gray-900">Créer un compte</CardTitle>
-                <CardDescription className="text-gray-500">
+                <CardTitle className="text-xl text-[#1A1A1A]">Créer un compte</CardTitle>
+                <CardDescription className="text-[#6B6B6B]">
                     Rejoignez la plateforme UGC de référence en Suisse
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 {error && (
-                    <div className="flex items-center gap-2 p-3 mb-4 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm">
+                    <div className="flex items-center gap-2 p-3 mb-4 rounded-lg bg-[#FBEAE8] border border-[#F2CFCB] text-[#C0392B] text-sm">
                         <AlertCircle className="w-4 h-4 shrink-0" />
                         <span>{error}</span>
                     </div>
                 )}
 
                 <Tabs value={role} onValueChange={(v) => setRole(v as 'brand' | 'creator')}>
-                    <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100">
-                        <TabsTrigger value="brand" className="gap-2 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm">
+                    <TabsList className="grid w-full grid-cols-2 mb-6 bg-[#F4F4F3]">
+                        <TabsTrigger value="brand" className="gap-2 data-[state=active]:bg-white data-[state=active]:text-[#1A1A1A] data-[state=active]:shadow-sm">
                             <Building2 className="h-4 w-4" />
                             Marque
                         </TabsTrigger>
-                        <TabsTrigger value="creator" className="gap-2 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm">
+                        <TabsTrigger value="creator" className="gap-2 data-[state=active]:bg-white data-[state=active]:text-[#1A1A1A] data-[state=active]:shadow-sm">
                             <User className="h-4 w-4" />
                             Créateur
                         </TabsTrigger>
@@ -143,7 +143,7 @@ function SignupForm() {
                     <TabsContent value="brand">
                         <form className="space-y-4" onSubmit={handleBrandSubmit}>
                             <div className="space-y-2">
-                                <Label htmlFor="company" className="text-gray-700">Nom de l&apos;entreprise *</Label>
+                                <Label htmlFor="company" className="text-[#1A1A1A]">Nom de l&apos;entreprise *</Label>
                                 <Input
                                     id="company"
                                     value={brandForm.companyName}
@@ -155,15 +155,15 @@ function SignupForm() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="uid" className="text-gray-700">Numéro IDE (optionnel)</Label>
+                                <Label htmlFor="uid" className="text-[#1A1A1A]">Numéro IDE (optionnel)</Label>
                                 <Input
                                     id="uid"
                                     value={brandForm.uidNumber}
                                     onChange={(e) => setBrandForm({ ...brandForm, uidNumber: e.target.value })}
                                     placeholder="CHE-123.456.789"
-                                    className={`${inputClass} ${brandForm.uidNumber && !/^CHE-\d{3}\.\d{3}\.\d{3}$/.test(brandForm.uidNumber) ? 'border-red-300 focus:border-red-300 focus:ring-red-200' : brandForm.uidNumber ? 'border-green-300 focus:border-green-300 focus:ring-green-200' : ''}`}
+                                    className={`${inputClass} ${brandForm.uidNumber && !/^CHE-\d{3}\.\d{3}\.\d{3}$/.test(brandForm.uidNumber) ? 'border-[#F2CFCB] focus:border-[#F2CFCB] focus:ring-[#F2CFCB]' : brandForm.uidNumber ? 'border-[#C9E6D0] focus:border-[#C9E6D0] focus:ring-[#C9E6D0]' : ''}`}
                                 />
-                                <p className={`text-xs flex items-center gap-1 ${brandForm.uidNumber && !/^CHE-\d{3}\.\d{3}\.\d{3}$/.test(brandForm.uidNumber) ? 'text-red-500' : brandForm.uidNumber ? 'text-green-600' : 'text-gray-400'}`}>
+                                <p className={`text-xs flex items-center gap-1 ${brandForm.uidNumber && !/^CHE-\d{3}\.\d{3}\.\d{3}$/.test(brandForm.uidNumber) ? 'text-[#C0392B]' : brandForm.uidNumber ? 'text-[#1A7F37]' : 'text-[#9B9B9B]'}`}>
                                     {brandForm.uidNumber && /^CHE-\d{3}\.\d{3}\.\d{3}$/.test(brandForm.uidNumber) ? (
                                         <><CheckCircle2 className="w-3 h-3" /> Format IDE valide</>
                                     ) : brandForm.uidNumber ? (
@@ -175,7 +175,7 @@ function SignupForm() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="email-brand" className="text-gray-700">Email professionnel *</Label>
+                                <Label htmlFor="email-brand" className="text-[#1A1A1A]">Email professionnel *</Label>
                                 <Input
                                     id="email-brand"
                                     type="email"
@@ -188,7 +188,7 @@ function SignupForm() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="password-brand" className="text-gray-700">Mot de passe *</Label>
+                                <Label htmlFor="password-brand" className="text-[#1A1A1A]">Mot de passe *</Label>
                                 <Input
                                     id="password-brand"
                                     type="password"
@@ -199,7 +199,7 @@ function SignupForm() {
                                     minLength={6}
                                     className={inputClass}
                                 />
-                                <p className="text-xs text-gray-400">Minimum 6 caractères</p>
+                                <p className="text-xs text-[#9B9B9B]">Minimum 6 caractères</p>
                             </div>
 
                             <Button className="w-full btn-primary" type="submit" disabled={isLoading}>
@@ -219,7 +219,7 @@ function SignupForm() {
                         <form className="space-y-4" onSubmit={handleCreatorSubmit}>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="firstname" className="text-gray-700">Prénom *</Label>
+                                    <Label htmlFor="firstname" className="text-[#1A1A1A]">Prénom *</Label>
                                     <Input
                                         id="firstname"
                                         value={creatorForm.firstName}
@@ -230,7 +230,7 @@ function SignupForm() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="lastname" className="text-gray-700">Nom *</Label>
+                                    <Label htmlFor="lastname" className="text-[#1A1A1A]">Nom *</Label>
                                     <Input
                                         id="lastname"
                                         value={creatorForm.lastName}
@@ -243,7 +243,7 @@ function SignupForm() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="email-creator" className="text-gray-700">Email *</Label>
+                                <Label htmlFor="email-creator" className="text-[#1A1A1A]">Email *</Label>
                                 <Input
                                     id="email-creator"
                                     type="email"
@@ -256,7 +256,7 @@ function SignupForm() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="password-creator" className="text-gray-700">Mot de passe *</Label>
+                                <Label htmlFor="password-creator" className="text-[#1A1A1A]">Mot de passe *</Label>
                                 <Input
                                     id="password-creator"
                                     type="password"
@@ -267,11 +267,11 @@ function SignupForm() {
                                     minLength={6}
                                     className={inputClass}
                                 />
-                                <p className="text-xs text-gray-400">Minimum 6 caractères</p>
+                                <p className="text-xs text-[#9B9B9B]">Minimum 6 caractères</p>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="canton" className="text-gray-700">Canton</Label>
+                                <Label htmlFor="canton" className="text-[#1A1A1A]">Canton</Label>
                                 <Input
                                     id="canton"
                                     value={creatorForm.canton}
@@ -282,7 +282,7 @@ function SignupForm() {
                             </div>
 
                             {creatorForm.inviteCode && (
-                                <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm">
+                                <div className="flex items-center gap-2 p-3 rounded-lg bg-[#E8F3EA] border border-[#C9E6D0] text-[#1A7F37] text-sm">
                                     <CheckCircle2 className="w-4 h-4 shrink-0" />
                                     <span>Invitation : <strong className="font-mono">{creatorForm.inviteCode.toUpperCase()}</strong></span>
                                 </div>
@@ -302,9 +302,9 @@ function SignupForm() {
                     </TabsContent>
                 </Tabs>
 
-                <div className="mt-6 text-center text-sm text-gray-400">
+                <div className="mt-6 text-center text-sm text-[#9B9B9B]">
                     Déjà un compte?{" "}
-                    <Link href="/login" className="text-red-500 font-medium hover:text-red-600">
+                    <Link href="/login" className="text-[#C0392B] font-medium hover:text-[#C0392B]">
                         Connexion
                     </Link>
                 </div>
@@ -315,10 +315,10 @@ function SignupForm() {
 
 export default function SignupPage() {
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-[#FAFAF9]">
             {/* Simple back link */}
             <div className="fixed top-6 left-6 z-50">
-                <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
+                <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors">
                     <ArrowLeft className="w-4 h-4" />
                     Retour
                 </Link>
@@ -326,7 +326,7 @@ export default function SignupPage() {
 
             <div className="flex items-center justify-center min-h-screen px-6">
                 <div className="w-full max-w-lg">
-                    <Suspense fallback={<div className="text-gray-500">Loading...</div>}>
+                    <Suspense fallback={<div className="text-[#6B6B6B]">Loading...</div>}>
                         <SignupForm />
                     </Suspense>
                 </div>
