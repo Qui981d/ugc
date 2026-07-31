@@ -44,6 +44,7 @@ import {
     sendScriptToBrand,
     sendMissionToCreator,
     acceptPriceCounter,
+    brandApproveVideo,
     type CampaignWithDetails,
     type CreatorWithProfile,
 } from '@/lib/services/adminService'
@@ -321,6 +322,20 @@ export default function AdminMissionDetailPage() {
             setActionError(result.error || 'Erreur lors de l\'acceptation du tarif')
         } else {
             setActionSuccess('Nouveau tarif accepté — contrat mis à jour')
+            setTimeout(() => setActionSuccess(null), 3000)
+        }
+        await loadData()
+        setActionLoading(false)
+    }
+
+    const handleApproveOnBehalf = async () => {
+        setActionLoading(true)
+        setActionError(null)
+        const result = await brandApproveVideo(campaignId)
+        if (!result.success) {
+            setActionError(result.error || 'Erreur lors de la validation')
+        } else {
+            setActionSuccess('Mission validée et clôturée')
             setTimeout(() => setActionSuccess(null), 3000)
         }
         await loadData()
@@ -1414,6 +1429,27 @@ export default function AdminMissionDetailPage() {
                                 <p className="text-[#8A6100] whitespace-pre-wrap">{campaign.brand_final_feedback}</p>
                             </div>
                         )}
+
+                        {/* MOSH runs the whole pipeline for managed clients, so the final
+                            sign-off has to be reachable here too — not only from the brand
+                            workspace. It is the same action, explicitly attributed. */}
+                        <div className="pt-3 border-t border-[#E2E2E1] space-y-2">
+                            <p className="text-[11px] uppercase tracking-wider text-[#9B9B9B] font-medium">
+                                Validation finale
+                            </p>
+                            <p className="text-[12px] text-[#6B6B6B]">
+                                La marque valide depuis son espace. Si vous gérez ce client, vous pouvez
+                                clore la mission en son nom.
+                            </p>
+                            <button
+                                onClick={handleApproveOnBehalf}
+                                disabled={actionLoading}
+                                className="px-4 py-2 bg-[#1A1A1A] text-white text-sm font-medium rounded-lg hover:bg-[#333333] transition-colors disabled:opacity-50 flex items-center gap-2"
+                            >
+                                {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" strokeWidth={2} />}
+                                Valider au nom de la marque
+                            </button>
+                        </div>
                     </div>
                 )}
             </motion.div>

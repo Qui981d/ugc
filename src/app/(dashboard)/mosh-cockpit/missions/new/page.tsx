@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Loader2, Film, Send, Building2 } from 'lucide-react'
-import { getAllCreators, createInternalMission, type CreatorWithProfile } from '@/lib/services/adminService'
+import { getAllCreators, getAllBrands, createInternalMission, type CreatorWithProfile, type BrandWithProfile } from '@/lib/services/adminService'
 import { createClient } from '@/lib/supabase/client'
 import type { VideoFormat, ScriptType } from '@/types/database'
 
@@ -32,6 +32,8 @@ function NewMissionForm() {
     const [brandName, setBrandName] = useState<string | null>(null)
     const [creators, setCreators] = useState<CreatorWithProfile[]>([])
     const [loadingCreators, setLoadingCreators] = useState(true)
+    const [brands, setBrands] = useState<BrandWithProfile[]>([])
+    const [loadingBrands, setLoadingBrands] = useState(true)
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -53,6 +55,7 @@ function NewMissionForm() {
         deliveryDate: '',
         deliveryDateFixed: false,
         clickupListId: '',
+        selectedBrandId: '',
     })
 
     useEffect(() => {
@@ -60,6 +63,14 @@ function NewMissionForm() {
             setCreators(list)
             setLoadingCreators(false)
         })
+        if (!brandId) {
+            getAllBrands().then(list => {
+                setBrands(list)
+                setLoadingBrands(false)
+            }).catch(() => setLoadingBrands(false))
+        } else {
+            setLoadingBrands(false)
+        }
         // Brand mode: prefill client + ClickUp list from the managed brand
         if (brandId) {
             const supabase = createClient()
@@ -93,7 +104,7 @@ function NewMissionForm() {
     const handleSubmit = async () => {
         setError(null)
 
-        if (!form.clientName.trim()) return setError('Le nom du client est requis.')
+        if (!brandId && !form.selectedBrandId) return setError('Sélectionnez la marque cliente.')
         if (!form.title.trim()) return setError('Le titre de la vidéo est requis.')
         if (!form.creatorId) return setError('Sélectionnez un créateur.')
         if (!form.scriptContent.trim()) return setError('Le script est requis.')
@@ -115,7 +126,7 @@ function NewMissionForm() {
             deliveryDateFixed: form.deliveryDateFixed,
             creatorId: form.creatorId,
             clickupListId: form.clickupListId || undefined,
-            brandId,
+            brandId: brandId || form.selectedBrandId,
         })
         setSubmitting(false)
 
@@ -160,8 +171,36 @@ function NewMissionForm() {
                                 <span className="ml-auto text-xs text-[#9B9B9B]">compte géré</span>
                             </div>
                         ) : (
-                            <input className={inputClass} value={form.clientName}
-                                onChange={e => set('clientName', e.target.value)} placeholder="Ex : Nightout SNC" />
+                            /* A real brand, not free text: the campaign's brand_id decides
+                               whether the client can ever see the mission in their space. */
+                            <select className={inputClass} value={form.selectedBrandId}
+                                onChange={e => {
+                                    const id = e.target.value
+                                    const b = brands.find(x => x.id === id)
+                                    setForm(f => ({
+                                        ...f,
+                                        selectedBrandId: id,
+                                        clientName: b?.profiles_brand?.company_name || b?.full_name || '',
+                                        clickupListId: (b?.profiles_brand as any)?.clickup_list_id || '',
+                                    }))
+                                }}
+                                disabled={loadingBrands}>
+                                <option value="">{loadingBrands ? 'Chargement…' : 'Sélectionnez une marque'}</option>
+                                {brands.map(b => (
+                                    <option key={b.id} value={b.id}>
+                                        {b.profiles_brand?.company_name || b.full_name}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
+                        {!brandId && !loadingBrands && brands.length === 0 && (
+                            <p className="text-xs text-[#8A6100] mt-1">
+                                Aucune marque enregistrée.{' '}
+                                <Link href="/mosh-cockpit/brands" className="underline font-medium">
+                                    Créez-en une
+                                </Link>{' '}
+                                pour que le client puisse suivre sa mission.
+                            </p>
                         )}
                     </div>
                     <div>
