@@ -12,14 +12,16 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { useNotifications } from "@/contexts/NotificationContext"
+import { useActingBrandStore } from "@/stores/useActingBrandStore"
 import Image from "next/image"
 import { getNotifications, type Notification } from "@/lib/services/notificationService"
 
 export function Header() {
     const router = useRouter()
+    const pathname = usePathname()
     const { user, profile, signOut } = useAuth()
     const { unreadCounts, markAsRead, markAllAsRead } = useNotifications()
     const [notifications, setNotifications] = useState<Notification[]>([])
@@ -95,15 +97,39 @@ export function Header() {
         }
     }
 
+    // Workspace context. An admin only counts as "acting" while they are actually
+    // inside the brand workspace — the stored brand alone would mislabel the cockpit.
+    const actingBrandName = useActingBrandStore((s) => s.brandName)
+    const isActingAsBrand = user?.role === 'admin' && !!actingBrandName && pathname.startsWith('/brand')
+    const contextLabel =
+        user?.role === 'admin' ? 'Espace MOSH'
+            : user?.role === 'brand' ? 'Espace marque'
+                : 'Espace créateur'
+
     // Determine base path based on user role
     const basePath = user?.role === 'brand' ? '/brand' : user?.role === 'admin' ? '/mosh-cockpit' : '/creator'
 
     return (
-        // Slim, opaque utility bar. Identity lives in the sidebar and the page
-        // title lives in PageHeader, so this only carries alerts and the account menu.
+        // Slim, opaque utility bar: workspace context on the left, alerts and the
+        // account menu on the right. The page title belongs to PageHeader.
         <header className="sticky top-0 z-30 h-14 bg-white border-b border-[#E2E2E1]">
-            <div className="h-full flex items-center justify-end px-4 md:px-6">
-                <div className="flex items-center gap-1">
+            <div className="h-full flex items-center justify-between gap-4 px-4 md:px-6">
+                {/* Which workspace you are in. It sits here rather than in the sidebar
+                    switcher so the wordmark can carry the brand on its own. */}
+                <span className="min-w-0 flex items-center gap-2 text-[13px] text-[#6B6B6B] truncate">
+                    {isActingAsBrand ? (
+                        <>
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#1A1A1A] shrink-0" />
+                            <span className="truncate">
+                                Espace de <strong className="font-semibold text-[#1A1A1A]">{actingBrandName}</strong>
+                            </span>
+                        </>
+                    ) : (
+                        <span className="truncate">{contextLabel}</span>
+                    )}
+                </span>
+
+                <div className="flex items-center gap-1 shrink-0">
                     {/* Notifications */}
                     {mounted ? (
                     <DropdownMenu onOpenChange={(open) => open && loadNotifications()}>

@@ -146,33 +146,28 @@ export function Sidebar({ role, userName, onExpandChange }: SidebarProps) {
                     {/* In MOSH's own space the workspace *is* the brand, so the wordmark
                         carries it — no monogram tile. Acting on a client's behalf inverts
                         the badge: reversing the fill is how a monochrome system says
-                        "this isn't you". */}
+                        "this isn't you". The context label lives in the top bar. */}
                     {isMoshOwnSpace ? (
-                        <MoshLogo className={`shrink-0 text-[#1A1A1A] ${expanded ? 'h-4 w-auto' : 'h-3 w-auto'}`} />
+                        <MoshLogo className={`shrink-0 text-[#1A1A1A] ${expanded ? 'h-[22px] w-auto' : 'h-4 w-auto'}`} />
                     ) : (
-                        <span className={`
-                            w-7 h-7 rounded-md shrink-0 grid place-items-center
-                            text-[11px] font-bold
-                            ${isActingAsBrand
-                                ? 'bg-white text-[#1A1A1A] ring-[1.5px] ring-[#1A1A1A]'
-                                : 'bg-[#1A1A1A] text-white'}
-                        `}>
-                            {workspaceInitial}
-                        </span>
-                    )}
-                    {expanded && (
-                        <span className="min-w-0 flex-1 text-left">
-                            {!isMoshOwnSpace && (
-                                <span className="block text-[13px] font-semibold text-[#1A1A1A] truncate leading-tight">
+                        <>
+                            <span className={`
+                                w-7 h-7 rounded-md shrink-0 grid place-items-center
+                                text-[11px] font-bold
+                                ${isActingAsBrand
+                                    ? 'bg-white text-[#1A1A1A] ring-[1.5px] ring-[#1A1A1A]'
+                                    : 'bg-[#1A1A1A] text-white'}
+                            `}>
+                                {workspaceInitial}
+                            </span>
+                            {expanded && (
+                                <span className="min-w-0 flex-1 text-[13px] font-semibold text-[#1A1A1A] truncate">
                                     {workspaceName}
                                 </span>
                             )}
-                            <span className="block text-[11px] text-[#9B9B9B] truncate leading-tight">
-                                {isActingAsBrand ? 'Piloté par MOSH' : ROLE_LABEL[role]}
-                            </span>
-                        </span>
+                        </>
                     )}
-                    {expanded && <ChevronsUpDown className="w-3.5 h-3.5 text-[#9B9B9B] shrink-0" strokeWidth={2} />}
+                    {expanded && <ChevronsUpDown className="w-3.5 h-3.5 text-[#9B9B9B] shrink-0 ml-auto" strokeWidth={2} />}
                 </Link>
             </div>
 

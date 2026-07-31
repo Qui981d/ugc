@@ -2,7 +2,6 @@
 
 import { ReactNode, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Eye } from 'lucide-react'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
 import { NotificationProvider } from '@/contexts/NotificationContext'
@@ -13,7 +12,7 @@ import { DashboardErrorBoundary } from '@/components/ui/error-boundary'
 
 export default function BrandDashboardLayout({ children }: { children: ReactNode }) {
     const { user, isLoading } = useAuth()
-    const { isActingAsBrand, actingBrandName, brandId, clearActing } = useCurrentBrand()
+    const { isActingAsBrand, actingBrandName } = useCurrentBrand()
     const router = useRouter()
     const [sidebarExpanded, setSidebarExpanded] = useState(true)
     const [mounted, setMounted] = useState(false)
@@ -35,12 +34,6 @@ export default function BrandDashboardLayout({ children }: { children: ReactNode
         return null
     }
 
-    const exitActingAs = () => {
-        const target = brandId
-        clearActing()
-        router.push(target ? `/mosh-cockpit/brands/${target}` : '/mosh-cockpit/brands')
-    }
-
     return (
         <NotificationProvider>
             <div className="min-h-screen bg-[#F2F2F1]">
@@ -50,22 +43,8 @@ export default function BrandDashboardLayout({ children }: { children: ReactNode
                     data-sidebar-expanded={sidebarExpanded}
                 >
                     <Header />
-                    {/* Impersonation notice: a thin, permanent strip. The sidebar carries
-                        the identity, so this only needs to state the fact and offer the exit. */}
-                    {isActingAsBrand && (
-                        <div className="sticky top-0 z-30 bg-[#EDEDEC] border-b border-[#1A1A1A]/20 px-4 md:px-8 py-1.5 flex items-center gap-2 text-[12px] text-[#333333]">
-                            <Eye className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
-                            <span className="min-w-0 truncate">
-                                Vous agissez au nom de <strong className="font-semibold">{actingBrandName || 'cette marque'}</strong>
-                            </span>
-                            <button
-                                onClick={exitActingAs}
-                                className="ml-auto shrink-0 font-medium underline underline-offset-2 hover:text-[#1A1A1A]"
-                            >
-                                Quitter
-                            </button>
-                        </div>
-                    )}
+                    {/* No impersonation strip: the top bar already names the workspace
+                        and the sidebar carries the way back, so a third notice was noise. */}
                     <main className="p-4 md:p-8 pt-20 pb-24 md:pb-8">
                         <DashboardErrorBoundary>
                             {children}
