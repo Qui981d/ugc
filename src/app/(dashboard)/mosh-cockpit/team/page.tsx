@@ -15,6 +15,8 @@ export default function TeamPage() {
     const [creating, setCreating] = useState(false)
     const [form, setForm] = useState({ fullName: '', email: '' })
     const [resetting, setResetting] = useState<string | null>(null)
+    const [testing, setTesting] = useState(false)
+    const [emailDiag, setEmailDiag] = useState<any>(null)
 
     const load = async () => {
         const list = await getAllAdmins()
@@ -23,6 +25,20 @@ export default function TeamPage() {
     }
 
     useEffect(() => { load() }, [])
+
+    // Notification mail is silent by design, so a misconfiguration is invisible.
+    // This surfaces the real SMTP answer instead of leaving it to the logs.
+    const handleTestEmail = async () => {
+        setTesting(true)
+        setEmailDiag(null)
+        try {
+            const res = await fetch('/api/email/test', { method: 'POST' })
+            setEmailDiag(await res.json())
+        } catch {
+            setEmailDiag({ ok: false, reason: 'Impossible de joindre le serveur.' })
+        }
+        setTesting(false)
+    }
 
     const handleCreate = async () => {
         if (!form.email.trim()) return
@@ -70,15 +86,46 @@ export default function TeamPage() {
                 title="Équipe"
                 description="Les membres de MOSH. Chacun reçoit les notifications de la plateforme, par email aussi."
                 actions={
-                    <button
-                        onClick={() => setShowAdd(true)}
-                        className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#1A1A1A] text-white rounded-lg text-[13px] font-medium hover:bg-[#333333] transition-colors"
-                    >
-                        <Plus className="w-4 h-4" strokeWidth={2.2} />
-                        Ajouter un collaborateur
-                    </button>
+                    <>
+                        <button
+                            onClick={handleTestEmail}
+                            disabled={testing}
+                            className="inline-flex items-center gap-1.5 px-3 h-9 bg-white border border-[#E2E2E1] text-[#1A1A1A] rounded-lg text-[13px] font-medium hover:bg-[#F4F4F3] transition-colors disabled:opacity-50"
+                        >
+                            {testing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" strokeWidth={1.8} />}
+                            Tester l&apos;envoi d&apos;email
+                        </button>
+                        <button
+                            onClick={() => setShowAdd(true)}
+                            className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#1A1A1A] text-white rounded-lg text-[13px] font-medium hover:bg-[#333333] transition-colors"
+                        >
+                            <Plus className="w-4 h-4" strokeWidth={2.2} />
+                            Ajouter un collaborateur
+                        </button>
+                    </>
                 }
             />
+
+            {emailDiag && (
+                <div className={`mb-4 rounded-xl border px-4 py-3 text-[13px] ${emailDiag.ok
+                    ? 'bg-[#E8F3EA] border-[#C9E6D0] text-[#1A7F37]'
+                    : 'bg-[#FBEAE8] border-[#F2CFCB] text-[#C0392B]'
+                    }`}>
+                    <p className="font-semibold">
+                        {emailDiag.ok ? `Email envoyé à ${emailDiag.to}` : "L'envoi a échoué"}
+                    </p>
+                    {!emailDiag.ok && emailDiag.reason && (
+                        <p className="mt-1 whitespace-pre-wrap">{emailDiag.reason}</p>
+                    )}
+                    {emailDiag.config && (
+                        <p className="mt-2 text-[11.5px] opacity-80">
+                            {emailDiag.config.host}:{emailDiag.config.port} · compte&nbsp;: {emailDiag.config.user || '—'}
+                            {' · '}mot de passe&nbsp;: {emailDiag.config.passwordSet ? 'défini' : 'manquant'}
+                            {' · '}clé service&nbsp;: {emailDiag.config.serviceKeySet ? 'définie' : 'manquante'}
+                        </p>
+                    )}
+                </div>
+            )}
 
             <div className="bg-white border border-[#E2E2E1] rounded-xl overflow-hidden">
                 {isLoading ? (
