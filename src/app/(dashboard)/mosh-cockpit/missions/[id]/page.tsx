@@ -9,6 +9,7 @@ import {
     FileText,
     Users,
     CheckCircle2,
+    LogIn,
     Send,
     Video,
     Shield,
@@ -44,12 +45,12 @@ import {
     sendScriptToBrand,
     sendMissionToCreator,
     acceptPriceCounter,
-    brandApproveVideo,
     type CampaignWithDetails,
     type CreatorWithProfile,
 } from '@/lib/services/adminService'
 import type { MissionStep, MissionStepType, CampaignContent, ContentStatus } from '@/types/database'
 import { WORKFLOW_STEPS as CENTRAL_STEPS, isStepCompletedOrPassed } from '@/lib/constants/workflowSteps'
+import { useActingBrandStore } from '@/stores/useActingBrandStore'
 import { createClient } from '@/lib/supabase/client'
 import { getCampaignContents, updateContentField } from '@/lib/services/campaignService'
 
@@ -73,6 +74,7 @@ const WORKFLOW_STEPS = CENTRAL_STEPS.map(s => ({
 export default function AdminMissionDetailPage() {
     const params = useParams()
     const router = useRouter()
+    const setActingBrand = useActingBrandStore((st) => st.setActingBrand)
     const campaignId = params.id as string
 
     const [campaign, setCampaign] = useState<CampaignWithDetails | null>(null)
@@ -328,18 +330,11 @@ export default function AdminMissionDetailPage() {
         setActionLoading(false)
     }
 
-    const handleApproveOnBehalf = async () => {
-        setActionLoading(true)
-        setActionError(null)
-        const result = await brandApproveVideo(campaignId)
-        if (!result.success) {
-            setActionError(result.error || 'Erreur lors de la validation')
-        } else {
-            setActionSuccess('Mission validée et clôturée')
-            setTimeout(() => setActionSuccess(null), 3000)
-        }
-        await loadData()
-        setActionLoading(false)
+    const handleOpenBrandWorkspace = () => {
+        const b = campaign?.brand
+        if (!b) return
+        setActingBrand(b.id, b.profiles_brand?.company_name || b.full_name)
+        router.push(`/brand/campaigns/${campaignId}`)
     }
 
     const handleProposeCreators = async () => {
@@ -1474,24 +1469,19 @@ export default function AdminMissionDetailPage() {
                             </div>
                         )}
 
-                        {/* MOSH runs the whole pipeline for managed clients, so the final
-                            sign-off has to be reachable here too — not only from the brand
-                            workspace. It is the same action, explicitly attributed. */}
+                        {/* The sign-off is a brand action and stays in the brand workspace —
+                            that separation is the point of "acting as". The cockpit only
+                            has to make the way there obvious. */}
                         <div className="pt-3 border-t border-[#E2E2E1] space-y-2">
-                            <p className="text-[11px] uppercase tracking-wider text-[#9B9B9B] font-medium">
-                                Validation finale
-                            </p>
                             <p className="text-[12px] text-[#6B6B6B]">
-                                La marque valide depuis son espace. Si vous gérez ce client, vous pouvez
-                                clore la mission en son nom.
+                                La validation finale se fait depuis l&apos;espace de la marque.
                             </p>
                             <button
-                                onClick={handleApproveOnBehalf}
-                                disabled={actionLoading}
-                                className="px-4 py-2 bg-[#1A1A1A] text-white text-sm font-medium rounded-lg hover:bg-[#333333] transition-colors disabled:opacity-50 flex items-center gap-2"
+                                onClick={handleOpenBrandWorkspace}
+                                className="px-4 py-2 bg-white border border-[#E2E2E1] text-[#1A1A1A] text-sm font-medium rounded-lg hover:bg-[#F4F4F3] transition-colors flex items-center gap-2"
                             >
-                                {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" strokeWidth={2} />}
-                                Valider au nom de la marque
+                                <LogIn className="w-4 h-4" strokeWidth={1.8} />
+                                Ouvrir l&apos;espace de {campaign.brand?.profiles_brand?.company_name || campaign.brand?.full_name || 'la marque'}
                             </button>
                         </div>
                     </div>
