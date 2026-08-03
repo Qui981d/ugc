@@ -31,6 +31,7 @@ import { getCampaignById } from '@/lib/services/campaignService'
 import { getMissionSteps, completeMissionStep } from '@/lib/services/adminService'
 import {
     brandSelectCreator,
+    brandApproveCreatorAndScript,
     brandRejectProfiles,
     brandApproveScript,
     brandFeedbackScript,
@@ -224,7 +225,9 @@ export default function BrandCampaignDetailPage() {
     // ---- Action handlers ----
     const handleSelectCreator = async (creatorId: string) => {
         setActionLoading(true)
-        const result = await brandSelectCreator(campaignId, creatorId)
+        const result = reviewsTogether
+            ? await brandApproveCreatorAndScript(campaignId, creatorId)
+            : await brandSelectCreator(campaignId, creatorId)
         if (result.success) {
             setConfirmCreatorId(null)
             await loadData()
@@ -336,6 +339,9 @@ export default function BrandCampaignDetailPage() {
     const needsProfileReview = isStepCompleted('brand_reviewing_profiles') && !isStepCompleted('creator_validated') && proposedCreators.length > 0
     const needsScriptReview = campaign.script_status === 'brand_review' && campaign.script_content
     const needsVideoReview = isStepCompleted('video_sent_to_brand') && !isStepCompleted('brand_final_approved') && campaign.status !== 'completed'
+    // When both land together the brand reviews them in one sitting, so we ask
+    // for a single decision instead of two round-trips.
+    const reviewsTogether = needsProfileReview && needsScriptReview
     const revisionCount = campaign.brand_revision_count || 0
 
     return (
@@ -606,14 +612,38 @@ export default function BrandCampaignDetailPage() {
                 >
                     <div className="flex items-center gap-2 mb-4">
                         <Users className="w-5 h-5 text-[#1A1A1A]" />
-                        <h3 className="text-lg font-semibold text-[#1A1A1A]">Choisissez votre créateur</h3>
+                        <h3 className="text-lg font-semibold text-[#1A1A1A]">
+                            {reviewsTogether ? 'Créateur et script à valider' : 'Choisissez votre créateur'}
+                        </h3>
                         <span className="ml-auto px-2 py-0.5 text-xs rounded-full bg-[#1A1A1A]/10 text-[#1A1A1A] font-medium">
                             Action requise
                         </span>
                     </div>
                     <p className="text-sm text-[#6B6B6B] mb-4">
-                        MOSH a sélectionné {proposedCreators.length} profil{proposedCreators.length > 1 ? 's' : ''} pour votre projet. Consultez-les et choisissez votre favori.
+                        MOSH a sélectionné {proposedCreators.length} profil{proposedCreators.length > 1 ? 's' : ''} pour votre projet
+                        {reviewsTogether
+                            ? ' et rédigé le script. Lisez le script, puis choisissez votre créateur : les deux seront validés en une fois.'
+                            : '. Consultez-les et choisissez votre favori.'}
                     </p>
+
+                    {reviewsTogether && campaign.script_content && (
+                        <div className="mb-5">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Pen className="w-4 h-4 text-[#6B6B6B]" />
+                                <span className="text-sm font-medium text-[#1A1A1A]">Script proposé</span>
+                            </div>
+                            <div className="bg-[#FAFAF9] border border-[#E2E2E1] rounded-lg p-4 max-h-64 overflow-y-auto">
+                                <p className="text-sm text-[#1A1A1A] whitespace-pre-wrap">{campaign.script_content}</p>
+                            </div>
+                            <button
+                                onClick={() => setShowScriptModal(true)}
+                                disabled={actionLoading}
+                                className="mt-2 text-sm text-[#6B6B6B] hover:text-[#1A1A1A] underline underline-offset-2 transition-colors disabled:opacity-50"
+                            >
+                                Demander une modification du script
+                            </button>
+                        </div>
+                    )}
                     <div className="grid gap-4 md:grid-cols-2">
                         {proposedCreators.map(c => (
                             <CreatorCard key={c.id} creator={c} onSelect={(id) => setConfirmCreatorId(id)} />
@@ -630,8 +660,9 @@ export default function BrandCampaignDetailPage() {
                 </motion.div>
             )}
 
-            {/* Script review action */}
-            {needsScriptReview && (
+            {/* Script review action — standalone only; when it arrives with the
+                profiles it is folded into the panel above. */}
+            {needsScriptReview && !reviewsTogether && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
                     className="bg-white border-2 border-[#1A1A1A]/30 rounded-lg p-6"
                 >
@@ -1117,9 +1148,14 @@ export default function BrandCampaignDetailPage() {
                                 <div className="w-14 h-14 rounded-lg bg-[#1A1A1A]/10 flex items-center justify-center mx-auto mb-4">
                                     <CheckCircle2 className="w-7 h-7 text-[#1A1A1A]" />
                                 </div>
-                                <h3 className="text-lg font-semibold text-[#1A1A1A]">Confirmer la sélection</h3>
+                                <h3 className="text-lg font-semibold text-[#1A1A1A]">
+                                    {reviewsTogether ? 'Valider le créateur et le script' : 'Confirmer la sélection'}
+                                </h3>
                                 <p className="text-sm text-[#6B6B6B] mt-2">
-                                    Êtes-vous sûr de vouloir sélectionner ce créateur ?<br />
+                                    {reviewsTogether
+                                        ? 'Ce créateur sera retenu et le script validé. La production démarre ensuite.'
+                                        : 'Êtes-vous sûr de vouloir sélectionner ce créateur ?'}
+                                    <br />
                                     <span className="text-[#8A6100] font-medium">Ce choix est définitif.</span>
                                 </p>
                             </div>

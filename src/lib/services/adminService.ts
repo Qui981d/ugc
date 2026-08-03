@@ -30,6 +30,7 @@ import {
     notifyAdminVideoDelivered,
     notifyAdminPriceCounter,
     notifyCreatorPriceAccepted,
+    createNotification,
 } from '@/lib/services/notificationService'
 
 // ================================================
@@ -1144,6 +1145,66 @@ export async function brandFeedbackScript(
 
     if (camp.assigned_admin_id) {
         await notifyScriptFeedback(camp.assigned_admin_id, campaignId, brandName, camp.title)
+    }
+
+    return { success: true }
+}
+
+/**
+ * Brand validates the proposed creator AND the script in a single decision.
+ *
+ * These used to be two separate round-trips, which added a wait in the middle of
+ * the same review: the brand was looking at both at once anyway. Kept as one
+ * function so the two writes and the admin notification stay consistent.
+ */
+export async function brandApproveCreatorAndScript(
+    campaignId: string,
+    creatorId: string
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+
+    const { data: campData } = await supabase
+        .from('campaigns')
+        .select('title, brand_id, assigned_admin_id')
+        .eq('id', campaignId)
+        .single()
+    const camp = campData as any
+    if (!camp) return { success: false, error: 'Mission introuvable' }
+
+    const [{ data: creatorData }, { data: brandData }] = await Promise.all([
+        supabase.from('users').select('full_name').eq('id', creatorId).single(),
+        supabase.from('users').select('full_name').eq('id', camp.brand_id).single(),
+    ])
+    const creatorName = (creatorData as any)?.full_name || 'Un créateur'
+    const brandName = (brandData as any)?.full_name || 'La marque'
+
+    const { error } = await (supabase.from('campaigns') as ReturnType<typeof supabase.from>)
+        .update({
+            selected_creator_id: creatorId,
+            status: 'in_progress',
+            brand_profile_selection_at: new Date().toISOString(),
+            brand_profile_rejection_reason: null,
+            script_status: 'brand_approved',
+            script_brand_approved_at: new Date().toISOString(),
+            script_brand_feedback: null,
+        })
+        .eq('id', campaignId)
+
+    if (error) return { success: false, error: error.message }
+
+    await completeMissionStep(campaignId, 'creator_validated')
+    await completeMissionStep(campaignId, 'script_brand_approved')
+
+    // One decision, one alert — two would just be noise.
+    if (camp.assigned_admin_id) {
+        await createNotification(
+            camp.assigned_admin_id,
+            'application_accepted',
+            'Créateur et script validés ✅',
+            `${brandName} a retenu ${creatorName} et validé le script de "${camp.title}". Production autorisée.`,
+            campaignId,
+            'campaign'
+        )
     }
 
     return { success: true }

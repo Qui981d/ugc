@@ -11,6 +11,13 @@ import type { Campaign } from '@/types/database'
 
 const TODO = '…'
 
+// The script is plain text everywhere it travels (editor, creator studio,
+// contracts), so hierarchy has to come from typography rather than styling:
+// a rule plus capitals for sections, an arrow and capitals for sub-sections.
+const RULE = '─'.repeat(52)
+const section = (n: number, label: string) => `${RULE}\n${n}. ${label.toUpperCase()}\n${RULE}`
+const sub = (label: string) => `➤ ${label.toUpperCase()}`
+
 const FORMAT_LABEL: Record<string, string> = {
     '9_16': '9:16 vertical',
     '1_1': '1:1 carré',
@@ -40,7 +47,7 @@ export function buildScriptTemplate(
 
     const context = [campaign.description, ...contentBriefs].filter(Boolean).join('\n\n') || TODO
 
-    return `1. Contexte & Objectif
+    return `${section(1, 'Contexte & objectif')}
 
 Client / enseigne : ${client}
 
@@ -53,13 +60,13 @@ ${TODO}
 Public cible :
 ${TODO}
 
-DATE DE TOURNAGE : ${shooting}${campaign.shooting_date_fixed ? ' (date impérative)' : ''}
-LIVRAISON : ${delivery}${campaign.delivery_date_fixed ? ' (date impérative)' : ''}
+DATE DE TOURNAGE : ${shooting}${campaign.shooting_date_fixed ? '  ⚠ IMPÉRATIVE' : ''}
+LIVRAISON : ${delivery}${campaign.delivery_date_fixed ? '  ⚠ IMPÉRATIVE' : ''}
 
 
-2. Stratégie & Concept Vidéo
+${section(2, 'Stratégie & concept vidéo')}
 
-➤ Angle & intention
+${sub('Angle & intention')}
 
 Message clé :
 ${TODO}
@@ -67,19 +74,19 @@ ${TODO}
 Ton attendu :
 ${TODO}
 
-➤ Concept de la vidéo
+${sub('Concept de la vidéo')}
 
 Idée globale :
 ${TODO}
 
-➤ Structure recommandée
+${sub('Structure recommandée')}
 
-Hooks suggérés
+HOOKS SUGGÉRÉS
 - ${TODO}
 - ${TODO}
 - ${TODO}
 
-Développement
+DÉVELOPPEMENT
 Arrivée / mise en situation :
 - ${TODO}
 
@@ -90,27 +97,27 @@ Plans suggérés :
 Contenu suggéré :
 « ${TODO} »
 
-Climax / moment clé
+CLIMAX / MOMENT CLÉ
 - ${TODO}
 
-Révélation + bénéfice
+RÉVÉLATION + BÉNÉFICE
 « ${TODO} »
 👉 valoriser :
 - ${TODO}
 
-Call-to-action
+CALL-TO-ACTION
 - ${TODO}
 
-➤ Cadre créatif
+${sub('Cadre créatif')}
 
-Do :
+DO :
 - ${TODO}
 
-Don't :
+DON'T :
 - ${TODO}
 
 
-3. Format & Contraintes Techniques
+${section(3, 'Format & contraintes techniques')}
 
 - ${format}
 - Durée : ${TODO}
@@ -118,7 +125,7 @@ Don't :
 - ${TODO}
 
 
-4. Assets & Branding
+${section(4, 'Assets & branding')}
 
 Sous-titres :
 - Police : ${TODO}
@@ -126,9 +133,9 @@ Sous-titres :
 - Ombre : ${TODO}
 
 
-5. Notes
+${section(5, 'Notes')}
 
-Points importants :
+POINTS IMPORTANTS :
 - ${TODO}
 `
 }
