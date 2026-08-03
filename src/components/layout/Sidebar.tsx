@@ -17,6 +17,7 @@ import {
     Wallet,
     ChevronsUpDown,
     ArrowLeftRight,
+    UserCog,
 } from "lucide-react"
 import { useNotifications } from "@/contexts/NotificationContext"
 import { useActingBrandStore } from "@/stores/useActingBrandStore"
@@ -74,6 +75,7 @@ const NAV: Record<SidebarProps['role'], NavGroup[]> = {
                 { icon: Users, label: "Créateurs", href: "/mosh-cockpit/creators", notifKey: null },
             ]
         },
+        { label: null, items: [{ icon: UserCog, label: "Équipe", href: "/mosh-cockpit/team", notifKey: null }] },
     ],
 }
 

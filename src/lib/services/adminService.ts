@@ -137,6 +137,22 @@ export async function getAllCreators(): Promise<CreatorWithProfile[]> {
 }
 
 /**
+ * Every MOSH teammate. Admin notifications fan out to all of them, so this list
+ * doubles as "who gets alerted".
+ */
+export async function getAllAdmins(): Promise<User[]> {
+    const supabase = createClient()
+    const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('role', 'admin')
+        .order('created_at', { ascending: true })
+
+    if (error || !data) return []
+    return data as unknown as User[]
+}
+
+/**
  * Get a single creator by ID with profile + mission history
  */
 export async function getCreatorById(userId: string): Promise<{

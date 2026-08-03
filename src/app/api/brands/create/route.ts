@@ -1,12 +1,18 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { randomBytes } from 'crypto'
+import { requireAdmin } from '@/lib/auth/requireAdmin'
 
 export const runtime = 'nodejs'
 
 // Creates a real, MOSH-controlled brand account (agency model).
 // Uses the Supabase service_role key so it never touches the admin's session.
 export async function POST(request: Request) {
+    // Service-role work: prove the caller is an admin from their session.
+    if (!(await requireAdmin())) {
+        return NextResponse.json({ error: 'Réservé aux administrateurs MOSH.' }, { status: 403 })
+    }
+
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
     if (!url || !serviceKey) {
