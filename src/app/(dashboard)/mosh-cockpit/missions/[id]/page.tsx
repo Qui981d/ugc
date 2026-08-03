@@ -51,6 +51,7 @@ import {
 import type { MissionStep, MissionStepType, CampaignContent, ContentStatus } from '@/types/database'
 import { WORKFLOW_STEPS as CENTRAL_STEPS, isStepCompletedOrPassed } from '@/lib/constants/workflowSteps'
 import { useActingBrandStore } from '@/stores/useActingBrandStore'
+import { buildScriptTemplate } from '@/lib/constants/scriptTemplate'
 import { createClient } from '@/lib/supabase/client'
 import { getCampaignContents, updateContentField } from '@/lib/services/campaignService'
 
@@ -191,11 +192,21 @@ export default function AdminMissionDetailPage() {
         setCampaign(found)
         setCreators(allCreators)
         setSteps(missionSteps)
-        if (found?.script_content) setScriptDraft(found.script_content)
         if (found?.admin_notes) setAdminNotes(found.admin_notes)
         // Load content blocks
         const contents = await getCampaignContents(campaignId)
         setCampaignContents(contents)
+
+        // Start from MOSH's brief structure rather than a blank field, but never
+        // overwrite work already saved.
+        if (found?.script_content) {
+            setScriptDraft(found.script_content)
+        } else if (found) {
+            setScriptDraft(buildScriptTemplate(
+                { ...found, brandName: found.brand?.profiles_brand?.company_name || found.brand?.full_name },
+                contents.map(c => c.description).filter(Boolean) as string[],
+            ))
+        }
         const drafts: Record<string, string> = {}
         contents.forEach(c => { if (c.script_content) drafts[c.id] = c.script_content })
         setContentScriptDrafts(prev => ({ ...prev, ...drafts }))
@@ -869,7 +880,7 @@ export default function AdminMissionDetailPage() {
                             value={scriptDraft}
                             onChange={(e) => setScriptDraft(e.target.value)}
                             placeholder="Rédigez le script ici..."
-                            rows={8}
+                            rows={20}
                             disabled={campaign.script_status === 'brand_review' || campaign.script_status === 'brand_approved'}
                             className="w-full bg-[#F4F4F3]/50 border border-[#E2E2E1] rounded-lg p-4 text-[#1A1A1A] text-sm placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#1A1A1A]/50 focus:ring-2 focus:ring-[#1A1A1A]/15 resize-y disabled:opacity-50"
                         />
@@ -882,6 +893,19 @@ export default function AdminMissionDetailPage() {
                                 >
                                     {aiLoading === 'script' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                                     Proposer script IA
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        if (scriptDraft.trim() && !confirm('Remplacer le contenu actuel par le modèle MOSH ?')) return
+                                        setScriptDraft(buildScriptTemplate(
+                                            { ...campaign, brandName: campaign.brand?.profiles_brand?.company_name || campaign.brand?.full_name },
+                                            campaignContents.map(c => c.description).filter(Boolean) as string[],
+                                        ))
+                                    }}
+                                    className="px-4 py-2 bg-white border border-[#E2E2E1] text-[#1A1A1A] rounded-lg hover:bg-[#F4F4F3] transition-colors flex items-center gap-2"
+                                >
+                                    <FileText className="w-4 h-4" strokeWidth={1.8} />
+                                    Modèle MOSH
                                 </button>
                                 <button
                                     onClick={() => handleSaveScript('draft')}
