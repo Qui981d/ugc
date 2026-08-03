@@ -1146,7 +1146,7 @@ export default function BrandCampaignDetailPage() {
                         >
                             <div className="text-center mb-6">
                                 <div className="w-14 h-14 rounded-lg bg-[#1A1A1A]/10 flex items-center justify-center mx-auto mb-4">
-                                    <CheckCircle2 className="w-7 h-7 text-[#1A1A1A]" />
+                                    <CheckCircle2 className="w-7 h-7 text-white" />
                                 </div>
                                 <h3 className="text-lg font-semibold text-[#1A1A1A]">
                                     {reviewsTogether ? 'Valider le créateur et le script' : 'Confirmer la sélection'}

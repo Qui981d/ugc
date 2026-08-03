@@ -292,17 +292,14 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
         >
             <div className="flex items-center gap-2.5 mb-3">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold ${isActive
-                    ? darkMode ? 'text-[#1A1A1A]' : 'bg-[#1A1A1A] text-white'
+                    ? darkMode ? 'bg-white text-[#1A1A1A]' : 'bg-[#1A1A1A] text-white'
                     : 'bg-black/[0.06] text-[#6B6B6B]'
                     }`}
-                    style={isActive && darkMode ? { backgroundColor: accentColor } : {}}
                 >{letter}</div>
                 <div className="min-w-0">
                     <p className={`text-xs font-semibold ${isActive && darkMode ? 'text-white' : 'text-[#1A1A1A]'}`}>{title}</p>
                     {isActive && !isMissionCompleted && (
-                        <p className={`text-[9px] font-medium flex items-center gap-1 ${darkMode ? '' : 'text-[#1A1A1A]'}`}
-                            style={darkMode ? { color: accentColor } : {}}
-                        >
+                        <p className={`text-[9px] font-medium flex items-center gap-1 ${darkMode ? 'text-white/70' : 'text-[#1A1A1A]'}`}>
                             <Sparkles className="w-2.5 h-2.5" />
                             {getTurnLabel(ownerSteps[0]?.owner || 'mosh')}
                         </p>
@@ -315,20 +312,16 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                     const isActiveStep = activeStep?.type === step.type
                     return (
                         <div key={step.type} className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] transition-all ${completed
-                            ? isActive && darkMode ? 'bg-white/10' : 'bg-black/[0.04] text-[#6B6B6B]'
+                            ? isActive && darkMode ? 'bg-white/10 text-white/75' : 'bg-black/[0.04] text-[#6B6B6B]'
                             : isActiveStep
-                                ? isActive && darkMode ? 'font-semibold' : 'bg-white text-[#1A1A1A] font-semibold shadow-sm border border-[#E2E2E1]'
-                                : isActive && darkMode ? 'text-white/30' : 'text-[#9B9B9B]'
+                                ? isActive && darkMode ? 'bg-white/15 text-white font-semibold' : 'bg-white text-[#1A1A1A] font-semibold shadow-sm border border-[#E2E2E1]'
+                                : isActive && darkMode ? 'text-white/40' : 'text-[#9B9B9B]'
                             }`}
-                            style={completed && isActive && darkMode ? { color: accentColor } :
-                                isActiveStep && isActive && darkMode ? { color: accentColor, backgroundColor: `${accentColor}15` } : {}}
                         >
                             {completed ? (
-                                <CheckCircle2 className={`w-3 h-3 shrink-0 ${isActive && darkMode ? '' : 'text-[#6B6B6B]'}`}
-                                    style={isActive && darkMode ? { color: accentColor } : {}} />
+                                <CheckCircle2 className={`w-3 h-3 shrink-0 ${isActive && darkMode ? 'text-white/75' : 'text-[#6B6B6B]'}`} />
                             ) : isActiveStep ? (
-                                <div className="w-3 h-3 rounded-full border-2 shrink-0 animate-pulse"
-                                    style={isActive && darkMode ? { borderColor: accentColor } : { borderColor: '#1A1A1A' }} />
+                                <div className={`w-3 h-3 rounded-full border-2 shrink-0 animate-pulse ${isActive && darkMode ? 'border-white' : 'border-[#1A1A1A]'}`} />
                             ) : (
                                 <div className={`w-3 h-3 rounded-full border shrink-0 ${isActive && darkMode ? 'border-white/20' : 'border-black/10'}`} />
                             )}
@@ -373,7 +366,7 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                             >
                                 <div className="flex items-center gap-3 min-w-0">
                                     <div className="w-9 h-9 rounded-lg bg-[#1A1A1A] flex items-center justify-center flex-shrink-0">
-                                        <FileText className="w-4 h-4 text-[#1A1A1A]" />
+                                        <FileText className="w-4 h-4 text-white" />
                                     </div>
                                     <div className="min-w-0 text-left">
                                         <p className="text-sm font-semibold text-[#1A1A1A] truncate">{selectedCampaign.title}</p>
@@ -448,7 +441,7 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                     <div className="px-6 py-4 border-b border-[#E2E2E1] flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
                             <div className="w-7 h-7 rounded-lg bg-[#1A1A1A] flex items-center justify-center">
-                                <Shield className="w-3.5 h-3.5 text-[#1A1A1A]" />
+                                <Shield className="w-3.5 h-3.5 text-white" />
                             </div>
                             <div>
                                 <h3 className="text-sm font-semibold text-[#1A1A1A] tracking-tight">Pipeline</h3>
@@ -517,7 +510,7 @@ export default function MissionWorkflowPanel({ userRole }: MissionWorkflowPanelP
                     {/* Chat header */}
                     <div className="px-5 py-4 border-b border-[#E2E2E1] flex items-center gap-2.5 flex-shrink-0">
                         <div className="w-7 h-7 rounded-lg bg-[#1A1A1A] flex items-center justify-center">
-                            <MessageSquare className="w-3.5 h-3.5 text-[#1A1A1A]" />
+                            <MessageSquare className="w-3.5 h-3.5 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
                             <h3 className="text-sm font-semibold text-[#1A1A1A] tracking-tight">Échanges</h3>

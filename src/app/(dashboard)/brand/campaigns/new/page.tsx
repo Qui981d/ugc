@@ -967,7 +967,7 @@ export default function NewCampaignPage() {
                             <div className="p-6 pb-0">
                                 <div className="flex items-center gap-3 mb-1">
                                     <div className="w-10 h-10 rounded-lg bg-[#1A1A1A] flex items-center justify-center">
-                                        <FileSignature className="w-5 h-5 text-[#1A1A1A]" />
+                                        <FileSignature className="w-5 h-5 text-white" />
                                     </div>
                                     <div>
                                         <h3 className="text-lg font-bold text-[#1A1A1A]">Signature du devis</h3>

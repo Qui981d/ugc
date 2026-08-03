@@ -126,7 +126,7 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                         transition={{ type: 'spring', stiffness: 200, damping: 15 }}
                         className="w-16 h-16 rounded-lg bg-[#1A1A1A] flex items-center justify-center mx-auto mb-4"
                     >
-                        <span className="text-2xl font-black text-[#1A1A1A]">M</span>
+                        <span className="text-2xl font-black text-white">M</span>
                     </motion.div>
                     <h1 className="text-[28px] font-semibold text-[#1A1A1A] tracking-[-0.02em]">
                         Bienvenue, {userName.split(' ')[0]} ! 👋

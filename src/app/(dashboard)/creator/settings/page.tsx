@@ -189,7 +189,7 @@ export default function CreatorSettingsPage() {
                                     )}
                                 </div>
                                 <button className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-[#1A1A1A] flex items-center justify-center">
-                                    <Camera className="w-4 h-4 text-[#1A1A1A]" />
+                                    <Camera className="w-4 h-4 text-white" />
                                 </button>
                             </div>
                             <div>
