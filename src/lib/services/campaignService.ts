@@ -140,6 +140,11 @@ export async function createCampaign(campaignData: {
     rights_usage?: RightsUsageType
     budget_chf: number
     deadline?: string
+    /** Whether the delivery date is imposed rather than indicative. */
+    delivery_date_fixed?: boolean
+    /** Shooting schedule — MOSH sets this when briefing on a client's behalf. */
+    shooting_date?: string
+    shooting_date_fixed?: boolean
     status?: CampaignStatus
     pricing_pack?: PricingPack
     brief_image_urls?: string[]

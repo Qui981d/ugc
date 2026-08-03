@@ -636,6 +636,28 @@ export default function AdminMissionDetailPage() {
                         <p className="text-[#9B9B9B] mb-1">Droits d&apos;usage</p>
                         <p className="text-[#1A1A1A]">{campaign.rights_usage}</p>
                     </div>
+                    {campaign.shooting_date && (
+                        <div>
+                            <p className="text-[#9B9B9B] mb-1">Tournage</p>
+                            <p className="text-[#1A1A1A]">
+                                {new Date(campaign.shooting_date).toLocaleDateString('fr-CH')}
+                                {campaign.shooting_date_fixed && (
+                                    <span className="ml-1.5 text-[11px] font-semibold text-[#8A6100]">impérative</span>
+                                )}
+                            </p>
+                        </div>
+                    )}
+                    {campaign.deadline && (
+                        <div>
+                            <p className="text-[#9B9B9B] mb-1">Livraison</p>
+                            <p className="text-[#1A1A1A]">
+                                {new Date(campaign.deadline).toLocaleDateString('fr-CH')}
+                                {campaign.delivery_date_fixed && (
+                                    <span className="ml-1.5 text-[11px] font-semibold text-[#8A6100]">impérative</span>
+                                )}
+                            </p>
+                        </div>
+                    )}
                     {campaign.description && (
                         <div className="col-span-2">
                             <p className="text-[#9B9B9B] mb-1">Description</p>
@@ -646,6 +668,28 @@ export default function AdminMissionDetailPage() {
                         <div className="col-span-2">
                             <p className="text-[#9B9B9B] mb-1">Description du produit</p>
                             <p className="text-[#1A1A1A] whitespace-pre-wrap">{campaign.product_description}</p>
+                        </div>
+                    )}
+                    {/* The brand also writes a detailed brief per content. It used to live
+                        only inside the collapsed content accordion, so it read as missing —
+                        surface it with the rest of what the brand asked for. */}
+                    {campaignContents.some(c => c.description) && (
+                        <div className="col-span-2">
+                            <p className="text-[#9B9B9B] mb-1">
+                                Description détaillée{campaignContents.length > 1 ? ' par contenu' : ''}
+                            </p>
+                            <div className="space-y-2">
+                                {campaignContents.filter(c => c.description).map((c, i) => (
+                                    <div key={c.id} className="bg-[#F4F4F3] rounded-lg px-3 py-2">
+                                        {campaignContents.length > 1 && (
+                                            <p className="text-[11px] text-[#9B9B9B] mb-0.5">
+                                                Contenu {i + 1} — {c.script_type}
+                                            </p>
+                                        )}
+                                        <p className="text-[#1A1A1A] whitespace-pre-wrap">{c.description}</p>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
                 </div>

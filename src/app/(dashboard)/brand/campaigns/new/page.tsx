@@ -120,7 +120,7 @@ function createEmptyBlock(): ContentBlock {
 
 export default function NewCampaignPage() {
     const router = useRouter()
-    const { brandId } = useCurrentBrand()
+    const { brandId, isActingAsBrand } = useCurrentBrand()
     const [step, setStep] = useState(1)
     const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -130,6 +130,9 @@ export default function NewCampaignPage() {
         productName: '',
         description: '',
         deadline: '',
+        deliveryDateFixed: false,
+        shootingDate: '',
+        shootingDateFixed: false,
     })
     const [briefImages, setBriefImages] = useState<File[]>([])
     const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([])
@@ -300,6 +303,9 @@ export default function NewCampaignPage() {
                 script_type: (contentBlocks[0]?.scriptType || 'testimonial') as any,
                 budget_chf: PRICING_TIERS.find(t => t.id === selectedPlan)?.getPrice(contentBlocks.length) || 0,
                 deadline: campaign.deadline || undefined,
+                delivery_date_fixed: campaign.deliveryDateFixed,
+                shooting_date: campaign.shootingDate || undefined,
+                shooting_date_fixed: campaign.shootingDateFixed,
                 status: 'draft' as const,
                 pricing_pack: selectedPlan,
                 brief_image_urls: briefImageUrls,
@@ -728,18 +734,58 @@ export default function NewCampaignPage() {
                             </div>
                         </div>
 
-                        {/* Deadline */}
-                        <div className="mt-6">
-                            <label className="block text-sm text-[#6B6B6B] mb-2">Date souhaitée de livraison</label>
-                            <div className="relative">
-                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9B9B9B]" />
-                                <input
-                                    type="date"
-                                    value={campaign.deadline}
-                                    onChange={(e) => setCampaign({ ...campaign, deadline: e.target.value })}
-                                    className="w-full bg-[#FAFAF9] border border-[#E2E2E1] rounded-lg pl-10 pr-4 py-3 text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 [color-scheme:dark]"
-                                />
+                        {/* Dates. The brand states when it wants delivery and whether that
+                            date is firm. MOSH, briefing on the client's behalf, also plans
+                            the shoot — a scheduling decision the brand doesn't make. */}
+                        <div className={`mt-6 grid gap-6 ${isActingAsBrand ? 'sm:grid-cols-2' : ''}`}>
+                            <div>
+                                <label className="block text-sm text-[#6B6B6B] mb-2">Date souhaitée de livraison</label>
+                                <div className="relative">
+                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9B9B9B]" />
+                                    <input
+                                        type="date"
+                                        value={campaign.deadline}
+                                        onChange={(e) => setCampaign({ ...campaign, deadline: e.target.value })}
+                                        className="w-full bg-[#FAFAF9] border border-[#E2E2E1] rounded-lg pl-10 pr-4 py-3 text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15"
+                                    />
+                                </div>
+                                <label className="flex items-center gap-2 mt-2 text-sm text-[#6B6B6B] cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={campaign.deliveryDateFixed}
+                                        onChange={(e) => setCampaign({ ...campaign, deliveryDateFixed: e.target.checked })}
+                                        className="accent-[#1A1A1A]"
+                                    />
+                                    Date impérative (non négociable)
+                                </label>
                             </div>
+
+                            {isActingAsBrand && (
+                                <div>
+                                    <label className="block text-sm text-[#6B6B6B] mb-2">
+                                        Date de tournage
+                                        <span className="ml-1.5 text-[11px] text-[#9B9B9B]">— MOSH</span>
+                                    </label>
+                                    <div className="relative">
+                                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9B9B9B]" />
+                                        <input
+                                            type="date"
+                                            value={campaign.shootingDate}
+                                            onChange={(e) => setCampaign({ ...campaign, shootingDate: e.target.value })}
+                                            className="w-full bg-[#FAFAF9] border border-[#E2E2E1] rounded-lg pl-10 pr-4 py-3 text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15"
+                                        />
+                                    </div>
+                                    <label className="flex items-center gap-2 mt-2 text-sm text-[#6B6B6B] cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={campaign.shootingDateFixed}
+                                            onChange={(e) => setCampaign({ ...campaign, shootingDateFixed: e.target.checked })}
+                                            className="accent-[#1A1A1A]"
+                                        />
+                                        Date impérative (non négociable)
+                                    </label>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}

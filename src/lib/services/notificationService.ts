@@ -155,6 +155,15 @@ export async function createNotification(
         return false
     }
 
+    // Mirror it to email. Best-effort and non-blocking: the in-app notification
+    // is the source of truth, mail is a courtesy. The route resolves the address
+    // and silently skips recipients without a real one (managed brands).
+    void fetch('/api/email/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, title, message, referenceId, referenceType }),
+    }).catch(() => { })
+
     return true
 }
 
