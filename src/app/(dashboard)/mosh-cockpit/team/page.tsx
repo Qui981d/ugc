@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { Plus, X, Loader2, Users, Mail } from 'lucide-react'
 import { toast } from 'sonner'
 import { getAllAdmins } from '@/lib/services/adminService'
-import { createClient } from '@/lib/supabase/client'
 import { PageHeader, EmptyState } from '@/components/ui/workspace'
 import type { User } from '@/types/database'
 
@@ -40,6 +39,26 @@ export default function TeamPage() {
         setTesting(false)
     }
 
+    // No password is ever shown or transported: the teammate sets their own.
+    // Routed through our own endpoint so the mail is MOSH-branded and in French,
+    // rather than Supabase's default English "Reset Password" notice.
+    const sendReset = async (email: string, isNew = false) => {
+        setResetting(email)
+        try {
+            const res = await fetch('/api/team/invite', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, isNew }),
+            })
+            const data = await res.json()
+            if (res.ok) toast.success(`Accès envoyé à ${email}`)
+            else toast.error(data.error || "L'envoi a échoué")
+        } catch {
+            toast.error('Erreur réseau')
+        }
+        setResetting(null)
+    }
+
     const handleCreate = async () => {
         if (!form.email.trim()) return
         setCreating(true)
@@ -51,12 +70,14 @@ export default function TeamPage() {
             })
             const data = await res.json()
             if (res.ok) {
-                toast.success('Collaborateur ajouté', {
-                    description: 'Envoyez-lui le lien « mot de passe oublié » pour qu\'il définisse le sien.',
-                })
+                toast.success('Collaborateur ajouté')
+                const invited = form.email.trim()
                 setShowAdd(false)
                 setForm({ fullName: '', email: '' })
                 await load()
+                // The account is unusable until they can sign in, so don't make
+                // sending the access a second thing to remember.
+                await sendReset(invited, true)
             } else {
                 toast.error(data.error || 'Échec de la création')
             }
@@ -64,18 +85,6 @@ export default function TeamPage() {
             toast.error('Erreur réseau')
         }
         setCreating(false)
-    }
-
-    // No password is ever shown or transported: the teammate sets their own.
-    const sendReset = async (email: string) => {
-        setResetting(email)
-        const supabase = createClient()
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}/login`,
-        })
-        setResetting(null)
-        if (error) toast.error(error.message)
-        else toast.success('Email de définition du mot de passe envoyé')
     }
 
     const inputClass = 'w-full px-3 h-9 bg-white border border-[#E2E2E1] rounded-lg text-[13px] text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#1A1A1A] focus:ring-2 focus:ring-[#1A1A1A]/15'
