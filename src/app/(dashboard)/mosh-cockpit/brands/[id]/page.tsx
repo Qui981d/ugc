@@ -8,9 +8,11 @@ import {
     ExternalLink,
     FileText,
     LogIn,
+    Loader2,
 } from 'lucide-react'
 import { getBrandById, type BrandWithProfile, type CampaignWithDetails } from '@/lib/services/adminService'
 import { useActingBrandStore } from '@/stores/useActingBrandStore'
+import { createClient } from '@/lib/supabase/client'
 import { PageHeader, MetricStrip, Panel, StatusPill, EmptyState } from '@/components/ui/workspace'
 
 const STATUS_LABELS: Record<string, { label: string; tone: 'progress' | 'waiting' | 'done' | 'idle' | 'alert' }> = {
@@ -39,16 +41,34 @@ export default function BrandDetailPage() {
     const [brand, setBrand] = useState<BrandWithProfile | null>(null)
     const [campaigns, setCampaigns] = useState<CampaignWithDetails[]>([])
     const [isLoading, setIsLoading] = useState(true)
+    const [clickupGroups, setClickupGroups] = useState<{ folder: string; lists: { id: string; name: string }[] }[]>([])
+    const [clickupListId, setClickupListId] = useState('')
+    const [savingClickup, setSavingClickup] = useState(false)
 
     useEffect(() => {
         async function load() {
             const result = await getBrandById(brandId)
             setBrand(result.brand)
             setCampaigns(result.campaigns)
+            setClickupListId(result.brand?.profiles_brand?.clickup_list_id || '')
             setIsLoading(false)
+            fetch('/api/clickup/lists')
+                .then(r => r.json())
+                .then(d => setClickupGroups(d.groups || []))
+                .catch(() => { })
         }
         load()
     }, [brandId])
+
+    const saveClickupList = async (value: string) => {
+        setSavingClickup(true)
+        setClickupListId(value)
+        const supabase = createClient()
+        await (supabase.from('profiles_brand') as ReturnType<typeof supabase.from>)
+            .update({ clickup_list_id: value || null })
+            .eq('user_id', brandId)
+        setSavingClickup(false)
+    }
 
     if (isLoading) {
         return (
@@ -170,6 +190,42 @@ export default function BrandDetailPage() {
                             </div>
                         )}
                     </div>
+                </Panel>
+
+                {/* Where this client's briefs land. Without it, a brief arrives in
+                    MOSH but creates nothing in ClickUp — worth stating plainly. */}
+                <Panel title="Espace ClickUp" padded>
+                    <p className="text-[12px] text-[#6B6B6B] mb-2">
+                        Les briefs de cette marque créeront une carte dans cette liste.
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <select
+                            value={clickupListId}
+                            onChange={(e) => saveClickupList(e.target.value)}
+                            disabled={savingClickup || clickupGroups.length === 0}
+                            className="h-9 px-3 bg-white border border-[#E2E2E1] rounded-lg text-[13px] text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] disabled:opacity-50 min-w-[240px]"
+                        >
+                            <option value="">Aucune liste — pas de synchronisation</option>
+                            {clickupGroups.map(g => (
+                                <optgroup key={g.folder} label={g.folder}>
+                                    {g.lists.map(l => (
+                                        <option key={l.id} value={l.id}>{g.folder} — {l.name}</option>
+                                    ))}
+                                </optgroup>
+                            ))}
+                        </select>
+                        {savingClickup && <Loader2 className="w-4 h-4 animate-spin text-[#9B9B9B]" />}
+                    </div>
+                    {clickupGroups.length === 0 && (
+                        <p className="text-[12px] text-[#8A6100] mt-2">
+                            ClickUp n&apos;est pas connecté (jeton absent), la liste ne peut pas être choisie.
+                        </p>
+                    )}
+                    {!clickupListId && clickupGroups.length > 0 && (
+                        <p className="text-[12px] text-[#8A6100] mt-2">
+                            Aucune liste : les briefs de cette marque n&apos;apparaîtront pas dans ClickUp.
+                        </p>
+                    )}
                 </Panel>
             </div>
 

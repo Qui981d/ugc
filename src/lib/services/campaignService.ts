@@ -167,13 +167,50 @@ export async function createCampaign(campaignData: {
 
     const campaign = data as Campaign
 
+    // Which client filed this brief is not guesswork: the campaign carries
+    // brand_id, and the brand's profile carries its ClickUp list.
+    const { data: brandProfile } = await supabase
+        .from('profiles_brand')
+        .select('company_name, clickup_list_id')
+        .eq('user_id', brandId || user.id)
+        .single()
+    const profile = brandProfile as { company_name?: string; clickup_list_id?: string | null } | null
+    const brandLabel = profile?.company_name || user.user_metadata?.full_name || user.email || 'Une marque'
+
     // Notify all admin users about the new brief
     try {
         const { notifyAdminNewBrief } = await import('@/lib/services/notificationService')
-        const brandName = user.user_metadata?.full_name || user.email || 'Une marque'
-        await notifyAdminNewBrief(campaign.id, campaign.title, brandName)
+        await notifyAdminNewBrief(campaign.id, campaign.title, brandLabel)
     } catch {
         // Non-blocking — don't fail campaign creation if notification fails
+    }
+
+    // Mirror the brief into the client's ClickUp space. Best-effort: a brief must
+    // never fail to reach MOSH because ClickUp is down or unconfigured.
+    if (profile?.clickup_list_id) {
+        try {
+            const res = await fetch('/api/clickup/create-mission', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    listId: profile.clickup_list_id,
+                    title: `${brandLabel} — ${campaign.title}`,
+                    description: campaign.description || '',
+                }),
+            })
+            if (res.ok) {
+                const cu = await res.json()
+                await (supabase.from('campaigns') as ReturnType<typeof supabase.from>)
+                    .update({
+                        clickup_list_id: profile.clickup_list_id,
+                        clickup_task_id: cu.taskId,
+                        clickup_subtask_map: cu.subtaskMap,
+                    })
+                    .eq('id', campaign.id)
+            }
+        } catch (e) {
+            console.error('ClickUp card creation failed for brief:', e)
+        }
     }
 
     return { campaign }
