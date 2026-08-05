@@ -215,9 +215,27 @@ export default function NewCampaignPage() {
         return Object.keys(errs).length === 0
     }
 
-    const handleNextStep = () => {
-        if (validateStep(step)) setStep(step + 1)
+    // With a single content, "one creator for everything" and "one per video"
+    // describe the same thing, so that step is dropped rather than asked.
+    const singleContent = contentBlocks.length <= 1
+    const stepIds = singleContent ? [1, 2, 4] : [1, 2, 3, 4]
+    const stepIndex = Math.max(0, stepIds.indexOf(step))
+    const isLastStep = step === stepIds[stepIds.length - 1]
+
+    const goToStep = (delta: number) => {
+        const next = stepIds[stepIndex + delta]
+        if (next) setStep(next)
     }
+
+    const handleNextStep = () => {
+        if (validateStep(step)) goToStep(1)
+    }
+
+    // Removing content blocks while standing on the creator step would strand
+    // the user on a page that no longer exists.
+    useEffect(() => {
+        if (singleContent && step === 3) setStep(4)
+    }, [singleContent, step])
 
     // ── Specialties ─────────────────────────────────
     const toggleSpecialty = (specialty: string) => {
@@ -309,7 +327,9 @@ export default function NewCampaignPage() {
                 status: 'draft' as const,
                 pricing_pack: selectedPlan,
                 brief_image_urls: briefImageUrls,
-                creator_preference: creatorPreference,
+                // A restored draft may still say 'per_video' after the blocks were
+                // trimmed back to one; the content count is the source of truth.
+                creator_preference: contentBlocks.length <= 1 ? 'single' : creatorPreference,
                 quote_number: quoteNumber,
                 quote_signed_at: new Date().toISOString(),
                 quote_signer_ip: signerIp,
@@ -373,18 +393,18 @@ export default function NewCampaignPage() {
 
             {/* Progress Steps */}
             <div className="flex items-center gap-2">
-                {[1, 2, 3, 4].map(s => (
+                {stepIds.map((s, i) => (
                     <div key={s} className="flex items-center gap-2 flex-1">
                         <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium transition-all flex-shrink-0 ${step >= s
                             ? 'bg-[#1A1A1A] text-white'
                             : 'bg-[#F4F4F3] text-[#9B9B9B]'
                             }`}>
-                            {step > s ? <CheckCircle2 className="w-3.5 h-3.5" /> : s}
+                            {step > s ? <CheckCircle2 className="w-3.5 h-3.5" /> : i + 1}
                         </div>
                         <span className={`text-xs whitespace-nowrap ${step >= s ? 'text-[#1A1A1A]' : 'text-[#9B9B9B]'}`}>
                             {s === 1 ? 'Détails' : s === 2 ? 'Contenus' : s === 3 ? 'Créateurs' : 'Offre'}
                         </span>
-                        {s < 4 && <div className={`flex-1 h-px ${step > s ? 'bg-[#1A1A1A]' : 'bg-[#F4F4F3]'}`} />}
+                        {i < stepIds.length - 1 && <div className={`flex-1 h-px ${step > s ? 'bg-[#1A1A1A]' : 'bg-[#F4F4F3]'}`} />}
                     </div>
                 ))}
             </div>
@@ -917,7 +937,7 @@ export default function NewCampaignPage() {
                     {step > 1 ? (
                         <Button
                             variant="ghost"
-                            onClick={() => setStep(step - 1)}
+                            onClick={() => goToStep(-1)}
                             className="text-[#6B6B6B] hover:text-[#1A1A1A] hover:bg-[#F4F4F3]"
                         >
                             Retour
@@ -926,7 +946,7 @@ export default function NewCampaignPage() {
                         <div />
                     )}
 
-                    {step < 4 ? (
+                    {!isLastStep ? (
                         <Button
                             className="btn-primary"
                             onClick={handleNextStep}
