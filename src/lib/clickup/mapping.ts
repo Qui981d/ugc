@@ -4,20 +4,18 @@
 
 // The subtasks created under every mission card, in order.
 export const CLICKUP_SUBTASKS = [
-    'Contact Enseigne',
-    'Brief',
-    'Recherche UGC',
+    'Rédaction script',
     'Gestion UGC',
     'Livraison vidéo',
-    'À programmer dans SP',
 ] as const
 
-// App mission step (MissionStepType) → the ClickUp subtask it should complete.
-// Adjust freely: keys are app steps, values must match CLICKUP_SUBTASKS names.
+// App mission step (MissionStepType) → the ClickUp subtask it completes.
+// Each subtask ticks at the moment that stage is genuinely finished:
+// the script once the brand has approved it, the creator management once the
+// contract is signed, the delivery once the video reaches the client.
+// Adjust freely — values must match CLICKUP_SUBTASKS names.
 export const STEP_TO_SUBTASK: Record<string, string> = {
-    script_brand_approved: 'Brief',
-    mission_sent_to_creator: 'Recherche UGC',
+    script_brand_approved: 'Rédaction script',
     contract_signed: 'Gestion UGC',
-    video_uploaded_by_creator: 'Livraison vidéo',
-    brand_final_approved: 'À programmer dans SP',
+    video_sent_to_brand: 'Livraison vidéo',
 }
