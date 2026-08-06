@@ -1052,12 +1052,18 @@ export default function NewCampaignPage() {
                                         }`}
                                         onClick={() => setAcceptedTerms(!acceptedTerms)}
                                     >
-                                        {acceptedTerms && <Check className="w-3.5 h-3.5 text-[#1A1A1A]" />}
+                                        {acceptedTerms && <Check className="w-3.5 h-3.5 text-white" />}
                                     </div>
                                     <span className="text-sm text-[#1A1A1A]">
                                         J&apos;accepte les conditions générales et je confirme cette commande
                                     </span>
                                 </label>
+
+                                {/* Signing is the submission; saying so avoids the brief
+                                    appearing "sent" without the sender realising they sent it. */}
+                                <p className="text-xs text-[#6B6B6B]">
+                                    En signant, votre brief est transmis à MOSH et la mission démarre.
+                                </p>
                             </div>
 
                             {/* Actions */}
@@ -1072,7 +1078,10 @@ export default function NewCampaignPage() {
                                 </Button>
                                 <Button
                                     className="flex-1 btn-primary"
-                                    onClick={() => { handleSubmit(); setShowQuoteModal(false) }}
+                                    // Awaited, and the modal stays up until it resolves:
+                                    // closing first hid the progress state and left any
+                                    // failure without context.
+                                    onClick={async () => { await handleSubmit() }}
                                     disabled={!acceptedTerms || isSubmitting}
                                 >
                                     {isSubmitting ? (
@@ -1083,7 +1092,7 @@ export default function NewCampaignPage() {
                                     ) : (
                                         <>
                                             <ShieldCheck className="w-4 h-4 mr-2" />
-                                            Signer le devis
+                                            Signer et envoyer le brief
                                         </>
                                     )}
                                 </Button>

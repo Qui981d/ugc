@@ -565,7 +565,7 @@ export default function CreatorStudioPage() {
                                     <button onClick={() => toggleCheckItem(i)}
                                         className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors shrink-0 ${item.done ? 'bg-[#1A1A1A] border-[#1A1A1A]' : 'border-[#E2E2E1] hover:border-[#1A1A1A]/60'
                                             }`}>
-                                        {item.done && <CheckCircle2 className="w-3 h-3 text-[#1A1A1A]" />}
+                                        {item.done && <CheckCircle2 className="w-3 h-3 text-white" />}
                                     </button>
                                     <span className={`text-sm flex-1 ${item.done ? 'line-through text-[#9B9B9B]' : 'text-[#1A1A1A]'}`}>{item.text}</span>
                                     <button onClick={() => removeCheckItem(i)}
