@@ -153,7 +153,11 @@ export default function NewCampaignPage() {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     // ── Draft persistence (localStorage) ──
-    const DRAFT_KEY = 'mosh_campaign_draft'
+    // Scoped per brand: MOSH creates briefs for several clients from the same
+    // browser, and a shared key meant one client's draft could resurface — and
+    // be submitted — under another client's name.
+    const DRAFT_KEY = `mosh_campaign_draft:${brandId || 'self'}`
+    const [draftRestored, setDraftRestored] = useState(false)
 
     // Restore draft on mount
     useEffect(() => {
@@ -166,10 +170,23 @@ export default function NewCampaignPage() {
                 if (draft.creatorPreference) setCreatorPreference(draft.creatorPreference)
                 if (draft.selectedPlan) setSelectedPlan(draft.selectedPlan)
                 if (draft.selectedSpecialties) setSelectedSpecialties(draft.selectedSpecialties)
-                if (draft.step) setStep(draft.step)
+                // Deliberately NOT restoring `step`: landing straight on the quote
+                // asks someone to sign a brief they have not seen this session.
+                setDraftRestored(true)
             }
         } catch { /* ignore parse errors */ }
-    }, [])
+    }, [DRAFT_KEY])
+
+    const startFresh = () => {
+        localStorage.removeItem(DRAFT_KEY)
+        setCampaign({ title: '', productName: '', description: '', deadline: '', deliveryDateFixed: false, shootingDate: '', shootingDateFixed: false })
+        setContentBlocks([createEmptyBlock()])
+        setCreatorPreference('single')
+        setSelectedPlan('premium')
+        setSelectedSpecialties([])
+        setStep(1)
+        setDraftRestored(false)
+    }
 
     // Save draft on changes (skip if submitting or empty)
     useEffect(() => {
@@ -390,6 +407,20 @@ export default function NewCampaignPage() {
                     <p className="text-[#6B6B6B] text-sm">Décrivez votre besoin, MOSH s&apos;occupe du reste</p>
                 </div>
             </div>
+
+            {/* A restored draft used to be invisible, which made a half-written brief
+                look like a fresh one. Say it, and offer the way out. */}
+            {draftRestored && (
+                <div className="flex flex-wrap items-center gap-2 mb-4 rounded-xl border border-[#F0E0BC] bg-[#FBF3E2] px-4 py-2.5 text-[13px] text-[#8A6100]">
+                    <span>Un brouillon en cours a été repris.</span>
+                    <button
+                        onClick={startFresh}
+                        className="ml-auto font-medium underline underline-offset-2 hover:text-[#1A1A1A]"
+                    >
+                        Repartir de zéro
+                    </button>
+                </div>
+            )}
 
             {/* Progress Steps */}
             <div className="flex items-center gap-2">
