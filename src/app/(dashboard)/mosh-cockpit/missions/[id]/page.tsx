@@ -167,6 +167,16 @@ export default function AdminMissionDetailPage() {
                         script_notes: campaign.script_notes,
                         rights_usage: campaign.rights_usage,
                         script_brand_feedback: campaign.script_brand_feedback,
+                        // Hand over the skeleton so the model completes MOSH's
+                        // structure instead of inventing a format of its own.
+                        template: buildScriptTemplate(
+                            { ...campaign, brandName: campaign.brand?.profiles_brand?.company_name || campaign.brand?.full_name },
+                            campaignContents.map(c => c.description).filter(Boolean) as string[],
+                        ),
+                        content_briefs: campaignContents
+                            .map((c, i) => c.description ? `Contenu ${i + 1} (${c.script_type}) : ${c.description}` : null)
+                            .filter(Boolean)
+                            .join('\n'),
                     },
                 }),
             })

@@ -50,43 +50,23 @@ Format de sortie :
 ⚠️ **Points à clarifier** (si applicable)
 [questions ou éléments manquants]`
 
-const SCRIPT_GENERATION_SYSTEM = `Tu es un scénariste UGC expert travaillant pour MOSH, une agence UGC premium basée en Suisse.
+const SCRIPT_GENERATION_SYSTEM = `Tu es rédacteur de briefs chez MOSH, agence UGC suisse.
 
-Ton rôle : rédiger un script vidéo UGC professionnel basé sur le brief de la marque.
+On te donne LA TRAME MOSH, déjà partiellement remplie avec ce que l'agence connaît.
+Ta tâche : la compléter. Pas en écrire une autre.
 
-Règles :
-- Le script doit être naturel, authentique et engageant (style UGC, pas pub corporate)
-- Adapte le ton au type de script demandé
-- Structure le script avec des indications de plan (PLAN 1, PLAN 2, etc.)
-- Inclus des instructions pour le créateur (ton, énergie, gestes)
-- Ajoute des indications de timing approximatives
-- Le script doit être prêt à être envoyé à un créateur
-- Écris en français
-
-Format de sortie :
-🎬 **SCRIPT UGC — [Titre]**
-
-📱 Format : [format vidéo]
-⏱️ Durée estimée : [durée]
-🎭 Ton : [description du ton]
-
----
-
-**PLAN 1 — [Accroche]** (0-3s)
-[Action + texte]
-
-**PLAN 2 — [Développement]** (3-15s)
-[Action + texte]
-
-**PLAN 3 — [Démonstration]** (15-30s)
-[Action + texte]
-
-**PLAN 4 — [Conclusion / CTA]** (30-45s)
-[Action + texte]
-
----
-📝 **Notes pour le créateur :**
-[conseils de tournage, ambiance, etc.]`
+RÈGLES ABSOLUES
+1. Conserve la trame à l'identique : mêmes sections, mêmes titres, même ordre,
+   mêmes séparateurs. N'ajoute ni ne supprime aucune section.
+2. Ne touche pas aux valeurs déjà renseignées (client, dates, format, contexte).
+3. Remplace les « … » par du contenu UNIQUEMENT si le brief permet de le déduire.
+4. Si le brief ne dit rien, LAISSE « … ». C'est la règle la plus importante :
+   un blanc se complète en dix secondes, une consigne inventée part chez un
+   créateur et fait tourner une vidéo pour rien. N'invente jamais un public
+   cible, un message clé, une police de sous-titres ou une durée.
+5. Écris en français, ton direct, pas de remplissage marketing.
+6. Réponds avec la trame complétée et rien d'autre : ni préambule, ni
+   commentaire, ni bloc de code.`
 
 // ── Route handler ───────────────────────────────────────────
 export async function POST(request: NextRequest) {
@@ -145,8 +125,11 @@ Budget : ${briefData.budget_chf} CHF`
 
         } else if (action === 'generate_script') {
             systemPrompt = SCRIPT_GENERATION_SYSTEM
-            userPrompt = `Rédige un script UGC complet basé sur ce brief :
+            userPrompt = `Voici la trame MOSH à compléter :
 
+${briefData.template || '(trame absente)'}
+
+--- BRIEF DE LA MARQUE (seule source autorisée) ---
 Titre : ${briefData.title}
 Produit : ${briefData.product_name}
 Description du produit : ${briefData.product_description || 'Non renseignée'}
@@ -155,7 +138,12 @@ Format vidéo : ${briefData.format}
 Type de script : ${briefData.script_type}
 Notes de script : ${briefData.script_notes || 'Aucune'}
 Droits d'usage : ${briefData.rights_usage}
-${briefData.script_brand_feedback ? `\nRetour de la marque sur un précédent script : ${briefData.script_brand_feedback}` : ''}`
+${briefData.content_briefs ? `Descriptions détaillées par contenu :
+${briefData.content_briefs}` : ''}
+${briefData.script_brand_feedback ? `
+Retour de la marque sur un précédent script : ${briefData.script_brand_feedback}` : ''}
+
+Rappel : tout ce que ce brief ne dit pas reste « … ».`
 
         } else {
             return NextResponse.json(
@@ -164,14 +152,19 @@ ${briefData.script_brand_feedback ? `\nRetour de la marque sur un précédent sc
             )
         }
 
+        // Filling a fixed structure is not a creative task: keep the temperature
+        // low so the model reproduces the trame rather than reinterpreting it,
+        // and leave room for the completed brief, which is long by design.
+        const isTemplateFill = action === 'generate_script'
+
         const completion = await openai.chat.completions.create({
             model: 'gpt-4o-mini',
             messages: [
                 { role: 'system', content: systemPrompt },
                 { role: 'user', content: userPrompt },
             ],
-            temperature: 0.7,
-            max_tokens: 2000,
+            temperature: isTemplateFill ? 0.3 : 0.7,
+            max_tokens: isTemplateFill ? 4000 : 2000,
         })
 
         const result = completion.choices[0]?.message?.content || 'Aucun résultat généré.'
