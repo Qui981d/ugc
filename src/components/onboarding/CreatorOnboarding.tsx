@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import {
@@ -8,12 +8,24 @@ import {
     Sparkles,
     Globe,
     Video,
+    Camera,
+    Ruler,
     ChevronRight,
     ChevronLeft,
     Check,
     Loader2,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import {
+    NICHES,
+    SHOOT_SETTINGS,
+    EQUIPMENT,
+    HAIR_COLORS,
+    EYE_COLORS,
+    GENDERS,
+    BIRTH_YEARS,
+} from "@/lib/constants/creatorCasting"
+import { CastingChips, CastingToggle, CastingField, castingControlClass, toNullableInt } from "@/components/creators/CastingInputs"
 
 interface CreatorOnboardingProps {
     userId: string
@@ -42,7 +54,13 @@ const steps = [
     { icon: Sparkles, title: 'Spécialités', desc: 'Vos formats préférés' },
     { icon: Globe, title: 'Langues', desc: 'Langues disponibles' },
     { icon: Video, title: 'Portfolio', desc: 'Montrez votre travail' },
+    { icon: Camera, title: 'Thématiques', desc: 'Univers et tournages' },
+    { icon: Ruler, title: 'Casting', desc: 'Votre profil physique' },
 ]
+
+
+const makeChipToggle = (setter: Dispatch<SetStateAction<string[]>>) => (value: string) =>
+    setter(prev => (prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]))
 
 export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboardingProps) {
     const [currentStep, setCurrentStep] = useState(0)
@@ -55,12 +73,29 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
     const [portfolioUrl, setPortfolioUrl] = useState('')
     const [portfolioUrls, setPortfolioUrls] = useState<string[]>([])
 
+    // Casting attributes — self-declared, all optional
+    const [niches, setNiches] = useState<string[]>([])
+    const [shootSettings, setShootSettings] = useState<string[]>([])
+    const [equipment, setEquipment] = useState<string[]>([])
+    const [canTravel, setCanTravel] = useState(false)
+    const [hasVehicle, setHasVehicle] = useState(false)
+    const [doesVoiceover, setDoesVoiceover] = useState(false)
+    const [birthYear, setBirthYear] = useState('')
+    const [gender, setGender] = useState('')
+    const [heightCm, setHeightCm] = useState('')
+    const [hairColor, setHairColor] = useState('')
+    const [eyeColor, setEyeColor] = useState('')
+    const [hasChildren, setHasChildren] = useState(false)
+    const [hasPets, setHasPets] = useState(false)
+
     const canProceed = () => {
         switch (currentStep) {
             case 0: return bio.trim().length >= 10
             case 1: return selectedSpecialties.length >= 1
             case 2: return selectedLanguages.length >= 1
             case 3: return true // Portfolio is optional
+            case 4: return true // Casting attributes are optional
+            case 5: return true // Casting attributes are optional
             default: return false
         }
     }
@@ -89,6 +124,19 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                 specialties: selectedSpecialties,
                 languages: selectedLanguages,
                 portfolio_video_urls: portfolioUrls,
+                niches,
+                shoot_settings: shootSettings,
+                equipment,
+                can_travel: canTravel,
+                has_vehicle: hasVehicle,
+                does_voiceover: doesVoiceover,
+                birth_year: toNullableInt(birthYear),
+                gender: gender || null,
+                height_cm: toNullableInt(heightCm),
+                hair_color: hairColor || null,
+                eye_color: eyeColor || null,
+                has_children: hasChildren,
+                has_pets: hasPets,
             }, { onConflict: 'user_id' })
 
         if (error) {
@@ -301,6 +349,131 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                                     <p className="text-xs text-[#9B9B9B]">
                                         Vous pourrez aussi en ajouter plus tard depuis votre portfolio
                                     </p>
+                                </div>
+                            )}
+
+                            {/* Step 4: Niches, shoot settings, equipment (all optional) */}
+                            {currentStep === 4 && (
+                                <div className="space-y-6">
+                                    <div>
+                                        <h2 className="text-lg font-semibold text-[#1A1A1A] mb-1">Vos thématiques et tournages</h2>
+                                        <p className="text-sm text-[#6B6B6B]">
+                                            Facultatif — ça nous aide à vous proposer les bonnes missions
+                                        </p>
+                                    </div>
+                                    <div className="space-y-2.5">
+                                        <p className="text-[12px] font-medium text-[#6B6B6B]">Thématiques</p>
+                                        <CastingChips
+                                            options={NICHES}
+                                            selected={niches}
+                                            onToggle={makeChipToggle(setNiches)}
+                                        />
+                                    </div>
+                                    <div className="space-y-2.5">
+                                        <p className="text-[12px] font-medium text-[#6B6B6B]">Lieux de tournage</p>
+                                        <CastingChips
+                                            options={SHOOT_SETTINGS}
+                                            selected={shootSettings}
+                                            onToggle={makeChipToggle(setShootSettings)}
+                                        />
+                                    </div>
+                                    <div className="space-y-2.5">
+                                        <p className="text-[12px] font-medium text-[#6B6B6B]">Matériel</p>
+                                        <CastingChips
+                                            options={EQUIPMENT}
+                                            selected={equipment}
+                                            onToggle={makeChipToggle(setEquipment)}
+                                        />
+                                    </div>
+                                    <div className="space-y-2.5">
+                                        <p className="text-[12px] font-medium text-[#6B6B6B]">Disponibilité</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            <CastingToggle label="Je peux me déplacer" checked={canTravel} onChange={setCanTravel} />
+                                            <CastingToggle label="J'ai un véhicule" checked={hasVehicle} onChange={setHasVehicle} />
+                                            <CastingToggle label="Je fais de la voix off" checked={doesVoiceover} onChange={setDoesVoiceover} />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Step 5: Physical casting profile (all optional) */}
+                            {currentStep === 5 && (
+                                <div className="space-y-6">
+                                    <div>
+                                        <h2 className="text-lg font-semibold text-[#1A1A1A] mb-1">Votre profil</h2>
+                                        <p className="text-sm text-[#6B6B6B]">
+                                            Déclaratif, à remplir seulement si vous le souhaitez
+                                        </p>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <CastingField label="Année de naissance">
+                                            <select
+                                                value={birthYear}
+                                                onChange={(e) => setBirthYear(e.target.value)}
+                                                className={castingControlClass}
+                                            >
+                                                <option value="">Non précisé</option>
+                                                {BIRTH_YEARS.map(year => (
+                                                    <option key={year} value={year}>{year}</option>
+                                                ))}
+                                            </select>
+                                        </CastingField>
+                                        <CastingField label="Genre">
+                                            <select
+                                                value={gender}
+                                                onChange={(e) => setGender(e.target.value)}
+                                                className={castingControlClass}
+                                            >
+                                                <option value="">Non précisé</option>
+                                                {GENDERS.map(option => (
+                                                    <option key={option} value={option}>{option}</option>
+                                                ))}
+                                            </select>
+                                        </CastingField>
+                                        <CastingField label="Taille (cm)">
+                                            <input
+                                                type="number"
+                                                inputMode="numeric"
+                                                min={100}
+                                                max={230}
+                                                value={heightCm}
+                                                onChange={(e) => setHeightCm(e.target.value)}
+                                                placeholder="Ex : 170"
+                                                className={`${castingControlClass} placeholder:text-[#9B9B9B]`}
+                                            />
+                                        </CastingField>
+                                        <CastingField label="Couleur de cheveux">
+                                            <select
+                                                value={hairColor}
+                                                onChange={(e) => setHairColor(e.target.value)}
+                                                className={castingControlClass}
+                                            >
+                                                <option value="">Non précisé</option>
+                                                {HAIR_COLORS.map(option => (
+                                                    <option key={option} value={option}>{option}</option>
+                                                ))}
+                                            </select>
+                                        </CastingField>
+                                        <CastingField label="Couleur des yeux">
+                                            <select
+                                                value={eyeColor}
+                                                onChange={(e) => setEyeColor(e.target.value)}
+                                                className={castingControlClass}
+                                            >
+                                                <option value="">Non précisé</option>
+                                                {EYE_COLORS.map(option => (
+                                                    <option key={option} value={option}>{option}</option>
+                                                ))}
+                                            </select>
+                                        </CastingField>
+                                    </div>
+                                    <div className="space-y-2.5">
+                                        <p className="text-[12px] font-medium text-[#6B6B6B]">Votre foyer</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            <CastingToggle label="Enfants au foyer" checked={hasChildren} onChange={setHasChildren} />
+                                            <CastingToggle label="Animaux au foyer" checked={hasPets} onChange={setHasPets} />
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </motion.div>

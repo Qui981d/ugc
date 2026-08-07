@@ -17,9 +17,11 @@ import {
     CheckCircle2,
     FileText,
     Building2,
-    ExternalLink
+    ExternalLink,
+    UserRound
 } from 'lucide-react'
 import { getCreatorById, type CreatorWithProfile, type CampaignWithDetails } from '@/lib/services/adminService'
+import { ageFromBirthYear } from '@/lib/constants/creatorCasting'
 
 const STATUS_LABELS: Record<string, { label: string; class: string }> = {
     draft: { label: 'Brief reçu', class: 'bg-[#F4F4F3] text-[#6B6B6B]' },
@@ -77,6 +79,31 @@ export default function CreatorDetailPage() {
 
     const profile = creator.profiles_creator
     const completedMissions = missions.filter(m => m.status === 'completed').length
+
+    // Casting attributes — self-declared, so anything undeclared is simply omitted
+    const age = ageFromBirthYear(profile?.birth_year)
+
+    const castingFlags = [
+        profile?.can_travel && 'Peut se déplacer',
+        profile?.has_vehicle && 'Véhicule',
+        profile?.does_voiceover && 'Voix off',
+        profile?.has_children && 'Enfants',
+        profile?.has_pets && 'Animaux',
+    ].filter(Boolean) as string[]
+
+    const castingTraits = [
+        age !== null && { label: 'Âge', value: `${age} ans` },
+        profile?.gender && { label: 'Genre', value: profile.gender },
+        profile?.height_cm && { label: 'Taille', value: `${profile.height_cm} cm` },
+        profile?.hair_color && { label: 'Cheveux', value: profile.hair_color },
+        profile?.eye_color && { label: 'Yeux', value: profile.eye_color },
+    ].filter(Boolean) as { label: string; value: string }[]
+
+    const niches = profile?.niches ?? []
+    const shootSettings = profile?.shoot_settings ?? []
+    const equipment = profile?.equipment ?? []
+    const hasShootConditions = shootSettings.length > 0 || equipment.length > 0 || castingFlags.length > 0
+    const hasCasting = niches.length > 0 || hasShootConditions || castingTraits.length > 0
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
@@ -228,6 +255,67 @@ export default function CreatorDetailPage() {
                         <p className="text-[#9B9B9B] text-sm">Aucune langue renseignée</p>
                     )}
                 </div>
+            </motion.div>
+
+            {/* Casting attributes */}
+            <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.14 }}
+                className="bg-white rounded-xl border border-[#E2E2E1] p-6"
+            >
+                <div className="flex items-center gap-2 mb-4">
+                    <UserRound className="w-4 h-4 text-[#6B6B6B]" strokeWidth={1.5} />
+                    <h2 className="text-sm font-semibold text-[#1A1A1A]">Critères de casting</h2>
+                </div>
+
+                {!hasCasting ? (
+                    <p className="text-[#9B9B9B] text-[13px]">
+                        Ce créateur n&apos;a pas encore renseigné ses critères de casting — il n&apos;apparaît donc pas dans les filtres.
+                    </p>
+                ) : (
+                    <div className="space-y-5">
+                        {niches.length > 0 && (
+                            <div>
+                                <p className="text-[11px] uppercase tracking-wider text-[#9B9B9B] mb-2">Thématiques</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {niches.map(n => (
+                                        <span key={n} className="px-3 py-1.5 rounded-full text-xs font-medium bg-[#F4F4F3] text-[#1A1A1A] border border-[#E2E2E1]">
+                                            {n}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {hasShootConditions && (
+                            <div>
+                                <p className="text-[11px] uppercase tracking-wider text-[#9B9B9B] mb-2">Conditions de tournage</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {[...shootSettings, ...equipment, ...castingFlags].map(item => (
+                                        <span key={item} className="px-3 py-1.5 rounded-full text-xs font-medium bg-[#F4F4F3] text-[#1A1A1A] border border-[#E2E2E1]">
+                                            {item}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {castingTraits.length > 0 && (
+                            <div>
+                                <p className="text-[11px] uppercase tracking-wider text-[#9B9B9B] mb-2">Profil</p>
+                                <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2">
+                                    {castingTraits.map(trait => (
+                                        <div key={trait.label} className="flex items-baseline justify-between gap-3 border-b border-[#E2E2E1] pb-2">
+                                            <dt className="text-[11px] uppercase tracking-wider text-[#9B9B9B]">{trait.label}</dt>
+                                            <dd className="text-[13px] text-[#1A1A1A]">{trait.value}</dd>
+                                        </div>
+                                    ))}
+                                </dl>
+                            </div>
+                        )}
+                    </div>
+                )}
             </motion.div>
 
             {/* Portfolio Videos */}

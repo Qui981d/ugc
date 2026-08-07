@@ -7,6 +7,13 @@ import { Search, Users, Star, Plus, LinkIcon, Copy, Check, Trash2, ArrowRight, X
 import { getAllCreators, getInvitations, createInvitation, revokeInvitation, type CreatorWithProfile, type InvitationData } from '@/lib/services/adminService'
 import { toast } from 'sonner'
 import { PageHeader, Tabs, StatusPill, EmptyState } from '@/components/ui/workspace'
+import {
+    CastingFilters,
+    EMPTY_CASTING_FILTERS,
+    countActiveCastingFilters,
+    matchesCastingFilters,
+    type CastingFilterState,
+} from '@/components/creators/CastingFilters'
 
 type Tab = 'registered' | 'invitations'
 
@@ -19,6 +26,7 @@ export default function AdminCreatorsPage() {
     const [invitations, setInvitations] = useState<InvitationData[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState('')
+    const [filters, setFilters] = useState<CastingFilterState>(EMPTY_CASTING_FILTERS)
     const [activeTab, setActiveTab] = useState<Tab>('registered')
     const [showInviteModal, setShowInviteModal] = useState(false)
     const [inviteEmail, setInviteEmail] = useState('')
@@ -39,12 +47,22 @@ export default function AdminCreatorsPage() {
         load()
     }, [])
 
-    const filteredCreators = creators.filter(c =>
+    const matchesSearch = (c: CreatorWithProfile) =>
         !searchQuery ||
         c.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         c.profiles_creator?.location_canton?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         c.profiles_creator?.specialties?.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))
+
+    // Text search and casting filters narrow together.
+    const filteredCreators = creators.filter(
+        c => matchesSearch(c) && matchesCastingFilters(c.profiles_creator, filters)
     )
+
+    const hasActiveFilters = countActiveCastingFilters(filters) > 0
+
+    const cantonOptions = Array.from(
+        new Set(creators.map(c => c.profiles_creator?.location_canton?.trim()).filter((v): v is string => !!v))
+    ).sort((a, b) => a.localeCompare(b, 'fr'))
 
     const handleCreateInvitation = async () => {
         setIsCreating(true)
@@ -141,24 +159,35 @@ export default function AdminCreatorsPage() {
             </PageHeader>
 
             {/* Toolbar — bare controls above the surface */}
-            <div className="flex flex-wrap items-center gap-2 mb-3">
+            <div className="mb-3">
+                <div className="flex flex-wrap items-center gap-2">
+                    {activeTab === 'registered' && (
+                        <div className="relative flex-1 min-w-[220px]">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9B9B9B]" strokeWidth={1.8} />
+                            <input
+                                type="text"
+                                placeholder="Rechercher par nom, canton, spécialité…"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full h-9 pl-9 pr-3 bg-white border border-[#E2E2E1] rounded-lg text-[13px] text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#1A1A1A] focus:ring-2 focus:ring-[#1A1A1A]/15 transition-colors"
+                            />
+                        </div>
+                    )}
+                    <span className="text-[12px] text-[#9B9B9B] tabular-nums ml-auto">
+                        {activeTab === 'registered'
+                            ? `${resultCount} créateur${resultCount > 1 ? 's' : ''}`
+                            : `${resultCount} invitation${resultCount > 1 ? 's' : ''}`}
+                    </span>
+                </div>
+
                 {activeTab === 'registered' && (
-                    <div className="relative flex-1 min-w-[220px]">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9B9B9B]" strokeWidth={1.8} />
-                        <input
-                            type="text"
-                            placeholder="Rechercher par nom, canton, spécialité…"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full h-9 pl-9 pr-3 bg-white border border-[#E2E2E1] rounded-lg text-[13px] text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#1A1A1A] focus:ring-2 focus:ring-[#1A1A1A]/15 transition-colors"
-                        />
-                    </div>
+                    <CastingFilters
+                        value={filters}
+                        onChange={setFilters}
+                        cantonOptions={cantonOptions}
+                        className="mt-2"
+                    />
                 )}
-                <span className="text-[12px] text-[#9B9B9B] tabular-nums ml-auto">
-                    {activeTab === 'registered'
-                        ? `${resultCount} créateur${resultCount > 1 ? 's' : ''}`
-                        : `${resultCount} invitation${resultCount > 1 ? 's' : ''}`}
-                </span>
             </div>
 
             {/* One dense surface */}
@@ -177,7 +206,9 @@ export default function AdminCreatorsPage() {
                         <EmptyState
                             icon={Users}
                             title="Aucun créateur"
-                            description={searchQuery ? 'Aucun résultat pour cette recherche.' : 'Les créateurs inscrits apparaîtront ici.'}
+                            description={searchQuery || hasActiveFilters
+                                ? 'Aucun créateur ne correspond à cette recherche.'
+                                : 'Les créateurs inscrits apparaîtront ici.'}
                         />
                     ) : (
                         <div className="overflow-x-auto">

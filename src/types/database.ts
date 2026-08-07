@@ -100,6 +100,20 @@ export interface ProfileCreator {
     hourly_rate_chf: number | null
     is_available: boolean
     address: string | null
+    // Casting attributes — all optional and self-declared
+    birth_year: number | null
+    gender: string | null
+    height_cm: number | null
+    hair_color: string | null
+    eye_color: string | null
+    niches: string[]
+    shoot_settings: string[]
+    equipment: string[]
+    can_travel: boolean
+    has_vehicle: boolean
+    does_voiceover: boolean
+    has_children: boolean
+    has_pets: boolean
     created_at: string
     updated_at: string
 }

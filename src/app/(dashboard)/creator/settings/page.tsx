@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -19,11 +19,22 @@ import {
     ChevronRight,
     AlertTriangle,
     Smartphone,
+    Check,
     Loader2
 } from "lucide-react"
 import Image from "next/image"
 import { useAuth } from "@/contexts/AuthContext"
 import { createClient } from "@/lib/supabase/client"
+import {
+    NICHES,
+    SHOOT_SETTINGS,
+    EQUIPMENT,
+    HAIR_COLORS,
+    EYE_COLORS,
+    GENDERS,
+    BIRTH_YEARS,
+} from "@/lib/constants/creatorCasting"
+import { CastingChips, CastingToggle, CastingField, castingControlClass, toNullableInt } from "@/components/creators/CastingInputs"
 
 const tabs = [
     { id: 'profile', label: 'Profil', icon: User },
@@ -48,6 +59,7 @@ const specialtyEnumToLabel: Record<string, string> = Object.fromEntries(
     Object.entries(specialtyLabelToEnum).map(([k, v]) => [v, k])
 )
 
+
 export default function CreatorSettingsPage() {
     const { user, isLoading } = useAuth()
     const userId = user?.id
@@ -68,7 +80,30 @@ export default function CreatorSettingsPage() {
         languages: [] as string[],
         selectedSpecialties: [] as string[],
         avatarUrl: '',
+        // Casting attributes — all optional, self-declared
+        niches: [] as string[],
+        shootSettings: [] as string[],
+        equipment: [] as string[],
+        canTravel: false,
+        hasVehicle: false,
+        doesVoiceover: false,
+        birthYear: '',
+        gender: '',
+        heightCm: '',
+        hairColor: '',
+        eyeColor: '',
+        hasChildren: false,
+        hasPets: false,
     })
+
+    /** Toggles one value inside a string[] field of profileData. */
+    const toggleCastingChip = (key: 'niches' | 'shootSettings' | 'equipment') => (value: string) =>
+        setProfileData(prev => ({
+            ...prev,
+            [key]: prev[key].includes(value)
+                ? prev[key].filter(v => v !== value)
+                : [...prev[key], value],
+        }))
 
     // Load real user data
     useEffect(() => {
@@ -101,6 +136,19 @@ export default function CreatorSettingsPage() {
                 languages: (creatorProfile as any)?.languages || [],
                 selectedSpecialties: labeledSpecialties,
                 avatarUrl: user!.avatar_url || '',
+                niches: (creatorProfile as any)?.niches || [],
+                shootSettings: (creatorProfile as any)?.shoot_settings || [],
+                equipment: (creatorProfile as any)?.equipment || [],
+                canTravel: (creatorProfile as any)?.can_travel ?? false,
+                hasVehicle: (creatorProfile as any)?.has_vehicle ?? false,
+                doesVoiceover: (creatorProfile as any)?.does_voiceover ?? false,
+                birthYear: (creatorProfile as any)?.birth_year?.toString() || '',
+                gender: (creatorProfile as any)?.gender || '',
+                heightCm: (creatorProfile as any)?.height_cm?.toString() || '',
+                hairColor: (creatorProfile as any)?.hair_color || '',
+                eyeColor: (creatorProfile as any)?.eye_color || '',
+                hasChildren: (creatorProfile as any)?.has_children ?? false,
+                hasPets: (creatorProfile as any)?.has_pets ?? false,
             })
             setIsDataLoading(false)
         }
@@ -152,6 +200,19 @@ export default function CreatorSettingsPage() {
                 location_canton: profileData.location,
                 languages: profileData.languages,
                 specialties: enumSpecialties,
+                niches: profileData.niches,
+                shoot_settings: profileData.shootSettings,
+                equipment: profileData.equipment,
+                can_travel: profileData.canTravel,
+                has_vehicle: profileData.hasVehicle,
+                does_voiceover: profileData.doesVoiceover,
+                birth_year: toNullableInt(profileData.birthYear),
+                gender: profileData.gender || null,
+                height_cm: toNullableInt(profileData.heightCm),
+                hair_color: profileData.hairColor || null,
+                eye_color: profileData.eyeColor || null,
+                has_children: profileData.hasChildren,
+                has_pets: profileData.hasPets,
             }, { onConflict: 'user_id' })
 
         if (profileErr) console.error('Error saving creator profile:', profileErr)
@@ -269,6 +330,147 @@ export default function CreatorSettingsPage() {
                                         {specialty}
                                     </button>
                                 ))}
+                            </div>
+                        </div>
+
+                        {/* Thématiques et tournages */}
+                        <div className="pt-8 border-t border-[#E2E2E1] space-y-6">
+                            <div>
+                                <h3 className="text-lg font-semibold text-[#1A1A1A]">Thématiques et tournages</h3>
+                                <p className="text-sm text-[#6B6B6B] mt-1">
+                                    Ces informations servent à vous proposer des missions qui vous correspondent. Plus votre profil est complet, plus vous êtes visible.
+                                </p>
+                            </div>
+                            <div className="space-y-2.5">
+                                <p className="text-[12px] font-medium text-[#6B6B6B]">Thématiques</p>
+                                <CastingChips
+                                    options={NICHES}
+                                    selected={profileData.niches}
+                                    onToggle={toggleCastingChip('niches')}
+                                />
+                            </div>
+                            <div className="space-y-2.5">
+                                <p className="text-[12px] font-medium text-[#6B6B6B]">Lieux de tournage</p>
+                                <CastingChips
+                                    options={SHOOT_SETTINGS}
+                                    selected={profileData.shootSettings}
+                                    onToggle={toggleCastingChip('shootSettings')}
+                                />
+                            </div>
+                            <div className="space-y-2.5">
+                                <p className="text-[12px] font-medium text-[#6B6B6B]">Matériel</p>
+                                <CastingChips
+                                    options={EQUIPMENT}
+                                    selected={profileData.equipment}
+                                    onToggle={toggleCastingChip('equipment')}
+                                />
+                            </div>
+                            <div className="space-y-2.5">
+                                <p className="text-[12px] font-medium text-[#6B6B6B]">Disponibilité</p>
+                                <div className="flex flex-wrap gap-2">
+                                    <CastingToggle
+                                        label="Je peux me déplacer"
+                                        checked={profileData.canTravel}
+                                        onChange={(v) => setProfileData(prev => ({ ...prev, canTravel: v }))}
+                                    />
+                                    <CastingToggle
+                                        label="J'ai un véhicule"
+                                        checked={profileData.hasVehicle}
+                                        onChange={(v) => setProfileData(prev => ({ ...prev, hasVehicle: v }))}
+                                    />
+                                    <CastingToggle
+                                        label="Je fais de la voix off"
+                                        checked={profileData.doesVoiceover}
+                                        onChange={(v) => setProfileData(prev => ({ ...prev, doesVoiceover: v }))}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Profil physique */}
+                        <div className="pt-8 border-t border-[#E2E2E1] space-y-6">
+                            <div>
+                                <h3 className="text-lg font-semibold text-[#1A1A1A]">Profil physique</h3>
+                                <p className="text-sm text-[#6B6B6B] mt-1">
+                                    Déclaratif, à remplir seulement si vous le souhaitez
+                                </p>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <CastingField label="Année de naissance">
+                                    <select
+                                        value={profileData.birthYear}
+                                        onChange={(e) => setProfileData({ ...profileData, birthYear: e.target.value })}
+                                        className={castingControlClass}
+                                    >
+                                        <option value="">Non précisé</option>
+                                        {BIRTH_YEARS.map(year => (
+                                            <option key={year} value={year}>{year}</option>
+                                        ))}
+                                    </select>
+                                </CastingField>
+                                <CastingField label="Genre">
+                                    <select
+                                        value={profileData.gender}
+                                        onChange={(e) => setProfileData({ ...profileData, gender: e.target.value })}
+                                        className={castingControlClass}
+                                    >
+                                        <option value="">Non précisé</option>
+                                        {GENDERS.map(option => (
+                                            <option key={option} value={option}>{option}</option>
+                                        ))}
+                                    </select>
+                                </CastingField>
+                                <CastingField label="Taille (cm)">
+                                    <input
+                                        type="number"
+                                        inputMode="numeric"
+                                        min={100}
+                                        max={230}
+                                        value={profileData.heightCm}
+                                        onChange={(e) => setProfileData({ ...profileData, heightCm: e.target.value })}
+                                        placeholder="Ex : 170"
+                                        className={`${castingControlClass} placeholder:text-[#9B9B9B]`}
+                                    />
+                                </CastingField>
+                                <CastingField label="Couleur de cheveux">
+                                    <select
+                                        value={profileData.hairColor}
+                                        onChange={(e) => setProfileData({ ...profileData, hairColor: e.target.value })}
+                                        className={castingControlClass}
+                                    >
+                                        <option value="">Non précisé</option>
+                                        {HAIR_COLORS.map(option => (
+                                            <option key={option} value={option}>{option}</option>
+                                        ))}
+                                    </select>
+                                </CastingField>
+                                <CastingField label="Couleur des yeux">
+                                    <select
+                                        value={profileData.eyeColor}
+                                        onChange={(e) => setProfileData({ ...profileData, eyeColor: e.target.value })}
+                                        className={castingControlClass}
+                                    >
+                                        <option value="">Non précisé</option>
+                                        {EYE_COLORS.map(option => (
+                                            <option key={option} value={option}>{option}</option>
+                                        ))}
+                                    </select>
+                                </CastingField>
+                            </div>
+                            <div className="space-y-2.5">
+                                <p className="text-[12px] font-medium text-[#6B6B6B]">Votre foyer</p>
+                                <div className="flex flex-wrap gap-2">
+                                    <CastingToggle
+                                        label="Enfants au foyer"
+                                        checked={profileData.hasChildren}
+                                        onChange={(v) => setProfileData(prev => ({ ...prev, hasChildren: v }))}
+                                    />
+                                    <CastingToggle
+                                        label="Animaux au foyer"
+                                        checked={profileData.hasPets}
+                                        onChange={(v) => setProfileData(prev => ({ ...prev, hasPets: v }))}
+                                    />
+                                </div>
                             </div>
                         </div>
 

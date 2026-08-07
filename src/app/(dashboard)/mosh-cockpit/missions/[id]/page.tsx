@@ -49,6 +49,13 @@ import {
     type CreatorWithProfile,
 } from '@/lib/services/adminService'
 import type { MissionStep, MissionStepType, CampaignContent, ContentStatus } from '@/types/database'
+import {
+    CastingFilters,
+    EMPTY_CASTING_FILTERS,
+    countActiveCastingFilters,
+    matchesCastingFilters,
+    type CastingFilterState,
+} from '@/components/creators/CastingFilters'
 import { WORKFLOW_STEPS as CENTRAL_STEPS, isStepCompletedOrPassed } from '@/lib/constants/workflowSteps'
 import { useActingBrandStore } from '@/stores/useActingBrandStore'
 import { buildScriptTemplate } from '@/lib/constants/scriptTemplate'
@@ -85,6 +92,7 @@ export default function AdminMissionDetailPage() {
     const [selectedCreators, setSelectedCreators] = useState<string[]>([])
     const [scriptDraft, setScriptDraft] = useState('')
     const [showCreatorSelector, setShowCreatorSelector] = useState(false)
+    const [castingFilters, setCastingFilters] = useState<CastingFilterState>(EMPTY_CASTING_FILTERS)
     const [actionLoading, setActionLoading] = useState(false)
     const [actionError, setActionError] = useState<string | null>(null)
     const [actionSuccess, setActionSuccess] = useState<string | null>(null)
@@ -482,6 +490,15 @@ export default function AdminMissionDetailPage() {
 
     const currentStep = getCurrentStepIndex()
 
+    // Casting filters narrow the roster, but never drop an already-selected creator.
+    const matchedCreators = creators.filter(c => matchesCastingFilters(c.profiles_creator, castingFilters))
+    const matchedIds = new Set(matchedCreators.map(c => c.id))
+    const visibleCreators = creators.filter(c => matchedIds.has(c.id) || selectedCreators.includes(c.id))
+    const activeCastingCount = countActiveCastingFilters(castingFilters)
+    const creatorCantons = Array.from(
+        new Set(creators.map(c => c.profiles_creator?.location_canton?.trim()).filter((v): v is string => !!v))
+    ).sort((a, b) => a.localeCompare(b, 'fr'))
+
     return (
         <div className="max-w-5xl mx-auto space-y-6">
             {/* Error/Success Toast */}
@@ -729,8 +746,21 @@ export default function AdminMissionDetailPage() {
                     ) : showCreatorSelector ? (
                         <div className="space-y-3">
                             <p className="text-sm text-[#6B6B6B]">Sélectionnez 2-3 créateurs à proposer à la marque :</p>
+
+                            <CastingFilters
+                                value={castingFilters}
+                                onChange={setCastingFilters}
+                                cantonOptions={creatorCantons}
+                                resultLabel={`${matchedCreators.length} créateur${matchedCreators.length > 1 ? 's' : ''}${activeCastingCount > 0 ? ` sur ${creators.length}` : ''}`}
+                            />
+
+                            {visibleCreators.length === 0 ? (
+                                <p className="text-sm text-[#9B9B9B] py-6 text-center">
+                                    Aucun créateur ne correspond à ces critères.
+                                </p>
+                            ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-80 overflow-y-auto">
-                                {creators.map(creator => (
+                                {visibleCreators.map(creator => (
                                     <label
                                         key={creator.id}
                                         className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${selectedCreators.includes(creator.id)
@@ -760,12 +790,16 @@ export default function AdminMissionDetailPage() {
                                                 {creator.profiles_creator?.specialties?.length ? ` · ${creator.profiles_creator.specialties[0]}` : ''}
                                             </p>
                                         </div>
+                                        {!matchedIds.has(creator.id) && (
+                                            <span className="text-[11px] uppercase tracking-wider text-[#9B9B9B] shrink-0">Hors filtre</span>
+                                        )}
                                         {selectedCreators.includes(creator.id) && (
                                             <CheckCircle2 className="w-5 h-5 text-[#1A1A1A] shrink-0" strokeWidth={1.5} />
                                         )}
                                     </label>
                                 ))}
                             </div>
+                            )}
                             <div className="flex gap-3 pt-2">
                                 <button
                                     onClick={handleProposeCreators}
@@ -775,7 +809,7 @@ export default function AdminMissionDetailPage() {
                                     Proposer {selectedCreators.length} créateur{selectedCreators.length > 1 ? 's' : ''}
                                 </button>
                                 <button
-                                    onClick={() => { setShowCreatorSelector(false); setSelectedCreators([]) }}
+                                    onClick={() => { setShowCreatorSelector(false); setSelectedCreators([]); setCastingFilters(EMPTY_CASTING_FILTERS) }}
                                     className="px-4 py-2 bg-[#F4F4F3] text-[#1A1A1A] rounded-lg hover:bg-[#F2F2F1] transition-colors"
                                 >
                                     Annuler
