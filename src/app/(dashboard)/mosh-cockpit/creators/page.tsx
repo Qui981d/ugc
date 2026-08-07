@@ -22,6 +22,7 @@ export default function AdminCreatorsPage() {
     const [activeTab, setActiveTab] = useState<Tab>('registered')
     const [showInviteModal, setShowInviteModal] = useState(false)
     const [inviteEmail, setInviteEmail] = useState('')
+    const [inviteName, setInviteName] = useState('')
     const [isCreating, setIsCreating] = useState(false)
     const [copiedCode, setCopiedCode] = useState<string | null>(null)
 
@@ -47,21 +48,37 @@ export default function AdminCreatorsPage() {
 
     const handleCreateInvitation = async () => {
         setIsCreating(true)
-        const result = await createInvitation(inviteEmail.trim() || undefined)
+        const result = await createInvitation(inviteName.trim() || inviteEmail.trim() || undefined)
         if (result.success && result.code) {
             const updated = await getInvitations()
             setInvitations(updated)
             setShowInviteModal(false)
+            const email = inviteEmail.trim()
+
+            if (email) {
+                // Send it rather than hand back a link to forward by hand.
+                const res = await fetch('/api/creators/invite', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, code: result.code, name: inviteName.trim() }),
+                })
+                const data = await res.json()
+                if (res.ok) toast.success(`Invitation envoyée à ${email}`)
+                else toast.error(data.error || "L'envoi a échoué — le lien reste copié.")
+            } else {
+                toast.success('Lien copié ! Partage-le via Copier, WhatsApp ou Email.')
+            }
+
             await navigator.clipboard.writeText(inviteLink(result.code))
-            toast.success('Lien copié ! Partage-le via Copier, WhatsApp ou Email.')
             setInviteEmail('')
+            setInviteName('')
         } else {
             toast.error(result.error || 'Erreur lors de la création')
         }
         setIsCreating(false)
     }
 
-    const inviteLink = (code: string) => `${window.location.origin}/signup?role=creator&invite=${code}`
+    const inviteLink = (code: string) => `${window.location.origin}/rejoindre/${code}`
 
     const inviteMessage = (code: string) =>
         `Bonjour,\n\nVous êtes invité(e) à rejoindre MOSH en tant que créateur UGC.\n\nCréez votre compte ici :\n${inviteLink(code)}\n\nCe lien est valable 30 jours.\n\nÀ bientôt,\nL'équipe MOSH`
@@ -360,15 +377,28 @@ export default function AdminCreatorsPage() {
                             </div>
 
                             <div className="p-4">
-                                <label className="text-[12px] font-medium text-[#6B6B6B] mb-1.5 block">Nom ou email (étiquette, optionnel)</label>
+                                <label className="text-[12px] font-medium text-[#6B6B6B] mb-1.5 block">Nom du créateur (optionnel)</label>
                                 <input
                                     type="text"
-                                    value={inviteEmail}
-                                    onChange={(e) => setInviteEmail(e.target.value)}
+                                    value={inviteName}
+                                    onChange={(e) => setInviteName(e.target.value)}
                                     placeholder="Ex : Marie Dupont"
                                     className="w-full h-9 px-3 bg-white border border-[#E2E2E1] rounded-lg text-[13px] text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#1A1A1A] focus:ring-2 focus:ring-[#1A1A1A]/15 transition-colors"
                                 />
-                                <p className="text-[12px] text-[#9B9B9B] mt-1.5">Sert juste à identifier l&apos;invitation. Le lien (valide 30 jours, à usage unique) sera copié — partage-le via Copier / WhatsApp / Email.</p>
+
+                                <label className="text-[12px] font-medium text-[#6B6B6B] mb-1.5 mt-3 block">Email (optionnel)</label>
+                                <input
+                                    type="email"
+                                    value={inviteEmail}
+                                    onChange={(e) => setInviteEmail(e.target.value)}
+                                    placeholder="marie@exemple.com"
+                                    className="w-full h-9 px-3 bg-white border border-[#E2E2E1] rounded-lg text-[13px] text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#1A1A1A] focus:ring-2 focus:ring-[#1A1A1A]/15 transition-colors"
+                                />
+                                <p className="text-[12px] text-[#9B9B9B] mt-1.5">
+                                    Avec une adresse, l&apos;invitation part par email automatiquement. Sans,
+                                    le lien est copié pour que vous le partagiez vous-même. Valable 30 jours,
+                                    utilisable une fois.
+                                </p>
                             </div>
 
                             <div className="px-4 py-3 border-t border-[#E2E2E1] flex items-center justify-end gap-2">
