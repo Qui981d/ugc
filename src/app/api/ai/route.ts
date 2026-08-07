@@ -50,6 +50,32 @@ Format de sortie :
 ⚠️ **Points à clarifier** (si applicable)
 [questions ou éléments manquants]`
 
+const BRIEF_CHECK_SYSTEM = `Tu contrôles la complétude d'un brief UGC avant qu'il ne parte en production chez MOSH.
+
+Tu ne réécris rien, tu ne juges pas le goût. Tu repères uniquement ce qui MANQUE
+et qui empêcherait un créateur de tourner correctement.
+
+Éléments qui comptent vraiment :
+- ce que le produit/service est et à qui il s'adresse
+- le message ou l'idée que la vidéo doit faire passer
+- le ton attendu
+- ce qu'il faut montrer à l'écran (lieu, produit visible, gestes)
+- les interdits de la marque
+- une échéance si elle est contraignante
+
+RÈGLES
+1. Ne signale que ce qui est réellement absent ou trop vague pour être utilisé.
+   Un brief court mais clair est un bon brief : ne réclame pas du remplissage.
+2. Trois manques au maximum, les plus bloquants. Mieux vaut un signalement utile
+   que six remarques qu'on ignore.
+3. Formule chaque manque comme une demande concrète, adressée à la marque,
+   en une phrase. Pas de jargon d'agence.
+4. Si le brief est exploitable, renvoie une liste vide. C'est un cas normal
+   et fréquent — ne cherche pas un défaut à tout prix.
+
+Réponds UNIQUEMENT en JSON :
+{"missing":[{"titre":"Public cible","demande":"Précisez à qui s'adresse le produit : âge, habitudes, ce qui les motive."}]}`
+
 const SCRIPT_GENERATION_SYSTEM = `Tu es rédacteur de briefs chez MOSH, agence UGC suisse.
 
 On te donne LA TRAME MOSH, déjà partiellement remplie avec ce que l'agence connaît.
@@ -123,6 +149,18 @@ Notes de script : ${briefData.script_notes || 'Aucune'}
 Droits d'usage : ${briefData.rights_usage}
 Budget : ${briefData.budget_chf} CHF`
 
+        } else if (action === 'check_brief') {
+            systemPrompt = BRIEF_CHECK_SYSTEM
+            userPrompt = `Brief à contrôler :
+
+Titre : ${briefData.title || '(vide)'}
+Produit : ${briefData.product_name || '(vide)'}
+Description de la campagne : ${briefData.description || '(vide)'}
+Contenus demandés : ${briefData.content_briefs || '(aucune description détaillée)'}
+Format : ${briefData.format || '(non précisé)'}
+Type de contenu : ${briefData.script_type || '(non précisé)'}
+Échéance : ${briefData.deadline || '(non précisée)'}`
+
         } else if (action === 'generate_script') {
             systemPrompt = SCRIPT_GENERATION_SYSTEM
             userPrompt = `Voici la trame MOSH à compléter :
@@ -163,8 +201,9 @@ Rappel : tout ce que ce brief ne dit pas reste « … ».`
                 { role: 'system', content: systemPrompt },
                 { role: 'user', content: userPrompt },
             ],
-            temperature: isTemplateFill ? 0.3 : 0.7,
+            temperature: isTemplateFill ? 0.3 : action === 'check_brief' ? 0.2 : 0.7,
             max_tokens: isTemplateFill ? 4000 : 2000,
+            ...(action === 'check_brief' ? { response_format: { type: 'json_object' as const } } : {}),
         })
 
         const result = completion.choices[0]?.message?.content || 'Aucun résultat généré.'

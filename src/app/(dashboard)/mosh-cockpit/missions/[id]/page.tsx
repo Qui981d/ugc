@@ -104,7 +104,6 @@ export default function AdminMissionDetailPage() {
     const [qcFeedback, setQcFeedback] = useState('')
     // AI
     const [aiLoading, setAiLoading] = useState<'brief' | 'script' | null>(null)
-    const [aiBriefReview, setAiBriefReview] = useState<string | null>(null)
     // A8: Admin internal notes
     const [adminNotes, setAdminNotes] = useState('')
     const [savingNotes, setSavingNotes] = useState(false)
@@ -112,41 +111,6 @@ export default function AdminMissionDetailPage() {
     const [campaignContents, setCampaignContents] = useState<CampaignContent[]>([])
     const [expandedContent, setExpandedContent] = useState<string | null>(null)
     const [contentScriptDrafts, setContentScriptDrafts] = useState<Record<string, string>>({})
-
-    const handleAIBriefReview = async () => {
-        if (!campaign || aiLoading) return
-        setAiLoading('brief')
-        setAiBriefReview(null)
-        try {
-            const res = await fetch('/api/ai', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'review_brief',
-                    briefData: {
-                        title: campaign.title,
-                        product_name: campaign.product_name,
-                        product_description: campaign.product_description,
-                        description: campaign.description,
-                        format: campaign.format,
-                        script_type: campaign.script_type,
-                        script_notes: campaign.script_notes,
-                        rights_usage: campaign.rights_usage,
-                        budget_chf: campaign.budget_chf,
-                    },
-                }),
-            })
-            const data = await res.json()
-            if (data.error) {
-                setActionError(data.error)
-            } else {
-                setAiBriefReview(data.result)
-            }
-        } catch {
-            setActionError('Erreur de connexion au service IA')
-        }
-        setAiLoading(null)
-    }
 
     const handleAIScriptGenerate = async () => {
         if (!campaign || aiLoading) return
@@ -611,30 +575,11 @@ export default function AdminMissionDetailPage() {
             >
                 <h2 className="text-sm font-semibold text-[#1A1A1A] mb-4 flex items-center gap-2">
                     <FileText className="w-4 h-4 text-[#6B6B6B]" strokeWidth={1.5} />
+                    {/* The AI review moved upstream: it now runs automatically when the
+                        brand finalises its brief, where a gap can still be filled.
+                        Reviewing here only ever confirmed what had already arrived. */}
                     Brief de la marque
-                    <div className="flex-1" />
-                    <button
-                        onClick={handleAIBriefReview}
-                        disabled={aiLoading === 'brief'}
-                        className="px-3 py-1.5 bg-[#1A1A1A] text-white text-xs font-medium rounded-lg hover:bg-[#333333] transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
-                    >
-                        {aiLoading === 'brief' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-                        Relecture IA
-                    </button>
                 </h2>
-                {aiBriefReview && (
-                    <div className="mb-4 p-4 bg-[#F4F4F3] border border-[#E2E2E1] rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Sparkles className="w-4 h-4 text-[#1A1A1A]" />
-                            <p className="text-xs font-semibold text-[#1A1A1A]">Analyse IA du brief</p>
-                            <div className="flex-1" />
-                            <button onClick={() => setAiBriefReview(null)} className="text-[#9B9B9B] hover:text-[#1A1A1A] text-xs">
-                                Fermer
-                            </button>
-                        </div>
-                        <div className="text-sm text-[#1A1A1A] whitespace-pre-wrap leading-relaxed">{aiBriefReview}</div>
-                    </div>
-                )}
                 <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                         <p className="text-[#9B9B9B] mb-1">Produit</p>

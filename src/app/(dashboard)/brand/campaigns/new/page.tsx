@@ -152,6 +152,51 @@ export default function NewCampaignPage() {
 
     const [isSubmitting, setIsSubmitting] = useState(false)
 
+    // Automatic brief check, run once when the brand finalises. Advisory only:
+    // it must never stand between a brand and sending its brief.
+    const [checking, setChecking] = useState(false)
+    const [gaps, setGaps] = useState<{ titre: string; demande: string }[] | null>(null)
+
+    const runBriefCheck = async () => {
+        setChecking(true)
+        try {
+            const res = await fetch('/api/ai', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'check_brief',
+                    briefData: {
+                        title: campaign.title,
+                        product_name: campaign.productName,
+                        description: campaign.description,
+                        deadline: campaign.deadline,
+                        format: contentBlocks[0]?.format,
+                        script_type: contentBlocks.map(b => b.scriptType).filter(Boolean).join(', '),
+                        content_briefs: contentBlocks
+                            .map((b, i) => b.description ? `Contenu ${i + 1} : ${b.description}` : null)
+                            .filter(Boolean).join('\n'),
+                    },
+                }),
+            })
+            const data = await res.json()
+            const parsed = JSON.parse(data.result || '{}')
+            const missing = Array.isArray(parsed.missing) ? parsed.missing.slice(0, 3) : []
+            setChecking(false)
+            if (missing.length > 0) { setGaps(missing); return false }
+            return true
+        } catch {
+            // AI unavailable, out of credits, malformed answer: let the brief through.
+            setChecking(false)
+            return true
+        }
+    }
+
+    const handleFinalise = async () => {
+        if (!validateStep(4)) return
+        const ok = await runBriefCheck()
+        if (ok) setShowQuoteModal(true)
+    }
+
     // ── Draft persistence (localStorage) ──
     // Scoped per brand: MOSH creates briefs for several clients from the same
     // browser, and a shared key meant one client's draft could resurface — and
@@ -407,6 +452,47 @@ export default function NewCampaignPage() {
                     <p className="text-[#6B6B6B] text-sm">Décrivez votre besoin, MOSH s&apos;occupe du reste</p>
                 </div>
             </div>
+
+            {/* Brief gaps found on finalising. A speed bump, not a gate: the brand
+                stays free to send as-is — it knows things the checker cannot. */}
+            {gaps && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+                    onClick={() => setGaps(null)}>
+                    <div onClick={e => e.stopPropagation()}
+                        className="bg-white rounded-xl border border-[#E2E2E1] shadow-xl w-full max-w-lg">
+                        <div className="px-5 py-4 border-b border-[#E2E2E1]">
+                            <h3 className="text-[15px] font-semibold text-[#1A1A1A]">
+                                Quelques précisions utiles avant d&apos;envoyer
+                            </h3>
+                            <p className="text-[13px] text-[#6B6B6B] mt-1">
+                                Ces éléments aideraient le créateur à tourner juste du premier coup.
+                            </p>
+                        </div>
+                        <div className="px-5 py-4 divide-y divide-[#E2E2E1]">
+                            {gaps.map((g, i) => (
+                                <div key={i} className="py-2.5 first:pt-0 last:pb-0">
+                                    <p className="text-[13px] font-semibold text-[#1A1A1A]">{g.titre}</p>
+                                    <p className="text-[13px] text-[#6B6B6B] mt-0.5">{g.demande}</p>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="px-5 py-3 border-t border-[#E2E2E1] flex items-center justify-end gap-2">
+                            <button
+                                onClick={() => { setGaps(null); setShowQuoteModal(true) }}
+                                className="px-3 h-9 text-[13px] text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors"
+                            >
+                                Envoyer quand même
+                            </button>
+                            <button
+                                onClick={() => { setGaps(null); setStep(1) }}
+                                className="px-3 h-9 bg-[#1A1A1A] text-white rounded-lg text-[13px] font-medium hover:bg-[#333333] transition-colors"
+                            >
+                                Compléter mon brief
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* A restored draft used to be invisible, which made a half-written brief
                 look like a fresh one. Say it, and offer the way out. */}
@@ -987,11 +1073,20 @@ export default function NewCampaignPage() {
                     ) : (
                         <Button
                             className="btn-primary"
-                            onClick={() => { if (validateStep(4)) setShowQuoteModal(true) }}
-                            disabled={isSubmitting}
+                            onClick={handleFinalise}
+                            disabled={isSubmitting || checking}
                         >
-                            <FileSignature className="w-4 h-4 mr-2" />
-                            Signer et envoyer
+                            {checking ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Vérification du brief...
+                                </>
+                            ) : (
+                                <>
+                                    <FileSignature className="w-4 h-4 mr-2" />
+                                    Signer et envoyer
+                                </>
+                            )}
                         </Button>
                     )}
                 </div>
