@@ -107,9 +107,12 @@
   --muted: #F4F4F3;
   --muted-foreground: #6B6B6B;
 
-  /* Accent — the brand ink; white text sits on it */
-  --accent: #1A1A1A;
-  --accent-foreground: #FFFFFF;
+  /* Accent — in shadcn this is the *highlight* colour: the background of a
+     hovered menu item, not the brand colour. Setting it to the ink turned every
+     dropdown row into a black fill, under text that keeps its own dark colour.
+     The brand ink lives in --primary. */
+  --accent: #F4F4F3;
+  --accent-foreground: #1A1A1A;
 
   /* Destructive — semantic, stays coloured */
   --destructive: #C0392B;
@@ -183,8 +186,10 @@
     @apply text-xl md:text-2xl;
   }
 
+  /* Not tied to --accent: that token is now a near-white highlight, and 20% of
+     it would make selected text indistinguishable from unselected. */
   ::selection {
-    @apply bg-accent/20 text-foreground;
+    @apply bg-[#1A1A1A]/15 text-foreground;
   }
 }
 
