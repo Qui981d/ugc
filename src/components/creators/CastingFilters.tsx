@@ -25,7 +25,7 @@ import {
 import type { ProfileCreator } from '@/types/database'
 
 /** Mirrors the onboarding vocabulary — specialties and languages are stored as codes. */
-const SPECIALTY_OPTIONS = [
+export const SPECIALTY_OPTIONS = [
     { value: 'testimonial', label: 'Témoignage' },
     { value: 'unboxing', label: 'Unboxing' },
     { value: 'review', label: 'Review' },
@@ -33,6 +33,11 @@ const SPECIALTY_OPTIONS = [
     { value: 'tutorial', label: 'Tutoriel' },
     { value: 'asmr', label: 'ASMR' },
 ]
+
+/** Specialties are stored as codes; nobody wants to read "testimonial" on a card. */
+export function specialtyLabel(code: string): string {
+    return SPECIALTY_OPTIONS.find(o => o.value === code)?.label || code
+}
 
 const LANGUAGE_OPTIONS = [
     { value: 'fr', label: 'Français' },

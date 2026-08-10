@@ -54,8 +54,10 @@ import {
     EMPTY_CASTING_FILTERS,
     countActiveCastingFilters,
     matchesCastingFilters,
+    specialtyLabel,
     type CastingFilterState,
 } from '@/components/creators/CastingFilters'
+import { ageFromBirthYear } from '@/lib/constants/creatorCasting'
 import { WORKFLOW_STEPS as CENTRAL_STEPS, isStepCompletedOrPassed } from '@/lib/constants/workflowSteps'
 import { useActingBrandStore } from '@/stores/useActingBrandStore'
 import { buildScriptTemplate } from '@/lib/constants/scriptTemplate'
@@ -759,45 +761,92 @@ export default function AdminMissionDetailPage() {
                                     Aucun créateur ne correspond à ces critères.
                                 </p>
                             ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-80 overflow-y-auto">
-                                {visibleCreators.map(creator => (
-                                    <label
-                                        key={creator.id}
-                                        className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${selectedCreators.includes(creator.id)
-                                            ? 'border-[#1A1A1A] bg-[#EDEDEC]'
-                                            : 'border-[#E2E2E1] bg-white/50 hover:bg-[#F4F4F3]'
-                                            }`}
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedCreators.includes(creator.id)}
-                                            onChange={(e) => {
-                                                if (e.target.checked) {
-                                                    setSelectedCreators(prev => [...prev, creator.id])
-                                                } else {
-                                                    setSelectedCreators(prev => prev.filter(id => id !== creator.id))
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 max-h-[28rem] overflow-y-auto pr-1">
+                                {visibleCreators.map(creator => {
+                                    const profile = creator.profiles_creator
+                                    const isSelected = selectedCreators.includes(creator.id)
+                                    // Specialties first, then niches — enough to judge fit without
+                                    // burying the card. The rest lives on the full profile.
+                                    const badges = [
+                                        ...(profile?.specialties || []).map(specialtyLabel),
+                                        ...(profile?.niches || []),
+                                    ]
+                                    const shown = badges.slice(0, 3)
+
+                                    return (
+                                        <label
+                                            key={creator.id}
+                                            className={`relative flex flex-col p-4 rounded-xl border cursor-pointer transition-all ${isSelected
+                                                ? 'border-[#1A1A1A] bg-[#EDEDEC] ring-1 ring-[#1A1A1A]'
+                                                : 'border-[#E2E2E1] bg-white hover:border-[#C4C4C3] hover:shadow-[0_2px_8px_rgba(0,0,0,0.05)]'
+                                                }`}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={isSelected}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setSelectedCreators(prev => [...prev, creator.id])
+                                                    } else {
+                                                        setSelectedCreators(prev => prev.filter(id => id !== creator.id))
+                                                    }
+                                                }}
+                                                className="sr-only"
+                                            />
+
+                                            {isSelected && (
+                                                <CheckCircle2 className="absolute top-3 right-3 w-5 h-5 text-[#1A1A1A]" strokeWidth={1.5} />
+                                            )}
+
+                                            <div className="flex items-center gap-3">
+                                                {creator.avatar_url ? (
+                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                    <img
+                                                        src={creator.avatar_url}
+                                                        alt=""
+                                                        className="w-12 h-12 rounded-full object-cover border border-[#E2E2E1] shrink-0"
+                                                    />
+                                                ) : (
+                                                    <div className="w-12 h-12 rounded-full bg-[#F4F4F3] border border-[#E2E2E1] flex items-center justify-center text-[#6B6B6B] font-medium shrink-0">
+                                                        {creator.full_name?.[0]?.toUpperCase() || '?'}
+                                                    </div>
+                                                )}
+                                                <div className="min-w-0 flex-1 pr-5">
+                                                    <p className="text-[14px] font-medium text-[#1A1A1A] truncate">{creator.full_name}</p>
+                                                    <p className="text-[12px] text-[#9B9B9B] truncate">
+                                                        {profile?.location_canton || 'Suisse'}
+                                                        {ageFromBirthYear(profile?.birth_year) ? ` · ${ageFromBirthYear(profile?.birth_year)} ans` : ''}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {shown.length > 0 && (
+                                                <div className="flex flex-wrap gap-1.5 mt-3">
+                                                    {shown.map(b => (
+                                                        <span key={b} className="px-2 py-0.5 rounded-full bg-[#F4F4F3] border border-[#E2E2E1] text-[11.5px] text-[#1A1A1A]">
+                                                            {b}
+                                                        </span>
+                                                    ))}
+                                                    {badges.length > shown.length && (
+                                                        <span className="px-2 py-0.5 text-[11.5px] text-[#9B9B9B]">
+                                                            +{badges.length - shown.length}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#E2E2E1] text-[12px] text-[#6B6B6B]">
+                                                {profile?.rating_count
+                                                    ? <span className="tabular-nums">{profile.rating_avg?.toFixed(1)} ★ ({profile.rating_count})</span>
+                                                    : <span className="text-[#9B9B9B]">Pas encore noté</span>
                                                 }
-                                            }}
-                                            className="sr-only"
-                                        />
-                                        <div className="w-10 h-10 rounded-lg bg-[#F4F4F3] flex items-center justify-center text-[#1A1A1A] font-medium text-sm">
-                                            {creator.full_name?.[0] || '?'}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-[#1A1A1A] text-sm font-medium truncate">{creator.full_name}</p>
-                                            <p className="text-[#9B9B9B] text-xs truncate">
-                                                {creator.profiles_creator?.location_canton || 'Suisse'}
-                                                {creator.profiles_creator?.specialties?.length ? ` · ${creator.profiles_creator.specialties[0]}` : ''}
-                                            </p>
-                                        </div>
-                                        {!matchedIds.has(creator.id) && (
-                                            <span className="text-[11px] uppercase tracking-wider text-[#9B9B9B] shrink-0">Hors filtre</span>
-                                        )}
-                                        {selectedCreators.includes(creator.id) && (
-                                            <CheckCircle2 className="w-5 h-5 text-[#1A1A1A] shrink-0" strokeWidth={1.5} />
-                                        )}
-                                    </label>
-                                ))}
+                                                {!matchedIds.has(creator.id) && (
+                                                    <span className="ml-auto text-[11px] uppercase tracking-wider text-[#9B9B9B]">Hors filtre</span>
+                                                )}
+                                            </div>
+                                        </label>
+                                    )
+                                })}
                             </div>
                             )}
                             <div className="flex gap-3 pt-2">
