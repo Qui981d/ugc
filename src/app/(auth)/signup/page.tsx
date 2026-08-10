@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Building2, User, Loader2, AlertCircle, ArrowLeft, CheckCircle2 } from "lucide-react"
+import { Building2, User, Loader2, AlertCircle, ArrowLeft, CheckCircle2, ChevronDown } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { validateInviteCode, markInvitationUsed } from "@/lib/services/adminService"
 import { MoshLogo } from "@/components/brand/MoshLogo"
@@ -272,17 +272,25 @@ function SignupForm() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="canton" className="text-[#1A1A1A]">Canton</Label>
-                                <select
-                                    id="canton"
-                                    value={creatorForm.canton}
-                                    onChange={(e) => setCreatorForm({ ...creatorForm, canton: e.target.value })}
-                                    className={inputClass}
-                                >
-                                    <option value="">Sélectionner…</option>
-                                    {SWISS_CANTONS.map(c => (
-                                        <option key={c.code} value={c.code}>{c.name}</option>
-                                    ))}
-                                </select>
+                                {/* Native select, styled to match Input: the browser chevron is
+                                    replaced by our own so the control does not look bolted on. */}
+                                <div className="relative">
+                                    <select
+                                        id="canton"
+                                        value={creatorForm.canton}
+                                        onChange={(e) => setCreatorForm({ ...creatorForm, canton: e.target.value })}
+                                        className={`${inputClass} appearance-none h-9 w-full rounded-md border pl-3 pr-9 py-1 text-base md:text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:ring-[3px] ${creatorForm.canton ? '' : 'text-[#9B9B9B]'}`}
+                                    >
+                                        <option value="" className="text-[#9B9B9B]">Sélectionner…</option>
+                                        {SWISS_CANTONS.map(c => (
+                                            <option key={c.code} value={c.code} className="text-[#1A1A1A]">{c.name}</option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown
+                                        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9B9B9B]"
+                                        strokeWidth={1.75}
+                                    />
+                                </div>
                             </div>
 
                             {creatorForm.inviteCode && (
