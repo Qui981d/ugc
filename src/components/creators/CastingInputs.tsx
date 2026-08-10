@@ -87,6 +87,15 @@ export function CastingField({ label, children }: { label: string; children: Rea
 
 export const castingControlClass = 'w-full h-9 px-3 bg-white border border-[#E2E2E1] rounded-lg text-[13px] text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] focus:ring-2 focus:ring-[#1A1A1A]/15'
 
+/**
+ * Handles are stored bare, without the leading @ — profile links are built by
+ * appending to a base URL, so one form storing "@nom" and another storing "nom"
+ * produces a dead link from one of them.
+ */
+export function normalizeHandle(value: string): string | null {
+    return value.trim().replace(/^@+/, '') || null
+}
+
 /** Optional casting fields go to the DB as null / [] — never as empty strings. */
 export function toNullableInt(value: string): number | null {
     const parsed = parseInt(value, 10)

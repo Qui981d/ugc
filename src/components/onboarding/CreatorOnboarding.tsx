@@ -24,8 +24,14 @@ import {
     EYE_COLORS,
     GENDERS,
     BIRTH_YEARS,
+    EXPERIENCE_LEVELS,
+    DELIVERY_DELAYS,
+    SKIN_TONES,
+    FOLLOWER_RANGES,
+    EXCLUDED_TOPICS,
 } from "@/lib/constants/creatorCasting"
-import { CastingChips, CastingToggle, CastingField, castingControlClass, toNullableInt } from "@/components/creators/CastingInputs"
+import { SWISS_CANTONS } from "@/lib/validations/swiss"
+import { CastingChips, CastingToggle, CastingField, castingControlClass, normalizeHandle, toNullableInt } from "@/components/creators/CastingInputs"
 
 interface CreatorOnboardingProps {
     userId: string
@@ -68,13 +74,21 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
 
     // Form data
     const [bio, setBio] = useState('')
+    const [locationCanton, setLocationCanton] = useState('')
+    const [hourlyRateChf, setHourlyRateChf] = useState('')
     const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([])
+    const [experienceLevel, setExperienceLevel] = useState('')
+    const [deliveryDelayDays, setDeliveryDelayDays] = useState('')
     const [selectedLanguages, setSelectedLanguages] = useState<string[]>(['fr'])
     const [portfolioUrl, setPortfolioUrl] = useState('')
     const [portfolioUrls, setPortfolioUrls] = useState<string[]>([])
+    const [instagramHandle, setInstagramHandle] = useState('')
+    const [tiktokHandle, setTiktokHandle] = useState('')
+    const [followerRange, setFollowerRange] = useState('')
 
     // Casting attributes — self-declared, all optional
     const [niches, setNiches] = useState<string[]>([])
+    const [excludedTopics, setExcludedTopics] = useState<string[]>([])
     const [shootSettings, setShootSettings] = useState<string[]>([])
     const [equipment, setEquipment] = useState<string[]>([])
     const [canTravel, setCanTravel] = useState(false)
@@ -85,6 +99,8 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
     const [heightCm, setHeightCm] = useState('')
     const [hairColor, setHairColor] = useState('')
     const [eyeColor, setEyeColor] = useState('')
+    const [skinTone, setSkinTone] = useState('')
+    const [hasVisibleTattoos, setHasVisibleTattoos] = useState(false)
     const [hasChildren, setHasChildren] = useState(false)
     const [hasPets, setHasPets] = useState(false)
 
@@ -121,10 +137,18 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
             .upsert({
                 user_id: userId,
                 bio,
+                location_canton: locationCanton || null,
+                hourly_rate_chf: toNullableInt(hourlyRateChf),
                 specialties: selectedSpecialties,
+                experience_level: experienceLevel || null,
+                delivery_delay_days: toNullableInt(deliveryDelayDays),
                 languages: selectedLanguages,
                 portfolio_video_urls: portfolioUrls,
+                instagram_handle: normalizeHandle(instagramHandle),
+                tiktok_handle: normalizeHandle(tiktokHandle),
+                follower_range: followerRange || null,
                 niches,
+                excluded_topics: excludedTopics,
                 shoot_settings: shootSettings,
                 equipment,
                 can_travel: canTravel,
@@ -135,6 +159,8 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                 height_cm: toNullableInt(heightCm),
                 hair_color: hairColor || null,
                 eye_color: eyeColor || null,
+                skin_tone: skinTone || null,
+                has_visible_tattoos: hasVisibleTattoos,
                 has_children: hasChildren,
                 has_pets: hasPets,
             }, { onConflict: 'user_id' })
@@ -228,6 +254,32 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                                     <p className={`text-xs ${bio.trim().length >= 10 ? 'text-[#6B6B6B]' : 'text-[#9B9B9B]'}`}>
                                         {bio.trim().length}/10 caractères minimum
                                     </p>
+                                    <div className="pt-4 border-t border-[#F2F2F1] grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <CastingField label="Canton">
+                                            <select
+                                                value={locationCanton}
+                                                onChange={(e) => setLocationCanton(e.target.value)}
+                                                className={castingControlClass}
+                                            >
+                                                <option value="">Non précisé</option>
+                                                {SWISS_CANTONS.map(canton => (
+                                                    <option key={canton.code} value={canton.code}>{canton.name}</option>
+                                                ))}
+                                            </select>
+                                        </CastingField>
+                                        <CastingField label="Tarif indicatif par vidéo (CHF)">
+                                            <input
+                                                type="number"
+                                                inputMode="numeric"
+                                                min={0}
+                                                step={10}
+                                                value={hourlyRateChf}
+                                                onChange={(e) => setHourlyRateChf(e.target.value)}
+                                                placeholder="Ex : 250"
+                                                className={`${castingControlClass} placeholder:text-[#9B9B9B]`}
+                                            />
+                                        </CastingField>
+                                    </div>
                                 </div>
                             )}
 
@@ -265,6 +317,32 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                                                 </button>
                                             )
                                         })}
+                                    </div>
+                                    <div className="pt-4 border-t border-[#F2F2F1] grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <CastingField label="Niveau d'expérience">
+                                            <select
+                                                value={experienceLevel}
+                                                onChange={(e) => setExperienceLevel(e.target.value)}
+                                                className={castingControlClass}
+                                            >
+                                                <option value="">Non précisé</option>
+                                                {EXPERIENCE_LEVELS.map(option => (
+                                                    <option key={option} value={option}>{option}</option>
+                                                ))}
+                                            </select>
+                                        </CastingField>
+                                        <CastingField label="Délai de livraison habituel">
+                                            <select
+                                                value={deliveryDelayDays}
+                                                onChange={(e) => setDeliveryDelayDays(e.target.value)}
+                                                className={castingControlClass}
+                                            >
+                                                <option value="">Non précisé</option>
+                                                {DELIVERY_DELAYS.map(option => (
+                                                    <option key={option.value} value={option.value}>{option.label}</option>
+                                                ))}
+                                            </select>
+                                        </CastingField>
                                     </div>
                                 </div>
                             )}
@@ -349,6 +427,40 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                                     <p className="text-xs text-[#9B9B9B]">
                                         Vous pourrez aussi en ajouter plus tard depuis votre portfolio
                                     </p>
+                                    <div className="pt-4 border-t border-[#F2F2F1] grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <CastingField label="Instagram">
+                                            <input
+                                                type="text"
+                                                value={instagramHandle}
+                                                onChange={(e) => setInstagramHandle(e.target.value)}
+                                                placeholder="@votrecompte"
+                                                className={`${castingControlClass} placeholder:text-[#9B9B9B]`}
+                                            />
+                                        </CastingField>
+                                        <CastingField label="TikTok">
+                                            <input
+                                                type="text"
+                                                value={tiktokHandle}
+                                                onChange={(e) => setTiktokHandle(e.target.value)}
+                                                placeholder="@votrecompte"
+                                                className={`${castingControlClass} placeholder:text-[#9B9B9B]`}
+                                            />
+                                        </CastingField>
+                                        <div className="sm:col-span-2">
+                                            <CastingField label="Nombre d'abonnés">
+                                                <select
+                                                    value={followerRange}
+                                                    onChange={(e) => setFollowerRange(e.target.value)}
+                                                    className={castingControlClass}
+                                                >
+                                                    <option value="">Non précisé</option>
+                                                    {FOLLOWER_RANGES.map(option => (
+                                                        <option key={option} value={option}>{option}</option>
+                                                    ))}
+                                                </select>
+                                            </CastingField>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 
@@ -369,7 +481,20 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                                             onToggle={makeChipToggle(setNiches)}
                                         />
                                     </div>
-                                    <div className="space-y-2.5">
+                                    <div className="space-y-2.5 pt-5 border-t border-[#F2F2F1]">
+                                        <div>
+                                            <p className="text-[12px] font-medium text-[#6B6B6B]">Sujets que vous ne souhaitez pas traiter</p>
+                                            <p className="text-[12px] text-[#9B9B9B] mt-0.5">
+                                                Nous ne vous proposerons aucune mission sur ces sujets
+                                            </p>
+                                        </div>
+                                        <CastingChips
+                                            options={EXCLUDED_TOPICS}
+                                            selected={excludedTopics}
+                                            onToggle={makeChipToggle(setExcludedTopics)}
+                                        />
+                                    </div>
+                                    <div className="space-y-2.5 pt-5 border-t border-[#F2F2F1]">
                                         <p className="text-[12px] font-medium text-[#6B6B6B]">Lieux de tournage</p>
                                         <CastingChips
                                             options={SHOOT_SETTINGS}
@@ -466,8 +591,26 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                                                 ))}
                                             </select>
                                         </CastingField>
+                                        <CastingField label="Carnation">
+                                            <select
+                                                value={skinTone}
+                                                onChange={(e) => setSkinTone(e.target.value)}
+                                                className={castingControlClass}
+                                            >
+                                                <option value="">Non précisé</option>
+                                                {SKIN_TONES.map(option => (
+                                                    <option key={option} value={option}>{option}</option>
+                                                ))}
+                                            </select>
+                                        </CastingField>
                                     </div>
-                                    <div className="space-y-2.5">
+                                    <div className="space-y-2.5 pt-5 border-t border-[#F2F2F1]">
+                                        <p className="text-[12px] font-medium text-[#6B6B6B]">Signes particuliers</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            <CastingToggle label="Tatouages visibles" checked={hasVisibleTattoos} onChange={setHasVisibleTattoos} />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2.5 pt-5 border-t border-[#F2F2F1]">
                                         <p className="text-[12px] font-medium text-[#6B6B6B]">Votre foyer</p>
                                         <div className="flex flex-wrap gap-2">
                                             <CastingToggle label="Enfants au foyer" checked={hasChildren} onChange={setHasChildren} />

@@ -114,6 +114,14 @@ export interface ProfileCreator {
     does_voiceover: boolean
     has_children: boolean
     has_pets: boolean
+    experience_level: string | null
+    delivery_delay_days: number | null
+    skin_tone: string | null
+    has_visible_tattoos: boolean
+    instagram_handle: string | null
+    tiktok_handle: string | null
+    follower_range: string | null
+    excluded_topics: string[]
     created_at: string
     updated_at: string
 }

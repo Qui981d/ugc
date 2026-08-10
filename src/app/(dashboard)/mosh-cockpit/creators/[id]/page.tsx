@@ -21,7 +21,7 @@ import {
     UserRound
 } from 'lucide-react'
 import { getCreatorById, type CreatorWithProfile, type CampaignWithDetails } from '@/lib/services/adminService'
-import { ageFromBirthYear } from '@/lib/constants/creatorCasting'
+import { ageFromBirthYear, DELIVERY_DELAYS } from '@/lib/constants/creatorCasting'
 
 const STATUS_LABELS: Record<string, { label: string; class: string }> = {
     draft: { label: 'Brief reçu', class: 'bg-[#F4F4F3] text-[#6B6B6B]' },
@@ -97,13 +97,51 @@ export default function CreatorDetailPage() {
         profile?.height_cm && { label: 'Taille', value: `${profile.height_cm} cm` },
         profile?.hair_color && { label: 'Cheveux', value: profile.hair_color },
         profile?.eye_color && { label: 'Yeux', value: profile.eye_color },
+        profile?.skin_tone && { label: 'Carnation', value: profile.skin_tone },
+        profile?.has_visible_tattoos && { label: 'Tatouages', value: 'Visibles' },
     ].filter(Boolean) as { label: string; value: string }[]
+
+    // How they work — the declared delay is a number, shown with the wording the creator chose from
+    const deliveryDays = profile?.delivery_delay_days ?? null
+    const deliveryLabel = deliveryDays !== null
+        ? DELIVERY_DELAYS.find(d => d.value === deliveryDays)?.label ?? `Sous ${deliveryDays} jours`
+        : null
+
+    const workChips = [
+        profile?.experience_level && `Expérience : ${profile.experience_level}`,
+        deliveryLabel && `Livraison : ${deliveryLabel.toLowerCase()}`,
+        profile?.hourly_rate_chf != null && `${profile.hourly_rate_chf} CHF / heure`,
+    ].filter(Boolean) as string[]
+
+    const stripAt = (handle: string) => handle.replace(/^@+/, '')
+    const instagramHandle = profile?.instagram_handle?.trim() ?? ''
+    const tiktokHandle = profile?.tiktok_handle?.trim() ?? ''
+    const socialLinks = [
+        instagramHandle && {
+            label: 'Instagram',
+            handle: `@${stripAt(instagramHandle)}`,
+            href: `https://instagram.com/${stripAt(instagramHandle)}`,
+        },
+        tiktokHandle && {
+            label: 'TikTok',
+            handle: `@${stripAt(tiktokHandle)}`,
+            href: `https://tiktok.com/@${stripAt(tiktokHandle)}`,
+        },
+    ].filter(Boolean) as { label: string; handle: string; href: string }[]
+    const followerRange = profile?.follower_range?.trim() ?? ''
+    const hasSocial = socialLinks.length > 0 || followerRange.length > 0
+
+    const excludedTopics = profile?.excluded_topics ?? []
 
     const niches = profile?.niches ?? []
     const shootSettings = profile?.shoot_settings ?? []
     const equipment = profile?.equipment ?? []
-    const hasShootConditions = shootSettings.length > 0 || equipment.length > 0 || castingFlags.length > 0
-    const hasCasting = niches.length > 0 || hasShootConditions || castingTraits.length > 0
+    const workConditions = [...shootSettings, ...equipment, ...castingFlags, ...workChips]
+    const hasCasting = niches.length > 0
+        || workConditions.length > 0
+        || castingTraits.length > 0
+        || hasSocial
+        || excludedTopics.length > 0
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
@@ -288,15 +326,41 @@ export default function CreatorDetailPage() {
                             </div>
                         )}
 
-                        {hasShootConditions && (
+                        {workConditions.length > 0 && (
                             <div>
                                 <p className="text-[11px] uppercase tracking-wider text-[#9B9B9B] mb-2">Conditions de tournage</p>
                                 <div className="flex flex-wrap gap-2">
-                                    {[...shootSettings, ...equipment, ...castingFlags].map(item => (
+                                    {workConditions.map(item => (
                                         <span key={item} className="px-3 py-1.5 rounded-full text-xs font-medium bg-[#F4F4F3] text-[#1A1A1A] border border-[#E2E2E1]">
                                             {item}
                                         </span>
                                     ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {hasSocial && (
+                            <div>
+                                <p className="text-[11px] uppercase tracking-wider text-[#9B9B9B] mb-2">Réseaux</p>
+                                <div className="flex flex-wrap items-center gap-2">
+                                    {socialLinks.map(link => (
+                                        <a
+                                            key={link.label}
+                                            href={link.href}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[#F4F4F3] text-[#1A1A1A] border border-[#E2E2E1] hover:border-[#C4C4C3] transition-colors"
+                                        >
+                                            <span className="text-[#6B6B6B]">{link.label}</span>
+                                            {link.handle}
+                                            <ExternalLink className="w-3 h-3 text-[#9B9B9B]" strokeWidth={1.5} />
+                                        </a>
+                                    ))}
+                                    {followerRange && (
+                                        <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-[#F4F4F3] text-[#1A1A1A] border border-[#E2E2E1]">
+                                            <span className="text-[#6B6B6B]">Communauté</span> {followerRange}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -312,6 +376,20 @@ export default function CreatorDetailPage() {
                                         </div>
                                     ))}
                                 </dl>
+                            </div>
+                        )}
+
+                        {/* Refusals, kept visually apart so nobody reads them as specialties */}
+                        {excludedTopics.length > 0 && (
+                            <div className="border-t border-dashed border-[#E2E2E1] pt-4">
+                                <p className="text-[11px] uppercase tracking-wider text-[#9B9B9B] mb-2">Ne souhaite pas traiter</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {excludedTopics.map(topic => (
+                                        <span key={topic} className="px-3 py-1.5 rounded-full text-xs font-medium bg-white text-[#6B6B6B] border border-dashed border-[#C4C4C3]">
+                                            {topic}
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </div>

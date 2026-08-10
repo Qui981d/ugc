@@ -33,8 +33,13 @@ import {
     EYE_COLORS,
     GENDERS,
     BIRTH_YEARS,
+    EXPERIENCE_LEVELS,
+    DELIVERY_DELAYS,
+    SKIN_TONES,
+    FOLLOWER_RANGES,
+    EXCLUDED_TOPICS,
 } from "@/lib/constants/creatorCasting"
-import { CastingChips, CastingToggle, CastingField, castingControlClass, toNullableInt } from "@/components/creators/CastingInputs"
+import { CastingChips, CastingToggle, CastingField, castingControlClass, normalizeHandle, toNullableInt } from "@/components/creators/CastingInputs"
 
 const tabs = [
     { id: 'profile', label: 'Profil', icon: User },
@@ -94,10 +99,19 @@ export default function CreatorSettingsPage() {
         eyeColor: '',
         hasChildren: false,
         hasPets: false,
+        experienceLevel: '',
+        deliveryDelayDays: '',
+        hourlyRateChf: '',
+        skinTone: '',
+        hasVisibleTattoos: false,
+        instagramHandle: '',
+        tiktokHandle: '',
+        followerRange: '',
+        excludedTopics: [] as string[],
     })
 
     /** Toggles one value inside a string[] field of profileData. */
-    const toggleCastingChip = (key: 'niches' | 'shootSettings' | 'equipment') => (value: string) =>
+    const toggleCastingChip = (key: 'niches' | 'shootSettings' | 'equipment' | 'excludedTopics') => (value: string) =>
         setProfileData(prev => ({
             ...prev,
             [key]: prev[key].includes(value)
@@ -149,6 +163,15 @@ export default function CreatorSettingsPage() {
                 eyeColor: (creatorProfile as any)?.eye_color || '',
                 hasChildren: (creatorProfile as any)?.has_children ?? false,
                 hasPets: (creatorProfile as any)?.has_pets ?? false,
+                experienceLevel: (creatorProfile as any)?.experience_level || '',
+                deliveryDelayDays: (creatorProfile as any)?.delivery_delay_days?.toString() || '',
+                hourlyRateChf: (creatorProfile as any)?.hourly_rate_chf?.toString() || '',
+                skinTone: (creatorProfile as any)?.skin_tone || '',
+                hasVisibleTattoos: (creatorProfile as any)?.has_visible_tattoos ?? false,
+                instagramHandle: (creatorProfile as any)?.instagram_handle || '',
+                tiktokHandle: (creatorProfile as any)?.tiktok_handle || '',
+                followerRange: (creatorProfile as any)?.follower_range || '',
+                excludedTopics: (creatorProfile as any)?.excluded_topics || [],
             })
             setIsDataLoading(false)
         }
@@ -213,6 +236,15 @@ export default function CreatorSettingsPage() {
                 eye_color: profileData.eyeColor || null,
                 has_children: profileData.hasChildren,
                 has_pets: profileData.hasPets,
+                experience_level: profileData.experienceLevel || null,
+                delivery_delay_days: toNullableInt(profileData.deliveryDelayDays),
+                hourly_rate_chf: toNullableInt(profileData.hourlyRateChf),
+                skin_tone: profileData.skinTone || null,
+                has_visible_tattoos: profileData.hasVisibleTattoos,
+                instagram_handle: normalizeHandle(profileData.instagramHandle),
+                tiktok_handle: normalizeHandle(profileData.tiktokHandle),
+                follower_range: profileData.followerRange || null,
+                excluded_topics: profileData.excludedTopics,
             }, { onConflict: 'user_id' })
 
         if (profileErr) console.error('Error saving creator profile:', profileErr)
@@ -333,6 +365,87 @@ export default function CreatorSettingsPage() {
                             </div>
                         </div>
 
+                        {/* Votre façon de travailler */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <CastingField label="Niveau d'expérience">
+                                <select
+                                    value={profileData.experienceLevel}
+                                    onChange={(e) => setProfileData({ ...profileData, experienceLevel: e.target.value })}
+                                    className={castingControlClass}
+                                >
+                                    <option value="">Non précisé</option>
+                                    {EXPERIENCE_LEVELS.map(option => (
+                                        <option key={option} value={option}>{option}</option>
+                                    ))}
+                                </select>
+                            </CastingField>
+                            <CastingField label="Délai de livraison habituel">
+                                <select
+                                    value={profileData.deliveryDelayDays}
+                                    onChange={(e) => setProfileData({ ...profileData, deliveryDelayDays: e.target.value })}
+                                    className={castingControlClass}
+                                >
+                                    <option value="">Non précisé</option>
+                                    {DELIVERY_DELAYS.map(option => (
+                                        <option key={option.value} value={option.value}>{option.label}</option>
+                                    ))}
+                                </select>
+                            </CastingField>
+                            <CastingField label="Tarif indicatif par vidéo (CHF)">
+                                <input
+                                    type="number"
+                                    inputMode="numeric"
+                                    min={0}
+                                    value={profileData.hourlyRateChf}
+                                    onChange={(e) => setProfileData({ ...profileData, hourlyRateChf: e.target.value })}
+                                    placeholder="Ex : 250"
+                                    className={`${castingControlClass} placeholder:text-[#9B9B9B]`}
+                                />
+                            </CastingField>
+                        </div>
+
+                        {/* Réseaux */}
+                        <div className="space-y-3">
+                            <div>
+                                <p className="text-sm text-[#6B6B6B]">Réseaux</p>
+                                <p className="text-[12px] text-[#9B9B9B] mt-0.5">
+                                    Facultatif — certaines marques cherchent une audience en plus du contenu
+                                </p>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <CastingField label="Instagram">
+                                    <input
+                                        type="text"
+                                        value={profileData.instagramHandle}
+                                        onChange={(e) => setProfileData({ ...profileData, instagramHandle: e.target.value })}
+                                        placeholder="@votrecompte"
+                                        className={`${castingControlClass} placeholder:text-[#9B9B9B]`}
+                                    />
+                                </CastingField>
+                                <CastingField label="TikTok">
+                                    <input
+                                        type="text"
+                                        value={profileData.tiktokHandle}
+                                        onChange={(e) => setProfileData({ ...profileData, tiktokHandle: e.target.value })}
+                                        placeholder="@votrecompte"
+                                        className={`${castingControlClass} placeholder:text-[#9B9B9B]`}
+                                    />
+                                </CastingField>
+                                <CastingField label="Nombre d'abonnés">
+                                    <select
+                                        value={profileData.followerRange}
+                                        onChange={(e) => setProfileData({ ...profileData, followerRange: e.target.value })}
+                                        className={castingControlClass}
+                                    >
+                                        <option value="">Non précisé</option>
+                                        {FOLLOWER_RANGES.map(option => (
+                                            <option key={option} value={option}>{option}</option>
+                                        ))}
+                                    </select>
+                                </CastingField>
+                            </div>
+                        </div>
+
                         {/* Thématiques et tournages */}
                         <div className="pt-8 border-t border-[#E2E2E1] space-y-6">
                             <div>
@@ -384,6 +497,19 @@ export default function CreatorSettingsPage() {
                                         onChange={(v) => setProfileData(prev => ({ ...prev, doesVoiceover: v }))}
                                     />
                                 </div>
+                            </div>
+                            <div className="space-y-2.5 pt-2">
+                                <div>
+                                    <p className="text-[12px] font-medium text-[#6B6B6B]">Sujets que vous ne souhaitez pas traiter</p>
+                                    <p className="text-[12px] text-[#9B9B9B] mt-0.5">
+                                        Ce que vous cochez ici est écarté — vous ne recevrez pas de missions sur ces sujets
+                                    </p>
+                                </div>
+                                <CastingChips
+                                    options={EXCLUDED_TOPICS}
+                                    selected={profileData.excludedTopics}
+                                    onToggle={toggleCastingChip('excludedTopics')}
+                                />
                             </div>
                         </div>
 
@@ -456,6 +582,28 @@ export default function CreatorSettingsPage() {
                                         ))}
                                     </select>
                                 </CastingField>
+                                <CastingField label="Carnation">
+                                    <select
+                                        value={profileData.skinTone}
+                                        onChange={(e) => setProfileData({ ...profileData, skinTone: e.target.value })}
+                                        className={castingControlClass}
+                                    >
+                                        <option value="">Non précisé</option>
+                                        {SKIN_TONES.map(option => (
+                                            <option key={option} value={option}>{option}</option>
+                                        ))}
+                                    </select>
+                                </CastingField>
+                            </div>
+                            <div className="space-y-2.5">
+                                <p className="text-[12px] font-medium text-[#6B6B6B]">Signes particuliers</p>
+                                <div className="flex flex-wrap gap-2">
+                                    <CastingToggle
+                                        label="Tatouages visibles"
+                                        checked={profileData.hasVisibleTattoos}
+                                        onChange={(v) => setProfileData(prev => ({ ...prev, hasVisibleTattoos: v }))}
+                                    />
+                                </div>
                             </div>
                             <div className="space-y-2.5">
                                 <p className="text-[12px] font-medium text-[#6B6B6B]">Votre foyer</p>

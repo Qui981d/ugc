@@ -8,7 +8,8 @@
  * Rules of the game:
  *  - AND across categories, OR inside a category.
  *  - An undeclared field only ever excludes a creator when a filter on that
- *    field is actually active.
+ *    field is actually active. (One deliberate exception: refused topics — see
+ *    the comment on that filter below.)
  */
 
 import { useState } from 'react'
@@ -20,6 +21,11 @@ import {
     HAIR_COLORS,
     EYE_COLORS,
     GENDERS,
+    SKIN_TONES,
+    EXPERIENCE_LEVELS,
+    FOLLOWER_RANGES,
+    EXCLUDED_TOPICS,
+    DELIVERY_DELAYS,
     ageFromBirthYear,
 } from '@/lib/constants/creatorCasting'
 import type { ProfileCreator } from '@/types/database'
@@ -52,6 +58,7 @@ const BOOLEAN_FILTERS = [
     { key: 'doesVoiceover', field: 'does_voiceover', label: 'Voix off' },
     { key: 'hasChildren', field: 'has_children', label: 'Enfants' },
     { key: 'hasPets', field: 'has_pets', label: 'Animaux' },
+    { key: 'hasVisibleTattoos', field: 'has_visible_tattoos', label: 'Tatouages visibles' },
 ] as const
 
 export interface CastingFilterState {
@@ -60,6 +67,11 @@ export interface CastingFilterState {
     equipment: string[]
     specialties: string[]
     languages: string[]
+    experienceLevels: string[]
+    skinTones: string[]
+    followerRanges: string[]
+    /** Topics the brief needs — a creator who refuses any of them is filtered out. */
+    mustNotRefuse: string[]
     canton: string
     ageMin: string
     ageMax: string
@@ -68,11 +80,16 @@ export interface CastingFilterState {
     eyeColor: string
     heightMin: string
     heightMax: string
+    /** Upper bound in days; a creator passes when their declared delay is ≤ this. */
+    maxDeliveryDays: string
+    /** Upper bound in CHF/hour. */
+    maxRateChf: string
     canTravel: boolean
     hasVehicle: boolean
     doesVoiceover: boolean
     hasChildren: boolean
     hasPets: boolean
+    hasVisibleTattoos: boolean
 }
 
 export const EMPTY_CASTING_FILTERS: CastingFilterState = {
@@ -81,6 +98,10 @@ export const EMPTY_CASTING_FILTERS: CastingFilterState = {
     equipment: [],
     specialties: [],
     languages: [],
+    experienceLevels: [],
+    skinTones: [],
+    followerRanges: [],
+    mustNotRefuse: [],
     canton: '',
     ageMin: '',
     ageMax: '',
@@ -89,11 +110,14 @@ export const EMPTY_CASTING_FILTERS: CastingFilterState = {
     eyeColor: '',
     heightMin: '',
     heightMax: '',
+    maxDeliveryDays: '',
+    maxRateChf: '',
     canTravel: false,
     hasVehicle: false,
     doesVoiceover: false,
     hasChildren: false,
     hasPets: false,
+    hasVisibleTattoos: false,
 }
 
 const toNum = (v: string): number | null => {
@@ -108,13 +132,19 @@ export function countActiveCastingFilters(f: CastingFilterState): number {
         f.shootSettings.length +
         f.equipment.length +
         f.specialties.length +
-        f.languages.length
+        f.languages.length +
+        f.experienceLevels.length +
+        f.skinTones.length +
+        f.followerRanges.length +
+        f.mustNotRefuse.length
     if (f.canton.trim()) n++
     if (toNum(f.ageMin) !== null || toNum(f.ageMax) !== null) n++
     if (f.gender) n++
     if (f.hairColor) n++
     if (f.eyeColor) n++
     if (toNum(f.heightMin) !== null || toNum(f.heightMax) !== null) n++
+    if (toNum(f.maxDeliveryDays) !== null) n++
+    if (toNum(f.maxRateChf) !== null) n++
     for (const b of BOOLEAN_FILTERS) if (f[b.key]) n++
     return n
 }
@@ -130,11 +160,19 @@ export function matchesCastingFilters(
     const anyOf = (declared: string[] | null | undefined, wanted: string[]) =>
         wanted.length === 0 || (declared?.some(d => wanted.includes(d)) ?? false)
 
+    /** Single declared value against a multi-select: undeclared never passes. */
+    const oneOf = (declared: string | null | undefined, wanted: string[]) =>
+        wanted.length === 0 || (!!declared && wanted.includes(declared))
+
     if (!anyOf(profile.niches, f.niches)) return false
     if (!anyOf(profile.shoot_settings, f.shootSettings)) return false
     if (!anyOf(profile.equipment, f.equipment)) return false
     if (!anyOf(profile.specialties, f.specialties)) return false
     if (!anyOf(profile.languages, f.languages)) return false
+
+    if (!oneOf(profile.experience_level, f.experienceLevels)) return false
+    if (!oneOf(profile.skin_tone, f.skinTones)) return false
+    if (!oneOf(profile.follower_range, f.followerRanges)) return false
 
     const canton = f.canton.trim().toLowerCase()
     if (canton && (profile.location_canton ?? '').trim().toLowerCase() !== canton) return false
@@ -161,6 +199,30 @@ export function matchesCastingFilters(
         if (hMax !== null && h > hMax) return false
     }
 
+    const maxDelay = toNum(f.maxDeliveryDays)
+    if (maxDelay !== null) {
+        const delay = profile.delivery_delay_days
+        if (delay === null || delay === undefined) return false
+        if (delay > maxDelay) return false
+    }
+
+    const maxRate = toNum(f.maxRateChf)
+    if (maxRate !== null) {
+        const rate = profile.hourly_rate_chf
+        if (rate === null || rate === undefined) return false
+        if (rate > maxRate) return false
+    }
+
+    // Refused topics run backwards from every other filter: MOSH picks the subjects
+    // the brief needs, and a creator passes only when none of them sit in their
+    // refusals. So an EMPTY excluded_topics is the best possible answer here —
+    // declining nothing must never be penalised — and the usual
+    // "undeclared field excludes the creator" rule deliberately does not apply.
+    if (f.mustNotRefuse.length > 0) {
+        const refused = profile.excluded_topics ?? []
+        if (f.mustNotRefuse.some(topic => refused.includes(topic))) return false
+    }
+
     for (const b of BOOLEAN_FILTERS) {
         if (f[b.key] && !profile[b.field]) return false
     }
@@ -171,6 +233,7 @@ export function matchesCastingFilters(
 /* ─── UI ─── */
 
 const LABEL = 'block text-[11px] uppercase tracking-wider text-[#9B9B9B] mb-1.5'
+const SECTION_LABEL = 'block text-[11px] uppercase tracking-wider text-[#6B6B6B] font-semibold mb-3'
 const CHIP_ON = 'bg-[#1A1A1A] text-white'
 const CHIP_OFF = 'bg-white border border-[#E2E2E1] text-[#1A1A1A] hover:bg-[#F4F4F3]'
 const CHIP = 'px-2.5 h-7 rounded-full text-[12px] leading-none transition-colors'
@@ -181,6 +244,30 @@ type Option = { value: string; label: string }
 
 const asOptions = (values: readonly string[]): Option[] =>
     values.map(v => ({ value: v, label: v }))
+
+const DELIVERY_OPTIONS: Option[] = DELIVERY_DELAYS.map(d => ({
+    value: String(d.value),
+    label: d.label,
+}))
+
+/** A quiet heading so a long panel stays scannable. */
+function Section({
+    title,
+    hint,
+    children,
+}: {
+    title: string
+    hint?: string
+    children: React.ReactNode
+}) {
+    return (
+        <section className="border-t border-[#E2E2E1] pt-4 first:border-t-0 first:pt-0">
+            <span className={SECTION_LABEL}>{title}</span>
+            {hint && <p className="text-[12px] text-[#9B9B9B] -mt-2 mb-3">{hint}</p>}
+            <div className="space-y-4">{children}</div>
+        </section>
+    )
+}
 
 function ChipGroup({
     label,
@@ -242,6 +329,33 @@ function SelectField({
     )
 }
 
+function NumberField({
+    label,
+    value,
+    placeholder,
+    onChange,
+}: {
+    label: string
+    value: string
+    placeholder: string
+    onChange: (value: string) => void
+}) {
+    return (
+        <div>
+            <span className={LABEL}>{label}</span>
+            <input
+                type="number"
+                inputMode="numeric"
+                min={0}
+                value={value}
+                onChange={e => onChange(e.target.value)}
+                placeholder={placeholder}
+                className={`${CONTROL} w-full tabular-nums`}
+            />
+        </div>
+    )
+}
+
 function RangeField({
     label,
     min,
@@ -294,6 +408,11 @@ export interface CastingFiltersProps {
     className?: string
 }
 
+/** Every filter key holding a multi-select list. */
+type ListFilterKey = {
+    [K in keyof CastingFilterState]: CastingFilterState[K] extends string[] ? K : never
+}[keyof CastingFilterState]
+
 export function CastingFilters({
     value,
     onChange,
@@ -307,7 +426,7 @@ export function CastingFilters({
     const set = <K extends keyof CastingFilterState>(key: K, v: CastingFilterState[K]) =>
         onChange({ ...value, [key]: v } as CastingFilterState)
 
-    const toggleIn = (key: 'niches' | 'shootSettings' | 'equipment' | 'specialties' | 'languages') =>
+    const toggleIn = (key: ListFilterKey) =>
         (option: string) => {
             const current = value[key]
             set(key, current.includes(option)
@@ -355,111 +474,165 @@ export function CastingFilters({
 
             {isOpen && (
                 <div className="mt-2 bg-white border border-[#E2E2E1] rounded-xl p-4 space-y-4">
-                    <ChipGroup
-                        label="Niches"
-                        options={asOptions(NICHES)}
-                        selected={value.niches}
-                        onToggle={toggleIn('niches')}
-                    />
-                    <ChipGroup
-                        label="Lieux de tournage"
-                        options={asOptions(SHOOT_SETTINGS)}
-                        selected={value.shootSettings}
-                        onToggle={toggleIn('shootSettings')}
-                    />
-                    <ChipGroup
-                        label="Spécialités"
-                        options={SPECIALTY_OPTIONS}
-                        selected={value.specialties}
-                        onToggle={toggleIn('specialties')}
-                    />
-                    <ChipGroup
-                        label="Langues"
-                        options={LANGUAGE_OPTIONS}
-                        selected={value.languages}
-                        onToggle={toggleIn('languages')}
-                    />
-                    <ChipGroup
-                        label="Équipement"
-                        options={asOptions(EQUIPMENT)}
-                        selected={value.equipment}
-                        onToggle={toggleIn('equipment')}
-                    />
+                    <Section title="Contenu">
+                        <ChipGroup
+                            label="Niches"
+                            options={asOptions(NICHES)}
+                            selected={value.niches}
+                            onToggle={toggleIn('niches')}
+                        />
+                        <ChipGroup
+                            label="Lieux de tournage"
+                            options={asOptions(SHOOT_SETTINGS)}
+                            selected={value.shootSettings}
+                            onToggle={toggleIn('shootSettings')}
+                        />
+                        <ChipGroup
+                            label="Spécialités"
+                            options={SPECIALTY_OPTIONS}
+                            selected={value.specialties}
+                            onToggle={toggleIn('specialties')}
+                        />
+                        <ChipGroup
+                            label="Langues"
+                            options={LANGUAGE_OPTIONS}
+                            selected={value.languages}
+                            onToggle={toggleIn('languages')}
+                        />
+                        <ChipGroup
+                            label="Équipement"
+                            options={asOptions(EQUIPMENT)}
+                            selected={value.equipment}
+                            onToggle={toggleIn('equipment')}
+                        />
+                    </Section>
 
-                    <div className="border-t border-[#E2E2E1] pt-4 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-                        {cantonOptions.length > 0 ? (
+                    <Section title="Collaboration">
+                        <ChipGroup
+                            label="Expérience"
+                            options={asOptions(EXPERIENCE_LEVELS)}
+                            selected={value.experienceLevels}
+                            onToggle={toggleIn('experienceLevels')}
+                        />
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                             <SelectField
-                                label="Canton"
-                                value={value.canton}
-                                options={asOptions(cantonOptions)}
-                                placeholder="Tous"
-                                onChange={v => set('canton', v)}
+                                label="Délai de livraison max"
+                                value={value.maxDeliveryDays}
+                                options={DELIVERY_OPTIONS}
+                                placeholder="Peu importe"
+                                onChange={v => set('maxDeliveryDays', v)}
                             />
-                        ) : (
-                            <div>
-                                <span className={LABEL}>Canton</span>
-                                <input
-                                    type="text"
-                                    value={value.canton}
-                                    onChange={e => set('canton', e.target.value)}
-                                    placeholder="Tous"
-                                    className={`${CONTROL} w-full`}
-                                />
-                            </div>
-                        )}
-                        <SelectField
-                            label="Genre"
-                            value={value.gender}
-                            options={asOptions(GENDERS)}
-                            placeholder="Tous"
-                            onChange={v => set('gender', v)}
-                        />
-                        <SelectField
-                            label="Cheveux"
-                            value={value.hairColor}
-                            options={asOptions(HAIR_COLORS)}
-                            placeholder="Tous"
-                            onChange={v => set('hairColor', v)}
-                        />
-                        <SelectField
-                            label="Yeux"
-                            value={value.eyeColor}
-                            options={asOptions(EYE_COLORS)}
-                            placeholder="Tous"
-                            onChange={v => set('eyeColor', v)}
-                        />
-                        <RangeField
-                            label="Âge"
-                            min={value.ageMin}
-                            max={value.ageMax}
-                            onMin={v => set('ageMin', v)}
-                            onMax={v => set('ageMax', v)}
-                        />
-                        <RangeField
-                            label="Taille"
-                            min={value.heightMin}
-                            max={value.heightMax}
-                            suffix="cm"
-                            onMin={v => set('heightMin', v)}
-                            onMax={v => set('heightMax', v)}
-                        />
-                    </div>
-
-                    <div className="border-t border-[#E2E2E1] pt-4">
-                        <span className={LABEL}>Critères pratiques</span>
-                        <div className="flex flex-wrap gap-1.5">
-                            {BOOLEAN_FILTERS.map(b => (
-                                <button
-                                    key={b.key}
-                                    type="button"
-                                    onClick={() => set(b.key, !value[b.key])}
-                                    className={`${CHIP} ${value[b.key] ? CHIP_ON : CHIP_OFF}`}
-                                >
-                                    {b.label}
-                                </button>
-                            ))}
+                            <NumberField
+                                label="Tarif max (CHF)"
+                                value={value.maxRateChf}
+                                placeholder="Peu importe"
+                                onChange={v => set('maxRateChf', v)}
+                            />
                         </div>
-                    </div>
+                    </Section>
+
+                    <Section title="Réseaux">
+                        <ChipGroup
+                            label="Communauté"
+                            options={asOptions(FOLLOWER_RANGES)}
+                            selected={value.followerRanges}
+                            onToggle={toggleIn('followerRanges')}
+                        />
+                    </Section>
+
+                    <Section title="Profil">
+                        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+                            {cantonOptions.length > 0 ? (
+                                <SelectField
+                                    label="Canton"
+                                    value={value.canton}
+                                    options={asOptions(cantonOptions)}
+                                    placeholder="Tous"
+                                    onChange={v => set('canton', v)}
+                                />
+                            ) : (
+                                <div>
+                                    <span className={LABEL}>Canton</span>
+                                    <input
+                                        type="text"
+                                        value={value.canton}
+                                        onChange={e => set('canton', e.target.value)}
+                                        placeholder="Tous"
+                                        className={`${CONTROL} w-full`}
+                                    />
+                                </div>
+                            )}
+                            <SelectField
+                                label="Genre"
+                                value={value.gender}
+                                options={asOptions(GENDERS)}
+                                placeholder="Tous"
+                                onChange={v => set('gender', v)}
+                            />
+                            <SelectField
+                                label="Cheveux"
+                                value={value.hairColor}
+                                options={asOptions(HAIR_COLORS)}
+                                placeholder="Tous"
+                                onChange={v => set('hairColor', v)}
+                            />
+                            <SelectField
+                                label="Yeux"
+                                value={value.eyeColor}
+                                options={asOptions(EYE_COLORS)}
+                                placeholder="Tous"
+                                onChange={v => set('eyeColor', v)}
+                            />
+                            <RangeField
+                                label="Âge"
+                                min={value.ageMin}
+                                max={value.ageMax}
+                                onMin={v => set('ageMin', v)}
+                                onMax={v => set('ageMax', v)}
+                            />
+                            <RangeField
+                                label="Taille"
+                                min={value.heightMin}
+                                max={value.heightMax}
+                                suffix="cm"
+                                onMin={v => set('heightMin', v)}
+                                onMax={v => set('heightMax', v)}
+                            />
+                        </div>
+                        <ChipGroup
+                            label="Carnation"
+                            options={asOptions(SKIN_TONES)}
+                            selected={value.skinTones}
+                            onToggle={toggleIn('skinTones')}
+                        />
+                        <div>
+                            <span className={LABEL}>Critères pratiques</span>
+                            <div className="flex flex-wrap gap-1.5">
+                                {BOOLEAN_FILTERS.map(b => (
+                                    <button
+                                        key={b.key}
+                                        type="button"
+                                        onClick={() => set(b.key, !value[b.key])}
+                                        className={`${CHIP} ${value[b.key] ? CHIP_ON : CHIP_OFF}`}
+                                    >
+                                        {b.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </Section>
+
+                    <Section
+                        title="Ne refuse pas"
+                        hint="Sélectionnez les sujets du brief : les créateurs qui les refusent sont écartés."
+                    >
+                        <ChipGroup
+                            label="Sujets à accepter"
+                            options={asOptions(EXCLUDED_TOPICS)}
+                            selected={value.mustNotRefuse}
+                            onToggle={toggleIn('mustNotRefuse')}
+                        />
+                    </Section>
                 </div>
             )}
         </div>
