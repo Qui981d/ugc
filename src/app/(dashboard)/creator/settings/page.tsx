@@ -40,6 +40,7 @@ import {
     EXCLUDED_TOPICS,
 } from "@/lib/constants/creatorCasting"
 import { CastingChips, CastingToggle, CastingField, castingControlClass, normalizeHandle, toNullableInt } from "@/components/creators/CastingInputs"
+import { SWISS_CANTONS } from "@/lib/validations/swiss"
 
 const tabs = [
     { id: 'profile', label: 'Profil', icon: User },
@@ -220,7 +221,7 @@ export default function CreatorSettingsPage() {
             .upsert({
                 user_id: user!.id,
                 bio: profileData.bio,
-                location_canton: profileData.location,
+                location_canton: profileData.location || null,
                 languages: profileData.languages,
                 specialties: enumSpecialties,
                 niches: profileData.niches,
@@ -328,14 +329,17 @@ export default function CreatorSettingsPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm text-[#6B6B6B] mb-2">Localisation</label>
-                            <input
-                                type="text"
+                            <label className="block text-sm text-[#6B6B6B] mb-2">Canton</label>
+                            <select
                                 value={profileData.location}
                                 onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
-                                placeholder="Ex: Genève, Suisse"
-                                className="w-full bg-[#F4F4F3] border border-transparent rounded-lg px-4 py-3 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15 placeholder:text-[#9B9B9B]"
-                            />
+                                className="w-full bg-[#F4F4F3] border border-transparent rounded-lg px-4 py-3 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] focus:ring-1 focus:ring-[#1A1A1A]/15"
+                            >
+                                <option value="">Non précisé</option>
+                                {SWISS_CANTONS.map(c => (
+                                    <option key={c.code} value={c.code}>{c.name}</option>
+                                ))}
+                            </select>
                         </div>
 
                         {/* Specialties */}

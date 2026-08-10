@@ -57,6 +57,7 @@ import {
     specialtyLabel,
     type CastingFilterState,
 } from '@/components/creators/CastingFilters'
+import { cantonLabel } from "@/lib/validations/swiss"
 import { ageFromBirthYear } from '@/lib/constants/creatorCasting'
 import { WORKFLOW_STEPS as CENTRAL_STEPS, isStepCompletedOrPassed } from '@/lib/constants/workflowSteps'
 import { useActingBrandStore } from '@/stores/useActingBrandStore'
@@ -814,7 +815,7 @@ export default function AdminMissionDetailPage() {
                                                 <div className="min-w-0 flex-1 pr-5">
                                                     <p className="text-[14px] font-medium text-[#1A1A1A] truncate">{creator.full_name}</p>
                                                     <p className="text-[12px] text-[#9B9B9B] truncate">
-                                                        {profile?.location_canton || 'Suisse'}
+                                                        {cantonLabel(profile?.location_canton) || 'Suisse'}
                                                         {ageFromBirthYear(profile?.birth_year) ? ` · ${ageFromBirthYear(profile?.birth_year)} ans` : ''}
                                                     </p>
                                                 </div>
@@ -1281,7 +1282,7 @@ export default function AdminMissionDetailPage() {
                                                         >
                                                             <option value="">Sélectionner un créateur...</option>
                                                             {creators.map(c => (
-                                                                <option key={c.id} value={c.id}>{c.full_name} — {c.profiles_creator?.location_canton || 'Suisse'}</option>
+                                                                <option key={c.id} value={c.id}>{c.full_name} — {cantonLabel(c.profiles_creator?.location_canton) || 'Suisse'}</option>
                                                             ))}
                                                         </select>
                                                     )}

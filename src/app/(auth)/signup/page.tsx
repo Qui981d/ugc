@@ -12,6 +12,7 @@ import { Building2, User, Loader2, AlertCircle, ArrowLeft, CheckCircle2 } from "
 import { useAuth } from "@/contexts/AuthContext"
 import { validateInviteCode, markInvitationUsed } from "@/lib/services/adminService"
 import { MoshLogo } from "@/components/brand/MoshLogo"
+import { SWISS_CANTONS } from "@/lib/validations/swiss"
 
 function SignupForm() {
     const searchParams = useSearchParams()
@@ -271,13 +272,17 @@ function SignupForm() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="canton" className="text-[#1A1A1A]">Canton</Label>
-                                <Input
+                                <select
                                     id="canton"
                                     value={creatorForm.canton}
                                     onChange={(e) => setCreatorForm({ ...creatorForm, canton: e.target.value })}
-                                    placeholder="Genève"
                                     className={inputClass}
-                                />
+                                >
+                                    <option value="">Sélectionner…</option>
+                                    {SWISS_CANTONS.map(c => (
+                                        <option key={c.code} value={c.code}>{c.name}</option>
+                                    ))}
+                                </select>
                             </div>
 
                             {creatorForm.inviteCode && (

@@ -1,5 +1,6 @@
 'use client'
 
+import { cantonLabel } from "@/lib/validations/swiss"
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useParams } from 'next/navigation'
@@ -184,7 +185,7 @@ export default function CreatorDetailPage() {
                             {profile?.location_canton && (
                                 <span className="flex items-center gap-1.5">
                                     <MapPin className="w-3.5 h-3.5" strokeWidth={1.5} />
-                                    {profile.location_canton}
+                                    {cantonLabel(profile.location_canton)}
                                 </span>
                             )}
                             <span className="flex items-center gap-1.5">

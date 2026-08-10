@@ -30,7 +30,6 @@ import {
     FOLLOWER_RANGES,
     EXCLUDED_TOPICS,
 } from "@/lib/constants/creatorCasting"
-import { SWISS_CANTONS } from "@/lib/validations/swiss"
 import { CastingChips, CastingToggle, CastingField, castingControlClass, normalizeHandle, toNullableInt } from "@/components/creators/CastingInputs"
 
 interface CreatorOnboardingProps {
@@ -74,7 +73,6 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
 
     // Form data
     const [bio, setBio] = useState('')
-    const [locationCanton, setLocationCanton] = useState('')
     const [hourlyRateChf, setHourlyRateChf] = useState('')
     const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([])
     const [experienceLevel, setExperienceLevel] = useState('')
@@ -137,7 +135,6 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
             .upsert({
                 user_id: userId,
                 bio,
-                location_canton: locationCanton || null,
                 hourly_rate_chf: toNullableInt(hourlyRateChf),
                 specialties: selectedSpecialties,
                 experience_level: experienceLevel || null,
@@ -254,19 +251,9 @@ export function CreatorOnboarding({ userId, userName, onComplete }: CreatorOnboa
                                     <p className={`text-xs ${bio.trim().length >= 10 ? 'text-[#6B6B6B]' : 'text-[#9B9B9B]'}`}>
                                         {bio.trim().length}/10 caractères minimum
                                     </p>
+                                    {/* Canton is already asked on the signup form a minute earlier —
+                                        repeating it here would blank it for anyone who skipped it. */}
                                     <div className="pt-4 border-t border-[#F2F2F1] grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <CastingField label="Canton">
-                                            <select
-                                                value={locationCanton}
-                                                onChange={(e) => setLocationCanton(e.target.value)}
-                                                className={castingControlClass}
-                                            >
-                                                <option value="">Non précisé</option>
-                                                {SWISS_CANTONS.map(canton => (
-                                                    <option key={canton.code} value={canton.code}>{canton.name}</option>
-                                                ))}
-                                            </select>
-                                        </CastingField>
                                         <CastingField label="Tarif indicatif par vidéo (CHF)">
                                             <input
                                                 type="number"

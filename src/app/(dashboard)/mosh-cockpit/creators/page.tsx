@@ -1,5 +1,6 @@
 'use client'
 
+import { cantonLabel } from "@/lib/validations/swiss"
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
@@ -50,7 +51,7 @@ export default function AdminCreatorsPage() {
     const matchesSearch = (c: CreatorWithProfile) =>
         !searchQuery ||
         c.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.profiles_creator?.location_canton?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        cantonLabel(c.profiles_creator?.location_canton)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         c.profiles_creator?.specialties?.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))
 
     // Text search and casting filters narrow together.
@@ -246,7 +247,7 @@ export default function AdminCreatorsPage() {
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-2.5 text-[#6B6B6B] hidden md:table-cell whitespace-nowrap">
-                                                    {p?.location_canton || '—'}
+                                                    {cantonLabel(p?.location_canton) || '—'}
                                                 </td>
                                                 <td className="px-4 py-2.5 text-[#6B6B6B] hidden lg:table-cell max-w-[220px]">
                                                     <span className="block truncate">

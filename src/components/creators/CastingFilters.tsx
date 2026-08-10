@@ -28,6 +28,7 @@ import {
     DELIVERY_DELAYS,
     ageFromBirthYear,
 } from '@/lib/constants/creatorCasting'
+import { SWISS_CANTONS, cantonLabel } from '@/lib/validations/swiss'
 import type { ProfileCreator } from '@/types/database'
 
 /** Mirrors the onboarding vocabulary — specialties and languages are stored as codes. */
@@ -542,26 +543,18 @@ export function CastingFilters({
 
                     <Section title="Profil">
                         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-                            {cantonOptions.length > 0 ? (
-                                <SelectField
-                                    label="Canton"
-                                    value={value.canton}
-                                    options={asOptions(cantonOptions)}
-                                    placeholder="Tous"
-                                    onChange={v => set('canton', v)}
-                                />
-                            ) : (
-                                <div>
-                                    <span className={LABEL}>Canton</span>
-                                    <input
-                                        type="text"
-                                        value={value.canton}
-                                        onChange={e => set('canton', e.target.value)}
-                                        placeholder="Tous"
-                                        className={`${CONTROL} w-full`}
-                                    />
-                                </div>
-                            )}
+                            {/* Cantons are stored as codes; offer only the ones the roster
+                                declares, but show them by name. */}
+                            <SelectField
+                                label="Canton"
+                                value={value.canton}
+                                options={(cantonOptions.length > 0
+                                    ? cantonOptions
+                                    : SWISS_CANTONS.map(c => c.code)
+                                ).map(code => ({ value: code, label: cantonLabel(code) || code }))}
+                                placeholder="Tous"
+                                onChange={v => set('canton', v)}
+                            />
                             <SelectField
                                 label="Genre"
                                 value={value.gender}

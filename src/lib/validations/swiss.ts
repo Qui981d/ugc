@@ -58,6 +58,17 @@ export const SWISS_CANTONS = [
 ] as const
 
 /**
+ * Cantons are stored as codes so filtering can compare exactly. Free text let
+ * the same canton arrive as "Genève", "Geneve" and "Genève, Suisse", none of
+ * which matched each other.
+ */
+export function cantonLabel(code?: string | null): string | null {
+    if (!code) return null
+    const trimmed = code.trim()
+    return SWISS_CANTONS.find(c => c.code === trimmed.toUpperCase())?.name || trimmed
+}
+
+/**
  * Format a number as Swiss Francs
  */
 export function formatCHF(amount: number): string {

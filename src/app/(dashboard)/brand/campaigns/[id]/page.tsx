@@ -1,5 +1,6 @@
 'use client'
 
+import { cantonLabel } from "@/lib/validations/swiss"
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useParams } from 'next/navigation'
@@ -475,7 +476,7 @@ export default function BrandCampaignDetailPage() {
                                                         <span key={s} className="px-2 py-0.5 text-[10px] rounded-full bg-[#F4F4F3] text-[#6B6B6B]">{s}</span>
                                                     ))}
                                                     {profile?.location_canton && (
-                                                        <span className="px-2 py-0.5 text-[10px] rounded-full bg-[#F4F4F3] text-[#6B6B6B]">{profile.location_canton}</span>
+                                                        <span className="px-2 py-0.5 text-[10px] rounded-full bg-[#F4F4F3] text-[#6B6B6B]">{cantonLabel(profile.location_canton)}</span>
                                                     )}
                                                 </div>
                                             </div>
@@ -1212,7 +1213,7 @@ export default function BrandCampaignDetailPage() {
                                     <div>
                                         <h3 className="text-lg font-semibold text-[#1A1A1A]">{profileCreator.full_name}</h3>
                                         {profileCreator.profiles_creator?.location_canton && (
-                                            <p className="text-sm text-[#6B6B6B]">{profileCreator.profiles_creator.location_canton}, Suisse</p>
+                                            <p className="text-sm text-[#6B6B6B]">{cantonLabel(profileCreator.profiles_creator.location_canton)}, Suisse</p>
                                         )}
                                     </div>
                                 </div>
