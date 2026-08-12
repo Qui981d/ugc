@@ -12,6 +12,7 @@ import type {
     ScriptType,
     RightsUsageType
 } from '@/types/database'
+import { DEFAULT_MISSION_RIGHTS, type MissionRights } from '@/lib/contracts/rights'
 import {
     notifyCreatorAssigned,
     notifyBrandCreatorAssigned,
@@ -709,6 +710,8 @@ export async function createInternalMission(input: {
     clickupListId?: string
     /** Real managed-brand id. Falls back to the MOSH admin (legacy internal mission). */
     brandId?: string
+    /** What the client may do with the video. Omitted = the standard mission. */
+    rights?: MissionRights
 }): Promise<{ success: boolean; campaignId?: string; error?: string }> {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -729,6 +732,7 @@ export async function createInternalMission(input: {
             format: input.format,
             script_type: input.scriptType,
             rights_usage: rightsUsage,
+            rights: input.rights ?? DEFAULT_MISSION_RIGHTS,
             budget_chf: input.creatorAmountChf,
             creator_amount_chf: input.creatorAmountChf,
             creator_price_status: 'proposed',

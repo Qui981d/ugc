@@ -167,6 +167,14 @@ export interface Campaign {
     contract_mosh_status: 'pending_creator' | 'active' | null
     contract_mosh_generated_at: string | null
     contract_mosh_signed_at: string | null
+    /** The contract exactly as accepted — never regenerate it from live data. */
+    contract_mosh_text: string | null
+    contract_mosh_hash: string | null
+    contract_mosh_signed_ip: string | null
+    /** What the client may do with the videos. See lib/contracts/rights.ts. */
+    rights: unknown | null
+    paid_media_activated_at: string | null
+    paid_media_expires_at: string | null
     // Invoice fields
     invoice_url: string | null
     invoice_number: string | null

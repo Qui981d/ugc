@@ -20,6 +20,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { generateMoshContractText, MOSH_COMPANY_INFO } from '@/lib/contracts/contractTemplate'
 import { moshPaymentTerms } from '@/lib/constants/legalEntity'
+import { parseMissionRights, renderRightsClauses } from '@/lib/contracts/rights'
+import RightsSummary from './RightsSummary'
 
 interface ContractModalProps {
     isOpen: boolean
@@ -40,6 +42,12 @@ interface ContractModalProps {
     }
     mode: 'brand' | 'creator'
     contractText?: string | null
+    /**
+     * The campaign's `rights` JSONB. The modal receives it rather than fetching
+     * it: the summary must describe the same mission as the contract text above
+     * it, and a second read could drift from what the caller already loaded.
+     */
+    campaignRights?: unknown
 }
 
 const formatMap: Record<string, string> = {
@@ -66,9 +74,12 @@ export default function ContractModal({
     data,
     mode,
     contractText,
+    campaignRights,
 }: ContractModalProps) {
     const [accepted, setAccepted] = useState(false)
     const [showFullContract, setShowFullContract] = useState(false)
+
+    const rights = useMemo(() => parseMissionRights(campaignRights), [campaignRights])
 
     // Generate preview text from template using data already available
     const previewText = useMemo(() => {
@@ -98,11 +109,12 @@ export default function ContractModal({
             TVA_AMOUNT: (data.amount - data.amount / 1.081).toFixed(2),
             TVA_RATE: '8.1',
             PAYMENT_TERMS: moshPaymentTerms(),
+            RIGHTS_CLAUSES: renderRightsClauses(rights),
             MOSH_ACCEPTANCE_TIMESTAMP: '(en attente de signature)',
             CREATOR_ACCEPTANCE_TIMESTAMP: '(en attente de signature)',
             CREATOR_IP_ADDRESS: '(en attente)',
         })
-    }, [data, contractText])
+    }, [data, contractText, rights])
 
     // Reset when opening + lock body scroll
     useEffect(() => {
@@ -254,6 +266,9 @@ export default function ContractModal({
                                         </p>
                                     </div>
                                 </div>
+
+                                {/* Rights — the plain-language read, above the legal text */}
+                                <RightsSummary rights={rights} />
 
                                 {/* Key clauses summary */}
                                 <div className="bg-white/[0.04] border border-white/[0.08] rounded-lg p-4">

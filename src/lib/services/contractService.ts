@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 import { generateMoshContractText, MOSH_COMPANY_INFO, type ContractVariables } from '@/lib/contracts/contractTemplate'
+import { parseMissionRights, renderRightsClauses } from '@/lib/contracts/rights'
 import { moshPaymentTerms } from '@/lib/constants/legalEntity'
 import { completeMissionStep } from '@/lib/services/adminService'
 import type { Campaign, ProfileCreator, ProfileBrand, User } from '@/types/database'
@@ -150,6 +151,22 @@ function formatTimestamp(date: Date): string {
 }
 
 /**
+ * Fingerprint of the accepted document.
+ *
+ * Stored next to the frozen text so that a later edit to the row is
+ * detectable: the text alone proves nothing if it can be rewritten in place.
+ * WebCrypto is used rather than a dependency — present in the browser and in
+ * Node 18+.
+ */
+async function sha256Hex(text: string): Promise<string> {
+    const bytes = new TextEncoder().encode(text)
+    const digest = await crypto.subtle.digest('SHA-256', bytes)
+    return Array.from(new Uint8Array(digest))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('')
+}
+
+/**
  * Compute TVA breakdown from a TTC amount
  */
 function computeTva(amountTtc: number, tvaRate: number = MOSH_COMPANY_INFO.tvaRate) {
@@ -211,6 +228,7 @@ export async function createMoshContract(
         TVA_AMOUNT: tvaAmount.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
         TVA_RATE: tvaRate.toString(),
         PAYMENT_TERMS: moshPaymentTerms(),
+        RIGHTS_CLAUSES: renderRightsClauses(parseMissionRights(campaign.rights)),
 
         MOSH_ACCEPTANCE_TIMESTAMP: formatTimestamp(now),
         CREATOR_ACCEPTANCE_TIMESTAMP: 'En attente de signature',
@@ -336,6 +354,7 @@ export async function createMoshContractForCreator(
         TVA_AMOUNT: tvaAmount.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
         TVA_RATE: tvaRate.toString(),
         PAYMENT_TERMS: moshPaymentTerms(),
+        RIGHTS_CLAUSES: renderRightsClauses(parseMissionRights(campaign.rights)),
         MOSH_ACCEPTANCE_TIMESTAMP: formatTimestamp(now),
         CREATOR_ACCEPTANCE_TIMESTAMP: 'En attente de signature',
         CREATOR_IP_ADDRESS: 'En attente de signature',
@@ -431,7 +450,7 @@ export async function signMoshContract(
 
     if (isContentAssignment) {
         // ── Multi-creator: update only THIS creator's content rows ──
-        await (supabase as any)
+        const { error: signError } = await (supabase as any)
             .from('campaign_contents')
             .update({
                 contract_status: 'active',
@@ -440,6 +459,11 @@ export async function signMoshContract(
             .eq('campaign_id', campaignId)
             .eq('assigned_creator_id', user.id)
             .eq('contract_status', 'pending_creator')
+
+        if (signError) {
+            console.error('[Contract] Content signature error:', signError)
+            return { success: false, error: signError.message }
+        }
 
         // Check if ALL creators have now signed
         const { data: allContents } = await (supabase as any)
@@ -490,13 +514,25 @@ export async function signMoshContract(
     await completeMissionStep(campaignId, 'creator_accepted')
     await completeMissionStep(campaignId, 'creator_shooting')
 
-    // Re-generate contract with signature info using creator-specific data
+    // Generate the FINAL contract text once, and freeze it.
+    //
+    // Until now this text was rebuilt from live campaign data every time the
+    // contract was opened, so editing the mission after signature silently
+    // rewrote what both parties had agreed to. From here the stored text is
+    // the contract; the campaign row is only its source material.
     const creatorId = user.id
     const data = isContentAssignment
         ? await getContractDataForCreator(campaignId, creatorId)
         : await getContractData(campaignId)
 
-    if (data) {
+    if (!data) {
+        return {
+            success: false,
+            error: 'Signature enregistrée, mais le texte du contrat n\'a pas pu être archivé (données de la mission introuvables). Contactez MOSH.',
+        }
+    }
+
+    {
         const { campaign: camp, brand, creator } = data
         const amount = isContentAssignment
             ? await getCreatorAmountFromContents(campaignId, creatorId) || camp.budget_chf
@@ -532,6 +568,7 @@ export async function signMoshContract(
             TVA_AMOUNT: tvaAmount.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
             TVA_RATE: tvaRate.toString(),
             PAYMENT_TERMS: moshPaymentTerms(),
+            RIGHTS_CLAUSES: renderRightsClauses(parseMissionRights(camp.rights)),
 
             MOSH_ACCEPTANCE_TIMESTAMP: camp.contract_mosh_generated_at
                 ? formatTimestamp(new Date(camp.contract_mosh_generated_at))
@@ -541,6 +578,43 @@ export async function signMoshContract(
         }
 
         const contractText = generateMoshContractText(vars)
+        const contractHash = await sha256Hex(contractText)
+
+        // Persist the frozen document. A failure here is NOT cosmetic: the
+        // signature would stand with no record of what was signed, so it is
+        // returned to the caller instead of being logged and forgotten.
+        if (isContentAssignment) {
+            const { error: freezeError } = await (supabase as any)
+                .from('campaign_contents')
+                .update({
+                    contract_text: contractText,
+                    contract_hash: contractHash,
+                    contract_signed_ip: creatorIp,
+                })
+                .eq('campaign_id', campaignId)
+                .eq('assigned_creator_id', creatorId)
+
+            if (freezeError) {
+                console.error('[Contract] Content freeze error:', freezeError)
+                return { success: false, error: `Signature enregistrée, mais l'archivage du contrat a échoué : ${freezeError.message}` }
+            }
+        } else {
+            const { error: freezeError } = await (supabase
+                .from('campaigns') as ReturnType<typeof supabase.from>)
+                .update({
+                    contract_mosh_text: contractText,
+                    contract_mosh_hash: contractHash,
+                    contract_mosh_signed_ip: creatorIp,
+                })
+                .eq('id', campaignId)
+
+            if (freezeError) {
+                console.error('[Contract] Campaign freeze error:', freezeError)
+                return { success: false, error: `Signature enregistrée, mais l'archivage du contrat a échoué : ${freezeError.message}` }
+            }
+        }
+
+        // Storage copy stays best-effort: the row above is the authoritative one.
         const fileName = `mosh/${contractId}.txt`
         const blob = new Blob([contractText], { type: 'text/plain;charset=utf-8' })
 
@@ -595,10 +669,38 @@ async function getCreatorAmountFromContents(campaignId: string, creatorId: strin
 // ── Contract Text (for viewing) ─────────────────────────────
 
 /**
- * Get contract text for viewing (re-generates from current data).
+ * Get contract text for viewing.
+ *
+ * A signed contract is served from storage, never rebuilt: regenerating it
+ * meant that any later edit to the mission changed the document the creator
+ * had already accepted. Only an unsigned preview is generated on the fly.
+ *
  * Pass optional creatorId for multi-creator campaigns to get the correct per-creator contract.
  */
 export async function getMoshContractText(campaignId: string, creatorId?: string): Promise<string | null> {
+    const supabase = createClient()
+
+    // Frozen text first — per-content row for multi-creator, then the campaign.
+    let contentSignedIp: string | null = null
+    if (creatorId) {
+        const { data: contentRows } = await (supabase as any)
+            .from('campaign_contents')
+            .select('contract_text, contract_signed_ip')
+            .eq('campaign_id', campaignId)
+            .eq('assigned_creator_id', creatorId)
+            .limit(1)
+        const row = (contentRows as any)?.[0]
+        if (row?.contract_text) return row.contract_text as string
+        contentSignedIp = row?.contract_signed_ip ?? null
+    }
+
+    const { data: frozenCampaign } = await (supabase as any)
+        .from('campaigns')
+        .select('contract_mosh_text')
+        .eq('id', campaignId)
+        .single()
+    if (frozenCampaign?.contract_mosh_text) return frozenCampaign.contract_mosh_text as string
+
     const data = creatorId
         ? await getContractDataForCreator(campaignId, creatorId)
         : await getContractData(campaignId)
@@ -649,6 +751,7 @@ export async function getMoshContractText(campaignId: string, creatorId?: string
         TVA_AMOUNT: tvaAmount.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
         TVA_RATE: tvaRate.toString(),
         PAYMENT_TERMS: moshPaymentTerms(),
+        RIGHTS_CLAUSES: renderRightsClauses(parseMissionRights(campaign.rights)),
 
         MOSH_ACCEPTANCE_TIMESTAMP: campaign.contract_mosh_generated_at
             ? formatTimestamp(new Date(campaign.contract_mosh_generated_at))
@@ -656,7 +759,9 @@ export async function getMoshContractText(campaignId: string, creatorId?: string
         CREATOR_ACCEPTANCE_TIMESTAMP: campaign.contract_mosh_signed_at
             ? formatTimestamp(new Date(campaign.contract_mosh_signed_at))
             : 'En attente de signature',
-        CREATOR_IP_ADDRESS: campaign.contract_mosh_signed_at ? '(enregistrée)' : 'En attente de signature',
+        // The real recorded IP, not the '(enregistrée)' placeholder the
+        // document used to print for an address nobody had actually stored.
+        CREATOR_IP_ADDRESS: contentSignedIp || campaign.contract_mosh_signed_ip || 'En attente de signature',
     }
 
     return generateMoshContractText(vars)

@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, Loader2, Film, Send, Building2 } from 'lucide-react'
 import { getAllCreators, getAllBrands, createInternalMission, type CreatorWithProfile, type BrandWithProfile } from '@/lib/services/adminService'
 import { createClient } from '@/lib/supabase/client'
+import { DEFAULT_MISSION_RIGHTS, paidOptionsTotal, type MissionRights } from '@/lib/contracts/rights'
 import type { VideoFormat, ScriptType } from '@/types/database'
 
 const FORMATS: { value: VideoFormat; label: string }[] = [
@@ -24,6 +25,28 @@ const SCRIPT_TYPES: { value: ScriptType; label: string }[] = [
     { value: 'lifestyle', label: 'Lifestyle' },
     { value: 'review', label: 'Review' },
 ]
+
+/** An option MOSH switches on. Off is the default for every one of them. */
+function RightsToggle({ label, hint, checked, onChange }: {
+    label: string
+    hint?: string
+    checked: boolean
+    onChange: (v: boolean) => void
+}) {
+    return (
+        <button type="button" role="switch" aria-checked={checked}
+            onClick={() => onChange(!checked)}
+            className="w-full flex items-start justify-between gap-4 text-left group">
+            <span className="min-w-0">
+                <span className="block text-sm font-medium text-[#1A1A1A]">{label}</span>
+                {hint && <span className="block text-xs text-[#9B9B9B] mt-0.5">{hint}</span>}
+            </span>
+            <span className={`relative mt-0.5 w-9 h-5 rounded-full flex-shrink-0 transition-colors ${checked ? 'bg-[#1A1A1A]' : 'bg-[#E2E2E1] group-hover:bg-[#D6D6D5]'}`}>
+                <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${checked ? 'left-[18px]' : 'left-0.5'}`} />
+            </span>
+        </button>
+    )
+}
 
 function NewMissionForm() {
     const router = useRouter()
@@ -57,6 +80,20 @@ function NewMissionForm() {
         clickupListId: '',
         selectedBrandId: '',
     })
+
+    /* Rights live outside `form`: they are a nested object persisted as one
+       JSONB column, not a flat field. */
+    const [rights, setRights] = useState<MissionRights>(DEFAULT_MISSION_RIGHTS)
+    /* Kept raw so MOSH can type a comma mid-word without the list re-splitting. */
+    const [accountsInput, setAccountsInput] = useState('')
+
+    const patchRights = <K extends keyof MissionRights>(key: K, patch: Partial<MissionRights[K]>) =>
+        setRights(prev => ({ ...prev, [key]: { ...prev[key], ...patch } }))
+
+    /** '' means "not set", which is not the same number as 0. */
+    const num = (v: string): number | null => (v.trim() === '' ? null : Number(v))
+
+    const optionsTotal = paidOptionsTotal(rights)
 
     useEffect(() => {
         getAllCreators().then(list => {
@@ -127,6 +164,7 @@ function NewMissionForm() {
             creatorId: form.creatorId,
             clickupListId: form.clickupListId || undefined,
             brandId: brandId || form.selectedBrandId,
+            rights,
         })
         setSubmitting(false)
 
@@ -259,6 +297,14 @@ function NewMissionForm() {
                         <input type="number" min="0" step="10" className={inputClass} value={form.creatorAmountChf}
                             onChange={e => set('creatorAmountChf', e.target.value)} placeholder="500" />
                         <p className="text-xs text-[#9B9B9B] mt-1">Le créateur pourra contre-proposer à la réception.</p>
+                        {optionsTotal > 0 && (
+                            <p className="text-xs text-[#8A6100] mt-1">
+                                + {optionsTotal} CHF d&apos;options de droits
+                                {parseFloat(form.creatorAmountChf) > 0 && (
+                                    <> — soit {parseFloat(form.creatorAmountChf) + optionsTotal} CHF au total</>
+                                )}
+                            </p>
+                        )}
                     </div>
                     <div>
                         <label className={labelClass}>Usage</label>
@@ -271,6 +317,183 @@ function NewMissionForm() {
                                 className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-colors ${form.isAds ? 'bg-[#EDEDEC] border-[#1A1A1A]/40 text-[#1A1A1A]' : 'bg-white border-[#E2E2E1] text-[#6B6B6B] hover:bg-[#F4F4F3]'}`}>
                                 Ads
                             </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Droits — what the client may do with the video */}
+                <div className="pt-2 border-t border-[#E2E2E1] space-y-4">
+                    <div>
+                        <p className="text-[11px] uppercase tracking-wider text-[#9B9B9B]">Droits</p>
+                        <p className="text-[13px] text-[#6B6B6B] mt-1">
+                            La mission standard comprend déjà la diffusion organique sans limite de durée,
+                            six mois de publicité payante et le montage. Ces trois points ne se modifient pas ici.
+                        </p>
+                    </div>
+
+                    {/* Creator posting */}
+                    <div className="space-y-3">
+                        <RightsToggle
+                            label="Publication sur les comptes du créateur"
+                            hint="Le créateur publie la vidéo auprès de sa propre audience."
+                            checked={rights.creatorPosting.enabled}
+                            onChange={v => patchRights('creatorPosting', { enabled: v })}
+                        />
+                        {rights.creatorPosting.enabled && (
+                            <div className="bg-[#F4F4F3] rounded-lg p-3 space-y-3">
+                                <div>
+                                    <label className="block text-[11px] uppercase tracking-wider text-[#9B9B9B] mb-1.5">
+                                        Comptes concernés
+                                    </label>
+                                    <input className={inputClass} value={accountsInput}
+                                        onChange={e => {
+                                            setAccountsInput(e.target.value)
+                                            patchRights('creatorPosting', {
+                                                accounts: e.target.value.split(',').map(s => s.trim()).filter(Boolean),
+                                            })
+                                        }}
+                                        placeholder="@compte_tiktok, @compte_insta" />
+                                    <p className="text-xs text-[#9B9B9B] mt-1">Séparez les comptes par une virgule.</p>
+                                </div>
+                                <div className="grid sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="block text-[11px] uppercase tracking-wider text-[#9B9B9B] mb-1.5">
+                                            Maintien en ligne (jours)
+                                        </label>
+                                        <input type="number" min="0" className={inputClass}
+                                            value={rights.creatorPosting.minimumLiveDays ?? ''}
+                                            onChange={e => patchRights('creatorPosting', { minimumLiveDays: num(e.target.value) })}
+                                            placeholder="30" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[11px] uppercase tracking-wider text-[#9B9B9B] mb-1.5">
+                                            Rémunération (CHF)
+                                        </label>
+                                        <input type="number" min="0" step="10" className={inputClass}
+                                            value={rights.creatorPosting.feeChf ?? ''}
+                                            onChange={e => patchRights('creatorPosting', { feeChf: num(e.target.value) })}
+                                            placeholder="150" />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Whitelisting */}
+                    <div className="space-y-3">
+                        <RightsToggle
+                            label="Publicité depuis le compte du créateur (whitelisting)"
+                            hint="La marque diffuse des annonces sous l'identité du créateur."
+                            checked={rights.whitelisting.enabled}
+                            onChange={v => patchRights('whitelisting', { enabled: v })}
+                        />
+                        {rights.whitelisting.enabled && (
+                            <div className="bg-[#F4F4F3] rounded-lg p-3 grid sm:grid-cols-3 gap-3">
+                                <div>
+                                    <label className="block text-[11px] uppercase tracking-wider text-[#9B9B9B] mb-1.5">
+                                        Mécanisme
+                                    </label>
+                                    <input className={inputClass}
+                                        value={rights.whitelisting.mechanism ?? ''}
+                                        onChange={e => patchRights('whitelisting', { mechanism: e.target.value || null })}
+                                        placeholder="Meta Partnership Ads" />
+                                </div>
+                                <div>
+                                    <label className="block text-[11px] uppercase tracking-wider text-[#9B9B9B] mb-1.5">
+                                        Durée (mois)
+                                    </label>
+                                    <input type="number" min="0" className={inputClass}
+                                        value={rights.whitelisting.durationMonths ?? ''}
+                                        onChange={e => patchRights('whitelisting', { durationMonths: num(e.target.value) })}
+                                        placeholder="6" />
+                                </div>
+                                <div>
+                                    <label className="block text-[11px] uppercase tracking-wider text-[#9B9B9B] mb-1.5">
+                                        Rémunération (CHF)
+                                    </label>
+                                    <input type="number" min="0" step="10" className={inputClass}
+                                        value={rights.whitelisting.feeChf ?? ''}
+                                        onChange={e => patchRights('whitelisting', { feeChf: num(e.target.value) })}
+                                        placeholder="200" />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Exclusivity */}
+                    <div className="space-y-3">
+                        <RightsToggle
+                            label="Exclusivité"
+                            hint="Le créateur refuse les marques concurrentes pendant la période."
+                            checked={rights.exclusivity.enabled}
+                            onChange={v => patchRights('exclusivity', { enabled: v })}
+                        />
+                        {rights.exclusivity.enabled && (
+                            <div className="bg-[#F4F4F3] rounded-lg p-3 grid sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-[11px] uppercase tracking-wider text-[#9B9B9B] mb-1.5">
+                                        Catégorie
+                                    </label>
+                                    <input className={inputClass}
+                                        value={rights.exclusivity.category ?? ''}
+                                        onChange={e => patchRights('exclusivity', { category: e.target.value || null })}
+                                        placeholder="Cosmétique" />
+                                </div>
+                                <div>
+                                    <label className="block text-[11px] uppercase tracking-wider text-[#9B9B9B] mb-1.5">
+                                        Durée (mois)
+                                    </label>
+                                    <input type="number" min="0" className={inputClass}
+                                        value={rights.exclusivity.durationMonths ?? ''}
+                                        onChange={e => patchRights('exclusivity', { durationMonths: num(e.target.value) })}
+                                        placeholder="3" />
+                                </div>
+                                <div>
+                                    <label className="block text-[11px] uppercase tracking-wider text-[#9B9B9B] mb-1.5">
+                                        Territoire
+                                    </label>
+                                    <input className={inputClass}
+                                        value={rights.exclusivity.territory ?? ''}
+                                        onChange={e => patchRights('exclusivity', { territory: e.target.value || null })}
+                                        placeholder="Suisse" />
+                                </div>
+                                <div>
+                                    <label className="block text-[11px] uppercase tracking-wider text-[#9B9B9B] mb-1.5">
+                                        Rémunération (CHF)
+                                    </label>
+                                    <input type="number" min="0" step="10" className={inputClass}
+                                        value={rights.exclusivity.feeChf ?? ''}
+                                        onChange={e => patchRights('exclusivity', { feeChf: num(e.target.value) })}
+                                        placeholder="300" />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* AI */}
+                    <div className="space-y-3">
+                        <div>
+                            <p className="text-sm font-medium text-[#1A1A1A]">Intelligence artificielle</p>
+                            <p className="text-xs text-[#9B9B9B] mt-0.5">
+                                Chacun de ces usages exige un consentement distinct du créateur, en plus du contrat.
+                            </p>
+                        </div>
+                        <div className="bg-[#F4F4F3] rounded-lg p-3 space-y-3">
+                            <RightsToggle
+                                label="Entraînement de modèle"
+                                checked={rights.ai.modelTraining}
+                                onChange={v => patchRights('ai', { modelTraining: v })}
+                            />
+                            <RightsToggle
+                                label="Clonage de voix"
+                                checked={rights.ai.voiceClone}
+                                onChange={v => patchRights('ai', { voiceClone: v })}
+                            />
+                            <RightsToggle
+                                label="Réplique synthétique"
+                                checked={rights.ai.syntheticReplica}
+                                onChange={v => patchRights('ai', { syntheticReplica: v })}
+                            />
                         </div>
                     </div>
                 </div>

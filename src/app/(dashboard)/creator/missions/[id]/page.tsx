@@ -1,5 +1,7 @@
 'use client'
 
+import RightsSummary from '@/components/contracts/RightsSummary'
+import { parseMissionRights } from '@/lib/contracts/rights'
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useParams } from 'next/navigation'
@@ -350,6 +352,12 @@ export default function CreatorMissionDetailPage() {
                             Rémunération : <strong className="text-[#1A1A1A]">CHF {(myCreatorAmount || campaign.creator_amount_chf)?.toLocaleString('fr-CH')}</strong>
                         </div>
                     )}
+
+                    {/* What the creator is actually agreeing to. Shown before the
+                        contract text, because this is the part people read. */}
+                    <div className="bg-white rounded-lg px-3 py-3 mb-3">
+                        <RightsSummary rights={parseMissionRights(campaign.rights)} />
+                    </div>
                     {campaign.contract_mosh_status === 'pending_creator' && (
                         <div className="space-y-2">
                             {campaign.creator_price_status === 'counter' && (

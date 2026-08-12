@@ -8,6 +8,7 @@ import {
     MOSH_CONTRACT_DEFAULTS,
     moshFormattedAddress,
 } from '@/lib/constants/legalEntity'
+import { DEFAULT_MISSION_RIGHTS, renderRightsClauses } from '@/lib/contracts/rights'
 
 export interface ContractVariables {
     CONTRACT_ID: string
@@ -41,6 +42,15 @@ export interface ContractVariables {
     TVA_RATE: string
     PAYMENT_TERMS: string
 
+    /**
+     * Articles 7 and 7 bis, produced by `renderRightsClauses` from the
+     * mission's rights object. Optional only so that a caller which has no
+     * mission at hand (a generic preview) still compiles; when absent the
+     * standard mission rights are printed. Never leave it out on a real
+     * contract — the clauses must match what the creator was shown.
+     */
+    RIGHTS_CLAUSES?: string
+
     // Signatures
     MOSH_ACCEPTANCE_TIMESTAMP: string
     CREATOR_ACCEPTANCE_TIMESTAMP: string
@@ -63,6 +73,8 @@ export const MOSH_COMPANY_INFO = {
 }
 
 export function generateMoshContractText(vars: ContractVariables): string {
+    const rightsClauses = vars.RIGHTS_CLAUSES || renderRightsClauses(DEFAULT_MISSION_RIGHTS)
+
     return `CONTRAT DE MANDAT POUR CRÉATION DE CONTENU NUMÉRIQUE (UGC)
 Conforme au Code des Obligations suisse (art. 394 ss CO)
 
@@ -148,20 +160,14 @@ ARTICLE 6 — RÉVISIONS ET VALIDATION
 Le Créateur inclut ${vars.REVISION_COUNT} révision(s) dans son tarif initial. Toute demande de révision supplémentaire devra faire l'objet d'un accord financier séparé entre MOSH et le Créateur. La validation est réputée acquise si MOSH n'émet aucune réserve dans les 5 jours ouvrables suivant la livraison.
 
 
-ARTICLE 7 — CESSION DES DROITS DE PROPRIÉTÉ INTELLECTUELLE
-
-Le Créateur cède à MOSH l'intégralité des droits patrimoniaux sur les Contenus créés, MOSH étant autorisé à les transmettre à la Marque.
-
-• Étendue : Droit de reproduction, de représentation, de modification et d'adaptation.
-• Supports : Réseaux sociaux (TikTok, Instagram, YouTube, Facebook, etc.), sites web, et utilisation publicitaire payante (Ads).
-• Exclusivité : La présente cession est exclusive pendant la durée de la campagne, puis non-exclusive.
-• Durée : La cession est consentie pour une durée illimitée (sous réserve de la durée légale de protection du droit d'auteur en Suisse, LDA).
-• Territoire : La cession est valable pour le monde entier.
+${rightsClauses}
 
 
 ARTICLE 8 — DROIT À L'IMAGE (ART. 28 CC)
 
-Le Créateur autorise expressément MOSH et la Marque à fixer, reproduire et diffuser son image et sa voix intégrées dans les Contenus livrés, conformément à l'article 28 du Code civil suisse. Cette autorisation est accordée pour les mêmes supports, durées et territoires que ceux définis à l'article 7.
+Le Créateur autorise expressément MOSH et la Marque à fixer, reproduire et diffuser son image et sa voix intégrées dans les Contenus livrés, conformément à l'article 28 du Code civil suisse.
+
+Cette autorisation suit strictement la licence concédée sur les Contenus : elle est limitée aux usages, canaux, territoires et durées énumérés aux articles 7 et 7 bis, et prend fin en même temps qu'eux. Aucun usage exclu par ces articles n'est autorisé au titre du droit à l'image, et le Créateur peut révoquer son autorisation pour tout usage nouveau qui n'y figure pas.
 
 
 ARTICLE 9 — GARANTIE D'ORIGINALITÉ
