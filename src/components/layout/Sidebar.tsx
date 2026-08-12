@@ -13,6 +13,7 @@ import {
     Upload,
     Building2,
     ClipboardList,
+    Copyright,
     PanelLeft,
     Wallet,
     ChevronsUpDown,
@@ -66,6 +67,7 @@ const NAV: Record<SidebarProps['role'], NavGroup[]> = {
         {
             label: 'Production', items: [
                 { icon: ClipboardList, label: "Missions", href: "/mosh-cockpit/missions", notifKey: 'applications' },
+                { icon: Copyright, label: "Droits", href: "/mosh-cockpit/rights", notifKey: null },
                 { icon: MessageSquare, label: "Messages", href: "/mosh-cockpit/messages", notifKey: 'messages' },
             ]
         },

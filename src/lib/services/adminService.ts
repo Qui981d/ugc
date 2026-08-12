@@ -12,7 +12,8 @@ import type {
     ScriptType,
     RightsUsageType
 } from '@/types/database'
-import { DEFAULT_MISSION_RIGHTS, type MissionRights } from '@/lib/contracts/rights'
+import { DEFAULT_MISSION_RIGHTS, parseMissionRights, type MissionRights } from '@/lib/contracts/rights'
+import { computePaidWindow } from '@/lib/contracts/paidWindow'
 import {
     notifyCreatorAssigned,
     notifyBrandCreatorAssigned,
@@ -1532,6 +1533,146 @@ export async function handleQcRevision(
             .eq('campaign_id', campaignId)
             .eq('step_type', 'video_validated')
     }
+
+    return { success: true }
+}
+
+/**
+ * A mission whose paid advertising window can be computed.
+ * Deliberately raw: the dates are handed to computePaidWindow, which owns the
+ * maths, so this service never decides what "expired" means.
+ */
+export interface PaidRightsWatchItem {
+    campaignId: string
+    title: string
+    clientName: string
+    rights: MissionRights
+    /** First paid run, as declared by MOSH. Null when nobody recorded it. */
+    activatedAt: string | null
+    /** `brand_final_approved` completion — the mission is accepted from here. */
+    finalAcceptedAt: string
+}
+
+/**
+ * Missions that sold paid advertising and have been finally accepted, i.e. the
+ * ones whose six-month window is either running or already over. Everything
+ * else has no clock to watch.
+ */
+export async function getPaidRightsWatchlist(): Promise<PaidRightsWatchItem[]> {
+    const supabase = createClient()
+
+    const { data, error } = await supabase
+        .from('campaigns')
+        .select(`
+            id,
+            title,
+            rights,
+            paid_media_activated_at,
+            brand:users!brand_id(full_name, profiles_brand(company_name)),
+            mission_steps!inner(step_type, completed_at)
+        `)
+        .eq('mission_steps.step_type', 'brand_final_approved')
+        .not('mission_steps.completed_at', 'is', null)
+
+    if (error) {
+        console.error('[Admin] getPaidRightsWatchlist error:', error.message)
+        return []
+    }
+    if (!data) return []
+
+    type Row = {
+        id: string
+        title: string | null
+        rights: unknown
+        paid_media_activated_at: string | null
+        brand: { full_name: string | null; profiles_brand: { company_name: string | null } | null } | null
+        mission_steps: { step_type: string; completed_at: string | null }[]
+    }
+
+    return (data as unknown as Row[])
+        .map((row) => {
+            const accepted = row.mission_steps?.find(
+                (s) => s.step_type === 'brand_final_approved' && s.completed_at
+            )?.completed_at
+            if (!accepted) return null
+
+            const rights = parseMissionRights(row.rights)
+            // Missions sold without paid rights have nothing to expire.
+            if (!rights.paid.enabled) return null
+
+            const brand = Array.isArray(row.brand) ? row.brand[0] : row.brand
+            const profile = Array.isArray(brand?.profiles_brand) ? brand?.profiles_brand[0] : brand?.profiles_brand
+
+            return {
+                campaignId: row.id,
+                title: row.title || 'Mission sans titre',
+                clientName: profile?.company_name || brand?.full_name || '—',
+                rights,
+                activatedAt: row.paid_media_activated_at,
+                finalAcceptedAt: accepted,
+            } satisfies PaidRightsWatchItem
+        })
+        .filter((r): r is PaidRightsWatchItem => r !== null)
+}
+
+// ================================================
+// DROITS PUBLICITAIRES — PREMIÈRE DIFFUSION
+// ================================================
+
+/**
+ * Record — or correct — the date the paid advertising first ran.
+ *
+ * Nothing can observe that date, so MOSH types it in. The resulting expiry is
+ * written next to it rather than recomputed on every screen: the "droits qui
+ * expirent" list has to be a plain SQL query over `paid_media_expires_at`, not
+ * a scan of every mission in the browser. The value always comes out of
+ * computePaidWindow, which also covers the no-declaration case — the contract
+ * opens the window twelve months after final acceptance whether or not anyone
+ * records anything.
+ *
+ * Passing null clears the declaration and falls the expiry back to that rule.
+ */
+export async function setPaidMediaActivation(
+    campaignId: string,
+    activatedAt: string | null
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = createClient()
+
+    const { data: campData, error: campError } = await supabase
+        .from('campaigns')
+        .select('rights')
+        .eq('id', campaignId)
+        .single()
+
+    if (campError) return { success: false, error: campError.message }
+    if (!campData) return { success: false, error: 'Mission introuvable' }
+
+    // The fallback start counts from final acceptance, so the expiry cannot be
+    // derived from the declared date alone.
+    const { data: stepData, error: stepError } = await supabase
+        .from('mission_steps')
+        .select('completed_at')
+        .eq('campaign_id', campaignId)
+        .eq('step_type', 'brand_final_approved')
+        .maybeSingle()
+
+    if (stepError) return { success: false, error: stepError.message }
+
+    const paidWindow = computePaidWindow({
+        rights: parseMissionRights((campData as unknown as { rights: unknown }).rights),
+        finalAcceptedAt: (stepData as unknown as { completed_at: string | null } | null)?.completed_at ?? null,
+        activatedAt,
+    })
+
+    const { error } = await (supabase
+        .from('campaigns') as ReturnType<typeof supabase.from>)
+        .update({
+            paid_media_activated_at: activatedAt,
+            paid_media_expires_at: paidWindow.expiresAt?.toISOString() ?? null,
+        })
+        .eq('id', campaignId)
+
+    if (error) return { success: false, error: error.message }
 
     return { success: true }
 }

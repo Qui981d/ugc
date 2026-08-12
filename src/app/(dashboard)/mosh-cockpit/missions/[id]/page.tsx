@@ -28,6 +28,9 @@ import {
     Sparkles,
     Camera,
     Image,
+    Megaphone,
+    TrendingUp,
+    X,
 } from 'lucide-react'
 import { createMoshContract, getMoshContractText } from '@/lib/services/contractService'
 import { generateInvoice, generateInvoicesForAllCreators, getInvoiceText, getInvoiceVars } from '@/lib/services/invoiceService'
@@ -45,9 +48,17 @@ import {
     sendScriptToBrand,
     sendMissionToCreator,
     acceptPriceCounter,
+    setPaidMediaActivation,
     type CampaignWithDetails,
     type CreatorWithProfile,
 } from '@/lib/services/adminService'
+import { parseMissionRights } from '@/lib/contracts/rights'
+import {
+    computePaidWindow,
+    describePaidWindow,
+    formatPaidDate,
+    type PaidWindowStatus,
+} from '@/lib/contracts/paidWindow'
 import type { MissionStep, MissionStepType, CampaignContent, ContentStatus } from '@/types/database'
 import {
     CastingFilters,
@@ -75,6 +86,22 @@ const CONTENT_STATUS_LABELS: Record<ContentStatus, { label: string; color: strin
     sent_to_brand: { label: 'Envoyée à la marque', color: 'text-[#8A6100]', bg: 'bg-[#FBF3E2]' },
     brand_approved: { label: 'Validée ✓', color: 'text-[#1A7F37]', bg: 'bg-[#E8F3EA]' },
 }
+
+/**
+ * Six contractual states, three tones already used elsewhere on this page.
+ * `not_applicable` has no pill — the panel is not rendered at all in that case.
+ */
+const PAID_STATUS_PILL: Record<Exclude<PaidWindowStatus, 'not_applicable'>, { label: string; color: string; bg: string }> = {
+    awaiting_activation: { label: 'À déclarer', color: 'text-[#8A6100]', bg: 'bg-[#FBF3E2]' },
+    active: { label: 'En cours', color: 'text-[#1A1A1A]', bg: 'bg-[#F4F4F3]' },
+    expiring_soon: { label: 'Expire bientôt', color: 'text-[#8A6100]', bg: 'bg-[#FBF3E2]' },
+    expired: { label: 'Expiré', color: 'text-[#C0392B]', bg: 'bg-[#FBEAE8]' },
+    shutdown_overdue: { label: 'Arrêt en retard', color: 'text-[#C0392B]', bg: 'bg-[#FBEAE8]' },
+}
+
+/** `<input type="date">` speaks YYYY-MM-DD; the column stores a timestamp. */
+const toDateInputValue = (v: string | null | undefined): string =>
+    v ? new Date(v).toISOString().slice(0, 10) : ''
 
 const WORKFLOW_STEPS = CENTRAL_STEPS.map(s => ({
     type: s.type as MissionStepType,
@@ -118,6 +145,9 @@ export default function AdminMissionDetailPage() {
     // A8: Admin internal notes
     const [adminNotes, setAdminNotes] = useState('')
     const [savingNotes, setSavingNotes] = useState(false)
+    // Paid advertising — first run declared by hand
+    const [paidStartDraft, setPaidStartDraft] = useState('')
+    const [savingPaidStart, setSavingPaidStart] = useState(false)
     // Content blocks
     const [campaignContents, setCampaignContents] = useState<CampaignContent[]>([])
     const [expandedContent, setExpandedContent] = useState<string | null>(null)
@@ -178,6 +208,8 @@ export default function AdminMissionDetailPage() {
         setCreators(allCreators)
         setSteps(missionSteps)
         if (found?.admin_notes) setAdminNotes(found.admin_notes)
+        // Always mirror what is stored, so a cleared date empties the field too.
+        setPaidStartDraft(toDateInputValue(found?.paid_media_activated_at))
         // Load content blocks
         const contents = await getCampaignContents(campaignId)
         setCampaignContents(contents)
@@ -223,6 +255,27 @@ export default function AdminMissionDetailPage() {
             .update({ admin_notes: adminNotes || null })
             .eq('id', campaignId)
         setSavingNotes(false)
+    }
+
+    /**
+     * Declare, correct or clear the first advertising run. Passing null is a
+     * real operation here, not an empty save — MOSH must be able to undo a
+     * date typed by mistake, which would otherwise shorten the client's rights.
+     */
+    const handleSavePaidActivation = async (value: string | null) => {
+        setSavingPaidStart(true)
+        setActionError(null)
+        // Midday UTC keeps the stored day identical once read back in Zurich.
+        const iso = value ? new Date(`${value}T12:00:00.000Z`).toISOString() : null
+        const result = await setPaidMediaActivation(campaignId, iso)
+        if (!result.success) {
+            setActionError(result.error || 'Erreur lors de l\'enregistrement de la première diffusion')
+        } else {
+            setActionSuccess(value ? 'Première diffusion enregistrée' : 'Déclaration effacée')
+            setTimeout(() => setActionSuccess(null), 3000)
+        }
+        await loadData()
+        setSavingPaidStart(false)
     }
 
     const handleValidateBrief = async () => {
@@ -501,6 +554,25 @@ export default function AdminMissionDetailPage() {
     const creatorCantons = Array.from(
         new Set(creators.map(c => c.profiles_creator?.location_canton?.trim()).filter((v): v is string => !!v))
     ).sort((a, b) => a.localeCompare(b, 'fr'))
+
+    // Paid advertising window. The clock only exists once the brand has signed
+    // off, so the panel follows the step the page already tracks; the date
+    // itself comes from the mission_steps row already loaded above.
+    const missionRights = parseMissionRights(campaign.rights)
+    const finalAccepted = isStepCompleted('brand_final_approved')
+    const finalAcceptedAt = finalAccepted
+        ? (steps.find(s => s.step_type === 'brand_final_approved')?.completed_at
+            ?? campaign.brand_final_approved_at
+            ?? null)
+        : null
+    const paidWindow = computePaidWindow({
+        rights: missionRights,
+        finalAcceptedAt,
+        activatedAt: campaign.paid_media_activated_at,
+    })
+    const showPaidPanel =
+        missionRights.paid.enabled && finalAccepted && paidWindow.status !== 'not_applicable'
+    const paidPill = paidWindow.status === 'not_applicable' ? null : PAID_STATUS_PILL[paidWindow.status]
 
     return (
         <div className="max-w-5xl mx-auto space-y-6">
@@ -1550,6 +1622,108 @@ export default function AdminMissionDetailPage() {
                     </div>
                 )}
             </motion.div>
+
+            {/* Paid advertising window — declared by hand, nothing detects the first ad */}
+            {showPaidPanel && paidPill && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.17 }}
+                    className="bg-white border border-[#E2E2E1] rounded-xl p-6"
+                >
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="w-8 h-8 rounded-lg bg-[#F4F4F3] flex items-center justify-center">
+                            <Megaphone className="w-4 h-4 text-[#6B6B6B]" strokeWidth={1.5} />
+                        </div>
+                        <h2 className="text-sm font-semibold text-[#1A1A1A]">Droits publicitaires</h2>
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${paidPill.bg} ${paidPill.color}`}>
+                            {paidPill.label}
+                        </span>
+                    </div>
+
+                    <p className="text-[13px] text-[#6B6B6B] leading-relaxed">
+                        {describePaidWindow(paidWindow)}
+                    </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                        <div className="bg-[#F4F4F3] border border-[#E2E2E1] rounded-lg px-4 py-3">
+                            <p className="text-[11px] uppercase tracking-wider text-[#9B9B9B]">Début de la période</p>
+                            <p className="text-[13px] font-medium text-[#1A1A1A] mt-1">{formatPaidDate(paidWindow.startsAt)}</p>
+                            {/* A declared first ad and a contractual fallback are not the
+                                same fact — MOSH has to see which one is on screen. */}
+                            <span className={`inline-block mt-2 text-[11px] font-medium px-2 py-0.5 rounded-full ${paidWindow.startSource === 'declared'
+                                ? 'bg-[#E8F3EA] text-[#1A7F37]'
+                                : 'bg-[#FBF3E2] text-[#8A6100]'
+                                }`}>
+                                {paidWindow.startSource === 'declared'
+                                    ? 'Date déclarée'
+                                    : `Date de repli — ${missionRights.paid.activationLongstopMonths} mois après validation`}
+                            </span>
+                        </div>
+                        <div className="bg-[#F4F4F3] border border-[#E2E2E1] rounded-lg px-4 py-3">
+                            <p className="text-[11px] uppercase tracking-wider text-[#9B9B9B]">Expiration</p>
+                            <p className="text-[13px] font-medium text-[#1A1A1A] mt-1">{formatPaidDate(paidWindow.expiresAt)}</p>
+                            <p className="text-[11px] text-[#9B9B9B] mt-2">
+                                Arrêt des campagnes au plus tard le {formatPaidDate(paidWindow.shutdownDeadline)}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* The reason this panel exists: catch the window before it lapses. */}
+                    {paidWindow.status === 'expiring_soon' && (
+                        <div className="flex items-start gap-3 mt-3 bg-[#FBF3E2] border border-[#F0E0BC] rounded-lg px-4 py-3">
+                            <TrendingUp className="w-4 h-4 text-[#8A6100] mt-0.5 shrink-0" strokeWidth={1.8} />
+                            <div className="text-[13px] text-[#8A6100]">
+                                <p className="font-medium">Opportunité : proposer une extension</p>
+                                <p className="mt-1 leading-relaxed">
+                                    Il reste {paidWindow.daysRemaining} jours de diffusion payante. Une extension
+                                    négociée avant le {formatPaidDate(paidWindow.expiresAt)} évite d&apos;arrêter des
+                                    campagnes qui tournent — et se vend beaucoup mieux avant l&apos;échéance qu&apos;après.
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="mt-4 pt-4 border-t border-[#E2E2E1] space-y-2">
+                        <label htmlFor="paid-first-run" className="block text-[11px] uppercase tracking-wider text-[#9B9B9B]">
+                            Première diffusion publicitaire
+                        </label>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <input
+                                id="paid-first-run"
+                                type="date"
+                                value={paidStartDraft}
+                                onChange={(e) => setPaidStartDraft(e.target.value)}
+                                className="bg-[#F4F4F3] border border-[#E2E2E1] rounded-lg px-3 py-2 text-[13px] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 focus:border-[#1A1A1A]/50"
+                            />
+                            <button
+                                onClick={() => handleSavePaidActivation(paidStartDraft)}
+                                disabled={
+                                    savingPaidStart
+                                    || !paidStartDraft
+                                    || paidStartDraft === toDateInputValue(campaign.paid_media_activated_at)
+                                }
+                                className="px-4 py-2 bg-[#1A1A1A] text-white text-[13px] font-medium rounded-lg hover:bg-[#333333] transition-colors disabled:opacity-40 flex items-center gap-2"
+                            >
+                                {savingPaidStart ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" strokeWidth={1.5} />}
+                                {campaign.paid_media_activated_at ? 'Corriger la date' : 'Déclarer la date'}
+                            </button>
+                            {campaign.paid_media_activated_at && (
+                                <button
+                                    onClick={() => handleSavePaidActivation(null)}
+                                    disabled={savingPaidStart}
+                                    className="px-3 py-2 bg-white border border-[#E2E2E1] text-[#6B6B6B] text-[13px] font-medium rounded-lg hover:bg-[#F4F4F3] hover:text-[#1A1A1A] transition-colors disabled:opacity-40 flex items-center gap-1.5"
+                                >
+                                    <X className="w-3.5 h-3.5" strokeWidth={1.8} />
+                                    Effacer
+                                </button>
+                            )}
+                        </div>
+                        <p className="text-[12px] text-[#6B6B6B]">
+                            {missionRights.paid.durationMonths} mois de publicité payante courent à compter de cette
+                            date. Sans déclaration, la période s&apos;ouvre automatiquement{' '}
+                            {missionRights.paid.activationLongstopMonths} mois après la validation finale.
+                        </p>
+                    </div>
+                </motion.div>
+            )}
 
             {/* Invoice Section */}
             {
