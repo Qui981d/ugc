@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { generateMoshContractText, MOSH_COMPANY_INFO } from '@/lib/contracts/contractTemplate'
+import { moshPaymentTerms } from '@/lib/constants/legalEntity'
 
 interface ContractModalProps {
     isOpen: boolean
@@ -96,7 +97,7 @@ export default function ContractModal({
             AMOUNT_HT: (data.amount / 1.081).toFixed(2),
             TVA_AMOUNT: (data.amount - data.amount / 1.081).toFixed(2),
             TVA_RATE: '8.1',
-            PAYMENT_TERMS: 'Paiement à 30 jours après validation des livrables.',
+            PAYMENT_TERMS: moshPaymentTerms(),
             MOSH_ACCEPTANCE_TIMESTAMP: '(en attente de signature)',
             CREATOR_ACCEPTANCE_TIMESTAMP: '(en attente de signature)',
             CREATOR_IP_ADDRESS: '(en attente)',

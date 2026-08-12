@@ -3,6 +3,12 @@
 // Legal framework: Swiss Code of Obligations (CO art. 394 ss)
 // ================================================
 
+import {
+    MOSH_LEGAL_ENTITY,
+    MOSH_CONTRACT_DEFAULTS,
+    moshFormattedAddress,
+} from '@/lib/constants/legalEntity'
+
 export interface ContractVariables {
     CONTRACT_ID: string
     CONTRACT_DATE: string
@@ -41,13 +47,19 @@ export interface ContractVariables {
     CREATOR_IP_ADDRESS: string
 }
 
-// Default MOSH company information
+/**
+ * MOSH's identity on contracts and invoices.
+ *
+ * Derived from the locked entity config rather than declared here: these
+ * values were placeholders for months and printed on real documents. Keeping
+ * one source is what stops that happening again.
+ */
 export const MOSH_COMPANY_INFO = {
-    name: 'LGMA SA — Agence Mosh',
-    address: 'Lausanne, Suisse',
-    uid: 'CHE-XXX.XXX.XXX',
-    email: 'contact@agencemosh.ch',
-    tvaRate: 8.1,
+    name: MOSH_LEGAL_ENTITY.displayName,
+    address: moshFormattedAddress(),
+    uid: MOSH_LEGAL_ENTITY.uidNumber,
+    email: MOSH_LEGAL_ENTITY.email,
+    tvaRate: MOSH_CONTRACT_DEFAULTS.vatRate,
 }
 
 export function generateMoshContractText(vars: ContractVariables): string {
@@ -181,14 +193,14 @@ Les Parties reconnaissent que l'acceptation électronique du présent contrat su
 
 ARTICLE 14 — DROIT APPLICABLE ET FOR JURIDIQUE
 
-Le présent contrat est régi par le droit suisse. Tout litige découlant du présent contrat sera soumis à la juridiction exclusive des tribunaux compétents de Lausanne, canton de Vaud.
+Le présent contrat est régi par le droit suisse. Tout litige découlant du présent contrat sera soumis à la juridiction exclusive des tribunaux compétents du ${MOSH_CONTRACT_DEFAULTS.jurisdictionPlace}.
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ACCEPTATION ÉLECTRONIQUE
 
-Pour MOSH (LGMA SA) :
+Pour ${MOSH_LEGAL_ENTITY.displayName} :
 Accepté automatiquement lors de la génération du contrat
 Horodatage : ${vars.MOSH_ACCEPTANCE_TIMESTAMP}
 
@@ -198,7 +210,7 @@ Horodatage : ${vars.CREATOR_ACCEPTANCE_TIMESTAMP}
 Adresse IP : ${vars.CREATOR_IP_ADDRESS}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Contrat généré automatiquement par la plateforme MOSH — LGMA SA
+Contrat généré automatiquement par la plateforme MOSH — ${MOSH_LEGAL_ENTITY.legalName}
 Ce document a une valeur contractuelle conformément au droit suisse.`
 }
 

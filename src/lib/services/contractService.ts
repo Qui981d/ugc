@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 import { generateMoshContractText, MOSH_COMPANY_INFO, type ContractVariables } from '@/lib/contracts/contractTemplate'
+import { moshPaymentTerms } from '@/lib/constants/legalEntity'
 import { completeMissionStep } from '@/lib/services/adminService'
 import type { Campaign, ProfileCreator, ProfileBrand, User } from '@/types/database'
 
@@ -209,7 +210,7 @@ export async function createMoshContract(
         AMOUNT_HT: amountHt.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
         TVA_AMOUNT: tvaAmount.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
         TVA_RATE: tvaRate.toString(),
-        PAYMENT_TERMS: 'Paiement à 30 jours après validation définitive des livrables par MOSH.',
+        PAYMENT_TERMS: moshPaymentTerms(),
 
         MOSH_ACCEPTANCE_TIMESTAMP: formatTimestamp(now),
         CREATOR_ACCEPTANCE_TIMESTAMP: 'En attente de signature',
@@ -334,7 +335,7 @@ export async function createMoshContractForCreator(
         AMOUNT_HT: amountHt.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
         TVA_AMOUNT: tvaAmount.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
         TVA_RATE: tvaRate.toString(),
-        PAYMENT_TERMS: 'Paiement à 30 jours après validation définitive des livrables par MOSH.',
+        PAYMENT_TERMS: moshPaymentTerms(),
         MOSH_ACCEPTANCE_TIMESTAMP: formatTimestamp(now),
         CREATOR_ACCEPTANCE_TIMESTAMP: 'En attente de signature',
         CREATOR_IP_ADDRESS: 'En attente de signature',
@@ -530,7 +531,7 @@ export async function signMoshContract(
             AMOUNT_HT: amountHt.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
             TVA_AMOUNT: tvaAmount.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
             TVA_RATE: tvaRate.toString(),
-            PAYMENT_TERMS: 'Paiement à 30 jours après validation définitive des livrables par MOSH.',
+            PAYMENT_TERMS: moshPaymentTerms(),
 
             MOSH_ACCEPTANCE_TIMESTAMP: camp.contract_mosh_generated_at
                 ? formatTimestamp(new Date(camp.contract_mosh_generated_at))
@@ -647,7 +648,7 @@ export async function getMoshContractText(campaignId: string, creatorId?: string
         AMOUNT_HT: amountHt.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
         TVA_AMOUNT: tvaAmount.toLocaleString('fr-CH', { minimumFractionDigits: 2 }),
         TVA_RATE: tvaRate.toString(),
-        PAYMENT_TERMS: 'Paiement à 30 jours après validation définitive des livrables par MOSH.',
+        PAYMENT_TERMS: moshPaymentTerms(),
 
         MOSH_ACCEPTANCE_TIMESTAMP: campaign.contract_mosh_generated_at
             ? formatTimestamp(new Date(campaign.contract_mosh_generated_at))

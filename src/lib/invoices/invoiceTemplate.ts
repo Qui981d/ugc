@@ -3,6 +3,8 @@
 // Décompte de prestation / Facture créateur
 // ================================================
 
+import { MOSH_LEGAL_ENTITY, moshVatLine } from '@/lib/constants/legalEntity'
+
 export interface InvoiceVariables {
     INVOICE_NUMBER: string
     INVOICE_DATE: string
@@ -49,7 +51,8 @@ Date : ${vars.INVOICE_DATE}
 DE :
 ${vars.MOSH_COMPANY_NAME}
 ${vars.MOSH_ADDRESS}
-IDE : ${vars.MOSH_UID}
+IDE : ${vars.MOSH_UID}${moshVatLine() ? `
+${moshVatLine()}` : ''}
 Email : ${vars.MOSH_EMAIL}
 
 À :
@@ -92,6 +95,6 @@ Merci pour votre collaboration.
 ${vars.MOSH_COMPANY_NAME}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Facture générée automatiquement par la plateforme MOSH — LGMA SA
+Facture générée automatiquement par la plateforme MOSH — ${MOSH_LEGAL_ENTITY.legalName}
 `
 }
