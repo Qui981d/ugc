@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth/requireAdmin'
-import { kdriveConfigured, probeDrive, listFolder } from '@/lib/kdrive/server'
+import { kdriveConfigured, probeDrive, listFolder, walkFolders } from '@/lib/kdrive/server'
 
 export const runtime = 'nodejs'
+export const maxDuration = 120
 
 /**
  * Diagnostic: ask kDrive whether the token works, and report its actual reply.
@@ -32,7 +33,22 @@ export async function GET(request: Request) {
         })
     }
 
-    const dir = new URL(request.url).searchParams.get('dir')
+    const params = new URL(request.url).searchParams
+
+    // Whole subtree in one request, so the export path can be settled without
+    // one round trip per level.
+    const tree = params.get('tree')
+    if (tree) {
+        try {
+            const depth = Math.min(Number(params.get('depth') || 4) || 4, 6)
+            const paths = await walkFolders(tree, depth)
+            return NextResponse.json({ ok: true, root: tree, depth, count: paths.length, paths, config })
+        } catch (e: any) {
+            return NextResponse.json({ ok: false, root: tree, reason: e?.message, config })
+        }
+    }
+
+    const dir = params.get('dir')
     if (dir) {
         try {
             const entries = await listFolder(dir)

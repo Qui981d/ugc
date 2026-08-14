@@ -153,6 +153,39 @@ export async function listFolder(directoryId: string): Promise<KDriveEntry[]> {
     return entries
 }
 
+/**
+ * Folder paths below a starting point, depth-first.
+ *
+ * Reading the tree one level per round trip took five exchanges to find where
+ * videos actually live. Bounded on both depth and node count so a large drive
+ * cannot turn a diagnostic into a crawl.
+ */
+export async function walkFolders(
+    directoryId: string,
+    maxDepth = 4,
+    maxNodes = 300,
+): Promise<string[]> {
+    const paths: string[] = []
+
+    async function descend(id: string, depth: number) {
+        if (depth > maxDepth || paths.length >= maxNodes) return
+        let children: KDriveEntry[]
+        try {
+            children = await listFolder(id)
+        } catch {
+            return // an unreadable folder should not abort the whole walk
+        }
+        for (const child of children) {
+            if (child.type !== 'dir' || paths.length >= maxNodes) continue
+            paths.push(child.path || child.name)
+            await descend(child.id, depth + 1)
+        }
+    }
+
+    await descend(directoryId, 1)
+    return paths
+}
+
 /** Filesystem-safe, readable, and sortable by client then mission. */
 export function buildExportPath(clientFolder: string, missionTitle: string): string {
     const clean = (s: string) =>
