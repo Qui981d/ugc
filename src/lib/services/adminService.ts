@@ -724,6 +724,41 @@ export async function completeMissionStep(
         )
     }
 
+    // Final client validation is the only moment a video may reach the client's
+    // kDrive folder — a rejected or re-cut take must never land there.
+    // Best-effort like the ClickUp calls: a failed export is recorded on the row
+    // and re-run by hand from the mission page, it never blocks the validation.
+    if (stepType === 'brand_final_approved') {
+        try {
+            const { data: exportContents } = await (supabase as any)
+                .from('campaign_contents')
+                .select('id, video_url')
+                .eq('campaign_id', campaignId)
+            const withVideo = ((exportContents || []) as { id: string; video_url: string | null }[])
+                .filter(c => !!c.video_url)
+
+            // Multi-video missions deliver one file per content; single-video
+            // missions carry the file on the campaign itself.
+            const targets = withVideo.length > 1
+                ? withVideo.map(c => ({ campaignId, contentId: c.id }))
+                : [{ campaignId }]
+
+            for (const target of targets) {
+                const res = await fetch('/api/kdrive/export', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(target),
+                })
+                const payload = await res.json().catch(() => null)
+                if (!payload?.success) {
+                    console.error('kDrive export failed:', payload?.error || res.status)
+                }
+            }
+        } catch (e) {
+            console.error('kDrive export failed:', e)
+        }
+    }
+
     // Mirror the step to ClickUp: tick the matching subtask (best-effort, non-blocking)
     try {
         const { STEP_TO_SUBTASK } = await import('@/lib/clickup/mapping')

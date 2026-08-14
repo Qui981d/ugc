@@ -83,6 +83,8 @@ export interface ProfileBrand {
     // Agency model: brands MOSH creates & operates on behalf of
     is_managed: boolean
     clickup_list_id: string | null
+    /** Client folder in kDrive, e.g. "/Clients/La Combe". Empty = no export. */
+    kdrive_folder_path: string | null
     created_at: string
     updated_at: string
 }
@@ -209,6 +211,10 @@ export interface Campaign {
     clickup_list_id: string | null
     clickup_task_id: string | null
     clickup_subtask_map: Record<string, string> | null
+    // kDrive export (fires at brand_final_approved)
+    kdrive_exported_at: string | null
+    kdrive_file_path: string | null
+    kdrive_export_error: string | null
     created_at: string
     updated_at: string
 }
@@ -297,6 +303,10 @@ export interface CampaignContent {
     contract_generated_at: string | null
     contract_signed_at: string | null
     contract_url: string | null
+    // kDrive export (one file per content on multi-video missions)
+    kdrive_exported_at: string | null
+    kdrive_file_path: string | null
+    kdrive_export_error: string | null
     created_at: string
 }
 

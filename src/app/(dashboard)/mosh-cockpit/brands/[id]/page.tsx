@@ -44,6 +44,10 @@ export default function BrandDetailPage() {
     const [clickupGroups, setClickupGroups] = useState<{ folder: string; lists: { id: string; name: string }[] }[]>([])
     const [clickupListId, setClickupListId] = useState('')
     const [savingClickup, setSavingClickup] = useState(false)
+    const [kdriveFolder, setKdriveFolder] = useState('')
+    const [savingKdrive, setSavingKdrive] = useState(false)
+    const [kdriveSaved, setKdriveSaved] = useState(false)
+    const [kdriveError, setKdriveError] = useState<string | null>(null)
 
     useEffect(() => {
         async function load() {
@@ -51,6 +55,7 @@ export default function BrandDetailPage() {
             setBrand(result.brand)
             setCampaigns(result.campaigns)
             setClickupListId(result.brand?.profiles_brand?.clickup_list_id || '')
+            setKdriveFolder(result.brand?.profiles_brand?.kdrive_folder_path || '')
             setIsLoading(false)
             fetch('/api/clickup/lists')
                 .then(r => r.json())
@@ -68,6 +73,29 @@ export default function BrandDetailPage() {
             .update({ clickup_list_id: value || null })
             .eq('user_id', brandId)
         setSavingClickup(false)
+    }
+
+    /**
+     * The kDrive folder is typed, not picked: MOSH reads the path off kDrive's
+     * own interface. Saving is explicit so a half-typed path is never stored.
+     */
+    const saveKdriveFolder = async () => {
+        setSavingKdrive(true)
+        setKdriveSaved(false)
+        setKdriveError(null)
+        const value = kdriveFolder.trim()
+        const supabase = createClient()
+        const { error } = await (supabase.from('profiles_brand') as ReturnType<typeof supabase.from>)
+            .update({ kdrive_folder_path: value || null })
+            .eq('user_id', brandId)
+        if (error) {
+            setKdriveError(error.message)
+        } else {
+            setKdriveFolder(value)
+            setKdriveSaved(true)
+            setTimeout(() => setKdriveSaved(false), 2500)
+        }
+        setSavingKdrive(false)
     }
 
     if (isLoading) {
@@ -224,6 +252,46 @@ export default function BrandDetailPage() {
                     {!clickupListId && clickupGroups.length > 0 && (
                         <p className="text-[12px] text-[#8A6100] mt-2">
                             Aucune liste : les briefs de cette marque n&apos;apparaîtront pas dans ClickUp.
+                        </p>
+                    )}
+                </Panel>
+
+                {/* Where this client's finished videos are filed. Same precedent
+                    as ClickUp above: say plainly what happens when it is empty. */}
+                <Panel title="Dossier kDrive" padded>
+                    <p className="text-[12px] text-[#6B6B6B] mb-2">
+                        Chemin du dossier client dans kDrive, tel qu&apos;il apparaît dans kDrive
+                        (exemple : <span className="font-mono">/Clients/La Combe</span>). Un sous-dossier
+                        est créé par mission.
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <input
+                            type="text"
+                            value={kdriveFolder}
+                            onChange={(e) => setKdriveFolder(e.target.value)}
+                            placeholder="/Clients/Nom de la marque"
+                            className="h-9 px-3 bg-white border border-[#E2E2E1] rounded-lg text-[13px] text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#1A1A1A] min-w-[280px] flex-1"
+                        />
+                        <button
+                            onClick={saveKdriveFolder}
+                            disabled={savingKdrive}
+                            className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#1A1A1A] text-white rounded-lg text-[13px] font-medium hover:bg-[#333333] transition-colors disabled:opacity-50"
+                        >
+                            {savingKdrive && <Loader2 className="w-4 h-4 animate-spin" />}
+                            Enregistrer
+                        </button>
+                        {kdriveSaved && (
+                            <span className="text-[12px] font-medium px-2 py-0.5 rounded-full bg-[#E8F3EA] text-[#1A7F37]">
+                                Enregistré
+                            </span>
+                        )}
+                    </div>
+                    {kdriveError && (
+                        <p className="text-[12px] text-[#C0392B] mt-2">{kdriveError}</p>
+                    )}
+                    {!kdriveFolder.trim() && (
+                        <p className="text-[12px] text-[#8A6100] mt-2">
+                            Sans dossier renseigné, aucune vidéo de cette marque n&apos;est exportée vers kDrive.
                         </p>
                     )}
                 </Panel>

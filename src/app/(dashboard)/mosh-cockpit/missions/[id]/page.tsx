@@ -30,6 +30,7 @@ import {
     Image,
     Megaphone,
     TrendingUp,
+    UploadCloud,
     X,
 } from 'lucide-react'
 import { createMoshContract, getMoshContractText } from '@/lib/services/contractService'
@@ -148,6 +149,9 @@ export default function AdminMissionDetailPage() {
     // Paid advertising — first run declared by hand
     const [paidStartDraft, setPaidStartDraft] = useState('')
     const [savingPaidStart, setSavingPaidStart] = useState(false)
+    // kDrive export — automatic at final validation, re-runnable by hand
+    const [kdriveBusy, setKdriveBusy] = useState<string | null>(null)
+    const [kdriveError, setKdriveError] = useState<string | null>(null)
     // Content blocks
     const [campaignContents, setCampaignContents] = useState<CampaignContent[]>([])
     const [expandedContent, setExpandedContent] = useState<string | null>(null)
@@ -523,6 +527,39 @@ export default function AdminMissionDetailPage() {
         setActionLoading(false)
     }
 
+    /**
+     * Send one video to the client's kDrive folder.
+     *
+     * The automatic export at final validation can fail for reasons only a
+     * human can fix — folder missing, token expired, file too heavy — so the
+     * same call has to be available by hand, and its answer shown as-is.
+     */
+    const handleKdriveExport = async (key: string, contentId?: string, force?: boolean) => {
+        setKdriveBusy(key)
+        setKdriveError(null)
+        try {
+            const res = await fetch('/api/kdrive/export', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ campaignId, contentId, force: !!force }),
+            })
+            const data = await res.json().catch(() => null)
+            if (!data?.success) {
+                setKdriveError(data?.error || `Échec de l'export (HTTP ${res.status})`)
+            } else if (data.error) {
+                // Uploaded, but something else went wrong — never hide that.
+                setKdriveError(data.error)
+            } else {
+                setActionSuccess('Vidéo exportée vers le kDrive du client')
+                setTimeout(() => setActionSuccess(null), 3000)
+            }
+        } catch {
+            setKdriveError("Erreur de connexion au service d'export")
+        }
+        await loadData()
+        setKdriveBusy(null)
+    }
+
     if (isLoading) {
         return (
             <div className="max-w-5xl mx-auto space-y-6">
@@ -573,6 +610,35 @@ export default function AdminMissionDetailPage() {
     const showPaidPanel =
         missionRights.paid.enabled && finalAccepted && paidWindow.status !== 'not_applicable'
     const paidPill = paidWindow.status === 'not_applicable' ? null : PAID_STATUS_PILL[paidWindow.status]
+
+    // kDrive export state, one line per file that actually exists. Multi-video
+    // missions deliver one file per content; otherwise the campaign carries it.
+    const kdriveVideoContents = campaignContents.filter(c => !!c.video_url)
+    const kdriveTargets: {
+        key: string
+        contentId?: string
+        label: string
+        exportedAt: string | null
+        filePath: string | null
+        exportError: string | null
+    }[] = kdriveVideoContents.length > 1
+        ? kdriveVideoContents.map((c, i) => ({
+            key: c.id,
+            contentId: c.id,
+            label: `Vidéo ${i + 1}`,
+            exportedAt: c.kdrive_exported_at ?? null,
+            filePath: c.kdrive_file_path ?? null,
+            exportError: c.kdrive_export_error ?? null,
+        }))
+        : campaign.video_url
+            ? [{
+                key: 'campaign',
+                label: 'Vidéo finale',
+                exportedAt: campaign.kdrive_exported_at ?? null,
+                filePath: campaign.kdrive_file_path ?? null,
+                exportError: campaign.kdrive_export_error ?? null,
+            }]
+            : []
 
     return (
         <div className="max-w-5xl mx-auto space-y-6">
@@ -1619,6 +1685,73 @@ export default function AdminMissionDetailPage() {
                                 Ouvrir l&apos;espace de {campaign.brand?.profiles_brand?.company_name || campaign.brand?.full_name || 'la marque'}
                             </button>
                         </div>
+                    </div>
+                )}
+
+                {/* Export vers le kDrive du client.
+                    Fires on its own at final validation; shown here because that
+                    automatic run can fail for reasons only a human can fix. */}
+                {kdriveTargets.length > 0 && (
+                    <div className="mt-5 pt-4 border-t border-[#E2E2E1] space-y-2">
+                        <div className="flex items-baseline justify-between gap-3">
+                            <p className="text-[11px] font-medium uppercase tracking-wider text-[#9B9B9B]">
+                                Export kDrive
+                            </p>
+                            <p className="text-[12px] text-[#9B9B9B]">
+                                Envoi automatique à la validation finale de la marque
+                            </p>
+                        </div>
+
+                        {kdriveTargets.map(t => (
+                            <div key={t.key} className="border border-[#E2E2E1] rounded-lg px-3 py-2.5">
+                                <div className="flex flex-wrap items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                        <p className="text-[13px] font-medium text-[#1A1A1A]">{t.label}</p>
+                                        {t.exportedAt ? (
+                                            <>
+                                                <span className="inline-block mt-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#E8F3EA] text-[#1A7F37]">
+                                                    Exportée le {new Date(t.exportedAt).toLocaleDateString('fr-CH')}
+                                                </span>
+                                                <p className="text-[12px] text-[#6B6B6B] mt-1 break-all font-mono">
+                                                    {t.filePath || 'Chemin non enregistré'}
+                                                </p>
+                                            </>
+                                        ) : t.exportError ? (
+                                            <>
+                                                <span className="inline-block mt-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#FBEAE8] text-[#C0392B]">
+                                                    Échec de l&apos;export
+                                                </span>
+                                                <p className="text-[12px] text-[#C0392B] mt-1 break-words">{t.exportError}</p>
+                                            </>
+                                        ) : (
+                                            <p className="text-[12px] text-[#6B6B6B] mt-1">
+                                                Jamais exportée vers le kDrive du client.
+                                            </p>
+                                        )}
+                                    </div>
+                                    <button
+                                        onClick={() => handleKdriveExport(t.key, t.contentId, !!t.exportedAt)}
+                                        disabled={kdriveBusy !== null}
+                                        className={
+                                            t.exportedAt
+                                                ? 'shrink-0 px-3 h-9 bg-white border border-[#E2E2E1] text-[#1A1A1A] text-[13px] font-medium rounded-lg hover:bg-[#F4F4F3] transition-colors disabled:opacity-50 flex items-center gap-2'
+                                                : 'shrink-0 px-3 h-9 bg-[#1A1A1A] text-white text-[13px] font-medium rounded-lg hover:bg-[#333333] transition-colors disabled:opacity-50 flex items-center gap-2'
+                                        }
+                                    >
+                                        {kdriveBusy === t.key
+                                            ? <Loader2 className="w-4 h-4 animate-spin" />
+                                            : <UploadCloud className="w-4 h-4" strokeWidth={1.8} />}
+                                        {t.exportedAt ? 'Ré-exporter' : t.exportError ? 'Réessayer' : 'Exporter vers kDrive'}
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+
+                        {kdriveError && (
+                            <div className="bg-[#FBEAE8] border border-[#F3D2CE] rounded-lg px-3 py-2.5">
+                                <p className="text-[12px] text-[#C0392B] break-words">{kdriveError}</p>
+                            </div>
+                        )}
                     </div>
                 )}
             </motion.div>
