@@ -31,6 +31,7 @@ import {
     Megaphone,
     TrendingUp,
     UploadCloud,
+    FolderOpen,
     X,
 } from 'lucide-react'
 import { createMoshContract, getMoshContractText } from '@/lib/services/contractService'
@@ -76,6 +77,7 @@ import { useActingBrandStore } from '@/stores/useActingBrandStore'
 import { buildScriptTemplate } from '@/lib/constants/scriptTemplate'
 import { createClient } from '@/lib/supabase/client'
 import { getCampaignContents, updateContentField } from '@/lib/services/campaignService'
+import FolderPicker from '@/components/kdrive/FolderPicker'
 
 const CONTENT_STATUS_LABELS: Record<ContentStatus, { label: string; color: string; bg: string }> = {
     draft: { label: 'Brouillon', color: 'text-[#6B6B6B]', bg: 'bg-[#F4F4F3]' },
@@ -152,6 +154,13 @@ export default function AdminMissionDetailPage() {
     // kDrive export — automatic at final validation, re-runnable by hand
     const [kdriveBusy, setKdriveBusy] = useState<string | null>(null)
     const [kdriveError, setKdriveError] = useState<string | null>(null)
+    /**
+     * A destination for this export only. Nothing is written to the brand:
+     * a one-off correction should not silently redefine where every future
+     * video of that client lands.
+     */
+    const [kdriveOverride, setKdriveOverride] = useState<string | null>(null)
+    const [kdrivePickerOpen, setKdrivePickerOpen] = useState(false)
     // Content blocks
     const [campaignContents, setCampaignContents] = useState<CampaignContent[]>([])
     const [expandedContent, setExpandedContent] = useState<string | null>(null)
@@ -541,7 +550,12 @@ export default function AdminMissionDetailPage() {
             const res = await fetch('/api/kdrive/export', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ campaignId, contentId, force: !!force }),
+                body: JSON.stringify({
+                    campaignId,
+                    contentId,
+                    force: !!force,
+                    ...(kdriveOverride ? { directoryPath: kdriveOverride } : {}),
+                }),
             })
             const data = await res.json().catch(() => null)
             if (!data?.success) {
@@ -1702,6 +1716,39 @@ export default function AdminMissionDetailPage() {
                             </p>
                         </div>
 
+                        {/* Destination for this export only — the brand's own
+                            folder stays exactly as configured. */}
+                        <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-[12px] text-[#6B6B6B] flex-1 min-w-[220px]">
+                                {kdriveOverride ? (
+                                    <>
+                                        Destination de cet export uniquement :{' '}
+                                        <span className="font-mono text-[#1A1A1A] break-all">{kdriveOverride}</span>
+                                        {' '}— le dossier configuré de la marque n&apos;est pas modifié.
+                                    </>
+                                ) : (
+                                    <>Destination : le dossier kDrive configuré sur la fiche de la marque.</>
+                                )}
+                            </p>
+                            <button
+                                onClick={() => setKdrivePickerOpen(true)}
+                                disabled={kdriveBusy !== null}
+                                className="shrink-0 inline-flex items-center gap-1.5 px-2.5 h-8 bg-white border border-[#E2E2E1] text-[#1A1A1A] rounded-lg text-[12px] font-medium hover:bg-[#F4F4F3] transition-colors disabled:opacity-50"
+                            >
+                                <FolderOpen className="w-3.5 h-3.5" strokeWidth={1.8} />
+                                Changer le dossier
+                            </button>
+                            {kdriveOverride && (
+                                <button
+                                    onClick={() => setKdriveOverride(null)}
+                                    disabled={kdriveBusy !== null}
+                                    className="shrink-0 px-2.5 h-8 text-[12px] text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors disabled:opacity-50"
+                                >
+                                    Rétablir
+                                </button>
+                            )}
+                        </div>
+
                         {kdriveTargets.map(t => (
                             <div key={t.key} className="border border-[#E2E2E1] rounded-lg px-3 py-2.5">
                                 <div className="flex flex-wrap items-start justify-between gap-3">
@@ -2027,6 +2074,13 @@ export default function AdminMissionDetailPage() {
                     className="w-full bg-[#F4F4F3] border border-[#E2E2E1] rounded-lg px-4 py-3 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/15 focus:border-[#1A1A1A]/50 resize-none"
                 />
             </motion.div>
+
+            <FolderPicker
+                open={kdrivePickerOpen}
+                initialPath={kdriveOverride ?? undefined}
+                onClose={() => setKdrivePickerOpen(false)}
+                onSelect={(path) => setKdriveOverride(path)}
+            />
         </div>
     )
 }

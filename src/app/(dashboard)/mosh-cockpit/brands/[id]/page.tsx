@@ -9,11 +9,14 @@ import {
     FileText,
     LogIn,
     Loader2,
+    FolderOpen,
+    Pencil,
 } from 'lucide-react'
 import { getBrandById, type BrandWithProfile, type CampaignWithDetails } from '@/lib/services/adminService'
 import { useActingBrandStore } from '@/stores/useActingBrandStore'
 import { createClient } from '@/lib/supabase/client'
 import { PageHeader, MetricStrip, Panel, StatusPill, EmptyState } from '@/components/ui/workspace'
+import FolderPicker from '@/components/kdrive/FolderPicker'
 
 const STATUS_LABELS: Record<string, { label: string; tone: 'progress' | 'waiting' | 'done' | 'idle' | 'alert' }> = {
     draft: { label: 'Brief reçu', tone: 'idle' },
@@ -48,6 +51,9 @@ export default function BrandDetailPage() {
     const [savingKdrive, setSavingKdrive] = useState(false)
     const [kdriveSaved, setKdriveSaved] = useState(false)
     const [kdriveError, setKdriveError] = useState<string | null>(null)
+    const [pickerOpen, setPickerOpen] = useState(false)
+    /** Paths carrying `{année}` are typed, not browsed — editing stays available. */
+    const [editingKdrive, setEditingKdrive] = useState(false)
 
     useEffect(() => {
         async function load() {
@@ -76,14 +82,15 @@ export default function BrandDetailPage() {
     }
 
     /**
-     * The kDrive folder is typed, not picked: MOSH reads the path off kDrive's
-     * own interface. Saving is explicit so a half-typed path is never stored.
+     * The folder is normally picked from the real drive; a path can still be
+     * typed, because one carrying `{année}` cannot be browsed to. Saving is
+     * explicit either way, so a half-typed path is never stored.
      */
-    const saveKdriveFolder = async () => {
+    const saveKdriveFolder = async (next?: string) => {
         setSavingKdrive(true)
         setKdriveSaved(false)
         setKdriveError(null)
-        const value = kdriveFolder.trim()
+        const value = (next ?? kdriveFolder).trim()
         const supabase = createClient()
         const { error } = await (supabase.from('profiles_brand') as ReturnType<typeof supabase.from>)
             .update({ kdrive_folder_path: value || null })
@@ -260,32 +267,67 @@ export default function BrandDetailPage() {
                     as ClickUp above: say plainly what happens when it is empty. */}
                 <Panel title="Dossier kDrive" padded>
                     <p className="text-[12px] text-[#6B6B6B] mb-2">
-                        Chemin du dossier client dans kDrive, tel qu&apos;il apparaît dans kDrive
+                        Dossier client dans kDrive, choisi directement dans l&apos;arborescence
                         (exemple : <span className="font-mono">/Clients/La Combe</span>). Un sous-dossier
-                        est créé par mission.
+                        est créé par mission. Un chemin peut contenir{' '}
+                        <span className="font-mono">{'{année}'}</span>, remplacé à chaque export.
                     </p>
-                    <div className="flex flex-wrap items-center gap-2">
-                        <input
-                            type="text"
-                            value={kdriveFolder}
-                            onChange={(e) => setKdriveFolder(e.target.value)}
-                            placeholder="/Clients/Nom de la marque"
-                            className="h-9 px-3 bg-white border border-[#E2E2E1] rounded-lg text-[13px] text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#1A1A1A] min-w-[280px] flex-1"
-                        />
-                        <button
-                            onClick={saveKdriveFolder}
-                            disabled={savingKdrive}
-                            className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#1A1A1A] text-white rounded-lg text-[13px] font-medium hover:bg-[#333333] transition-colors disabled:opacity-50"
-                        >
-                            {savingKdrive && <Loader2 className="w-4 h-4 animate-spin" />}
-                            Enregistrer
-                        </button>
-                        {kdriveSaved && (
-                            <span className="text-[12px] font-medium px-2 py-0.5 rounded-full bg-[#E8F3EA] text-[#1A7F37]">
-                                Enregistré
-                            </span>
-                        )}
-                    </div>
+                    {editingKdrive ? (
+                        <div className="flex flex-wrap items-center gap-2">
+                            <input
+                                type="text"
+                                value={kdriveFolder}
+                                onChange={(e) => setKdriveFolder(e.target.value)}
+                                placeholder="/Clients/Nom de la marque"
+                                className="h-9 px-3 bg-white border border-[#E2E2E1] rounded-lg text-[13px] text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#1A1A1A] min-w-[280px] flex-1"
+                            />
+                            <button
+                                onClick={async () => { await saveKdriveFolder(); setEditingKdrive(false) }}
+                                disabled={savingKdrive}
+                                className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#1A1A1A] text-white rounded-lg text-[13px] font-medium hover:bg-[#333333] transition-colors disabled:opacity-50"
+                            >
+                                {savingKdrive && <Loader2 className="w-4 h-4 animate-spin" />}
+                                Enregistrer
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setKdriveFolder(brand.profiles_brand?.kdrive_folder_path || '')
+                                    setEditingKdrive(false)
+                                }}
+                                className="px-3 h-9 text-[13px] text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors"
+                            >
+                                Annuler
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-[13px] font-mono text-[#1A1A1A] break-all flex-1 min-w-[240px]">
+                                {kdriveFolder.trim() || <span className="font-sans text-[#9B9B9B]">Aucun dossier</span>}
+                            </p>
+                            <button
+                                onClick={() => setPickerOpen(true)}
+                                disabled={savingKdrive}
+                                className="inline-flex items-center gap-1.5 px-3 h-9 bg-[#1A1A1A] text-white rounded-lg text-[13px] font-medium hover:bg-[#333333] transition-colors disabled:opacity-50"
+                            >
+                                {savingKdrive
+                                    ? <Loader2 className="w-4 h-4 animate-spin" />
+                                    : <FolderOpen className="w-4 h-4" strokeWidth={1.8} />}
+                                Choisir un dossier
+                            </button>
+                            <button
+                                onClick={() => setEditingKdrive(true)}
+                                className="inline-flex items-center gap-1.5 px-3 h-9 bg-white border border-[#E2E2E1] text-[#1A1A1A] rounded-lg text-[13px] font-medium hover:bg-[#F4F4F3] transition-colors"
+                            >
+                                <Pencil className="w-3.5 h-3.5" strokeWidth={1.8} />
+                                Modifier
+                            </button>
+                            {kdriveSaved && (
+                                <span className="text-[12px] font-medium px-2 py-0.5 rounded-full bg-[#E8F3EA] text-[#1A7F37]">
+                                    Enregistré
+                                </span>
+                            )}
+                        </div>
+                    )}
                     {kdriveError && (
                         <p className="text-[12px] text-[#C0392B] mt-2">{kdriveError}</p>
                     )}
@@ -364,6 +406,16 @@ export default function BrandDetailPage() {
                     </div>
                 )}
             </Panel>
+
+            <FolderPicker
+                open={pickerOpen}
+                initialPath={kdriveFolder}
+                onClose={() => setPickerOpen(false)}
+                onSelect={(path) => {
+                    setKdriveFolder(path)
+                    saveKdriveFolder(path)
+                }}
+            />
         </div>
     )
 }

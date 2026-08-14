@@ -6,6 +6,7 @@ import {
     uploadFile,
     buildExportPath,
     buildExportFileName,
+    resolveExportPath,
     KDRIVE_MAX_BYTES,
 } from '@/lib/kdrive/server'
 
@@ -64,6 +65,12 @@ export async function POST(request: Request) {
     const contentId: string | null = body?.contentId || null
     /** Re-export a file already exported. kDrive renames on conflict, so nothing is overwritten. */
     const force: boolean = body?.force === true
+    /**
+     * Destination for this export only. Chosen from the mission page when the
+     * client's configured folder is wrong for one delivery; the brand's own
+     * setting is deliberately left untouched.
+     */
+    const overrideFolder: string = (body?.directoryPath || '').trim()
     if (!campaignId) {
         return NextResponse.json({ success: false, error: 'campaignId requis' }, { status: 400 })
     }
@@ -114,6 +121,7 @@ export async function POST(request: Request) {
         .single()
     const profile = profileData as { company_name?: string; kdrive_folder_path?: string | null } | null
     const clientFolder = (profile?.kdrive_folder_path || '').trim()
+    const targetFolder = overrideFolder || clientFolder
 
     if (!videoUrl) {
         return NextResponse.json(
@@ -122,7 +130,7 @@ export async function POST(request: Request) {
         )
     }
 
-    if (!clientFolder) {
+    if (!targetFolder) {
         return NextResponse.json(
             {
                 success: false,
@@ -143,7 +151,9 @@ export async function POST(request: Request) {
     }
 
     const missionTitle: string = campaign.title || 'Mission'
-    const directoryPath = buildExportPath(clientFolder, missionTitle)
+    // `{année}` is substituted last, so a stored path survives the new year
+    // whether it came from the brand or from a one-off override.
+    const directoryPath = resolveExportPath(buildExportPath(targetFolder))
     const fileName = buildExportFileName(missionTitle, videoUrl, suffix)
 
     try {

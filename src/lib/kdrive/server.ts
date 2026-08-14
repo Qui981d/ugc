@@ -69,7 +69,8 @@ export async function uploadFile(params: {
         file_name: fileName,
         total_size: String(body.byteLength),
         conflict: 'rename',
-        // Ask kDrive to build the per-client / per-mission folders itself.
+        // Let kDrive create a missing level itself — {année} rolls over to a
+        // folder that does not exist yet every January.
         create_directory: '1',
     })
 
@@ -186,12 +187,41 @@ export async function walkFolders(
     return paths
 }
 
-/** Filesystem-safe, readable, and sortable by client then mission. */
-export function buildExportPath(clientFolder: string, missionTitle: string): string {
-    const clean = (s: string) =>
-        s.replace(/[/\\:*?"<>|]/g, '-').replace(/\s+/g, ' ').trim() || 'Sans titre'
+/**
+ * Fills the placeholders a stored destination may contain.
+ *
+ * Client folders are organised by year — TechFirm keeps VIDÉOS/2025/LIVRABLES,
+ * Bonne Maman VIDEOS/2026/LIVRABLES. A path pinned to a literal year would need
+ * every client's folder re-picked each January, and nobody would remember.
+ */
+export function resolveExportPath(template: string, now = new Date()): string {
+    return template
+        .replace(/\{ann[ée]e\}|\{year\}/gi, String(now.getFullYear()))
+        .replace(/\{mois\}|\{month\}/gi, String(now.getMonth() + 1).padStart(2, '0'))
+}
+
+/**
+ * Suggests turning the current year into a placeholder after a folder is
+ * picked, so the choice survives the new year without anyone acting.
+ */
+export function yearAwarePath(path: string, now = new Date()): string | null {
+    const year = String(now.getFullYear())
+    const parts = path.split('/')
+    const idx = parts.lastIndexOf(year)
+    if (idx === -1) return null
+    parts[idx] = '{année}'
+    return parts.join('/')
+}
+
+/**
+ * Normalises the chosen destination. The picked folder is used as-is: client
+ * folders have no shared convention and no per-mission level, so inventing one
+ * would scatter files where nobody looks for them. The mission goes in the
+ * file name instead.
+ */
+export function buildExportPath(clientFolder: string): string {
     const base = clientFolder.trim().replace(/\/+$/, '')
-    return `${base.startsWith('/') ? base : `/${base}`}/${clean(missionTitle)}`
+    return base.startsWith('/') ? base : `/${base}`
 }
 
 export function buildExportFileName(missionTitle: string, sourceUrl: string, suffix?: string): string {
