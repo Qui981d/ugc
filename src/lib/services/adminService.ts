@@ -12,7 +12,13 @@ import type {
     ScriptType,
     RightsUsageType
 } from '@/types/database'
-import { DEFAULT_MISSION_RIGHTS, parseMissionRights, type MissionRights } from '@/lib/contracts/rights'
+import { DEFAULT_MISSION_RIGHTS, parseMissionRights, summarizeRights, type MissionRights } from '@/lib/contracts/rights'
+import {
+    buildMissionDescription,
+    buildSubtaskDescriptions,
+    type ClickUpMissionData,
+    type ClickUpContentData,
+} from '@/lib/clickup/content'
 import { computePaidWindow } from '@/lib/contracts/paidWindow'
 import {
     notifyCreatorAssigned,
@@ -437,6 +443,10 @@ export async function updateCampaignScript(
 
     if (error) return { success: false, error: error.message }
 
+    // The script reaching the writing subtask is the whole point of the mirror,
+    // so it is pushed on every save — not only once the step is recorded.
+    await syncClickUpMission(campaignId)
+
     if (scriptStatus === 'validated') {
         await completeMissionStep(campaignId, 'script_sent')
 
@@ -475,13 +485,183 @@ export async function getMissionSteps(campaignId: string): Promise<MissionStep[]
     return data as MissionStep[]
 }
 
+// ================================================
+// CLICKUP MIRROR
+// The card is rewritten from the live mission, never appended to, so anyone
+// working from ClickUp reads the same brief and script as the platform.
+// ================================================
+
+const CU_FORMAT: Record<string, string> = {
+    '9_16': 'Vertical 9:16',
+    '16_9': 'Horizontal 16:9',
+    '1_1': 'Carré 1:1',
+    '4_5': 'Portrait 4:5',
+}
+
+const CU_SCRIPT_TYPE: Record<string, string> = {
+    testimonial: 'Témoignage',
+    unboxing: 'Unboxing',
+    asmr: 'ASMR',
+    tutorial: 'Tutoriel',
+    lifestyle: 'Lifestyle',
+    review: 'Review produit',
+}
+
+const CU_SCRIPT_STATUS: Record<string, string> = {
+    draft: 'Brouillon',
+    pending_validation: 'En attente de validation',
+    validated: 'Validé par MOSH',
+    brand_review: 'En relecture chez le client',
+    brand_approved: 'Validé par le client',
+}
+
+const CU_CONTRACT_STATUS: Record<string, string> = {
+    pending_creator: 'En attente de signature du créateur',
+    active: 'Signé',
+    cancelled: 'Annulé',
+}
+
+const cuLabel = (map: Record<string, string>, value: string | null | undefined): string | null =>
+    value ? (map[value] || value) : null
+
+/**
+ * Push the current state of a mission into its ClickUp card and subtasks.
+ *
+ * Best-effort by design, like every other ClickUp call here: a card that fails
+ * to update must never block the platform action that triggered it, so the
+ * failure is logged and swallowed rather than surfaced.
+ *
+ * Does nothing when the campaign has no card — brands without a ClickUp list,
+ * and missions created before the integration, are simply not mirrored.
+ */
+export async function syncClickUpMission(campaignId: string): Promise<void> {
+    try {
+        const supabase = createClient()
+
+        const { data: campData } = await supabase
+            .from('campaigns')
+            .select('*')
+            .eq('id', campaignId)
+            .single()
+        const camp = campData as any
+        if (!camp?.clickup_task_id) return
+
+        const [{ data: contentRows }, { data: brandProfile }] = await Promise.all([
+            supabase
+                .from('campaign_contents')
+                .select('*')
+                .eq('campaign_id', campaignId)
+                .order('position', { ascending: true }),
+            supabase
+                .from('profiles_brand')
+                .select('company_name')
+                .eq('user_id', camp.brand_id)
+                .maybeSingle(),
+        ])
+        const contents = (contentRows || []) as any[]
+
+        // Campaign-level creator and per-content creators in one query — a
+        // per_video campaign can carry a different creator on every row.
+        const creatorIds = [...new Set(
+            [camp.selected_creator_id, ...contents.map(c => c.assigned_creator_id)].filter(Boolean)
+        )] as string[]
+        const creatorById = new Map<string, { full_name: string | null; email: string | null }>()
+        if (creatorIds.length > 0) {
+            const { data: creatorRows } = await supabase
+                .from('users')
+                .select('id, full_name, email')
+                .in('id', creatorIds)
+            for (const u of (creatorRows || []) as any[]) {
+                creatorById.set(u.id, { full_name: u.full_name, email: u.email })
+            }
+        }
+        const lead = camp.selected_creator_id ? creatorById.get(camp.selected_creator_id) : undefined
+
+        const contentData: ClickUpContentData[] = contents.map((c, i) => {
+            const format = cuLabel(CU_FORMAT, c.format)
+            return {
+                label: `Vidéo ${i + 1}${format ? ` — ${format}` : ''}`,
+                format,
+                scriptType: cuLabel(CU_SCRIPT_TYPE, c.script_type),
+                description: c.description,
+                scriptContent: c.script_content,
+                creatorName: c.assigned_creator_id
+                    ? (creatorById.get(c.assigned_creator_id)?.full_name || null)
+                    : null,
+                creatorAmountChf: c.creator_amount_chf,
+                contractStatus: cuLabel(CU_CONTRACT_STATUS, c.contract_status),
+                videoUrl: c.video_url,
+                videoUploadedAt: c.video_uploaded_at,
+            }
+        })
+
+        const data: ClickUpMissionData = {
+            title: camp.title,
+            // An internal mission names its client directly; a brand-filed brief
+            // is identified by the company on its profile.
+            clientLabel: camp.client_name || (brandProfile as any)?.company_name || 'Client',
+            description: camp.description,
+            productName: camp.product_name,
+            productDescription: camp.product_description,
+            productRequiresShipping: camp.product_requires_shipping ?? undefined,
+            format: cuLabel(CU_FORMAT, camp.format),
+            scriptType: cuLabel(CU_SCRIPT_TYPE, camp.script_type),
+            scriptNotes: camp.script_notes,
+            scriptContent: camp.script_content,
+            scriptStatus: cuLabel(CU_SCRIPT_STATUS, camp.script_status),
+            briefImageUrls: camp.brief_image_urls || [],
+            budgetChf: camp.budget_chf,
+            creatorAmountChf: camp.creator_amount_chf,
+            deadline: camp.deadline,
+            shootingDate: camp.shooting_date,
+            shootingDateFixed: camp.shooting_date_fixed ?? undefined,
+            deliveryDateFixed: camp.delivery_date_fixed ?? undefined,
+            isAds: camp.rights_usage ? camp.rights_usage !== 'organic' : undefined,
+            creatorName: lead?.full_name || null,
+            creatorEmail: lead?.email || null,
+            contractStatus: cuLabel(CU_CONTRACT_STATUS, camp.contract_mosh_status),
+            contractSignedAt: camp.contract_mosh_signed_at,
+            videoUrl: camp.video_url,
+            videoUploadedAt: camp.video_uploaded_at,
+            qcApprovedAt: camp.mosh_qc_approved_at,
+            brandFinalApprovedAt: camp.brand_final_approved_at,
+            rightsLines: summarizeRights(parseMissionRights(camp.rights))
+                .map(l => ({ label: l.label, value: l.value })),
+            missionUrl: typeof window !== 'undefined'
+                ? `${window.location.origin}/mosh-cockpit/missions/${campaignId}`
+                : null,
+            contents: contentData,
+        }
+
+        await fetch('/api/clickup/sync-mission', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                taskId: camp.clickup_task_id,
+                subtaskMap: camp.clickup_subtask_map || {},
+                description: buildMissionDescription(data),
+                subtaskDescriptions: buildSubtaskDescriptions(data),
+            }),
+        })
+    } catch (e) {
+        console.error('ClickUp mission sync failed:', e)
+    }
+}
+
 /**
  * Complete a mission step
  */
 export async function completeMissionStep(
     campaignId: string,
     stepType: MissionStepType,
-    notes?: string
+    notes?: string,
+    /**
+     * Skip the ClickUp rewrite. Creating a mission backfills six steps at
+     * once; syncing after each would mean two dozen sequential PUTs before
+     * the mission appears, for a card that only needs writing once. The
+     * caller syncs itself when the batch is done.
+     */
+    options?: { skipClickUpSync?: boolean }
 ): Promise<{ success: boolean; error?: string }> {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -567,6 +747,10 @@ export async function completeMissionStep(
     } catch (e) {
         console.error('ClickUp subtask sync failed:', e)
     }
+
+    // A step is exactly the moment the card's material changed — the script got
+    // approved, the contract got signed, the video went out. Rewrite it.
+    if (!options?.skipClickUpSync) await syncClickUpMission(campaignId)
 
     return { success: true }
 }
@@ -672,13 +856,16 @@ export async function sendMissionToCreator(
 
     for (const step of prerequisiteSteps) {
         if (!existingTypes.has(step)) {
-            await completeMissionStep(campaignId, step)
+            await completeMissionStep(campaignId, step, undefined, { skipClickUpSync: true })
         }
     }
 
     if (!existingTypes.has('mission_sent_to_creator')) {
-        await completeMissionStep(campaignId, 'mission_sent_to_creator')
+        await completeMissionStep(campaignId, 'mission_sent_to_creator', undefined, { skipClickUpSync: true })
     }
+
+    // One rewrite for the whole batch, now that every step is recorded.
+    await syncClickUpMission(campaignId)
 
     // Notify all assigned creators
     for (const creatorId of creatorIds) {
@@ -788,6 +975,9 @@ export async function createInternalMission(input: {
                         clickup_subtask_map: data.subtaskMap,
                     })
                     .eq('id', campaignId)
+                // Fill the freshly created card — it is empty until now, and the
+                // task id has just been persisted so the sync can find it.
+                await syncClickUpMission(campaignId)
             }
         } catch (e) {
             console.error('ClickUp card creation failed:', e)

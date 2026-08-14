@@ -81,6 +81,18 @@ export async function createMissionCard(
     return { taskId: parent.id, url: parent.url, subtaskMap }
 }
 
+/**
+ * Rewrite a task's description (parent card or subtask).
+ * The description is replaced, never appended to, so a card can never hold two
+ * versions of the same script.
+ */
+export async function updateTaskDescription(taskId: string, description: string): Promise<void> {
+    await cu(`/task/${taskId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ description }),
+    })
+}
+
 /** Mark a task (or subtask) as done. */
 export async function completeTask(taskId: string): Promise<void> {
     await cu(`/task/${taskId}`, {

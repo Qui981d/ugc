@@ -207,6 +207,10 @@ export async function createCampaign(campaignData: {
                         clickup_subtask_map: cu.subtaskMap,
                     })
                     .eq('id', campaign.id)
+                // Fill the freshly created card with the full brief. Runs after
+                // the task id is persisted, or the sync would find nothing.
+                const { syncClickUpMission } = await import('@/lib/services/adminService')
+                await syncClickUpMission(campaign.id)
             }
         } catch (e) {
             console.error('ClickUp card creation failed for brief:', e)
@@ -347,6 +351,26 @@ export async function updateContentField(
         .eq('id', contentId)
 
     if (error) return { success: false, error: error.message }
+
+    // A per-video script is the material the writing subtask exists to carry, so
+    // it is mirrored the moment it is written — best-effort, never blocking.
+    if ('script_content' in updates || 'script_status' in updates) {
+        try {
+            const { data: row } = await (supabase
+                .from('campaign_contents') as ReturnType<typeof supabase.from>)
+                .select('campaign_id')
+                .eq('id', contentId)
+                .single()
+            const campaignId = (row as { campaign_id?: string } | null)?.campaign_id
+            if (campaignId) {
+                const { syncClickUpMission } = await import('@/lib/services/adminService')
+                await syncClickUpMission(campaignId)
+            }
+        } catch (e) {
+            console.error('ClickUp sync failed after content update:', e)
+        }
+    }
+
     return { success: true }
 }
 
