@@ -179,7 +179,7 @@ export default function BrandDetailPage() {
             />
 
             {/* Stats — one strip */}
-            <div className="mb-3">
+            <div className="mb-6">
                 <MetricStrip
                     metrics={[
                         { label: 'Missions', value: String(campaigns.length), hint: 'au total' },
@@ -191,7 +191,7 @@ export default function BrandDetailPage() {
             </div>
 
             {/* Company info — definition layout, not a stack of grey boxes */}
-            <div className="mb-3">
+            <div className="space-y-6 mb-6">
                 <Panel title="Informations entreprise" padded>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
                         <Field label="Contact">{brand.full_name || '—'}</Field>
@@ -267,10 +267,10 @@ export default function BrandDetailPage() {
                     as ClickUp above: say plainly what happens when it is empty. */}
                 <Panel title="Dossier kDrive" padded>
                     <p className="text-[12px] text-[#6B6B6B] mb-2">
-                        Dossier client dans kDrive, choisi directement dans l&apos;arborescence
-                        (exemple : <span className="font-mono">/Clients/La Combe</span>). Un sous-dossier
-                        est créé par mission. Un chemin peut contenir{' '}
-                        <span className="font-mono">{'{année}'}</span>, remplacé à chaque export.
+                        Dossier de destination dans kDrive, choisi directement dans
+                        l&apos;arborescence. Les vidéos y sont déposées telles quelles — c&apos;est le nom
+                        du fichier qui porte la mission et la date. Un chemin peut contenir{' '}
+                        <span className="font-mono">{'{année}'}</span>, remplacé au moment de l&apos;export.
                     </p>
                     {editingKdrive ? (
                         <div className="flex flex-wrap items-center gap-2">
