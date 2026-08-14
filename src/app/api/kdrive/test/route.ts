@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth/requireAdmin'
-import { kdriveConfigured, probeDrive } from '@/lib/kdrive/server'
+import { kdriveConfigured, probeDrive, listFolder } from '@/lib/kdrive/server'
 
 export const runtime = 'nodejs'
 
@@ -10,8 +10,11 @@ export const runtime = 'nodejs'
  * Several parameters of the upload call are inferred from an open-source client
  * rather than from official documentation, so the only honest way to debug this
  * integration is to show what kDrive answers. Never returns the token.
+ *
+ * `?dir=<id>` lists that folder instead, so the export paths can be read off
+ * the real tree rather than guessed from memory.
  */
-export async function GET() {
+export async function GET(request: Request) {
     if (!(await requireAdmin())) {
         return NextResponse.json({ error: 'Réservé aux administrateurs MOSH.' }, { status: 403 })
     }
@@ -27,6 +30,22 @@ export async function GET() {
             reason: 'KDRIVE_API_TOKEN ou KDRIVE_DRIVE_ID manquant sur le serveur.',
             config,
         })
+    }
+
+    const dir = new URL(request.url).searchParams.get('dir')
+    if (dir) {
+        try {
+            const entries = await listFolder(dir)
+            return NextResponse.json({
+                ok: true,
+                directoryId: dir,
+                count: entries.length,
+                entries,
+                config,
+            })
+        } catch (e: any) {
+            return NextResponse.json({ ok: false, directoryId: dir, reason: e?.message, config })
+        }
     }
 
     try {

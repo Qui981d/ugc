@@ -111,6 +111,37 @@ export async function probeDrive(): Promise<{ ok: boolean; status: number; body:
     return { ok: res.ok, status: res.status, body: (await res.text()).slice(0, 2000) }
 }
 
+export interface KDriveEntry {
+    id: string
+    name: string
+    type: string
+    path: string | null
+}
+
+/**
+ * Children of a folder.
+ *
+ * Used to read the real tree instead of assuming it: folder names carry
+ * accents and abbreviations nobody remembers exactly, and a path that is one
+ * character off fails at export time rather than at configuration time.
+ */
+export async function listFolder(directoryId: string): Promise<KDriveEntry[]> {
+    const { token, driveId } = requireConfig()
+    const res = await fetch(
+        `${BASE}/2/drive/${driveId}/files/${directoryId}/files?limit=200&with=path`,
+        { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }
+    )
+    const text = await res.text()
+    if (!res.ok) throw new Error(`kDrive ${res.status}: ${text}`)
+    const parsed = JSON.parse(text)
+    return (parsed?.data || []).map((f: any) => ({
+        id: String(f.id),
+        name: f.name,
+        type: f.type,
+        path: f.path ?? null,
+    }))
+}
+
 /** Filesystem-safe, readable, and sortable by client then mission. */
 export function buildExportPath(clientFolder: string, missionTitle: string): string {
     const clean = (s: string) =>
