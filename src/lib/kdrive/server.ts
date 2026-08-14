@@ -127,19 +127,30 @@ export interface KDriveEntry {
  */
 export async function listFolder(directoryId: string): Promise<KDriveEntry[]> {
     const { token, driveId } = requireConfig()
-    const res = await fetch(
-        `${BASE}/2/drive/${driveId}/files/${directoryId}/files?limit=200&with=path`,
-        { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }
-    )
-    const text = await res.text()
-    if (!res.ok) throw new Error(`kDrive ${res.status}: ${text}`)
-    const parsed = JSON.parse(text)
-    return (parsed?.data || []).map((f: any) => ({
-        id: String(f.id),
-        name: f.name,
-        type: f.type,
-        path: f.path ?? null,
-    }))
+    const entries: KDriveEntry[] = []
+
+    // kDrive ignores `limit` and pages at 10 by default, which silently hid two
+    // thirds of the client folders on the first read. Page until it runs dry.
+    for (let page = 1; page <= 20; page++) {
+        const res = await fetch(
+            `${BASE}/2/drive/${driveId}/files/${directoryId}/files?per_page=200&page=${page}&with=path`,
+            { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }
+        )
+        const text = await res.text()
+        if (!res.ok) throw new Error(`kDrive ${res.status}: ${text}`)
+        const parsed = JSON.parse(text)
+        const batch: any[] = parsed?.data || []
+        entries.push(...batch.map((f: any) => ({
+            id: String(f.id),
+            name: f.name,
+            type: f.type,
+            path: f.path ?? null,
+        })))
+        const perPage = parsed?.items_per_page ?? batch.length
+        if (batch.length < perPage || batch.length === 0) break
+    }
+
+    return entries
 }
 
 /** Filesystem-safe, readable, and sortable by client then mission. */
