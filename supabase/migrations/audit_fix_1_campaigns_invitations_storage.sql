@@ -145,15 +145,13 @@ GRANT EXECUTE ON FUNCTION public.validate_invite_code(text) TO anon, authenticat
 GRANT EXECUTE ON FUNCTION public.mark_invitation_used(text, uuid) TO anon, authenticated;
 
 
--- ── 3. SEC-4 : suppression des livrables ───────────────────
+-- ── 3. SEC-4 : suppression de fichiers ─────────────────────
 --
--- Tout compte connecté pouvait supprimer ou remplacer n'importe quel fichier.
--- Seul constat de l'audit aux conséquences irréversibles.
---
--- La lecture reste large volontairement : la restreindre couperait la lecture
--- des vidéos côté marque, et une fuite de lecture se répare — une suppression
--- non. À traiter séparément, après vérification de la façon dont les vidéos
--- sont servies.
+-- CORRIGÉ DANS LE FICHIER 3. Ce bloc visait le bucket « deliverables », que
+-- l'application n'utilise pas : les vidéos vont dans « videos », les contrats
+-- dans « contracts », les pièces jointes dans « message-attachments ». Les
+-- règles ci-dessous sont inoffensives mais ne ferment rien d'utile — voir
+-- audit_fix_3_storage_real_buckets.sql pour les vrais buckets.
 
 DROP POLICY IF EXISTS "Authenticated users can delete deliverables" ON storage.objects;
 CREATE POLICY "Owner or admin can delete deliverables" ON storage.objects
