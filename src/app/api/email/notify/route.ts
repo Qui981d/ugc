@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { requireUser } from '@/lib/auth/requireUser'
 import { createClient } from '@supabase/supabase-js'
 import { emailConfigured, isDeliverable, sendNotificationEmail } from '@/lib/email/server'
 
@@ -12,6 +13,9 @@ export const runtime = 'nodejs'
  * browser can never aim a mail at an arbitrary address.
  */
 export async function POST(request: Request) {
+    if (!(await requireUser())) {
+    return NextResponse.json({ error: 'Authentification requise.' }, { status: 401 })
+    }
     if (!emailConfigured()) {
         return NextResponse.json({ sent: false, skipped: 'smtp-not-configured' })
     }

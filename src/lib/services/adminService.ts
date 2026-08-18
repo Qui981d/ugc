@@ -1626,41 +1626,49 @@ export async function revokeInvitation(id: string): Promise<{ success: boolean; 
 }
 
 /**
- * Validate an invite code (used during signup)
+ * Validate an invite code (used during signup).
+ *
+ * Goes through a database function rather than reading the table: the table was
+ * readable without a session, so every valid code could simply be listed. The
+ * function answers about one code and never returns the set.
  */
 export async function validateInviteCode(code: string): Promise<{ valid: boolean; error?: string }> {
     const supabase = createClient()
-    const { data, error } = await supabase
-        .from('creator_invitations')
-        .select('*')
-        .eq('code', code.toUpperCase())
-        .single()
+    const { data, error } = await (supabase as any).rpc('validate_invite_code', { p_code: code })
 
-    if (error || !data) return { valid: false, error: 'Code d\'invitation invalide' }
-
-    const invitation = data as any
-    if (invitation.used_at) return { valid: false, error: 'Cette invitation a déjà été utilisée' }
-    if (invitation.expires_at && new Date(invitation.expires_at) < new Date()) {
-        return { valid: false, error: 'Cette invitation a expiré' }
+    if (error) {
+        console.error('validate_invite_code failed:', error.message)
+        return { valid: false, error: 'Impossible de vérifier ce code pour le moment' }
     }
 
+    const result = data as { valid?: boolean; error?: string } | null
+    if (!result?.valid) {
+        return { valid: false, error: result?.error || 'Code d' + '' + 'invitation invalide' }
+    }
     return { valid: true }
 }
 
 /**
- * Mark an invitation as used (called after successful signup)
+ * Consume an invitation after signup.
+ *
+ * This used to write straight to the table, where no policy allowed a non-admin
+ * to update — so it failed silently and codes stayed valid for ever, despite the
+ * "utilisable une seule fois" shown to the creator. The function refuses an
+ * already-used or expired code, and the caller now learns when nothing was
+ * written.
  */
 export async function markInvitationUsed(code: string, userId: string): Promise<{ success: boolean }> {
     const supabase = createClient()
-    const { error } = await (supabase
-        .from('creator_invitations') as ReturnType<typeof supabase.from>)
-        .update({
-            used_by: userId,
-            used_at: new Date().toISOString(),
-        })
-        .eq('code', code.toUpperCase())
+    const { data, error } = await (supabase as any).rpc('mark_invitation_used', {
+        p_code: code,
+        p_user_id: userId,
+    })
 
-    return { success: !error }
+    if (error) {
+        console.error('mark_invitation_used failed:', error.message)
+        return { success: false }
+    }
+    return { success: data === true }
 }
 
 /**

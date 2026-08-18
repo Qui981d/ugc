@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { requireUser } from '@/lib/auth/requireUser'
 import { updateTaskDescription, clickupConfigured } from '@/lib/clickup/server'
 
 export const runtime = 'nodejs'
@@ -8,6 +9,9 @@ export const runtime = 'nodejs'
  * built. Called on every material change, so the card never lags the platform.
  */
 export async function POST(request: Request) {
+    if (!(await requireUser())) {
+    return NextResponse.json({ error: 'Authentification requise.' }, { status: 401 })
+    }
     if (!clickupConfigured()) {
         return NextResponse.json({ ok: false, skipped: true })
     }

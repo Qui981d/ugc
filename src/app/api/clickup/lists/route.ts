@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server'
+import { requireAdmin } from '@/lib/auth/requireAdmin'
 import { getClientLists, clickupConfigured } from '@/lib/clickup/server'
 
 export const runtime = 'nodejs'
 
 export async function GET() {
+    if (!(await requireAdmin())) {
+    return NextResponse.json({ error: 'Réservé aux administrateurs MOSH.' }, { status: 403 })
+    }
     if (!clickupConfigured()) {
         return NextResponse.json({ groups: [], configured: false })
     }
