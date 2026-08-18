@@ -2,6 +2,7 @@
 
 import RightsSummary from '@/components/contracts/RightsSummary'
 import { parseMissionRights } from '@/lib/contracts/rights'
+import { FEE_UNKNOWN_LABEL } from '@/lib/creator/fee'
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useParams } from 'next/navigation'
@@ -239,7 +240,9 @@ export default function CreatorMissionDetailPage() {
                     {(myCreatorAmount || campaign.creator_amount_chf) ? (
                         <span className="font-semibold text-[#1A1A1A]">CHF {(myCreatorAmount || campaign.creator_amount_chf)?.toLocaleString('fr-CH')}</span>
                     ) : (
-                        <span className="font-semibold text-[#1A1A1A]">CHF {campaign.budget_chf?.toLocaleString('fr-CH')}</span>
+                        /* Never campaign.budget_chf here — that is what the client
+                           paid, not what the creator earns. */
+                        <span className="text-[#9B9B9B]">{FEE_UNKNOWN_LABEL}</span>
                     )}
                 </div>
             </div>

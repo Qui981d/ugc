@@ -13,6 +13,7 @@ import {
     Upload,
 } from "lucide-react"
 import { formatCHF } from "@/lib/validations/swiss"
+import { FEE_UNKNOWN_LABEL } from "@/lib/creator/fee"
 import { useAuth } from "@/contexts/AuthContext"
 import { createClient } from "@/lib/supabase/client"
 import type { MissionStepType } from '@/types/database'
@@ -194,7 +195,7 @@ export default function CreatorMissionsPage() {
         completed: missions.filter(m => m.status === 'completed').length,
         pendingRevenue: missions
             .filter(m => m.status !== 'completed')
-            .reduce((acc, m) => acc + (m.creator_amount_chf || m.budget_chf || 0), 0),
+            .reduce((acc, m) => acc + (m.creator_amount_chf || 0), 0),
     }
 
     if (!mounted || isLoading) {
@@ -281,7 +282,7 @@ export default function CreatorMissionsPage() {
                                     <span className="text-[13px] font-medium text-[#1A1A1A] tabular-nums whitespace-nowrap">
                                         {mission.creator_amount_chf
                                             ? formatCHF(mission.creator_amount_chf)
-                                            : formatCHF(mission.budget_chf)}
+                                            : FEE_UNKNOWN_LABEL}
                                     </span>
                                     <ChevronRight className="w-4 h-4 text-[#C4C4C3] group-hover:text-[#1A1A1A] transition-colors shrink-0" strokeWidth={2} />
                                 </PanelRow>

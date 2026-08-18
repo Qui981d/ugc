@@ -21,13 +21,15 @@ import {
 import { formatCHF } from "@/lib/validations/swiss"
 import { useAuth } from "@/contexts/AuthContext"
 import { createClient } from "@/lib/supabase/client"
+import { resolveCreatorFee, FEE_UNKNOWN_LABEL } from "@/lib/creator/fee"
 
 interface Transaction {
     id: string
     type: 'payment' | 'withdrawal'
     description: string
     brand: string
-    amount: number
+    /** null when MOSH has not set the creator's fee yet — never the client budget. */
+    amount: number | null
     status: string
     date: string
 }
@@ -58,14 +60,28 @@ export default function CreatorEarningsPage() {
             setIsDataLoading(true)
             const supabase = createClient()
 
-            // Fetch campaigns assigned to this creator as transactions
-            const { data, error } = await supabase
+            // Videos assigned to this creator, whichever way the mission was
+            // built: multi-video missions assign per content, so a query on
+            // selected_creator_id alone silently omits that whole income.
+            const { data: myContents } = await (supabase as any)
+                .from('campaign_contents')
+                .select('campaign_id, creator_amount_chf')
+                .eq('assigned_creator_id', userId!)
+
+            const contentsByCampaign = new Map<string, (number | null)[]>()
+            for (const row of (myContents || []) as any[]) {
+                const list = contentsByCampaign.get(row.campaign_id) || []
+                list.push(row.creator_amount_chf)
+                contentsByCampaign.set(row.campaign_id, list)
+            }
+
+            const { data: direct, error } = await supabase
                 .from('campaigns')
                 .select(`
                     id,
                     title,
                     status,
-                    budget_chf,
+                    creator_amount_chf,
                     created_at,
                     brand:users!campaigns_brand_id_fkey (
                         full_name
@@ -74,16 +90,42 @@ export default function CreatorEarningsPage() {
                 .eq('selected_creator_id', userId!)
                 .order('created_at', { ascending: false })
 
+            const directIds = new Set(((direct || []) as any[]).map(c => c.id))
+            const missingIds = [...contentsByCampaign.keys()].filter(id => !directIds.has(id))
+
+            let viaContents: any[] = []
+            if (missingIds.length > 0) {
+                const { data } = await (supabase as any)
+                    .from('campaigns')
+                    .select(`
+                        id,
+                        title,
+                        status,
+                        creator_amount_chf,
+                        created_at,
+                        brand:users!campaigns_brand_id_fkey (
+                            full_name
+                        )
+                    `)
+                    .in('id', missingIds)
+                    .order('created_at', { ascending: false })
+                viaContents = data || []
+            }
+
             if (error && error.message) {
                 console.error('Error fetching earnings:', error.message)
             } else {
-                // Transform to transactions format
-                const txs: Transaction[] = (data || []).map((camp: any) => ({
+                const campaigns = [...((direct || []) as any[]), ...viaContents]
+                const txs: Transaction[] = campaigns.map((camp: any) => ({
                     id: camp.id,
                     type: 'payment' as const,
                     description: `Mission: ${camp.title || 'Sans titre'}`,
                     brand: camp.brand?.full_name || 'Marque',
-                    amount: camp.budget_chf || 0,
+                    // The creator's fee, never budget_chf — that is the client price.
+                    amount: resolveCreatorFee({
+                        campaignAmount: camp.creator_amount_chf,
+                        contentAmounts: contentsByCampaign.get(camp.id),
+                    }),
                     status: camp.status === 'completed' ? 'completed' : 'pending',
                     date: new Date(camp.created_at).toLocaleDateString('fr-CH')
                 }))
@@ -97,11 +139,11 @@ export default function CreatorEarningsPage() {
 
     const totalEarned = transactions
         .filter(t => t.status === 'completed')
-        .reduce((acc, t) => acc + t.amount, 0)
+        .reduce((acc, t) => acc + (t.amount ?? 0), 0)
 
     const pendingAmount = transactions
         .filter(t => t.status === 'pending')
-        .reduce((acc, t) => acc + t.amount, 0)
+        .reduce((acc, t) => acc + (t.amount ?? 0), 0)
 
     if (!mounted || (!user && isLoading)) {
         return (
@@ -252,10 +294,14 @@ export default function CreatorEarningsPage() {
                                     <Badge className={`${statusConfig[tx.status].class} border`}>
                                         {statusConfig[tx.status].label}
                                     </Badge>
-                                    <span className={`text-lg font-semibold tabular-nums ${tx.amount >= 0 ? 'text-[#1A1A1A]' : 'text-[#C0392B]'
-                                        }`}>
-                                        {tx.amount >= 0 ? '+' : ''}{formatCHF(tx.amount)}
-                                    </span>
+                                    {tx.amount === null ? (
+                                        <span className="text-sm text-[#9B9B9B]">{FEE_UNKNOWN_LABEL}</span>
+                                    ) : (
+                                        <span className={`text-lg font-semibold tabular-nums ${tx.amount >= 0 ? 'text-[#1A1A1A]' : 'text-[#C0392B]'
+                                            }`}>
+                                            {tx.amount >= 0 ? '+' : ''}{formatCHF(tx.amount)}
+                                        </span>
+                                    )}
                                 </div>
                             </motion.div>
                         ))}

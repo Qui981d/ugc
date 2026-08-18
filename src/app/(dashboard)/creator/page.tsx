@@ -126,7 +126,8 @@ export default function CreatorDashboardPage() {
                     brand: brandName,
                     status: camp.status,
                     deadline: camp.deadline,
-                    budget: camp.creator_amount_chf || camp.budget_chf || 0,
+                    // The creator's fee only; budget_chf is the client price.
+                    budget: camp.creator_amount_chf || 0,
                 })
             }
 
