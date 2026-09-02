@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { toast } from 'sonner'
@@ -203,6 +203,13 @@ export default function NewCampaignPage() {
     // be submitted — under another client's name.
     const DRAFT_KEY = `mosh_campaign_draft:${brandId || 'self'}`
     const [draftRestored, setDraftRestored] = useState(false)
+    /**
+     * Latched once the campaign is sent. Without it, clearing the draft and
+     * then re-enabling the form woke the save effect while the fields were
+     * still populated, and it wrote the sent campaign straight back as a
+     * draft — which then greeted the brand as unfinished work.
+     */
+    const submitted = useRef(false)
 
     // Restore draft on mount
     useEffect(() => {
@@ -235,7 +242,7 @@ export default function NewCampaignPage() {
 
     // Save draft on changes (skip if submitting or empty)
     useEffect(() => {
-        if (isSubmitting) return
+        if (isSubmitting || submitted.current) return
         if (!campaign.title && !campaign.productName && !campaign.description) return
         const draft = { campaign, contentBlocks, creatorPreference, selectedPlan, selectedSpecialties, step }
         localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
@@ -423,8 +430,10 @@ export default function NewCampaignPage() {
             toast.success('Campagne créée avec succès ! 🎉', {
                 description: `${contentBlocks.length} contenu${contentBlocks.length > 1 ? 's' : ''} ajouté${contentBlocks.length > 1 ? 's' : ''}. MOSH va analyser votre demande.`,
             })
+            // Latch before clearing, and stay in the submitting state through the
+            // navigation: the form is done, and nothing should re-save it.
+            submitted.current = true
             clearDraft()
-            setIsSubmitting(false)
             router.push('/brand/campaigns')
         } catch (err) {
             toast.error('Erreur inattendue', { description: err instanceof Error ? err.message : String(err) })
