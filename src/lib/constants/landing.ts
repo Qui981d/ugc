@@ -64,7 +64,7 @@ export const CASE_STUDIES: CaseStudy[] = []
 // it must not merely swap content client-side.
 
 export const AUDIENCE_TABS = [
-    { label: 'Pour les marques', href: '/marques' },
+    { label: 'Pour les marques', href: '/' },
     { label: 'Pour les créateurs', href: '/createurs' },
 ] as const
 

@@ -127,7 +127,7 @@ export function LandingHeader({
     return (
         <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-[#E2E2E1]">
             <div className="max-w-[1120px] mx-auto px-6 h-16 flex items-center gap-6">
-                <Link href="/marques" aria-label="MOSH — accueil" className="shrink-0">
+                <Link href="/" aria-label="MOSH — accueil" className="shrink-0">
                     <MoshLogo className="h-5 w-auto text-[#1A1A1A]" />
                 </Link>
 
