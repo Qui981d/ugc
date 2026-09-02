@@ -303,7 +303,8 @@ export default function NewCampaignPage() {
     // Removing content blocks while standing on the creator step would strand
     // the user on a page that no longer exists.
     useEffect(() => {
-        if (singleContent && step === 3) setStep(4)
+        // Deliberately not skipped any more: step 3 also carries the delivery
+        // and shooting dates, which a single-video campaign still needs.
     }, [singleContent, step])
 
     // ── Specialties ─────────────────────────────────
@@ -528,7 +529,7 @@ export default function NewCampaignPage() {
                             {step > s ? <CheckCircle2 className="w-3.5 h-3.5" /> : i + 1}
                         </div>
                         <span className={`text-xs whitespace-nowrap ${step >= s ? 'text-[#1A1A1A]' : 'text-[#9B9B9B]'}`}>
-                            {s === 1 ? 'Détails' : s === 2 ? 'Contenus' : s === 3 ? 'Créateurs' : 'Offre'}
+                            {s === 1 ? 'Détails' : s === 2 ? 'Contenus' : s === 3 ? (singleContent ? 'Délais' : 'Créateurs') : 'Offre'}
                         </span>
                         {i < stepIds.length - 1 && <div className={`flex-1 h-px ${step > s ? 'bg-[#1A1A1A]' : 'bg-[#F4F4F3]'}`} />}
                     </div>
@@ -836,9 +837,13 @@ export default function NewCampaignPage() {
                 {/* ═══════════ STEP 3: CRÉATEURS & DÉLAI ═══════════ */}
                 {step === 3 && (
                     <div className="space-y-6">
-                        <h2 className="text-xl font-semibold text-[#1A1A1A] mb-6">Créateurs & Délai</h2>
+                        <h2 className="text-xl font-semibold text-[#1A1A1A] mb-6">{singleContent ? 'Délais' : 'Créateurs & Délai'}</h2>
 
                         {/* Creator Preference */}
+                        {/* Only meaningful with several videos: with one there is
+                            nothing to spread across creators. The dates below stay
+                            either way — skipping the whole step hid them too. */}
+                        {!singleContent && (
                         <div>
                             <label className="block text-sm text-[#6B6B6B] mb-3">Combien de créateurs souhaitez-vous ?</label>
                             <div className="space-y-3">
@@ -879,6 +884,7 @@ export default function NewCampaignPage() {
                                 </button>
                             </div>
                         </div>
+                        )}
 
                         {/* Dates. The brand states when it wants delivery and whether that
                             date is firm. MOSH, briefing on the client's behalf, also plans
