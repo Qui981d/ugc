@@ -15,6 +15,7 @@ import {
     Faq,
     LandingFooter,
 } from '@/components/landing/shell'
+import { CreatorDemoScreen } from '@/components/landing/CreatorDemoScreens'
 import { CREATOR_PAGE, CLIENT_LOGOS, SHOWREEL } from '@/lib/constants/landing'
 
 /**
@@ -180,7 +181,9 @@ export default function CreatorsLandingPage() {
                     </div>
 
                     <div className="md:col-span-8">
-                        <AssetPlaceholder label={`Capture — ${activeTab.label}`} />
+                        {/* Reconstruction, not a screenshot: the live product holds
+                            real client names and real fees. See the component. */}
+                        <CreatorDemoScreen tabKey={activeTab.key} />
                     </div>
                 </div>
             </Section>

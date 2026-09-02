@@ -15,6 +15,7 @@ import {
     Faq,
     LandingFooter,
 } from '@/components/landing/shell'
+import { BrandDemoScreen } from '@/components/landing/BrandDemoScreens'
 import {
     BRAND_PAGE,
     CASE_FILTERS,
@@ -171,7 +172,8 @@ function Demo() {
                 tabIndex={0}
                 className={`mt-8 rounded-xl animate-in fade-in duration-300 motion-reduce:animate-none ${FOCUS}`}
             >
-                <AssetPlaceholder label={current.caption} ratio="aspect-[4/3] md:aspect-[16/9]" />
+                <BrandDemoScreen tabKey={current.key} />
+                <p className="mt-4 text-[15px] leading-relaxed text-[#6B6B6B] max-w-[62ch]">{current.caption}</p>
                 <p className="mt-4 text-[13px] uppercase tracking-[0.14em] font-semibold text-[#9B9B9B]">
                     {current.label}
                 </p>
