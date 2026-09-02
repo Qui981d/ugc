@@ -61,6 +61,8 @@ export async function updateSession(request: NextRequest) {
         '/creators',
         '/campaigns',
         '/aide',
+        '/marques',
+        '/createurs',
     ]
 
     const isPublicRoute = publicRoutes.some(route =>
