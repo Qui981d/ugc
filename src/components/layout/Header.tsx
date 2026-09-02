@@ -33,7 +33,8 @@ export function Header() {
     // Load notifications when dropdown opens
     const loadNotifications = async () => {
         setIsLoadingNotifs(true)
-        const notifs = await getNotifications(10)
+        // Same audience as the bell's counter: the acted-upon brand, not the admin.
+        const notifs = await getNotifications(10, isActingAsBrand && actingBrandId ? actingBrandId : undefined)
         setNotifications(notifs)
         setIsLoadingNotifs(false)
     }
@@ -100,6 +101,7 @@ export function Header() {
     // Workspace context. An admin only counts as "acting" while they are actually
     // inside the brand workspace — the stored brand alone would mislabel the cockpit.
     const actingBrandName = useActingBrandStore((s) => s.brandName)
+    const actingBrandId = useActingBrandStore((s) => s.brandId)
     const isActingAsBrand = user?.role === 'admin' && !!actingBrandName && pathname.startsWith('/brand')
     const contextLabel =
         user?.role === 'admin' ? 'Espace MOSH'

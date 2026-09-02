@@ -1,8 +1,10 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
+import { usePathname } from 'next/navigation'
 import { useAuth } from './AuthContext'
 import { createClient } from '@/lib/supabase/client'
+import { useActingBrandStore } from '@/stores/useActingBrandStore'
 
 interface NotificationCounts {
     total: number
@@ -22,7 +24,20 @@ const NotificationContext = createContext<NotificationContextValue | null>(null)
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
     const { user } = useAuth()
-    const userId = user?.id ?? null
+    const pathname = usePathname()
+    const actingBrandId = useActingBrandStore(s => s.brandId)
+
+    /**
+     * Whose notifications these are.
+     *
+     * A managed brand never signs in — MOSH works inside its space while still
+     * authenticated as an admin. Reading auth.uid() therefore showed the
+     * admin's own bell, and everything addressed to the brand (brief approved,
+     * creators proposed) piled up unseen. Inside /brand, the acted-upon brand
+     * is the audience.
+     */
+    const isActingAsBrand = user?.role === 'admin' && !!actingBrandId && pathname.startsWith('/brand')
+    const userId = (isActingAsBrand ? actingBrandId : user?.id) ?? null
     const [unreadCounts, setUnreadCounts] = useState<NotificationCounts>({
         total: 0,
         messages: 0,

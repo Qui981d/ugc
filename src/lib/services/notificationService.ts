@@ -33,15 +33,19 @@ export interface NotificationCounts {
 /**
  * Get unread notifications for the current user
  */
-export async function getNotifications(limit = 20): Promise<Notification[]> {
+export async function getNotifications(limit = 20, forUserId?: string): Promise<Notification[]> {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return []
 
+    // forUserId lets an admin read the bell of the brand they are acting for.
+    // RLS still decides: only an admin may read someone else's notifications.
+    const audience = forUserId || user.id
+
     const { data, error } = await supabase
         .from('notifications')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', audience)
         .order('created_at', { ascending: false })
         .limit(limit)
 
