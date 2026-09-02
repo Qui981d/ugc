@@ -409,7 +409,9 @@ export async function assignCreatorToCampaign(
 
     // Notify creator of assignment
     const campaignTitle = campaignInfo?.title || 'Mission'
-    await notifyCreatorAssigned(creatorId, campaignId, campaignTitle)
+    if (await missionWasSentToCreator(campaignId)) {
+        await notifyCreatorAssigned(creatorId, campaignId, campaignTitle)
+    }
 
     // Notify brand that a creator was assigned
     if (campaignInfo?.brand_id) {
@@ -458,7 +460,7 @@ export async function updateCampaignScript(
             .single()
         const campScript = campDataScript as any
 
-        if (campScript?.selected_creator_id) {
+        if (campScript?.selected_creator_id && await missionWasSentToCreator(campaignId)) {
             await notifyScriptValidated(
                 campScript.selected_creator_id,
                 campaignId,
@@ -651,6 +653,25 @@ export async function syncClickUpMission(campaignId: string): Promise<void> {
 /**
  * Complete a mission step
  */
+/**
+ * Has the mission actually reached the creator?
+ *
+ * Validating a creator or a script happens between MOSH and the brand, before
+ * the creator has been sent anything — no price, no contract, often no idea the
+ * mission exists. Notifying them at that point announces something they cannot
+ * open. After the mission is sent, the same events are worth telling them about.
+ */
+async function missionWasSentToCreator(campaignId: string): Promise<boolean> {
+    const supabase = createClient()
+    const { data } = await supabase
+        .from('mission_steps')
+        .select('id')
+        .eq('campaign_id', campaignId)
+        .eq('step_type', 'mission_sent_to_creator')
+        .limit(1)
+    return !!(data && data.length > 0)
+}
+
 export async function completeMissionStep(
     campaignId: string,
     stepType: MissionStepType,
@@ -1252,7 +1273,9 @@ export async function brandSelectCreator(
     }
 
     // 6. Notify creator they've been assigned
-    await notifyCreatorAssigned(creatorId, campaignId, camp.title || 'Mission')
+    if (await missionWasSentToCreator(campaignId)) {
+        await notifyCreatorAssigned(creatorId, campaignId, camp.title || 'Mission')
+    }
 
     return { success: true }
 }

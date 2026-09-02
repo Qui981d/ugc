@@ -30,6 +30,12 @@ export function Header() {
 
     useEffect(() => { setMounted(true) }, [])
 
+    // Workspace context. An admin only counts as "acting" while they are actually
+    // inside the brand workspace — the stored brand alone would mislabel the cockpit.
+    const actingBrandName = useActingBrandStore((s) => s.brandName)
+    const actingBrandId = useActingBrandStore((s) => s.brandId)
+    const isActingAsBrand = user?.role === 'admin' && !!actingBrandName && pathname.startsWith('/brand')
+
     // Load notifications when dropdown opens
     const loadNotifications = async () => {
         setIsLoadingNotifs(true)
@@ -60,8 +66,12 @@ export function Header() {
 
     // Get link based on notification type and user role
     const getNotifLink = (notif: Notification) => {
-        const isBrand = user?.role === 'brand'
-        const isAdmin = user?.role === 'admin'
+        // While MOSH stands in a brand's space the account is still an admin,
+        // so branching on the role alone sent every link back to the cockpit —
+        // out of the workspace the notification belongs to. The notification was
+        // addressed to the brand; it should open the brand's view of it.
+        const isBrand = user?.role === 'brand' || isActingAsBrand
+        const isAdmin = user?.role === 'admin' && !isActingAsBrand
 
         switch (notif.type) {
             case 'new_application':
@@ -98,11 +108,6 @@ export function Header() {
         }
     }
 
-    // Workspace context. An admin only counts as "acting" while they are actually
-    // inside the brand workspace — the stored brand alone would mislabel the cockpit.
-    const actingBrandName = useActingBrandStore((s) => s.brandName)
-    const actingBrandId = useActingBrandStore((s) => s.brandId)
-    const isActingAsBrand = user?.role === 'admin' && !!actingBrandName && pathname.startsWith('/brand')
     const contextLabel =
         user?.role === 'admin' ? 'Espace MOSH'
             : user?.role === 'brand' ? 'Espace marque'
